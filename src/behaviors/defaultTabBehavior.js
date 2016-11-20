@@ -1,5 +1,3 @@
-import * as _ from "lodash";
-
 /**
  * Switch tab using mobile-app like behavior (with a default tab: index == 0)
  * Structure of a history object:
@@ -11,21 +9,14 @@ import * as _ from "lodash";
  */
 export function switchTab({tabHistories, fromIndex, toIndex}) {
   const defaultTab = tabHistories[0];
-  const fromTab = tabHistories[fromIndex];
   const toTab = tabHistories[toIndex];
-  if (fromIndex === 0) {  // coming from default tab
-    return {
-      ...toTab,
-      back: [...fromTab.back, fromTab.current, ...toTab.back]
-    };
-  }
-  else if (toIndex === 0) {  // going to default tab
+  if (toIndex === 0) {  // going to default tab
     return {
       ...toTab,
       back: [...toTab.back]
     };
   }
-  else {  // going from one non-default tab to another non-default tab
+  else {  // going to non-default tab
     return {
       ...toTab,
       back: [...defaultTab.back, defaultTab.current, ...toTab.back]
