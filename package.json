@@ -1,0 +1,38 @@
+{
+  "name": "tab-history-library",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Ken Fehling",
+  "license": "ISC",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "lint": "eslint src tests",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "build:umd": "webpack src/index.js dist/react-nav-thing.js --config webpack.config.development.js",
+    "build:umd:min": "webpack src/index.js dist/react-nav-thing.min.js --config webpack.config.production.js",
+    "build": "npm run build:umd && npm run build:umd:min"
+  },
+  "keywords": [
+    "history"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.1",
+    "lodash": "^4.2.0",
+    "warning": "^3.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.3.17",
+    "babel-core": "^6.3.26",
+    "babel-jest": "^16.0.0",
+    "babel-loader": "^6.2.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-stage-1": "^6.3.13",
+    "eslint": "^3.7.1",
+    "jest-cli": "^16.0.2",
+    "webpack": "^1.11.0"
+  }
+}
