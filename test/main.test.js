@@ -12,9 +12,19 @@ describe('main', () => {
       },
       currentTab: 1,
       tabHistories: [
-        {back: ['/a'], current: '/a/1', forward: []},
-        {back: [], current: '/b', forward: []},
-        {back: [], current: '/c', forward: []}
+        {
+          back: [{url: '/a', tab: 0}],
+          current: {url: '/a/1', tab: 0},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/b', tab: 1},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2},
+          forward: []
+        }
       ]
     });
   });
@@ -33,9 +43,19 @@ describe('main', () => {
       },
       currentTab: 2,
       tabHistories: [
-        {back: ['/a'], current: '/a/1', forward: []},
-        {back: [], current: '/b', forward: []},
-        {back: [], current: '/c', forward: []}
+        {
+          back: [{url: '/a', tab: 0}],
+          current: {url: '/a/1', tab: 0},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/b', tab: 1},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2},
+          forward: []
+        }
       ]
     });
   });
@@ -50,9 +70,19 @@ describe('main', () => {
       },
       currentTab: 1,
       tabHistories: [
-        {back: ['/a'], current: '/a/1', forward: []},
-        {back: ['/b'], current: '/b/1', forward: []},
-        {back: [], current: '/c', forward: []}
+        {
+          back: [{url: '/a', tab: 0}],
+          current: {url: '/a/1', tab: 0},
+          forward: []
+        }, {
+          back: [{url: '/b', tab: 1}],
+          current: {url: '/b/1', tab: 1},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2},
+          forward: []
+        }
       ]
     });
   });
@@ -84,8 +114,19 @@ describe('main', () => {
       },
       currentTab: 0,
       tabHistories: [
-        {back: [], current: '/a', forward: ['/a/1']},
-        {back: [], current: '/b', forward: []}
+        {
+          back: [],
+          current: {url: '/a', tab: 0},
+          forward: [{url: '/a/1', tab: 0}]
+        }, {
+          back: [],
+          current: {url: '/b', tab: 1},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2},
+          forward: []
+        }
       ]
     });
   });

@@ -14,7 +14,7 @@ export function push(url) {
   setState({
     ...state,
     browserHistory: pushPage(state.browserHistory, url, tab),
-    tabHistories: updateTab(state, tab, tab => pushPage(tab, url))
+    tabHistories: updateTab(state, tab, t => pushPage(t, url, tab))
   });
 }
 
@@ -24,11 +24,11 @@ export function go(n) {
 
 export function back(n=1) {
   const state = getState();
-  const tabIndex = state.currentTab;
+  const tab = state.currentTab;
   setState({
     ...state,
     browserHistory: popPage(state.browserHistory),
-    tabHistories: updateTab(state, tabIndex, popPage)
+    tabHistories: updateTab(state, tab, popPage)
   });
 }
 
