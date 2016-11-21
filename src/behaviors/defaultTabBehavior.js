@@ -1,31 +1,28 @@
 /**
  * Switch tab using mobile-app like behavior (with a default tab: index == 0)
  * Structure of a history object:
- *    { back: [Object], current: Object, forward: [Object] }
- * @param {Object} historyState - Current historyState object
+ *    { back: [String], current: String, forward: [String] }
+ * @param {Array} tabHistories - The stored histories of each individual tab
  * @param {Number} tab - The index of the new tab
  * @returns {Object} A new historyState object
  */
-export function switchToTab({historyState, tab}) {
-  const {tabHistories} = historyState;
+export function switchToTab({historyState: {tabHistories}, tab}) {
   const defaultTab = tabHistories[0];
   const toTab = tabHistories[tab];
-  const createNewHistoryState = (back) => ({
-      ...historyState,
-      browserHistory: {
-        back,
-        current: {url: toTab.current, tab},
-        forward: toTab.forward.map(url => ({url, tab}))
-      },
+  const createNewHistoryState = (browserHistory) => ({
+    tabHistories,
+    browserHistory
   });
   if (tab === 0) {  // going to default tab
-    return createNewHistoryState([...toTab.back.map(url => ({url, tab}))]);
+    return createNewHistoryState({
+      ...toTab,
+      back: [...toTab.back]
+    });
   }
   else {  // going to non-default tab
-    return createNewHistoryState([
-      ...defaultTab.back.map(url => ({url, tab: 0})),
-      {url: defaultTab.current, tab: 0},
-      ...toTab.back.map(url => ({url, tab}))
-    ]);
+    return createNewHistoryState({
+      ...toTab,
+      back: [...defaultTab.back, defaultTab.current, ...toTab.back]
+    });
   }
 }
