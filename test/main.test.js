@@ -5,7 +5,11 @@ describe('main', () => {
 
   beforeEach(() => {
     setState({
-      browserHistory: {back: ['/a', '/a/1'], current: '/b', forward: []},
+      browserHistory: {
+        back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}],
+        current: {url: '/b', tab: 1},
+        forward: []
+      },
       currentTab: 1,
       tabHistories: [
         {back: ['/a'], current: '/a/1', forward: []},
@@ -22,7 +26,11 @@ describe('main', () => {
   it('switches tab', () => {
     switchToTab(2);
     expect(getState()).toEqual({
-      browserHistory: {back: ['/a', '/a/1'], current: '/c', forward: []},
+      browserHistory: {
+        back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}],
+        current: {url: '/c', tab: 2},
+        forward: []
+      },
       currentTab: 2,
       tabHistories: [
         {back: ['/a'], current: '/a/1', forward: []},
@@ -35,7 +43,11 @@ describe('main', () => {
   it('pushes page', () => {
     push('/b/1');
     expect(getState()).toEqual({
-      browserHistory: {back: ['/a', '/a/1', '/b'], current: '/b/1', forward: []},
+      browserHistory: {
+        back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}, {url: '/b', tab: 1}],
+        current: {url: '/b/1', tab: 1},
+        forward: []
+      },
       currentTab: 1,
       tabHistories: [
         {back: ['/a'], current: '/a/1', forward: []},
@@ -48,7 +60,11 @@ describe('main', () => {
   it('goes back in history', () => {
     back();
     expect(getState()).toEqual({
-      browserHistory: {back: ['/a'], current: '/a/1', forward: ['/b']},
+      browserHistory: {
+        back: [{url: '/a', tab: 0}],
+        current: {url: '/a/1', tab: 0},
+        forward: [{url: '/b', tab: 1}]
+      },
       currentTab: 0,
       tabHistories: [
         {back: ['/a'], current: '/a/1', forward: []},
@@ -61,7 +77,11 @@ describe('main', () => {
   it('goes forward in history', () => {
     forward();
     expect(getState()).toEqual({
-      browserHistory: {back: [], current: '/a', forward: ['/a/1']},
+      browserHistory: {
+        back: [],
+        current: {url: '/a', tab: 0},
+        forward: [{url: '/a/1', tab: 0}]
+      },
       currentTab: 0,
       tabHistories: [
         {back: [], current: '/a', forward: ['/a/1']},

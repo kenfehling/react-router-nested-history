@@ -1,8 +1,8 @@
 import * as _ from 'lodash';
 
-export const pushPage = (history, href) => ({
+export const pushPage = (history, url, tab) => ({
   back: [...history.back, history.current],
-  current: href,
+  current: {url, tab},
   forward: []
 });
 
@@ -12,8 +12,8 @@ export const popPage = (history) => ({
   forward: [history.current, ...history.forward]
 });
 
-export const updateTab = (state, tabIndex, fn) => [
-  ...state.tabHistories.slice(0, tabIndex),
-  fn(state.tabHistories[tabIndex]),
-  ...state.tabHistories.slice(tabIndex + 1)
+export const updateTab = (state, tab, fn) => [
+  ...state.tabHistories.slice(0, tab),
+  fn(state.tabHistories[tab]),
+  ...state.tabHistories.slice(tab + 1)
 ];

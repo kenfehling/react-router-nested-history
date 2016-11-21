@@ -5,16 +5,16 @@ import { pushPage, popPage, updateTab } from './util/history';
 export function switchToTab(tab) {
   const historyState = getState();
   const state = behavior.switchToTab({historyState, tab});
-  setState({...state, currentTab: toIndex});
+  setState({...state, currentTab: tab});
 }
 
 export function push(url) {
   const state = getState();
-  const tabIndex = state.currentTab;
+  const tab = state.currentTab;
   setState({
     ...state,
-    browserHistory: pushPage(state.browserHistory, url),
-    tabHistories: updateTab(state, tabIndex, tab => pushPage(tab, url))
+    browserHistory: pushPage(state.browserHistory, url, tab),
+    tabHistories: updateTab(state, tab, tab => pushPage(tab, url))
   });
 }
 
