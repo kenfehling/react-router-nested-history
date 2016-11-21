@@ -1,47 +1,38 @@
 import * as behavior from './behaviors/defaultTabBehavior';
 import { getState, setState } from './historyStore';
-import * as _ from 'lodash';
+import { pushPage, popPage, updateTab } from './util/history';
 
-const _pushPage = (history, href) => ({
-  back: [...history.back, history.current],
-  current: href,
-  forward: []
-});
-
-const _popPage = (history) => ({
-  back: _.initial(history.back),
-  current: _.last(history.back),
-  forward: [history.current, ...history.forward]
-});
-
-const _updateTab = (state, tabIndex, fn) => [
-  ...state.tabHistories.slice(0, tabIndex),
-  fn(state.tabHistories[tabIndex]),
-  ...state.tabHistories.slice(tabIndex + 1)
-];
-
-export function switchTab(fromIndex, toIndex) {
+export function switchToTab(tab) {
   const historyState = getState();
-  const state = behavior.switchTab({historyState, fromIndex, toIndex});
+  const state = behavior.switchToTab({historyState, tab});
   setState({...state, currentTab: toIndex});
 }
 
-export function push(href) {
+export function push(url) {
   const state = getState();
   const tabIndex = state.currentTab;
   setState({
     ...state,
-    browserHistory: _pushPage(state.browserHistory, href),
-    tabHistories: _updateTab(state, tabIndex, tab => _pushPage(tab, href))
+    browserHistory: pushPage(state.browserHistory, url),
+    tabHistories: updateTab(state, tabIndex, tab => pushPage(tab, url))
   });
 }
 
-export function pop() {
+export function go(n) {
+
+}
+
+export function back(n=1) {
   const state = getState();
   const tabIndex = state.currentTab;
   setState({
     ...state,
-    browserHistory: _popPage(state.browserHistory),
-    tabHistories: _updateTab(state, tabIndex, _popPage)
+    browserHistory: popPage(state.browserHistory),
+    tabHistories: updateTab(state, tabIndex, popPage)
   });
+}
+
+export function forward(n=1) {
+  const state = getState();
+
 }

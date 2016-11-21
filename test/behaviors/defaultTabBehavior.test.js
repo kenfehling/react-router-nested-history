@@ -1,79 +1,121 @@
-import { switchTab } from '../../src/behaviors/defaultTabBehavior';
+import { switchToTab } from '../../src/behaviors/defaultTabBehavior';
 
 describe('default tab behavior', () => {
   it('behaves like it should', () => {
-    expect(switchTab({
+    expect(switchToTab({
       historyState: {
-        browserHistory: {back: [], current: '/a', forward: []},
+        browserHistory: {
+          back: [],
+          current: {url: '/a', tab: 0},
+          forward: []
+        },
         tabHistories: [
           {back: [], current: '/a', forward: []},
           {back: [], current: '/b', forward: []}
         ]
       },
-      fromIndex: 0,
-      toIndex: 1
-    }).browserHistory).toEqual({ back: ['/a'], current: '/b', forward: [] });
+      tab: 1
+    }).browserHistory).toEqual({
+      back: [{url: '/a', tab: 0}],
+      current: {url: '/b', tab: 1},
+      forward: []
+    });
 
-    expect(switchTab({
+    expect(switchToTab({
       historyState: {
-        browserHistory: {back: ['/a'], current: '/a/1', forward: ['/a/2']},
+        browserHistory: {
+          back: [{url: '/a', tab: 0}],
+          current: {url: '/a/1', tab: 0},
+          forward: [{url: '/a/2', tab: 0}]
+        },
         tabHistories: [
           {back: ['/a'], current: '/a/1', forward: ['/a/2']},
           {back: [], current: '/b', forward: ['/b/1']},
         ]
       },
-      fromIndex: 0,
-      toIndex: 1
-    }).browserHistory).toEqual({ back: ['/a', '/a/1'], current: '/b', forward: ['/b/1'] });
+      tab: 1
+    }).browserHistory).toEqual({
+      back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}],
+      current: {url: '/b', tab: 1},
+      forward: [{url: '/b/1', tab: 1}]
+    });
 
-    expect(switchTab({
+    expect(switchToTab({
       historyState: {
-        browserHistory: {back: ['/a'], current: '/b', forward: []},
+        browserHistory: {
+          back: [{url: '/a', tab: 0}],
+          current: {url: '/b', tab: 1},
+          forward: []
+        },
         tabHistories: [
           {back: [], current: '/a', forward: []},
           {back: [], current: '/b', forward: []}
         ]
       },
-      fromIndex: 1,
-      toIndex: 0
-    }).browserHistory).toEqual({ back: [], current: '/a', forward: [] });
+      tab: 0
+    }).browserHistory).toEqual({
+      back: [],
+      current: {url: '/a', tab: 0},
+      forward: []
+    });
 
-    expect(switchTab({
+    expect(switchToTab({
       historyState: {
-        browserHistory: {back: [], current: '/b', forward: []},
+        browserHistory: {
+          back: [],
+          current: {url: '/b', tab: 1},
+          forward: []
+        },
         tabHistories: [
           {back: ['/a'], current: '/a/1', forward: ['/a/2']},
           {back: [], current: '/b', forward: []},
-        ]
+        ],
       },
-      fromIndex: 1,
-      toIndex: 0
-    }).browserHistory).toEqual({ back: ['/a'], current: '/a/1', forward: ['/a/2'] });
+      tab: 0
+    }).browserHistory).toEqual({
+      back: [{url: '/a', tab: 0}],
+      current: {url: '/a/1', tab: 0},
+      forward: [{url: '/a/2', tab: 0}]
+    });
 
-    expect(switchTab({
+    expect(switchToTab({
       historyState: {
-        browserHistory: {back: ['/a'], current: '/b', forward: []},
+        browserHistory: {
+          back: [{url: '/a', tab: 0}],
+          current: {url: '/b', tab: 1},
+          forward: []
+        },
         tabHistories: [
           {back: [], current: '/a', forward: []},
           {back: [], current: '/b', forward: []},
           {back: [], current: '/c', forward: []}
         ]
       },
-      fromIndex: 1,
-      toIndex: 2
-    }).browserHistory).toEqual({ back: ['/a'], current: '/c', forward: [] });
+      tab: 2
+    }).browserHistory).toEqual({
+      back: [{url: '/a', tab: 0}],
+      current: {url: '/c', tab: 2},
+      forward: []
+    });
 
-    expect(switchTab({
+    expect(switchToTab({
       historyState: {
-        browserHistory: {back: ['/a', '/a/1'], current: '/b', forward: []},
+        browserHistory: {
+          back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}],
+          current: {url: '/b', tab: 1},
+          forward: []
+        },
         tabHistories: [
           {back: ['/a'], current: '/a/1', forward: ['/a/2']},
           {back: [], current: '/b', forward: []},
           {back: [], current: '/c', forward: []}
         ]
       },
-      fromIndex: 1,
-      toIndex: 2
-    }).browserHistory).toEqual({ back: ['/a', '/a/1'], current: '/c', forward: [] });
+      tab: 2
+    }).browserHistory).toEqual({
+      back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}],
+      current: {url: '/c', tab: 2},
+      forward: []
+    });
   });
 });

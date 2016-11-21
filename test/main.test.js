@@ -1,15 +1,16 @@
-import { switchTab, push, pop } from '../src/main';
+import { switchToTab, push, back, forward } from '../src/main';
 import { getState, setState, clearState } from '../src/historyStore';
 
 describe('main', () => {
 
   beforeEach(() => {
     setState({
-      browserHistory: {back: ['/a'], current: '/a/1', forward: []},
-      currentTab: 0,
+      browserHistory: {back: ['/a', '/a/1'], current: '/b', forward: []},
+      currentTab: 1,
       tabHistories: [
         {back: ['/a'], current: '/a/1', forward: []},
-        {back: [], current: '/b', forward: []}
+        {back: [], current: '/b', forward: []},
+        {back: [], current: '/c', forward: []}
       ]
     });
   });
@@ -19,31 +20,46 @@ describe('main', () => {
   });
 
   it('switches tab', () => {
-    switchTab(0, 1);
+    switchToTab(2);
     expect(getState()).toEqual({
-      browserHistory: {back: ['/a', '/a/1'], current: '/b', forward: []},
-      currentTab: 1,
+      browserHistory: {back: ['/a', '/a/1'], current: '/c', forward: []},
+      currentTab: 2,
       tabHistories: [
         {back: ['/a'], current: '/a/1', forward: []},
-        {back: [], current: '/b', forward: []}
+        {back: [], current: '/b', forward: []},
+        {back: [], current: '/c', forward: []}
       ]
     });
   });
 
   it('pushes page', () => {
-    push('/a/2');
+    push('/b/1');
     expect(getState()).toEqual({
-      browserHistory: {back: ['/a', '/a/1'], current: '/a/2', forward: []},
-      currentTab: 0,
+      browserHistory: {back: ['/a', '/a/1', '/b'], current: '/b/1', forward: []},
+      currentTab: 1,
       tabHistories: [
-        {back: ['/a', '/a/1'], current: '/a/2', forward: []},
-        {back: [], current: '/b', forward: []}
+        {back: ['/a'], current: '/a/1', forward: []},
+        {back: ['/b'], current: '/b/1', forward: []},
+        {back: [], current: '/c', forward: []}
       ]
     });
   });
 
-  it('pops page', () => {
-    pop();
+  it('goes back in history', () => {
+    back();
+    expect(getState()).toEqual({
+      browserHistory: {back: ['/a'], current: '/a/1', forward: ['/b']},
+      currentTab: 0,
+      tabHistories: [
+        {back: ['/a'], current: '/a/1', forward: []},
+        {back: [], current: '/b', forward: []},
+        {back: [], current: '/c', forward: []}
+      ]
+    });
+  });
+
+  it('goes forward in history', () => {
+    forward();
     expect(getState()).toEqual({
       browserHistory: {back: [], current: '/a', forward: ['/a/1']},
       currentTab: 0,
@@ -52,5 +68,13 @@ describe('main', () => {
         {back: [], current: '/b', forward: []}
       ]
     });
+  });
+
+  it('goes back N pages in history', () => {
+
+  });
+
+  it('goes forward N pages in history', () => {
+
   });
 });
