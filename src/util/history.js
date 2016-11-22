@@ -12,6 +12,12 @@ export const popPage = (history) => ({
   forward: [history.current, ...history.forward]
 });
 
+export const goForward = (history) => ({
+  back: [...history.back, history.current],
+  current: _.head(history.forward),
+  forward: _.tail(history.forward)
+});
+
 export const updateTab = (state, tab, fn) => [
   ...state.tabHistories.slice(0, tab),
   fn(state.tabHistories[tab]),
