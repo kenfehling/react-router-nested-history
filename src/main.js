@@ -2,6 +2,22 @@ import * as behavior from './behaviors/defaultTabBehavior';
 import { getState, setState } from './historyStore';
 import { pushPage, popPage, goForward, updateTab } from './util/history';
 
+export function setTabs(...initialUrls) {
+  setState({
+    browserHistory: {
+      back: [],
+      current: {url: initialUrls[0], tab: 0},
+      forward: []
+    },
+    tabHistories: initialUrls.map((url, i) => ({
+      back: [],
+      current: {url, tab: i},
+      forward: []
+    })),
+    currentTab: 0
+  });
+}
+
 export function switchToTab(tab) {
   const historyState = getState();
   const state = behavior.switchToTab({historyState, tab});
