@@ -6,25 +6,26 @@ describe('main', () => {
   beforeEach(() => {
     setState({
       browserHistory: {
-        back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}],
-        current: {url: '/b', tab: 1},
-        forward: [{url: '/b/1', tab: 1}]
+        back: [{url: '/a', tab: 0, id: 1}, {url: '/a/1', tab: 0, id: 4}],
+        current: {url: '/b', tab: 1, id: 2},
+        forward: [{url: '/b/1', tab: 1, id: 5}]
       },
       currentTab: 1,
+      lastId: 5,
       tabHistories: [
         {
-          back: [{url: '/a', tab: 0}],
-          current: {url: '/a/1', tab: 0},
+          back: [{url: '/a', tab: 0, id: 1}],
+          current: {url: '/a/1', tab: 0, id: 4},
           forward: []
         }, {
           back: [],
-          current: {url: '/b', tab: 1},
-          forward: [{url: '/b/1', tab: 1}]
+          current: {url: '/b', tab: 1, id: 2},
+          forward: [{url: '/b/1', tab: 1, id: 5}]
         }, {
           back: [],
-          current: {url: '/c', tab: 2},
+          current: {url: '/c', tab: 2, id: 3},
           forward: []
-        }
+        },
       ]
     });
   });
@@ -37,23 +38,24 @@ describe('main', () => {
     switchToTab(2);
     expect(getState()).toEqual({
       browserHistory: {
-        back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}],
-        current: {url: '/c', tab: 2},
+        back: [{url: '/a', tab: 0, id: 1}, {url: '/a/1', tab: 0, id: 4}],
+        current: {url: '/c', tab: 2, id: 3},
         forward: []
       },
       currentTab: 2,
+      lastId: 5,
       tabHistories: [
         {
-          back: [{url: '/a', tab: 0}],
-          current: {url: '/a/1', tab: 0},
+          back: [{url: '/a', tab: 0, id: 1}],
+          current: {url: '/a/1', tab: 0, id: 4},
           forward: []
         }, {
           back: [],
-          current: {url: '/b', tab: 1},
-          forward: [{url: '/b/1', tab: 1}]
+          current: {url: '/b', tab: 1, id: 2},
+          forward: [{url: '/b/1', tab: 1, id: 5}]
         }, {
           back: [],
-          current: {url: '/c', tab: 2},
+          current: {url: '/c', tab: 2, id: 3},
           forward: []
         }
       ]
@@ -64,23 +66,28 @@ describe('main', () => {
     push('/b/2');
     expect(getState()).toEqual({
       browserHistory: {
-        back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}, {url: '/b', tab: 1}],
-        current: {url: '/b/2', tab: 1},
+        back: [
+          {url: '/a', tab: 0, id: 1},
+          {url: '/a/1', tab: 0, id: 4},
+          {url: '/b', tab: 1, id: 2}
+        ],
+        current: {url: '/b/2', tab: 1, id: 6},
         forward: []
       },
       currentTab: 1,
+      lastId: 6,
       tabHistories: [
         {
-          back: [{url: '/a', tab: 0}],
-          current: {url: '/a/1', tab: 0},
+          back: [{url: '/a', tab: 0, id: 1}],
+          current: {url: '/a/1', tab: 0, id: 4},
           forward: []
         }, {
-          back: [{url: '/b', tab: 1}],
-          current: {url: '/b/2', tab: 1},
+          back: [{url: '/b', tab: 1, id: 2}],
+          current: {url: '/b/2', tab: 1, id: 6},
           forward: []
         }, {
           back: [],
-          current: {url: '/c', tab: 2},
+          current: {url: '/c', tab: 2, id: 3},
           forward: []
         }
       ]
@@ -91,15 +98,26 @@ describe('main', () => {
     back();
     expect(getState()).toEqual({
       browserHistory: {
-        back: [{url: '/a', tab: 0}],
-        current: {url: '/a/1', tab: 0},
-        forward: [{url: '/b', tab: 1}, {url: '/b/1', tab: 1}]
+        back: [{url: '/a', tab: 0, id: 1}],
+        current: {url: '/a/1', tab: 0, id: 4},
+        forward: [{url: '/b', tab: 1, id: 2}, {url: '/b/1', tab: 1, id: 5}]
       },
       currentTab: 0,
+      lastId: 5,
       tabHistories: [
-        {back: [{url: '/a', tab: 0}], current: {url: '/a/1', tab: 0}, forward: []},
-        {back: [], current: {url: '/b', tab: 1}, forward: [{url: '/b/1', tab: 1}]},
-        {back: [], current: {url: '/c', tab: 2}, forward: []}
+        {
+          back: [{url: '/a', tab: 0, id: 1}],
+          current: {url: '/a/1', tab: 0, id: 4},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/b', tab: 1, id: 2},
+          forward: [{url: '/b/1', tab: 1, id: 5}]
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2, id: 3},
+          forward: []
+        }
       ]
     });
   });
@@ -108,23 +126,28 @@ describe('main', () => {
     forward();
     expect(getState()).toEqual({
       browserHistory: {
-        back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}, {url: '/b', tab: 1}],
-        current: {url: '/b/1', tab: 1},
+        back: [
+          {url: '/a', tab: 0, id: 1},
+          {url: '/a/1', tab: 0, id: 4},
+          {url: '/b', tab: 1, id: 2}
+        ],
+        current: {url: '/b/1', tab: 1, id: 5},
         forward: []
       },
       currentTab: 1,
+      lastId: 5,
       tabHistories: [
         {
-          back: [{url: '/a', tab: 0}],
-          current: {url: '/a/1', tab: 0},
+          back: [{url: '/a', tab: 0, id: 1}],
+          current: {url: '/a/1', tab: 0, id: 4},
           forward: []
         }, {
-          back: [{url: '/b', tab: 1}],
-          current: {url: '/b/1', tab: 1},
+          back: [{url: '/b', tab: 1, id: 2}],
+          current: {url: '/b/1', tab: 1, id: 5},
           forward: []
         }, {
           back: [],
-          current: {url: '/c', tab: 2},
+          current: {url: '/c', tab: 2, id: 3},
           forward: []
         }
       ]

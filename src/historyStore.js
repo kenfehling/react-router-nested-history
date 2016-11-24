@@ -6,8 +6,9 @@ const initialState = {
     current: null,
     forward: []
   },
+  tabHistories: [],
   currentTab: 0,
-  tabHistories: []
+  lastId: 0
 };
 
 let _state = initialState;

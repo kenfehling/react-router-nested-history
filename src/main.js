@@ -27,10 +27,13 @@ export function switchToTab(tab) {
 export function push(url) {
   const state = getState();
   const tab = state.currentTab;
+  const id = state.lastId + 1;
+  const page = {url, tab, id};
   setState({
     ...state,
-    browserHistory: pushPage(state.browserHistory, url, tab),
-    tabHistories: updateTab(state, tab, t => pushPage(t, url, tab))
+    browserHistory: pushPage(state.browserHistory, page),
+    tabHistories: updateTab(state, tab, t => pushPage(t, page)),
+    lastId: id
   });
 }
 
@@ -67,10 +70,5 @@ export function go(n) {
   setState(_go(getState(), n));
 }
 
-export function back(n=1) {
-  go(0 - n)
-}
-
-export function forward(n=1) {
-  go(n)
-}
+export const back = (n=1) => go(0 - n);
+export const forward = (n=1) => go(n);

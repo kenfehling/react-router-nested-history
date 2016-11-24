@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
-import { pushState } from '../../src/browserFunctions';
+import * as browser from '../../src/browserFunctions';
 
-export const pushPage = (historyStack, url, tab) => ({
+export const pushPage = (historyStack, page) => ({
   back: [...historyStack.back, historyStack.current],
-  current: {url, tab},
+  current: page,
   forward: []
 });
 
@@ -25,12 +25,29 @@ export const updateTab = (state, tab, fn) => [
   ...state.tabHistories.slice(tab + 1)
 ];
 
+/**
+ * Get the difference between oldState and newState and return a list of
+ * browser functions to transform the browser history from oldState to newState
+ * @param oldState {Object} The original historyStore state
+ * @param newState {Object} The new historyStore state
+ * @returns {[Object]} An array of steps to get from old state to new state
+ */
 export const diffState = (oldState, newState) => {
   const oldHistory = oldState.browserHistory;
   const newHistory = newState.browserHistory;
-
-  // TODO: We should probably store IDs in each history item so we can uniquely identify
-  if (oldHistory.current.url === _.last(newHistory.back).url) {
-    return [{fn: pushState, args: [newHistory.current.url]}];
+  if (!_.isEmpty(newHistory.back)) {
+    if (oldHistory.current.id === _.last(newHistory.back).id) {
+      if (!_.isEmpty(oldHistory.forward)) {
+        if(_.first(oldHistory.forward).id === newHistory.current.id) {
+          return [{fn: browser.forward}];
+        }
+      }
+      return [{fn: browser.pushState, args: [newHistory.current]}];
+    }
+  }
+  if (!_.isEmpty(newHistory.forward)) {
+    if (oldHistory.current.id === _.first(newHistory.forward).id) {
+      return [{fn: browser.back}];
+    }
   }
 };
