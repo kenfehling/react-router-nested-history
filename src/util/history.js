@@ -35,19 +35,25 @@ export const updateTab = (state, tab, fn) => [
 export const diffState = (oldState, newState) => {
   const oldHistory = oldState.browserHistory;
   const newHistory = newState.browserHistory;
-  if (!_.isEmpty(newHistory.back)) {
-    if (oldHistory.current.id === _.last(newHistory.back).id) {
-      if (!_.isEmpty(oldHistory.forward)) {
-        if(_.first(oldHistory.forward).id === newHistory.current.id) {
-          return [{fn: browser.forward}];
-        }
-      }
-      return [{fn: browser.pushState, args: [newHistory.current]}];
+  const current = newHistory.current;
+
+  if (!_.isEmpty(oldHistory.back)) {
+    const i = _.findIndex(oldHistory.back, b => b.id === current.id);
+    if (i !== -1) {
+      return [{fn: browser.back, args: [_.size(oldHistory.back) - i]}];
     }
   }
-  if (!_.isEmpty(newHistory.forward)) {
-    if (oldHistory.current.id === _.first(newHistory.forward).id) {
-      return [{fn: browser.back}];
+
+  if (!_.isEmpty(oldHistory.forward)) {
+    const i = _.findIndex(oldHistory.forward, b => b.id === current.id);
+    if (i !== -1) {
+      return [{fn: browser.forward, args: [i + 1]}];
+    }
+  }
+
+  if (!_.isEmpty(newHistory.back)) {
+    if (oldHistory.current.id === _.last(newHistory.back).id) {
+      return [{fn: browser.pushState, args: [current]}];
     }
   }
 };
