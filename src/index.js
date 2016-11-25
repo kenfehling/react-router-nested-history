@@ -3,5 +3,5 @@ import $ from 'jquery';
 
 $(() => {
   setTabs('/a', '/b', '/c');
-  $('#link1').click(() => push('b'));
+  $('#link1').click(() => push('/a/1'));
 });
