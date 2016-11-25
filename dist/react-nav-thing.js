@@ -74,6 +74,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return _realMain.push;
 	  }
 	});
+	Object.defineProperty(exports, 'switchToTab', {
+	  enumerable: true,
+	  get: function get() {
+	    return _realMain.switchToTab;
+	  }
+	});
 
 /***/ },
 /* 1 */
@@ -86,6 +92,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.setTabs = setTabs;
 	exports.push = push;
+	exports.switchToTab = switchToTab;
 
 	var _main = __webpack_require__(2);
 
@@ -103,16 +110,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 	(0, _historyListener.listen)(function (location) {
 	  var oldState = (0, _historyStore.getState)();
-
-	  console.log(oldState);
-	  console.log(location);
-
 	  var newState = (0, _history.constructNewState)(oldState, location.state);
 	  (0, _historyStore.setState)(newState);
-
-	  console.log(newState);
 	});
 
 	function setTabs() {
@@ -145,6 +148,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	function push(url) {
 	  fakeMain.push(url);
 	  browser.push((0, _historyStore.getState)().browserHistory.current);
+	}
+
+	function switchToTab(index) {
+	  var oldState = (0, _historyStore.getState)();
+	  fakeMain.switchToTab(index);
+	  var newState = (0, _historyStore.getState)();
+	  var steps = (0, _history.diffStateForSteps)(oldState, newState);
+	  var promises = steps.map(function (step) {
+	    return new Promise(function (resolve, reject) {
+	      return resolve(step.fn.apply(step, _toConsumableArray(step.args)));
+	    });
+	  });
+	  Promise.all(promises);
 	}
 
 /***/ },
@@ -17522,6 +17538,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return [{ fn: browser.push, args: [newCurrent] }];
 	      }
 	    }
+	    console.error(newHistory);
+	    throw new Error("shiftAmount was 0, but was not push");
 	  } else {
 	    return [{ fn: browser.go, args: [shiftAmount] }];
 	  }

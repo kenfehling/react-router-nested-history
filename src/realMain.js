@@ -34,3 +34,19 @@ export function push(url) {
   fakeMain.push(url);
   browser.push(getState().browserHistory.current);
 }
+
+export function switchToTab(index) {
+  const oldState = getState();
+  fakeMain.switchToTab(index);
+  const newState = getState();
+
+  // TODO: The steps aren't looking for switchToTab, so we'll end up with
+  // TODO:   Nothing in the case of -> b|c or
+  // TODO:   [back] in the case of -> a
+  const steps = diffStateForSteps(oldState, newState);
+
+  const promises = steps.map(step => new Promise((resolve, reject) => {
+    return resolve(step.fn(...step.args));
+  }));
+  Promise.all(promises);
+}

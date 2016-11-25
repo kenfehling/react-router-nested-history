@@ -71,8 +71,16 @@ export const diffStateForSteps = (oldState, newState) => {
         return [{fn: browser.push, args: [newCurrent]}];
       }
     }
+
+    // TODO: Then it's a switchToTab? Or are there more constraints?
+
   }
   else {
+
+    // TODO: It could be a switchToTab, depending on the new forward or back;
+    // TODO: [back] will keep more forward than switchToTab(0)
+    // TODO: [forward] will keep more back than switchToTab(1) or (2)
+
     return [{fn: browser.go, args: [shiftAmount]}];
   }
 };
