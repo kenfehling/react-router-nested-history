@@ -61,28 +61,15 @@ export const shiftHistory = (oldHistory, amount) => {
  * @returns {[Object]} An array of steps to get from old state to new state
  */
 export const diffStateForSteps = (oldState, newState) => {
-  const oldHistory = oldState.browserHistory;
-  const newHistory = newState.browserHistory;
-  const newCurrent = newHistory.current;
-  const shiftAmount = getHistoryShiftAmount(oldHistory, newCurrent);
-  if (shiftAmount === 0) {
-    if (!_.isEmpty(newHistory.back)) {
-      if (oldHistory.current.id === _.last(newHistory.back).id) {
-        return [{fn: browser.push, args: [newCurrent]}];
-      }
-    }
-
-    // TODO: Then it's a switchToTab? Or are there more constraints?
-
-  }
-  else {
-
-    // TODO: It could be a switchToTab, depending on the new forward or back;
-    // TODO: [back] will keep more forward than switchToTab(0)
-    // TODO: [forward] will keep more back than switchToTab(1) or (2)
-
-    return [{fn: browser.go, args: [shiftAmount]}];
-  }
+  const h1 = oldState.browserHistory;
+  const h2 = newState.browserHistory;
+  return _.flatten([
+    _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
+    _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
+    {fn: browser.push, args: [h2.current]},
+    _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
+    _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
+  ]);
 };
 
 export const constructNewBrowserHistory = (oldHistory, newCurrent) => {
