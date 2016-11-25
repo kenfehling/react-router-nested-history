@@ -1,7 +1,13 @@
+import createBrowserHistory from 'history/createBrowserHistory';
 
+let history = createBrowserHistory();
 
-export function pushState({url, tab, id}) {
-  history.pushState({id}, "Title", url);
+export function push({url, id}) {
+  history.push(url, {id});
+}
+
+export function replace({url, id}) {
+  history.replace(url, {id});
 }
 
 export const go = (n) => history.go(n);

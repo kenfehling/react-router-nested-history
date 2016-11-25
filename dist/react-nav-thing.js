@@ -59,27 +59,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.push = exports.setTabs = undefined;
 
-	var _main = __webpack_require__(1);
+	var _realMain = __webpack_require__(1);
 
 	Object.defineProperty(exports, 'setTabs', {
 	  enumerable: true,
 	  get: function get() {
-	    return _main.setTabs;
+	    return _realMain.setTabs;
 	  }
 	});
 	Object.defineProperty(exports, 'push', {
 	  enumerable: true,
 	  get: function get() {
-	    return _main.push;
+	    return _realMain.push;
 	  }
-	});
-
-	var _historyListener = __webpack_require__(7);
-
-	(0, _historyListener.listen)(function (location) {
-	  return console.log(location);
 	});
 
 /***/ },
@@ -91,28 +84,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 	exports.setTabs = setTabs;
-	exports.switchToTab = switchToTab;
 	exports.push = push;
-	exports._go = _go;
-	exports.go = go;
-	exports.back = back;
-	exports.forward = forward;
 
-	var _defaultTabBehavior = __webpack_require__(2);
+	var _main = __webpack_require__(2);
 
-	var behavior = _interopRequireWildcard(_defaultTabBehavior);
+	var fakeMain = _interopRequireWildcard(_main);
 
-	var _historyStore = __webpack_require__(3);
+	var _browserFunctions = __webpack_require__(8);
 
-	var _history = __webpack_require__(6);
+	var browser = _interopRequireWildcard(_browserFunctions);
+
+	var _historyListener = __webpack_require__(19);
+
+	var _history = __webpack_require__(7);
+
+	var _historyStore = __webpack_require__(4);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+	(0, _historyListener.listen)(function (location) {
+	  var oldState = (0, _historyStore.getState)();
+
+	  console.log(oldState);
+	  console.log(location);
+
+	  var newState = (0, _history.constructNewState)(oldState, location.state);
+	  (0, _historyStore.setState)(newState);
+
+	  console.log(newState);
+	});
+
 	function setTabs() {
+	  var state = (0, _historyStore.getState)();
+	  var id = ++state.lastId;
+
 	  for (var _len = arguments.length, initialUrls = Array(_len), _key = 0; _key < _len; _key++) {
 	    initialUrls[_key] = arguments[_key];
 	  }
@@ -120,19 +126,56 @@ return /******/ (function(modules) { // webpackBootstrap
 	  (0, _historyStore.setState)({
 	    browserHistory: {
 	      back: [],
-	      current: { url: initialUrls[0], tab: 0 },
+	      current: { url: initialUrls[0], tab: 0, id: id },
 	      forward: []
 	    },
 	    tabHistories: initialUrls.map(function (url, i) {
 	      return {
 	        back: [],
-	        current: { url: url, tab: i },
+	        current: { url: url, tab: i, id: id + i + 1 },
 	        forward: []
 	      };
 	    }),
-	    currentTab: 0
+	    currentTab: 0,
+	    lastId: id + initialUrls.length + 1
 	  });
+	  browser.replace({ url: initialUrls[0], id: id });
 	}
+
+	function push(url) {
+	  fakeMain.push(url);
+	  browser.push((0, _historyStore.getState)().browserHistory.current);
+	}
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.forward = exports.back = undefined;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports.switchToTab = switchToTab;
+	exports.push = push;
+	exports._go = _go;
+	exports.go = go;
+
+	var _defaultTabBehavior = __webpack_require__(3);
+
+	var behavior = _interopRequireWildcard(_defaultTabBehavior);
+
+	var _historyStore = __webpack_require__(4);
+
+	var _history = __webpack_require__(7);
+
+	var utils = _interopRequireWildcard(_history);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function switchToTab(tab) {
 	  var historyState = (0, _historyStore.getState)();
@@ -142,15 +185,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function push(url) {
 	  var state = (0, _historyStore.getState)();
-
-	  console.log(state);
-
 	  var tab = state.currentTab;
+	  var id = state.lastId + 1;
+	  var page = { url: url, tab: tab, id: id };
 	  (0, _historyStore.setState)(_extends({}, state, {
-	    browserHistory: (0, _history.pushPage)(state.browserHistory, url, tab),
-	    tabHistories: (0, _history.updateTab)(state, tab, function (t) {
-	      return (0, _history.pushPage)(t, url, tab);
-	    })
+	    browserHistory: utils.pushPage(state.browserHistory, page),
+	    tabHistories: utils.updateTab(state, tab, function (t) {
+	      return utils.pushPage(t, page);
+	    }),
+	    lastId: id
 	  }));
 	}
 
@@ -159,7 +202,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (n === 0) {
 	    return state;
 	  } else {
-	    var f = n < 0 ? _history.popPage : _history.goForward;
+	    var f = n < 0 ? utils.back : utils.forward;
 	    var browserHistory = f(state.browserHistory);
 	    var tabHistory = state.tabHistories[tab];
 	    var stack = n < 0 ? tabHistory.back : tabHistory.forward;
@@ -168,7 +211,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (tabCanGo) {
 	      return _go(_extends({}, state, {
 	        browserHistory: browserHistory,
-	        tabHistories: (0, _history.updateTab)(state, tab, f)
+	        tabHistories: utils.updateTab(state, tab, f)
 	      }), nextN);
 	    } else {
 	      return _go(_extends({}, state, {
@@ -183,20 +226,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	  (0, _historyStore.setState)(_go((0, _historyStore.getState)(), n));
 	}
 
-	function back() {
+	var back = exports.back = function back() {
 	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-
-	  go(0 - n);
-	}
-
-	function forward() {
+	  return go(0 - n);
+	};
+	var forward = exports.forward = function forward() {
 	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-
-	  go(n);
-	}
+	  return go(n);
+	};
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -245,7 +285,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -260,7 +300,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.setState = setState;
 	exports.clearState = clearState;
 
-	var _lodash = __webpack_require__(4);
+	var _lodash = __webpack_require__(5);
 
 	var _ = _interopRequireWildcard(_lodash);
 
@@ -272,8 +312,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    current: null,
 	    forward: []
 	  },
+	  tabHistories: [],
 	  currentTab: 0,
-	  tabHistories: []
+	  lastId: 0
 	};
 
 	var _state = initialState;
@@ -291,7 +332,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global, module) {/**
@@ -17360,10 +17401,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(5)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(6)(module)))
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -17379,7 +17420,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17387,25 +17428,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.updateTab = exports.goForward = exports.popPage = exports.pushPage = undefined;
+	exports.constructNewState = exports.constructNewBrowserHistory = exports.diffStateForSteps = exports.shiftHistory = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.pushPage = undefined;
 
-	var _lodash = __webpack_require__(4);
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _lodash = __webpack_require__(5);
 
 	var _ = _interopRequireWildcard(_lodash);
+
+	var _browserFunctions = __webpack_require__(8);
+
+	var browser = _interopRequireWildcard(_browserFunctions);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	var pushPage = exports.pushPage = function pushPage(historyStack, url, tab) {
+	var pushPage = exports.pushPage = function pushPage(historyStack, page) {
 	  return {
 	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
-	    current: { url: url, tab: tab },
+	    current: page,
 	    forward: []
 	  };
 	};
 
-	var popPage = exports.popPage = function popPage(historyStack) {
+	var back = exports.back = function back(historyStack) {
 	  return {
 	    back: _.initial(historyStack.back),
 	    current: _.last(historyStack.back),
@@ -17413,7 +17460,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 
-	var goForward = exports.goForward = function goForward(historyStack) {
+	var forward = exports.forward = function forward(historyStack) {
 	  return {
 	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
 	    current: _.head(historyStack.forward),
@@ -17425,8 +17472,78 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return [].concat(_toConsumableArray(state.tabHistories.slice(0, tab)), [fn(state.tabHistories[tab])], _toConsumableArray(state.tabHistories.slice(tab + 1)));
 	};
 
+	var getHistoryShiftAmount = exports.getHistoryShiftAmount = function getHistoryShiftAmount(oldHistory, newCurrent) {
+	  if (!newCurrent) {
+	    throw new Error("newCurrent must be defined");
+	  }
+	  if (!newCurrent.id) {
+	    throw new Error("newCurrent must have an id. Received:", newCurrent);
+	  }
+	  if (!_.isEmpty(oldHistory.back)) {
+	    var i = _.findIndex(oldHistory.back, function (b) {
+	      return b.id === newCurrent.id;
+	    });
+	    if (i !== -1) {
+	      return 0 - _.size(oldHistory.back) - i;
+	    }
+	  }
+	  if (!_.isEmpty(oldHistory.forward)) {
+	    var _i = _.findIndex(oldHistory.forward, function (b) {
+	      return b.id === newCurrent.id;
+	    });
+	    if (_i !== -1) {
+	      return _i + 1;
+	    }
+	  }
+	  return 0;
+	};
+
+	var shiftHistory = exports.shiftHistory = function shiftHistory(oldHistory, amount) {
+	  var f = amount > 0 ? forward : back;
+	  var n = amount > 0 ? amount - 1 : amount + 1;
+	  return n === 0 ? f(oldHistory) : shiftHistory(f(oldHistory), n);
+	};
+
+	/**
+	 * Get the difference between oldState and newState and return a list of
+	 * browser functions to transform the browser history from oldState to newState
+	 * @param oldState {Object} The original historyStore state
+	 * @param newState {Object} The new historyStore state
+	 * @returns {[Object]} An array of steps to get from old state to new state
+	 */
+	var diffStateForSteps = exports.diffStateForSteps = function diffStateForSteps(oldState, newState) {
+	  var oldHistory = oldState.browserHistory;
+	  var newHistory = newState.browserHistory;
+	  var newCurrent = newHistory.current;
+	  var shiftAmount = getHistoryShiftAmount(oldHistory, newCurrent);
+	  if (shiftAmount === 0) {
+	    if (!_.isEmpty(newHistory.back)) {
+	      if (oldHistory.current.id === _.last(newHistory.back).id) {
+	        return [{ fn: browser.push, args: [newCurrent] }];
+	      }
+	    }
+	  } else {
+	    return [{ fn: browser.go, args: [shiftAmount] }];
+	  }
+	};
+
+	var constructNewBrowserHistory = exports.constructNewBrowserHistory = function constructNewBrowserHistory(oldHistory, newCurrent) {
+	  var shiftAmount = getHistoryShiftAmount(oldHistory, newCurrent);
+	  if (shiftAmount === 0) {
+	    throw new Error("This should be used for back and forward");
+	  } else {
+	    return shiftHistory(oldHistory, shiftAmount);
+	  }
+	};
+
+	var constructNewState = exports.constructNewState = function constructNewState(oldState, newCurrent) {
+	  return _extends({}, oldState, {
+	    browserHistory: constructNewBrowserHistory(oldState.browserHistory, newCurrent)
+	  });
+	};
+
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17434,9 +17551,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.replace = exports.push = exports.listenBefore = exports.listen = exports.setHistory = undefined;
+	exports.forward = exports.back = exports.go = undefined;
+	exports.push = push;
+	exports.replace = replace;
 
-	var _createBrowserHistory = __webpack_require__(8);
+	var _createBrowserHistory = __webpack_require__(9);
 
 	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
 
@@ -17444,28 +17563,34 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var history = (0, _createBrowserHistory2.default)();
 
-	var setHistory = exports.setHistory = function setHistory(h) {
-	  return history = h;
-	};
-	var listen = exports.listen = function listen(fn) {
-	  return history.listen(fn);
-	};
-	var listenBefore = exports.listenBefore = function listenBefore(fn) {
-	  return history.listenBefore(fn);
-	};
-	var push = exports.push = function push() {
-	  var _history;
+	function push(_ref) {
+	  var url = _ref.url,
+	      id = _ref.id;
 
-	  return (_history = history).push.apply(_history, arguments);
-	};
-	var replace = exports.replace = function replace() {
-	  var _history2;
+	  history.push(url, { id: id });
+	}
 
-	  return (_history2 = history).replace.apply(_history2, arguments);
+	function replace(_ref2) {
+	  var url = _ref2.url,
+	      id = _ref2.id;
+
+	  history.replace(url, { id: id });
+	}
+
+	var go = exports.go = function go(n) {
+	  return history.go(n);
+	};
+	var back = exports.back = function back() {
+	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	  return go(0 - n);
+	};
+	var forward = exports.forward = function forward() {
+	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	  return go(n);
 	};
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17476,25 +17601,25 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _warning = __webpack_require__(9);
+	var _warning = __webpack_require__(10);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(10);
+	var _invariant = __webpack_require__(11);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _LocationUtils = __webpack_require__(11);
+	var _LocationUtils = __webpack_require__(12);
 
-	var _PathUtils = __webpack_require__(14);
+	var _PathUtils = __webpack_require__(15);
 
-	var _createTransitionManager = __webpack_require__(15);
+	var _createTransitionManager = __webpack_require__(16);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _ExecutionEnvironment = __webpack_require__(16);
+	var _ExecutionEnvironment = __webpack_require__(17);
 
-	var _DOMUtils = __webpack_require__(17);
+	var _DOMUtils = __webpack_require__(18);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -17777,7 +17902,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = createBrowserHistory;
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -17843,7 +17968,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -17900,7 +18025,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17910,15 +18035,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _resolvePathname = __webpack_require__(12);
+	var _resolvePathname = __webpack_require__(13);
 
 	var _resolvePathname2 = _interopRequireDefault(_resolvePathname);
 
-	var _valueEqual = __webpack_require__(13);
+	var _valueEqual = __webpack_require__(14);
 
 	var _valueEqual2 = _interopRequireDefault(_valueEqual);
 
-	var _PathUtils = __webpack_require__(14);
+	var _PathUtils = __webpack_require__(15);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -17968,7 +18093,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -18043,7 +18168,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = resolvePathname;
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -18092,7 +18217,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = valueEqual;
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -18150,14 +18275,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _warning = __webpack_require__(9);
+	var _warning = __webpack_require__(10);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -18233,7 +18358,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = createTransitionManager;
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -18242,7 +18367,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var canUseDOM = exports.canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -18288,6 +18413,45 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	var supportsGoWithoutReloadUsingHash = exports.supportsGoWithoutReloadUsingHash = function supportsGoWithoutReloadUsingHash() {
 	  return window.navigator.userAgent.indexOf('Firefox') === -1;
+	};
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.replace = exports.push = exports.listenBefore = exports.listen = exports.setHistory = undefined;
+
+	var _createBrowserHistory = __webpack_require__(9);
+
+	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var history = (0, _createBrowserHistory2.default)();
+
+	var setHistory = exports.setHistory = function setHistory(h) {
+	  return history = h;
+	};
+	var listen = exports.listen = function listen(fn) {
+	  return history.listen(fn);
+	};
+	var listenBefore = exports.listenBefore = function listenBefore(fn) {
+	  return history.listenBefore(fn);
+	};
+	var push = exports.push = function push() {
+	  var _history;
+
+	  return (_history = history).push.apply(_history, arguments);
+	};
+	var replace = exports.replace = function replace() {
+	  var _history2;
+
+	  return (_history2 = history).replace.apply(_history2, arguments);
 	};
 
 /***/ }

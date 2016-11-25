@@ -1,22 +1,6 @@
 import * as behavior from './behaviors/defaultTabBehavior';
 import { getState, setState } from './historyStore';
-import { pushPage, popPage, goForward, updateTab } from './util/history';
-
-export function setTabs(...initialUrls) {
-  setState({
-    browserHistory: {
-      back: [],
-      current: {url: initialUrls[0], tab: 0},
-      forward: []
-    },
-    tabHistories: initialUrls.map((url, i) => ({
-      back: [],
-      current: {url, tab: i},
-      forward: []
-    })),
-    currentTab: 0
-  });
-}
+import * as utils from './util/history';
 
 export function switchToTab(tab) {
   const historyState = getState();
@@ -31,8 +15,8 @@ export function push(url) {
   const page = {url, tab, id};
   setState({
     ...state,
-    browserHistory: pushPage(state.browserHistory, page),
-    tabHistories: updateTab(state, tab, t => pushPage(t, page)),
+    browserHistory: utils.pushPage(state.browserHistory, page),
+    tabHistories: utils.updateTab(state, tab, t => utils.pushPage(t, page)),
     lastId: id
   });
 }
@@ -43,7 +27,7 @@ export function _go(state, n) {
     return state;
   }
   else {
-    const f = n < 0 ? popPage : goForward;
+    const f = n < 0 ? utils.back : utils.forward;
     const browserHistory = f(state.browserHistory);
     const tabHistory = state.tabHistories[tab];
     const stack = n < 0 ? tabHistory.back : tabHistory.forward;
@@ -53,7 +37,7 @@ export function _go(state, n) {
       return _go({
         ...state,
         browserHistory,
-        tabHistories: updateTab(state, tab, f)
+        tabHistories: utils.updateTab(state, tab, f)
       }, nextN);
     }
     else {
