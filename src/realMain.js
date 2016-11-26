@@ -1,12 +1,12 @@
 import * as fakeMain from './main';
 import * as browser from './browserFunctions';
 import { listen } from './historyListener';
-import { constructNewState, diffStateForSteps } from './util/history';
+import { constructNewStateForBackOrForward, diffStateForSteps } from './util/history';
 import { getState, setState } from './historyStore';
 
 listen(location => {
   const oldState = getState();
-  const newState = constructNewState(oldState, location.state);
+  const newState = constructNewStateForBackOrForward(oldState, location.state);
   setState(newState);
 });
 

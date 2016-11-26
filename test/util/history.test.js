@@ -74,16 +74,4 @@ describe('history utils', () => {
     expect(util.constructNewBrowserHistory(oldHistory, b)).toEqual(newHistory);
   });
 
-  it('constructs new browser history for switchToTab(0)', () => {
-    const oldHistory = {back: [a], current: b, forward: []};
-    const newHistory = {back: [], current: a, forward: [a1]};
-    expect(util.constructNewBrowserHistory(oldHistory, a)).toEqual(newHistory);
-  });
-
-  it('constructs new browser history for switchToTab(1)', () => {
-    const oldHistory = {back: [], current: a, forward: [a1]};
-    const newHistory = {back: [a], current: b, forward: []};
-    expect(util.constructNewBrowserHistory(oldHistory, b)).toEqual(newHistory);
-  });
-
 });
