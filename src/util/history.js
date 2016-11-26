@@ -82,7 +82,7 @@ export const constructNewBrowserHistory = (oldHistory, newCurrent) => {
   }
 };
 
-export const constructNewState = (oldState, newCurrent) => ({
+export const constructNewStateForBackOrForward = (oldState, newCurrent) => ({
   ...oldState,
   browserHistory: constructNewBrowserHistory(oldState.browserHistory, newCurrent)
 });

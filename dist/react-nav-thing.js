@@ -114,7 +114,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	(0, _historyListener.listen)(function (location) {
 	  var oldState = (0, _historyStore.getState)();
-	  var newState = (0, _history.constructNewState)(oldState, location.state);
+	  var newState = (0, _history.constructNewStateForBackOrForward)(oldState, location.state);
 	  (0, _historyStore.setState)(newState);
 	});
 
@@ -17444,7 +17444,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.constructNewState = exports.constructNewBrowserHistory = exports.diffStateForSteps = exports.shiftHistory = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.pushPage = undefined;
+	exports.constructNewStateForBackOrForward = exports.constructNewBrowserHistory = exports.diffStateForSteps = exports.shiftHistory = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.pushPage = undefined;
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -17528,21 +17528,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {[Object]} An array of steps to get from old state to new state
 	 */
 	var diffStateForSteps = exports.diffStateForSteps = function diffStateForSteps(oldState, newState) {
-	  var oldHistory = oldState.browserHistory;
-	  var newHistory = newState.browserHistory;
-	  var newCurrent = newHistory.current;
-	  var shiftAmount = getHistoryShiftAmount(oldHistory, newCurrent);
-	  if (shiftAmount === 0) {
-	    if (!_.isEmpty(newHistory.back)) {
-	      if (oldHistory.current.id === _.last(newHistory.back).id) {
-	        return [{ fn: browser.push, args: [newCurrent] }];
-	      }
-	    }
-	    console.error(newHistory);
-	    throw new Error("shiftAmount was 0, but was not push");
-	  } else {
-	    return [{ fn: browser.go, args: [shiftAmount] }];
-	  }
+	  var h1 = oldState.browserHistory;
+	  var h2 = newState.browserHistory;
+	  return _.flatten([_.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
+	    return { fn: browser.push, args: [b] };
+	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
+	    return { fn: browser.push, args: [f] };
+	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
 	};
 
 	var constructNewBrowserHistory = exports.constructNewBrowserHistory = function constructNewBrowserHistory(oldHistory, newCurrent) {
@@ -17554,7 +17546,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	};
 
-	var constructNewState = exports.constructNewState = function constructNewState(oldState, newCurrent) {
+	var constructNewStateForBackOrForward = exports.constructNewStateForBackOrForward = function constructNewStateForBackOrForward(oldState, newCurrent) {
 	  return _extends({}, oldState, {
 	    browserHistory: constructNewBrowserHistory(oldState.browserHistory, newCurrent)
 	  });
