@@ -3,7 +3,7 @@ import * as browser from './browserFunctions';
 import { listen } from './historyListener';
 import { constructNewStateForBackOrForward, diffStateForSteps } from './util/history';
 
-listen(location => {
+const unlisten = listen(location => {
   const oldState = getState();
   const newState = constructNewStateForBackOrForward(oldState, location.state);
   setState(newState);

@@ -24,3 +24,4 @@ export const go = (n) => ({
   type: GO,
   n
 });
+

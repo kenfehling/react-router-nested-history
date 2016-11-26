@@ -1,8 +1,8 @@
-
 import * as actions from './actions/HistoryActions';
 import { createStore } from 'redux';
 import reducer from './reducers';
 
+// TODO: This needs to be the same store always. Use the '../store' pattern?
 const store = createStore(reducer);
 
 export const switchToTab = (tab) => store.dispatch(actions.switchToTab(tab));
