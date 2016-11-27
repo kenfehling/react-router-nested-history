@@ -1,1 +1,1 @@
-export { setTabs, push, switchToTab } from './main';
+export { setTabs, push, switchToTab, getCurrentTab } from './main';

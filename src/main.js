@@ -34,6 +34,14 @@ export const go = (n=1) => store.dispatch(actions.go(n));
 export const back = (n=1) => store.dispatch(actions.back(n));
 export const forward = (n=1) => store.dispatch(actions.forward(n));
 
+export const getCurrentTab = () => {
+  const state = store.getState();
+
+  console.log(state);
+
+  return state.browserHistory.current.tab;
+};
+
 store.subscribe(() => {
   const state = store.getState();
   switch(state.lastAction) {

@@ -80,6 +80,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return _main.switchToTab;
 	  }
 	});
+	Object.defineProperty(exports, 'getCurrentTab', {
+	  enumerable: true,
+	  get: function get() {
+	    return _main.getCurrentTab;
+	  }
+	});
 
 /***/ },
 /* 1 */
@@ -90,7 +96,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.forward = exports.back = exports.go = exports.push = exports.switchToTab = exports.setTabs = undefined;
+	exports.getCurrentTab = exports.forward = exports.back = exports.go = exports.push = exports.switchToTab = exports.setTabs = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -169,6 +175,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	var forward = exports.forward = function forward() {
 	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 	  return _store2.default.dispatch(actions.forward(n));
+	};
+
+	var getCurrentTab = exports.getCurrentTab = function getCurrentTab() {
+	  var state = _store2.default.getState();
+
+	  console.log(state);
+
+	  return state.browserHistory.current.tab;
 	};
 
 	_store2.default.subscribe(function () {
