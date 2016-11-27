@@ -59,7 +59,7 @@ export const getHistoryShiftAmount = (oldState, newCurrentId) => {
   if (!_.isEmpty(oldHistory.back)) {
     const i = _.findIndex(oldHistory.back, b => b.id === newCurrentId);
     if (i !== -1) {
-      return 0 - _.size(oldHistory.back) - i;
+      return 0 - (_.size(oldHistory.back) - i);
     }
   }
   if (!_.isEmpty(oldHistory.forward)) {

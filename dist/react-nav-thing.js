@@ -181,9 +181,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    case _ActionTypes.SWITCH_TO_TAB:
 	      {
-
-	        console.log(state);
-
 	        var steps = (0, _history.diffStateForSteps)(state.lastState, state).map(function (s) {
 	          return function () {
 	            s.fn.apply(s, _toConsumableArray(s.args));
@@ -1306,7 +1303,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return b.id === newCurrentId;
 	    });
 	    if (i !== -1) {
-	      return 0 - _.size(oldHistory.back) - i;
+	      return 0 - (_.size(oldHistory.back) - i);
 	    }
 	  }
 	  if (!_.isEmpty(oldHistory.forward)) {
