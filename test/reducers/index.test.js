@@ -1,16 +1,40 @@
-import { switchToTab, push, back, forward } from '../src/main';
-import { getState, setState, clearState } from '../src/historyStore';
+import { reducer } from '../../src/reducers/index';
+import { SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../../src/constants/ActionTypes";
 
 describe('main', () => {
-
-  beforeEach(() => {
-    setState({
-      browserHistory: {
-        back: [{url: '/a', tab: 0, id: 1}, {url: '/a/1', tab: 0, id: 4}],
+  const state = {
+    browserHistory: {
+      back: [{url: '/a', tab: 0, id: 1}, {url: '/a/1', tab: 0, id: 4}],
+      current: {url: '/b', tab: 1, id: 2},
+      forward: [{url: '/b/1', tab: 1, id: 5}]
+    },
+    currentTab: 1,
+    lastId: 5,
+    tabHistories: [
+      {
+        back: [{url: '/a', tab: 0, id: 1}],
+        current: {url: '/a/1', tab: 0, id: 4},
+        forward: []
+      }, {
+        back: [],
         current: {url: '/b', tab: 1, id: 2},
         forward: [{url: '/b/1', tab: 1, id: 5}]
+      }, {
+        back: [],
+        current: {url: '/c', tab: 2, id: 3},
+        forward: []
       },
-      currentTab: 1,
+    ]
+  };
+
+  it('switches tab', () => {
+    expect(reducer(state, {type: SWITCH_TO_TAB, tab: 2})).toEqual({
+      browserHistory: {
+        back: [{url: '/a', tab: 0, id: 1}, {url: '/a/1', tab: 0, id: 4}],
+        current: {url: '/c', tab: 2, id: 3},
+        forward: []
+      },
+      currentTab: 2,
       lastId: 5,
       tabHistories: [
         {
@@ -25,18 +49,13 @@ describe('main', () => {
           back: [],
           current: {url: '/c', tab: 2, id: 3},
           forward: []
-        },
+        }
       ]
     });
   });
 
-  afterEach(() => {
-    clearState();
-  });
-
-  it('switches tab', () => {
-    switchToTab(2);
-    expect(getState()).toEqual({
+  it('switches tab(2)', () => {
+    expect(reducer(state, {type: SWITCH_TO_TAB, tab: 2})).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}, {url: '/a/1', tab: 0, id: 4}],
         current: {url: '/c', tab: 2, id: 3},
@@ -63,8 +82,7 @@ describe('main', () => {
   });
 
   it('pushes page', () => {
-    push('/b/2');
-    expect(getState()).toEqual({
+    expect(reducer(state, {type: PUSH, url: '/b/2'})).toEqual({
       browserHistory: {
         back: [
           {url: '/a', tab: 0, id: 1},
@@ -95,8 +113,7 @@ describe('main', () => {
   });
 
   it('goes back in history', () => {
-    back();
-    expect(getState()).toEqual({
+    expect(reducer(state, {type: BACK})).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}],
         current: {url: '/a/1', tab: 0, id: 4},
@@ -123,8 +140,7 @@ describe('main', () => {
   });
 
   it('goes forward in history', () => {
-    forward();
-    expect(getState()).toEqual({
+    expect(reducer(state, {type: FORWARD})).toEqual({
       browserHistory: {
         back: [
           {url: '/a', tab: 0, id: 1},
@@ -160,5 +176,67 @@ describe('main', () => {
 
   it('goes forward N pages in history', () => {
 
+  });
+
+  it('correctly updates history from popstate', () => {
+    expect(reducer(state, {type: POPSTATE, id: 5})).toEqual({
+      browserHistory: {
+        back: [
+          {url: '/a', tab: 0, id: 1},
+          {url: '/a/1', tab: 0, id: 4},
+          {url: '/b', tab: 1, id: 2}
+        ],
+        current: {url: '/b/1', tab: 1, id: 5},
+        forward: []
+      },
+      currentTab: 1,
+      lastId: 5,
+      tabHistories: [
+        {
+          back: [{url: '/a', tab: 0, id: 1}],
+          current: {url: '/a/1', tab: 0, id: 4},
+          forward: []
+        }, {
+          back: [{url: '/b', tab: 1, id: 2}],
+          current: {url: '/b/1', tab: 1, id: 5},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2, id: 3},
+          forward: []
+        },
+      ]
+    });
+  });
+
+  it('switches tab, goes back, switches tab back', () => {
+    let newState = reducer(state, {type: SWITCH_TO_TAB, tab: 0});
+    newState = reducer(newState, {type: BACK});
+    newState = reducer(newState, {type: SWITCH_TO_TAB, tab: 1});
+    newState = reducer(newState, {type: SWITCH_TO_TAB, tab: 0});
+    expect(newState).toEqual({
+      browserHistory: {
+        back: [],
+        current: {url: '/a', tab: 0, id: 1},
+        forward: [{url: '/a/1', tab: 0, id: 4}]
+      },
+      currentTab: 0,
+      lastId: 5,
+      tabHistories: [
+        {
+          back: [],
+          current: {url: '/a', tab: 0, id: 1},
+          forward: [{url: '/a/1', tab: 0, id: 4}]
+        }, {
+          back: [],
+          current: {url: '/b', tab: 1, id: 2},
+          forward: [{url: '/b/1', tab: 1, id: 5}]
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2, id: 3},
+          forward: []
+        },
+      ]
+    });
   });
 });

@@ -12,8 +12,8 @@
     "lint": "eslint src tests",
     "test": "jest",
     "test:watch": "jest --watch",
-    "build:umd": "webpack src/index.js dist/react-nav-thing.js --config webpack.config.development.js",
-    "build:umd:min": "webpack src/index.js dist/react-nav-thing.min.js --config webpack.config.production.js",
+    "build:umd": "webpack src/index.js dist/tab-history-library.js --config webpack.config.development.js",
+    "build:umd:min": "webpack src/index.js dist/tab-history-library.min.js --config webpack.config.production.js",
     "build": "npm run build:umd && npm run build:umd:min"
   },
   "keywords": [
@@ -23,6 +23,7 @@
     "history": "^4.4.0",
     "jquery": "^3.1.1",
     "lodash": "^4.2.0",
+    "redux": "^3.6.0",
     "warning": "^3.0.0"
   },
   "devDependencies": {

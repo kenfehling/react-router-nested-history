@@ -1,0 +1,24 @@
+.app-container {
+  display: flex;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  margin-top: 20px;
+}
+
+.tabs-container, .windows-container {
+  margin: 0 auto;
+}
+
+.tabs-container {
+  width: 320px;
+}
+
+.windows-container {
+  width: 440px;
+  height: 440px;
+}
+
+.description {
+  margin-bottom: 20px;
+}

@@ -1,58 +1,80 @@
-import * as behavior from './behaviors/defaultTabBehavior';
-import { getState, setState } from './historyStore';
-import * as utils from './util/history';
+import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes";
+import * as actions from './actions/HistoryActions';
+import * as browser from './browserFunctions';
+import { listen, listenPromise } from './historyListener';
+import { diffStateForSteps } from './util/history';
+import store from './store';
+import * as _ from 'lodash';
 
-export function switchToTab(tab) {
-  const historyState = getState();
-  const state = behavior.switchToTab({historyState, tab});
-  setState({...state, currentTab: tab});
-}
+const needsPop = [browser.back, browser.forward, browser.go];
+let unlisten;
 
-export function push(url) {
-  const state = getState();
-  const tab = state.currentTab;
-  const id = state.lastId + 1;
-  const page = {url, tab, id};
-  setState({
-    ...state,
-    browserHistory: utils.pushPage(state.browserHistory, page),
-    tabHistories: utils.updateTab(state, tab, t => utils.pushPage(t, page)),
-    lastId: id
+const startListening = () => {
+  unlisten = listen(location => {
+    store.dispatch(actions.popstate(location.state.id));
   });
-}
+};
 
-export function _go(state, n) {
-  const tab = state.currentTab;
-  if (n === 0) {
-    return state;
-  }
-  else {
-    const f = n < 0 ? utils.back : utils.forward;
-    const browserHistory = f(state.browserHistory);
-    const tabHistory = state.tabHistories[tab];
-    const stack = n < 0 ? tabHistory.back : tabHistory.forward;
-    const tabCanGo = stack.length > 0;
-    const nextN = n < 0 ? n + 1 : n - 1;
-    if (tabCanGo) {
-      return _go({
-        ...state,
-        browserHistory,
-        tabHistories: utils.updateTab(state, tab, f)
-      }, nextN);
+const unlistenPromise = () => new Promise(resolve => {
+  unlisten();
+  return resolve();
+});
+
+const startListeningPromise = () => new Promise(resolve => {
+  startListening();
+  return resolve();
+});
+
+startListening();
+
+export const setTabs = (...initialUrls) => store.dispatch(actions.setTabs(initialUrls));
+export const switchToTab = (tab) => store.dispatch(actions.switchToTab(tab));
+export const push = (url) => store.dispatch(actions.push(url));
+export const go = (n=1) => store.dispatch(actions.go(n));
+export const back = (n=1) => store.dispatch(actions.back(n));
+export const forward = (n=1) => store.dispatch(actions.forward(n));
+
+export const getCurrentTab = () => {
+  const state = store.getState();
+
+  console.log(state);
+
+  return state.browserHistory.current.tab;
+};
+
+store.subscribe(() => {
+  const state = store.getState();
+  switch(state.lastAction) {
+    case SET_TABS: {
+      browser.replace(state.browserHistory.current);
+      break;
     }
-    else {
-      return _go({
-        ...state,
-        browserHistory,
-        currentTab: browserHistory.current.tab
-      }, nextN);
+    case SWITCH_TO_TAB: {
+      const steps = diffStateForSteps(state.lastState, state).map(s => () => {
+        s.fn(...s.args);
+        return _.includes(needsPop, s.fn) ? listenPromise() : Promise.resolve();
+      });
+      [unlistenPromise, ...steps, startListeningPromise].reduce(
+        (p, step) => p.then(step),
+        Promise.resolve()
+      );
+      break;
+    }
+    case PUSH: {
+      browser.push(state.browserHistory.current);
+      break;
+    }
+    case BACK: {
+      break;
+    }
+    case FORWARD: {
+      break;
+    }
+    case GO: {
+      break;
+    }
+    case POPSTATE: {
+      break;
     }
   }
-}
-
-export function go(n) {
-  setState(_go(getState(), n));
-}
-
-export const back = (n=1) => go(0 - n);
-export const forward = (n=1) => go(n);
+});
