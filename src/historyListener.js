@@ -7,3 +7,11 @@ export const listen = (fn) => history.listen(fn);
 export const listenBefore = (fn) => history.listenBefore(fn);
 export const push = (...args) => history.push(...args);
 export const replace = (...args) => history.replace(...args);
+
+export const listenPromise = () => new Promise(resolve => {
+  const unListen = history.listen(location => {
+    console.log(location);
+    unListen();
+    resolve(location);
+  });
+});

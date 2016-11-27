@@ -1,4 +1,9 @@
-import { SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO } from "../constants/ActionTypes";
+import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
+
+export const setTabs = (initialUrls) => ({
+  type: SET_TABS,
+  initialUrls
+});
 
 export const switchToTab = (tab) => ({
   type: SWITCH_TO_TAB,
@@ -25,3 +30,7 @@ export const go = (n) => ({
   n
 });
 
+export const popstate = (location) => ({
+  type: POPSTATE,
+  location
+});

@@ -1,4 +1,4 @@
-import reducer from '../../src/reducers/index';
+import { reducer } from '../../src/reducers/index';
 import { SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO } from "../../src/constants/ActionTypes";
 
 describe('main', () => {

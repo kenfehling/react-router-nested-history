@@ -66,7 +66,7 @@ export const diffStateForSteps = (oldState, newState) => {
   return _.flatten([
     _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
-    {fn: browser.push, args: [h2.current]},
+    {fn: browser.replace, args: [h2.current]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ]);
@@ -81,8 +81,3 @@ export const constructNewBrowserHistory = (oldHistory, newCurrent) => {
     return shiftHistory(oldHistory, shiftAmount);
   }
 };
-
-export const constructNewStateForBackOrForward = (oldState, newCurrent) => ({
-  ...oldState,
-  browserHistory: constructNewBrowserHistory(oldState.browserHistory, newCurrent)
-});

@@ -60,24 +60,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _realMain = __webpack_require__(1);
+	var _main = __webpack_require__(1);
 
 	Object.defineProperty(exports, 'setTabs', {
 	  enumerable: true,
 	  get: function get() {
-	    return _realMain.setTabs;
+	    return _main.setTabs;
 	  }
 	});
 	Object.defineProperty(exports, 'push', {
 	  enumerable: true,
 	  get: function get() {
-	    return _realMain.push;
+	    return _main.push;
 	  }
 	});
 	Object.defineProperty(exports, 'switchToTab', {
 	  enumerable: true,
 	  get: function get() {
-	    return _realMain.switchToTab;
+	    return _main.switchToTab;
 	  }
 	});
 
@@ -90,81 +90,217 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.setTabs = setTabs;
-	exports.push = push;
-	exports.switchToTab = switchToTab;
+	exports.forward = exports.back = exports.go = exports.push = exports.switchToTab = exports.setTabs = undefined;
 
-	var _main = __webpack_require__(2);
+	var _ActionTypes = __webpack_require__(2);
 
-	var fakeMain = _interopRequireWildcard(_main);
+	var _HistoryActions = __webpack_require__(3);
 
-	var _browserFunctions = __webpack_require__(8);
+	var actions = _interopRequireWildcard(_HistoryActions);
+
+	var _browserFunctions = __webpack_require__(4);
 
 	var browser = _interopRequireWildcard(_browserFunctions);
 
-	var _historyListener = __webpack_require__(19);
+	var _historyListener = __webpack_require__(15);
 
-	var _history = __webpack_require__(7);
+	var _history = __webpack_require__(16);
 
-	var _historyStore = __webpack_require__(4);
+	var _store = __webpack_require__(19);
+
+	var _store2 = _interopRequireDefault(_store);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	(0, _historyListener.listen)(function (location) {
-	  var oldState = (0, _historyStore.getState)();
-	  var newState = (0, _history.constructNewStateForBackOrForward)(oldState, location.state);
-	  (0, _historyStore.setState)(newState);
-	});
+	var unlisten = void 0;
 
-	function setTabs() {
-	  var state = (0, _historyStore.getState)();
-	  var id = ++state.lastId;
+	var startListening = function startListening() {
+	  unlisten = (0, _historyListener.listen)(function (location) {
+	    console.log("POPSTATE", location);
+	    _store2.default.dispatch(actions.popstate(location));
+	  });
+	};
 
+	var unlistenPromise = function unlistenPromise() {
+	  return new Promise(function (resolve) {
+	    console.log("UNLISTEN");
+	    unlisten();
+	    return resolve();
+	  });
+	};
+
+	var startListeningPromise = function startListeningPromise() {
+	  return new Promise(function (resolve) {
+	    console.log("LISTEN AGAIN");
+	    startListening();
+	    return resolve();
+	  });
+	};
+
+	startListening();
+
+	var setTabs = exports.setTabs = function setTabs() {
 	  for (var _len = arguments.length, initialUrls = Array(_len), _key = 0; _key < _len; _key++) {
 	    initialUrls[_key] = arguments[_key];
 	  }
 
-	  (0, _historyStore.setState)({
-	    browserHistory: {
-	      back: [],
-	      current: { url: initialUrls[0], tab: 0, id: id },
-	      forward: []
-	    },
-	    tabHistories: initialUrls.map(function (url, i) {
-	      return {
-	        back: [],
-	        current: { url: url, tab: i, id: id + i + 1 },
-	        forward: []
-	      };
-	    }),
-	    currentTab: 0,
-	    lastId: id + initialUrls.length + 1
-	  });
-	  browser.replace({ url: initialUrls[0], id: id });
-	}
+	  return _store2.default.dispatch(actions.setTabs(initialUrls));
+	};
+	var switchToTab = exports.switchToTab = function switchToTab(tab) {
+	  return _store2.default.dispatch(actions.switchToTab(tab));
+	};
+	var push = exports.push = function push(url) {
+	  return _store2.default.dispatch(actions.push(url));
+	};
+	var go = exports.go = function go() {
+	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	  return _store2.default.dispatch(actions.go(n));
+	};
+	var back = exports.back = function back() {
+	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	  return _store2.default.dispatch(actions.back(n));
+	};
+	var forward = exports.forward = function forward() {
+	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	  return _store2.default.dispatch(actions.forward(n));
+	};
 
-	function push(url) {
-	  fakeMain.push(url);
-	  browser.push((0, _historyStore.getState)().browserHistory.current);
-	}
-
-	function switchToTab(index) {
-	  var oldState = (0, _historyStore.getState)();
-	  fakeMain.switchToTab(index);
-	  var newState = (0, _historyStore.getState)();
-	  var steps = (0, _history.diffStateForSteps)(oldState, newState);
-	  var promises = steps.map(function (step) {
-	    return new Promise(function (resolve, reject) {
-	      return resolve(step.fn.apply(step, _toConsumableArray(step.args)));
-	    });
-	  });
-	  Promise.all(promises);
-	}
+	_store2.default.subscribe(function () {
+	  var state = _store2.default.getState();
+	  switch (state.lastAction) {
+	    case _ActionTypes.SET_TABS:
+	      {
+	        console.log(state);
+	        browser.replace(state.browserHistory.current);
+	        break;
+	      }
+	    case _ActionTypes.SWITCH_TO_TAB:
+	      {
+	        var steps = (0, _history.diffStateForSteps)(state.lastState, state).map(function (s) {
+	          return function () {
+	            console.log("NOT REALLY");
+	            s.fn.apply(s, _toConsumableArray(s.args));
+	            if (s.fn === browser.back || s.fn === browser.forward || s.fn === browser.go) {
+	              return (0, _historyListener.listenPromise)();
+	            } else {
+	              return Promise.resolve();
+	            }
+	          };
+	        });
+	        [unlistenPromise].concat(_toConsumableArray(steps), [startListeningPromise]).reduce(function (p, step) {
+	          return p.then(step);
+	        }, Promise.resolve());
+	        break;
+	      }
+	    case _ActionTypes.PUSH:
+	      {
+	        browser.push(state.browserHistory.current);
+	        break;
+	      }
+	    case _ActionTypes.BACK:
+	      {
+	        break;
+	      }
+	    case _ActionTypes.FORWARD:
+	      {
+	        break;
+	      }
+	    case _ActionTypes.GO:
+	      {
+	        break;
+	      }
+	    case _ActionTypes.POPSTATE:
+	      {
+	        break;
+	      }
+	  }
+	});
 
 /***/ },
 /* 2 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var SET_TABS = exports.SET_TABS = 'set-tabs';
+	var SWITCH_TO_TAB = exports.SWITCH_TO_TAB = 'switch-to-tab';
+	var PUSH = exports.PUSH = 'push';
+	var BACK = exports.BACK = 'back';
+	var FORWARD = exports.FORWARD = 'forward';
+	var GO = exports.GO = 'go';
+	var POPSTATE = exports.POPSTATE = 'popstate';
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToTab = exports.setTabs = undefined;
+
+	var _ActionTypes = __webpack_require__(2);
+
+	var setTabs = exports.setTabs = function setTabs(initialUrls) {
+	  return {
+	    type: _ActionTypes.SET_TABS,
+	    initialUrls: initialUrls
+	  };
+	};
+
+	var switchToTab = exports.switchToTab = function switchToTab(tab) {
+	  return {
+	    type: _ActionTypes.SWITCH_TO_TAB,
+	    tab: tab
+	  };
+	};
+
+	var push = exports.push = function push(url) {
+	  return {
+	    type: _ActionTypes.PUSH,
+	    url: url
+	  };
+	};
+
+	var back = exports.back = function back(n) {
+	  return {
+	    type: _ActionTypes.BACK,
+	    n: n
+	  };
+	};
+
+	var forward = exports.forward = function forward(n) {
+	  return {
+	    type: _ActionTypes.FORWARD,
+	    n: n
+	  };
+	};
+
+	var go = exports.go = function go(n) {
+	  return {
+	    type: _ActionTypes.GO,
+	    n: n
+	  };
+	};
+
+	var popstate = exports.popstate = function popstate(location) {
+	  return {
+	    type: _ActionTypes.POPSTATE,
+	    location: location
+	  };
+	};
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -172,76 +308,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.forward = exports.back = undefined;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	exports.switchToTab = switchToTab;
+	exports.forward = exports.back = exports.go = undefined;
 	exports.push = push;
-	exports._go = _go;
-	exports.go = go;
+	exports.replace = replace;
 
-	var _defaultTabBehavior = __webpack_require__(3);
+	var _createBrowserHistory = __webpack_require__(5);
 
-	var behavior = _interopRequireWildcard(_defaultTabBehavior);
+	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
 
-	var _historyStore = __webpack_require__(4);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var _history = __webpack_require__(7);
+	var history = (0, _createBrowserHistory2.default)();
 
-	var utils = _interopRequireWildcard(_history);
+	function push(_ref) {
+	  var url = _ref.url,
+	      id = _ref.id;
 
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function switchToTab(tab) {
-	  var historyState = (0, _historyStore.getState)();
-	  var state = behavior.switchToTab({ historyState: historyState, tab: tab });
-	  (0, _historyStore.setState)(_extends({}, state, { currentTab: tab }));
+	  history.push(url, { id: id });
 	}
 
-	function push(url) {
-	  var state = (0, _historyStore.getState)();
-	  var tab = state.currentTab;
-	  var id = state.lastId + 1;
-	  var page = { url: url, tab: tab, id: id };
-	  (0, _historyStore.setState)(_extends({}, state, {
-	    browserHistory: utils.pushPage(state.browserHistory, page),
-	    tabHistories: utils.updateTab(state, tab, function (t) {
-	      return utils.pushPage(t, page);
-	    }),
-	    lastId: id
-	  }));
+	function replace(_ref2) {
+	  var url = _ref2.url,
+	      id = _ref2.id;
+
+	  history.replace(url, { id: id });
 	}
 
-	function _go(state, n) {
-	  var tab = state.currentTab;
-	  if (n === 0) {
-	    return state;
-	  } else {
-	    var f = n < 0 ? utils.back : utils.forward;
-	    var browserHistory = f(state.browserHistory);
-	    var tabHistory = state.tabHistories[tab];
-	    var stack = n < 0 ? tabHistory.back : tabHistory.forward;
-	    var tabCanGo = stack.length > 0;
-	    var nextN = n < 0 ? n + 1 : n - 1;
-	    if (tabCanGo) {
-	      return _go(_extends({}, state, {
-	        browserHistory: browserHistory,
-	        tabHistories: utils.updateTab(state, tab, f)
-	      }), nextN);
-	    } else {
-	      return _go(_extends({}, state, {
-	        browserHistory: browserHistory,
-	        currentTab: browserHistory.current.tab
-	      }), nextN);
-	    }
-	  }
-	}
-
-	function go(n) {
-	  (0, _historyStore.setState)(_go((0, _historyStore.getState)(), n));
-	}
-
+	var go = exports.go = function go(n) {
+	  return history.go(n);
+	};
 	var back = exports.back = function back() {
 	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 	  return go(0 - n);
@@ -252,56 +347,833 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 3 */
-/***/ function(module, exports) {
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
+	exports.__esModule = true;
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	exports.switchToTab = switchToTab;
+	var _warning = __webpack_require__(6);
 
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	var _warning2 = _interopRequireDefault(_warning);
+
+	var _invariant = __webpack_require__(7);
+
+	var _invariant2 = _interopRequireDefault(_invariant);
+
+	var _LocationUtils = __webpack_require__(8);
+
+	var _PathUtils = __webpack_require__(11);
+
+	var _createTransitionManager = __webpack_require__(12);
+
+	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
+
+	var _ExecutionEnvironment = __webpack_require__(13);
+
+	var _DOMUtils = __webpack_require__(14);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var PopStateEvent = 'popstate';
+	var HashChangeEvent = 'hashchange';
+
+	var getHistoryState = function getHistoryState() {
+	  try {
+	    return window.history.state || {};
+	  } catch (e) {
+	    // IE 11 sometimes throws when accessing window.history.state
+	    // See https://github.com/mjackson/history/pull/289
+	    return {};
+	  }
+	};
 
 	/**
-	 * Switch tab using mobile-app like behavior (with a default tab: index == 0)
-	 * Structure of a history object:
-	 *    { back: [String], current: String, forward: [String] }
-	 * @param {Array} tabHistories - The stored histories of each individual tab
-	 * @param {Number} tab - The index of the new tab
-	 * @returns {Object} A new historyState object
+	 * Creates a history object that uses the HTML5 history API including
+	 * pushState, replaceState, and the popstate event.
 	 */
-	function switchToTab(_ref) {
-	  var tabHistories = _ref.historyState.tabHistories,
-	      tab = _ref.tab;
+	var createBrowserHistory = function createBrowserHistory() {
+	  var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-	  var defaultTab = tabHistories[0];
-	  var toTab = tabHistories[tab];
-	  var createNewHistoryState = function createNewHistoryState(browserHistory) {
-	    return {
-	      tabHistories: tabHistories,
-	      browserHistory: browserHistory
+	  !_ExecutionEnvironment.canUseDOM ?  true ? (0, _invariant2.default)(false, 'Browser history needs a DOM') : (0, _invariant2.default)(false) : void 0;
+
+	  var globalHistory = window.history;
+	  var canUseHistory = (0, _DOMUtils.supportsHistory)();
+	  var needsHashChangeListener = !(0, _DOMUtils.supportsPopStateOnHashChange)();
+
+	  var _props$basename = props.basename;
+	  var basename = _props$basename === undefined ? '' : _props$basename;
+	  var _props$forceRefresh = props.forceRefresh;
+	  var forceRefresh = _props$forceRefresh === undefined ? false : _props$forceRefresh;
+	  var _props$getUserConfirm = props.getUserConfirmation;
+	  var getUserConfirmation = _props$getUserConfirm === undefined ? _DOMUtils.getConfirmation : _props$getUserConfirm;
+	  var _props$keyLength = props.keyLength;
+	  var keyLength = _props$keyLength === undefined ? 6 : _props$keyLength;
+
+
+	  var getDOMLocation = function getDOMLocation(historyState) {
+	    var _ref = historyState || {};
+
+	    var key = _ref.key;
+	    var state = _ref.state;
+	    var _window$location = window.location;
+	    var pathname = _window$location.pathname;
+	    var search = _window$location.search;
+	    var hash = _window$location.hash;
+
+
+	    var path = pathname + search + hash;
+
+	    if (basename) path = (0, _PathUtils.stripPrefix)(path, basename);
+
+	    return _extends({}, (0, _PathUtils.parsePath)(path), {
+	      state: state,
+	      key: key
+	    });
+	  };
+
+	  var createKey = function createKey() {
+	    return Math.random().toString(36).substr(2, keyLength);
+	  };
+
+	  var transitionManager = (0, _createTransitionManager2.default)();
+
+	  var setState = function setState(nextState) {
+	    _extends(history, nextState);
+
+	    history.length = globalHistory.length;
+
+	    transitionManager.notifyListeners(history.location, history.action);
+	  };
+
+	  var handlePopState = function handlePopState(event) {
+	    if (event.state === undefined) return; // Ignore extraneous popstate events in WebKit.
+
+	    handlePop(getDOMLocation(event.state));
+	  };
+
+	  var handleHashChange = function handleHashChange() {
+	    handlePop(getDOMLocation(getHistoryState()));
+	  };
+
+	  var forceNextPop = false;
+
+	  var handlePop = function handlePop(location) {
+	    if (forceNextPop) {
+	      forceNextPop = false;
+	      setState();
+	    } else {
+	      (function () {
+	        var action = 'POP';
+
+	        transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
+	          if (ok) {
+	            setState({ action: action, location: location });
+	          } else {
+	            revertPop(location);
+	          }
+	        });
+	      })();
+	    }
+	  };
+
+	  var revertPop = function revertPop(fromLocation) {
+	    var toLocation = history.location;
+
+	    // TODO: We could probably make this more reliable by
+	    // keeping a list of keys we've seen in sessionStorage.
+	    // Instead, we just default to 0 for keys we don't know.
+
+	    var toIndex = allKeys.indexOf(toLocation.key);
+
+	    if (toIndex === -1) toIndex = 0;
+
+	    var fromIndex = allKeys.indexOf(fromLocation.key);
+
+	    if (fromIndex === -1) fromIndex = 0;
+
+	    var delta = toIndex - fromIndex;
+
+	    if (delta) {
+	      forceNextPop = true;
+	      go(delta);
+	    }
+	  };
+
+	  var initialLocation = getDOMLocation(getHistoryState());
+	  var allKeys = [initialLocation.key];
+
+	  // Public interface
+
+	  var push = function push(path, state) {
+	     true ? (0, _warning2.default)(!((typeof path === 'undefined' ? 'undefined' : _typeof(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to push when the 1st ' + 'argument is a location-like object that already has state; it is ignored') : void 0;
+
+	    var action = 'PUSH';
+	    var location = (0, _LocationUtils.createLocation)(path, state, createKey(), history.location);
+
+	    transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
+	      if (!ok) return;
+
+	      var url = basename + (0, _PathUtils.createPath)(location);
+	      var key = location.key;
+	      var state = location.state;
+
+
+	      if (canUseHistory) {
+	        globalHistory.pushState({ key: key, state: state }, null, url);
+
+	        if (forceRefresh) {
+	          window.location.href = url;
+	        } else {
+	          var prevIndex = allKeys.indexOf(history.location.key);
+	          var nextKeys = allKeys.slice(0, prevIndex === -1 ? 0 : prevIndex + 1);
+
+	          nextKeys.push(location.key);
+	          allKeys = nextKeys;
+
+	          setState({ action: action, location: location });
+	        }
+	      } else {
+	         true ? (0, _warning2.default)(state === undefined, 'Browser history cannot push state in browsers that do not support HTML5 history') : void 0;
+
+	        window.location.href = url;
+	      }
+	    });
+	  };
+
+	  var replace = function replace(path, state) {
+	     true ? (0, _warning2.default)(!((typeof path === 'undefined' ? 'undefined' : _typeof(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to replace when the 1st ' + 'argument is a location-like object that already has state; it is ignored') : void 0;
+
+	    var action = 'REPLACE';
+	    var location = (0, _LocationUtils.createLocation)(path, state, createKey(), history.location);
+
+	    transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
+	      if (!ok) return;
+
+	      var url = basename + (0, _PathUtils.createPath)(location);
+	      var key = location.key;
+	      var state = location.state;
+
+
+	      if (canUseHistory) {
+	        globalHistory.replaceState({ key: key, state: state }, null, url);
+
+	        if (forceRefresh) {
+	          window.location.replace(url);
+	        } else {
+	          var prevIndex = allKeys.indexOf(history.location.key);
+
+	          if (prevIndex !== -1) allKeys[prevIndex] = location.key;
+
+	          setState({ action: action, location: location });
+	        }
+	      } else {
+	         true ? (0, _warning2.default)(state === undefined, 'Browser history cannot replace state in browsers that do not support HTML5 history') : void 0;
+
+	        window.location.replace(url);
+	      }
+	    });
+	  };
+
+	  var go = function go(n) {
+	    globalHistory.go(n);
+	  };
+
+	  var goBack = function goBack() {
+	    return go(-1);
+	  };
+
+	  var goForward = function goForward() {
+	    return go(1);
+	  };
+
+	  var listenerCount = 0;
+
+	  var checkDOMListeners = function checkDOMListeners(delta) {
+	    listenerCount += delta;
+
+	    if (listenerCount === 1) {
+	      (0, _DOMUtils.addEventListener)(window, PopStateEvent, handlePopState);
+
+	      if (needsHashChangeListener) (0, _DOMUtils.addEventListener)(window, HashChangeEvent, handleHashChange);
+	    } else if (listenerCount === 0) {
+	      (0, _DOMUtils.removeEventListener)(window, PopStateEvent, handlePopState);
+
+	      if (needsHashChangeListener) (0, _DOMUtils.removeEventListener)(window, HashChangeEvent, handleHashChange);
+	    }
+	  };
+
+	  var isBlocked = false;
+
+	  var block = function block() {
+	    var prompt = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+	    var unblock = transitionManager.setPrompt(prompt);
+
+	    if (!isBlocked) {
+	      checkDOMListeners(1);
+	      isBlocked = true;
+	    }
+
+	    return function () {
+	      if (isBlocked) {
+	        isBlocked = false;
+	        checkDOMListeners(-1);
+	      }
+
+	      return unblock();
 	    };
 	  };
-	  if (tab === 0) {
-	    // going to default tab
-	    return createNewHistoryState(_extends({}, toTab, {
-	      back: [].concat(_toConsumableArray(toTab.back))
-	    }));
-	  } else {
-	    // going to non-default tab
-	    return createNewHistoryState(_extends({}, toTab, {
-	      back: [].concat(_toConsumableArray(defaultTab.back), [defaultTab.current], _toConsumableArray(toTab.back))
-	    }));
-	  }
-	}
+
+	  var listen = function listen(listener) {
+	    var unlisten = transitionManager.appendListener(listener);
+	    checkDOMListeners(1);
+
+	    return function () {
+	      checkDOMListeners(-1);
+	      return unlisten();
+	    };
+	  };
+
+	  var history = {
+	    length: globalHistory.length,
+	    action: 'POP',
+	    location: initialLocation,
+	    push: push,
+	    replace: replace,
+	    go: go,
+	    goBack: goBack,
+	    goForward: goForward,
+	    block: block,
+	    listen: listen
+	  };
+
+	  return history;
+	};
+
+	exports.default = createBrowserHistory;
 
 /***/ },
-/* 4 */
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright 2014-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 */
+
+	'use strict';
+
+	/**
+	 * Similar to invariant but only logs a warning if the condition is not met.
+	 * This can be used to log issues in development environments in critical
+	 * paths. Removing the logging code for production environments will keep the
+	 * same logic and follow the same code paths.
+	 */
+
+	var warning = function() {};
+
+	if (true) {
+	  warning = function(condition, format, args) {
+	    var len = arguments.length;
+	    args = new Array(len > 2 ? len - 2 : 0);
+	    for (var key = 2; key < len; key++) {
+	      args[key - 2] = arguments[key];
+	    }
+	    if (format === undefined) {
+	      throw new Error(
+	        '`warning(condition, format, ...args)` requires a warning ' +
+	        'message argument'
+	      );
+	    }
+
+	    if (format.length < 10 || (/^[s\W]*$/).test(format)) {
+	      throw new Error(
+	        'The warning format should be able to uniquely identify this ' +
+	        'warning. Please, use a more descriptive format than: ' + format
+	      );
+	    }
+
+	    if (!condition) {
+	      var argIndex = 0;
+	      var message = 'Warning: ' +
+	        format.replace(/%s/g, function() {
+	          return args[argIndex++];
+	        });
+	      if (typeof console !== 'undefined') {
+	        console.error(message);
+	      }
+	      try {
+	        // This error was thrown as a convenience so that you can use this stack
+	        // to find the callsite that caused this warning to fire.
+	        throw new Error(message);
+	      } catch(x) {}
+	    }
+	  };
+	}
+
+	module.exports = warning;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright 2013-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 */
+
+	'use strict';
+
+	/**
+	 * Use invariant() to assert state which your program assumes to be true.
+	 *
+	 * Provide sprintf-style format (only %s is supported) and arguments
+	 * to provide information about what broke and what you were
+	 * expecting.
+	 *
+	 * The invariant message will be stripped in production, but the invariant
+	 * will remain to ensure logic does not differ in production.
+	 */
+
+	var invariant = function(condition, format, a, b, c, d, e, f) {
+	  if (true) {
+	    if (format === undefined) {
+	      throw new Error('invariant requires an error message argument');
+	    }
+	  }
+
+	  if (!condition) {
+	    var error;
+	    if (format === undefined) {
+	      error = new Error(
+	        'Minified exception occurred; use the non-minified dev environment ' +
+	        'for the full error message and additional helpful warnings.'
+	      );
+	    } else {
+	      var args = [a, b, c, d, e, f];
+	      var argIndex = 0;
+	      error = new Error(
+	        format.replace(/%s/g, function() { return args[argIndex++]; })
+	      );
+	      error.name = 'Invariant Violation';
+	    }
+
+	    error.framesToPop = 1; // we don't care about invariant's own frame
+	    throw error;
+	  }
+	};
+
+	module.exports = invariant;
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports.locationsAreEqual = exports.createLocation = undefined;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _resolvePathname = __webpack_require__(9);
+
+	var _resolvePathname2 = _interopRequireDefault(_resolvePathname);
+
+	var _valueEqual = __webpack_require__(10);
+
+	var _valueEqual2 = _interopRequireDefault(_valueEqual);
+
+	var _PathUtils = __webpack_require__(11);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var createLocation = exports.createLocation = function createLocation(path, state, key, currentLocation) {
+	  var location = void 0;
+	  if (typeof path === 'string') {
+	    // Two-arg form: push(path, state)
+	    location = (0, _PathUtils.parsePath)(path);
+	    location.state = state;
+	  } else {
+	    // One-arg form: push(location)
+	    location = _extends({}, path);
+
+	    if (location.pathname === undefined) location.pathname = '';
+
+	    if (location.search) {
+	      if (location.search.charAt(0) !== '?') location.search = '?' + location.search;
+	    } else {
+	      location.search = '';
+	    }
+
+	    if (location.hash) {
+	      if (location.hash.charAt(0) !== '#') location.hash = '#' + location.hash;
+	    } else {
+	      location.hash = '';
+	    }
+
+	    if (state !== undefined && location.state === undefined) location.state = state;
+	  }
+
+	  location.key = key;
+
+	  if (currentLocation) {
+	    // Resolve incomplete/relative pathname relative to current location.
+	    if (!location.pathname) {
+	      location.pathname = currentLocation.pathname;
+	    } else if (location.pathname.charAt(0) !== '/') {
+	      location.pathname = (0, _resolvePathname2.default)(location.pathname, currentLocation.pathname);
+	    }
+	  }
+
+	  return location;
+	};
+
+	var locationsAreEqual = exports.locationsAreEqual = function locationsAreEqual(a, b) {
+	  return a.pathname === b.pathname && a.search === b.search && a.hash === b.hash && a.key === b.key && (0, _valueEqual2.default)(a.state, b.state);
+	};
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var isAbsolute = function isAbsolute(pathname) {
+	  return pathname.charAt(0) === '/';
+	};
+
+	// About 1.5x faster than the two-arg version of Array#splice()
+	var spliceOne = function spliceOne(list, index) {
+	  for (var i = index, k = i + 1, n = list.length; k < n; i += 1, k += 1) {
+	    list[i] = list[k];
+	  }list.pop();
+	};
+
+	// This implementation is based heavily on node's url.parse
+	var resolvePathname = function resolvePathname(to) {
+	  var from = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+
+	  var toParts = to && to.split('/') || [];
+	  var fromParts = from && from.split('/') || [];
+
+	  var isToAbs = to && isAbsolute(to);
+	  var isFromAbs = from && isAbsolute(from);
+	  var mustEndAbs = isToAbs || isFromAbs;
+
+	  if (to && isAbsolute(to)) {
+	    // to is absolute
+	    fromParts = toParts;
+	  } else if (toParts.length) {
+	    // to is relative, drop the filename
+	    fromParts.pop();
+	    fromParts = fromParts.concat(toParts);
+	  }
+
+	  if (!fromParts.length) return '/';
+
+	  var hasTrailingSlash = void 0;
+	  if (fromParts.length) {
+	    var last = fromParts[fromParts.length - 1];
+	    hasTrailingSlash = last === '.' || last === '..' || last === '';
+	  } else {
+	    hasTrailingSlash = false;
+	  }
+
+	  var up = 0;
+	  for (var i = fromParts.length; i >= 0; i--) {
+	    var part = fromParts[i];
+
+	    if (part === '.') {
+	      spliceOne(fromParts, i);
+	    } else if (part === '..') {
+	      spliceOne(fromParts, i);
+	      up++;
+	    } else if (up) {
+	      spliceOne(fromParts, i);
+	      up--;
+	    }
+	  }
+
+	  if (!mustEndAbs) for (; up--; up) {
+	    fromParts.unshift('..');
+	  }if (mustEndAbs && fromParts[0] !== '' && (!fromParts[0] || !isAbsolute(fromParts[0]))) fromParts.unshift('');
+
+	  var result = fromParts.join('/');
+
+	  if (hasTrailingSlash && result.substr(-1) !== '/') result += '/';
+
+	  return result;
+	};
+
+	module.exports = resolvePathname;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	var valueEqual = function valueEqual(a, b) {
+	  if (a === b) return true;
+
+	  if (a == null || b == null) return false;
+
+	  if (Array.isArray(a)) {
+	    if (!Array.isArray(b) || a.length !== b.length) return false;
+
+	    return a.every(function (item, index) {
+	      return valueEqual(item, b[index]);
+	    });
+	  }
+
+	  var aType = typeof a === 'undefined' ? 'undefined' : _typeof(a);
+	  var bType = typeof b === 'undefined' ? 'undefined' : _typeof(b);
+
+	  if (aType !== bType) return false;
+
+	  if (aType === 'object') {
+	    var aValue = a.valueOf();
+	    var bValue = b.valueOf();
+
+	    if (aValue !== a || bValue !== b) return valueEqual(aValue, bValue);
+
+	    var aKeys = Object.keys(a);
+	    var bKeys = Object.keys(b);
+
+	    if (aKeys.length !== bKeys.length) return false;
+
+	    return aKeys.every(function (key) {
+	      return valueEqual(a[key], b[key]);
+	    });
+	  }
+
+	  return false;
+	};
+
+	exports.default = valueEqual;
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	var addLeadingSlash = exports.addLeadingSlash = function addLeadingSlash(path) {
+	  return path.charAt(0) === '/' ? path : '/' + path;
+	};
+
+	var stripLeadingSlash = exports.stripLeadingSlash = function stripLeadingSlash(path) {
+	  return path.charAt(0) === '/' ? path.substr(1) : path;
+	};
+
+	var stripPrefix = exports.stripPrefix = function stripPrefix(path, prefix) {
+	  return path.indexOf(prefix) === 0 ? path.substr(prefix.length) : path;
+	};
+
+	var parsePath = exports.parsePath = function parsePath(path) {
+	  var pathname = path || '/';
+	  var search = '';
+	  var hash = '';
+
+	  var hashIndex = pathname.indexOf('#');
+	  if (hashIndex !== -1) {
+	    hash = pathname.substr(hashIndex);
+	    pathname = pathname.substr(0, hashIndex);
+	  }
+
+	  var searchIndex = pathname.indexOf('?');
+	  if (searchIndex !== -1) {
+	    search = pathname.substr(searchIndex);
+	    pathname = pathname.substr(0, searchIndex);
+	  }
+
+	  return {
+	    pathname: pathname,
+	    search: search === '?' ? '' : search,
+	    hash: hash === '#' ? '' : hash
+	  };
+	};
+
+	var createPath = exports.createPath = function createPath(location) {
+	  var pathname = location.pathname;
+	  var search = location.search;
+	  var hash = location.hash;
+
+
+	  var path = pathname || '/';
+
+	  if (search && search !== '?') path += search.charAt(0) === '?' ? search : '?' + search;
+
+	  if (hash && hash !== '#') path += hash.charAt(0) === '#' ? hash : '#' + hash;
+
+	  return path;
+	};
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _warning = __webpack_require__(6);
+
+	var _warning2 = _interopRequireDefault(_warning);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var createTransitionManager = function createTransitionManager() {
+	  var prompt = null;
+
+	  var setPrompt = function setPrompt(nextPrompt) {
+	     true ? (0, _warning2.default)(prompt == null, 'A history supports only one prompt at a time') : void 0;
+
+	    prompt = nextPrompt;
+
+	    return function () {
+	      if (prompt === nextPrompt) prompt = null;
+	    };
+	  };
+
+	  var confirmTransitionTo = function confirmTransitionTo(location, action, getUserConfirmation, callback) {
+	    // TODO: If another transition starts while we're still confirming
+	    // the previous one, we may end up in a weird state. Figure out the
+	    // best way to handle this.
+	    if (prompt != null) {
+	      var result = typeof prompt === 'function' ? prompt(location, action) : prompt;
+
+	      if (typeof result === 'string') {
+	        if (typeof getUserConfirmation === 'function') {
+	          getUserConfirmation(result, callback);
+	        } else {
+	           true ? (0, _warning2.default)(false, 'A history needs a getUserConfirmation function in order to use a prompt message') : void 0;
+
+	          callback(true);
+	        }
+	      } else {
+	        // Return false from a transition hook to cancel the transition.
+	        callback(result !== false);
+	      }
+	    } else {
+	      callback(true);
+	    }
+	  };
+
+	  var listeners = [];
+
+	  var appendListener = function appendListener(listener) {
+	    listeners.push(listener);
+
+	    return function () {
+	      listeners = listeners.filter(function (item) {
+	        return item !== listener;
+	      });
+	    };
+	  };
+
+	  var notifyListeners = function notifyListeners() {
+	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	      args[_key] = arguments[_key];
+	    }
+
+	    return listeners.forEach(function (listener) {
+	      return listener.apply(undefined, args);
+	    });
+	  };
+
+	  return {
+	    setPrompt: setPrompt,
+	    confirmTransitionTo: confirmTransitionTo,
+	    appendListener: appendListener,
+	    notifyListeners: notifyListeners
+	  };
+	};
+
+	exports.default = createTransitionManager;
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	var canUseDOM = exports.canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	var addEventListener = exports.addEventListener = function addEventListener(node, event, listener) {
+	  return node.addEventListener ? node.addEventListener(event, listener, false) : node.attachEvent('on' + event, listener);
+	};
+
+	var removeEventListener = exports.removeEventListener = function removeEventListener(node, event, listener) {
+	  return node.removeEventListener ? node.removeEventListener(event, listener, false) : node.detachEvent('on' + event, listener);
+	};
+
+	var getConfirmation = exports.getConfirmation = function getConfirmation(message, callback) {
+	  return callback(window.confirm(message));
+	}; // eslint-disable-line no-alert
+
+	/**
+	 * Returns true if the HTML5 history API is supported. Taken from Modernizr.
+	 *
+	 * https://github.com/Modernizr/Modernizr/blob/master/LICENSE
+	 * https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
+	 * changed to avoid false negatives for Windows Phones: https://github.com/reactjs/react-router/issues/586
+	 */
+	var supportsHistory = exports.supportsHistory = function supportsHistory() {
+	  var ua = window.navigator.userAgent;
+
+	  if ((ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) && ua.indexOf('Mobile Safari') !== -1 && ua.indexOf('Chrome') === -1 && ua.indexOf('Windows Phone') === -1) return false;
+
+	  return window.history && 'pushState' in window.history;
+	};
+
+	/**
+	 * Returns true if browser fires popstate on hash change.
+	 * IE10 and IE11 do not.
+	 */
+	var supportsPopStateOnHashChange = exports.supportsPopStateOnHashChange = function supportsPopStateOnHashChange() {
+	  return window.navigator.userAgent.indexOf('Trident') === -1;
+	};
+
+	/**
+	 * Returns false if using go(n) with hash history causes a full page reload.
+	 */
+	var supportsGoWithoutReloadUsingHash = exports.supportsGoWithoutReloadUsingHash = function supportsGoWithoutReloadUsingHash() {
+	  return window.navigator.userAgent.indexOf('Firefox') === -1;
+	};
+
+/***/ },
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -309,46 +1181,158 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.listenPromise = exports.replace = exports.push = exports.listenBefore = exports.listen = exports.setHistory = undefined;
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _createBrowserHistory = __webpack_require__(5);
 
-	exports.getState = getState;
-	exports.setState = setState;
-	exports.clearState = clearState;
+	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
 
-	var _lodash = __webpack_require__(5);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var history = (0, _createBrowserHistory2.default)();
+
+	var setHistory = exports.setHistory = function setHistory(h) {
+	  return history = h;
+	};
+	var listen = exports.listen = function listen(fn) {
+	  return history.listen(fn);
+	};
+	var listenBefore = exports.listenBefore = function listenBefore(fn) {
+	  return history.listenBefore(fn);
+	};
+	var push = exports.push = function push() {
+	  var _history;
+
+	  return (_history = history).push.apply(_history, arguments);
+	};
+	var replace = exports.replace = function replace() {
+	  var _history2;
+
+	  return (_history2 = history).replace.apply(_history2, arguments);
+	};
+
+	var listenPromise = exports.listenPromise = function listenPromise() {
+	  return new Promise(function (resolve) {
+	    console.log("Let's listen");
+	    var unListen = history.listen(function (location) {
+	      console.log(location);
+	      unListen();
+	      resolve(location);
+	    });
+	  });
+	};
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.constructNewBrowserHistory = exports.diffStateForSteps = exports.shiftHistory = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.pushPage = undefined;
+
+	var _lodash = __webpack_require__(17);
 
 	var _ = _interopRequireWildcard(_lodash);
 
+	var _browserFunctions = __webpack_require__(4);
+
+	var browser = _interopRequireWildcard(_browserFunctions);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-	var initialState = {
-	  browserHistory: {
-	    back: [],
-	    current: null,
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	var pushPage = exports.pushPage = function pushPage(historyStack, page) {
+	  return {
+	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
+	    current: page,
 	    forward: []
-	  },
-	  tabHistories: [],
-	  currentTab: 0,
-	  lastId: 0
+	  };
 	};
 
-	var _state = initialState;
+	var back = exports.back = function back(historyStack) {
+	  return {
+	    back: _.initial(historyStack.back),
+	    current: _.last(historyStack.back),
+	    forward: [historyStack.current].concat(_toConsumableArray(historyStack.forward))
+	  };
+	};
 
-	function getState() {
-	  return _.clone(_state);
-	}
+	var forward = exports.forward = function forward(historyStack) {
+	  return {
+	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
+	    current: _.head(historyStack.forward),
+	    forward: _.tail(historyStack.forward)
+	  };
+	};
 
-	function setState(state) {
-	  _state = _extends({}, _state, state);
-	}
+	var updateTab = exports.updateTab = function updateTab(state, tab, fn) {
+	  return [].concat(_toConsumableArray(state.tabHistories.slice(0, tab)), [fn(state.tabHistories[tab])], _toConsumableArray(state.tabHistories.slice(tab + 1)));
+	};
 
-	function clearState() {
-	  _state = initialState;
-	}
+	var getHistoryShiftAmount = exports.getHistoryShiftAmount = function getHistoryShiftAmount(oldHistory, newCurrent) {
+	  if (!newCurrent) {
+	    throw new Error("newCurrent must be defined");
+	  }
+	  if (!newCurrent.id) {
+	    throw new Error("newCurrent must have an id. Received:", newCurrent);
+	  }
+	  if (!_.isEmpty(oldHistory.back)) {
+	    var i = _.findIndex(oldHistory.back, function (b) {
+	      return b.id === newCurrent.id;
+	    });
+	    if (i !== -1) {
+	      return 0 - _.size(oldHistory.back) - i;
+	    }
+	  }
+	  if (!_.isEmpty(oldHistory.forward)) {
+	    var _i = _.findIndex(oldHistory.forward, function (b) {
+	      return b.id === newCurrent.id;
+	    });
+	    if (_i !== -1) {
+	      return _i + 1;
+	    }
+	  }
+	  return 0;
+	};
+
+	var shiftHistory = exports.shiftHistory = function shiftHistory(oldHistory, amount) {
+	  var f = amount > 0 ? forward : back;
+	  var n = amount > 0 ? amount - 1 : amount + 1;
+	  return n === 0 ? f(oldHistory) : shiftHistory(f(oldHistory), n);
+	};
+
+	/**
+	 * Get the difference between oldState and newState and return a list of
+	 * browser functions to transform the browser history from oldState to newState
+	 * @param oldState {Object} The original historyStore state
+	 * @param newState {Object} The new historyStore state
+	 * @returns {[Object]} An array of steps to get from old state to new state
+	 */
+	var diffStateForSteps = exports.diffStateForSteps = function diffStateForSteps(oldState, newState) {
+	  var h1 = oldState.browserHistory;
+	  var h2 = newState.browserHistory;
+	  return _.flatten([_.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
+	    return { fn: browser.push, args: [b] };
+	  }), { fn: browser.replace, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
+	    return { fn: browser.push, args: [f] };
+	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
+	};
+
+	var constructNewBrowserHistory = exports.constructNewBrowserHistory = function constructNewBrowserHistory(oldHistory, newCurrent) {
+	  var shiftAmount = getHistoryShiftAmount(oldHistory, newCurrent);
+	  if (shiftAmount === 0) {
+	    throw new Error("This should be used for back and forward");
+	  } else {
+	    return shiftHistory(oldHistory, shiftAmount);
+	  }
+	};
 
 /***/ },
-/* 5 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global, module) {/**
@@ -17417,10 +18401,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(6)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(18)(module)))
 
 /***/ },
-/* 6 */
+/* 18 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -17436,996 +18420,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.constructNewStateForBackOrForward = exports.constructNewBrowserHistory = exports.diffStateForSteps = exports.shiftHistory = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.pushPage = undefined;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _lodash = __webpack_require__(5);
-
-	var _ = _interopRequireWildcard(_lodash);
-
-	var _browserFunctions = __webpack_require__(8);
-
-	var browser = _interopRequireWildcard(_browserFunctions);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-	var pushPage = exports.pushPage = function pushPage(historyStack, page) {
-	  return {
-	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
-	    current: page,
-	    forward: []
-	  };
-	};
-
-	var back = exports.back = function back(historyStack) {
-	  return {
-	    back: _.initial(historyStack.back),
-	    current: _.last(historyStack.back),
-	    forward: [historyStack.current].concat(_toConsumableArray(historyStack.forward))
-	  };
-	};
-
-	var forward = exports.forward = function forward(historyStack) {
-	  return {
-	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
-	    current: _.head(historyStack.forward),
-	    forward: _.tail(historyStack.forward)
-	  };
-	};
-
-	var updateTab = exports.updateTab = function updateTab(state, tab, fn) {
-	  return [].concat(_toConsumableArray(state.tabHistories.slice(0, tab)), [fn(state.tabHistories[tab])], _toConsumableArray(state.tabHistories.slice(tab + 1)));
-	};
-
-	var getHistoryShiftAmount = exports.getHistoryShiftAmount = function getHistoryShiftAmount(oldHistory, newCurrent) {
-	  if (!newCurrent) {
-	    throw new Error("newCurrent must be defined");
-	  }
-	  if (!newCurrent.id) {
-	    throw new Error("newCurrent must have an id. Received:", newCurrent);
-	  }
-	  if (!_.isEmpty(oldHistory.back)) {
-	    var i = _.findIndex(oldHistory.back, function (b) {
-	      return b.id === newCurrent.id;
-	    });
-	    if (i !== -1) {
-	      return 0 - _.size(oldHistory.back) - i;
-	    }
-	  }
-	  if (!_.isEmpty(oldHistory.forward)) {
-	    var _i = _.findIndex(oldHistory.forward, function (b) {
-	      return b.id === newCurrent.id;
-	    });
-	    if (_i !== -1) {
-	      return _i + 1;
-	    }
-	  }
-	  return 0;
-	};
-
-	var shiftHistory = exports.shiftHistory = function shiftHistory(oldHistory, amount) {
-	  var f = amount > 0 ? forward : back;
-	  var n = amount > 0 ? amount - 1 : amount + 1;
-	  return n === 0 ? f(oldHistory) : shiftHistory(f(oldHistory), n);
-	};
-
-	/**
-	 * Get the difference between oldState and newState and return a list of
-	 * browser functions to transform the browser history from oldState to newState
-	 * @param oldState {Object} The original historyStore state
-	 * @param newState {Object} The new historyStore state
-	 * @returns {[Object]} An array of steps to get from old state to new state
-	 */
-	var diffStateForSteps = exports.diffStateForSteps = function diffStateForSteps(oldState, newState) {
-	  var h1 = oldState.browserHistory;
-	  var h2 = newState.browserHistory;
-	  return _.flatten([_.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
-	    return { fn: browser.push, args: [b] };
-	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
-	    return { fn: browser.push, args: [f] };
-	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
-	};
-
-	var constructNewBrowserHistory = exports.constructNewBrowserHistory = function constructNewBrowserHistory(oldHistory, newCurrent) {
-	  var shiftAmount = getHistoryShiftAmount(oldHistory, newCurrent);
-	  if (shiftAmount === 0) {
-	    throw new Error("This should be used for back and forward");
-	  } else {
-	    return shiftHistory(oldHistory, shiftAmount);
-	  }
-	};
-
-	var constructNewStateForBackOrForward = exports.constructNewStateForBackOrForward = function constructNewStateForBackOrForward(oldState, newCurrent) {
-	  return _extends({}, oldState, {
-	    browserHistory: constructNewBrowserHistory(oldState.browserHistory, newCurrent)
-	  });
-	};
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.forward = exports.back = exports.go = undefined;
-	exports.push = push;
-	exports.replace = replace;
-
-	var _createBrowserHistory = __webpack_require__(9);
-
-	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var history = (0, _createBrowserHistory2.default)();
-
-	function push(_ref) {
-	  var url = _ref.url,
-	      id = _ref.id;
-
-	  history.push(url, { id: id });
-	}
-
-	function replace(_ref2) {
-	  var url = _ref2.url,
-	      id = _ref2.id;
-
-	  history.replace(url, { id: id });
-	}
-
-	var go = exports.go = function go(n) {
-	  return history.go(n);
-	};
-	var back = exports.back = function back() {
-	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-	  return go(0 - n);
-	};
-	var forward = exports.forward = function forward() {
-	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-	  return go(n);
-	};
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _warning = __webpack_require__(10);
-
-	var _warning2 = _interopRequireDefault(_warning);
-
-	var _invariant = __webpack_require__(11);
-
-	var _invariant2 = _interopRequireDefault(_invariant);
-
-	var _LocationUtils = __webpack_require__(12);
-
-	var _PathUtils = __webpack_require__(15);
-
-	var _createTransitionManager = __webpack_require__(16);
-
-	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
-
-	var _ExecutionEnvironment = __webpack_require__(17);
-
-	var _DOMUtils = __webpack_require__(18);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var PopStateEvent = 'popstate';
-	var HashChangeEvent = 'hashchange';
-
-	var getHistoryState = function getHistoryState() {
-	  try {
-	    return window.history.state || {};
-	  } catch (e) {
-	    // IE 11 sometimes throws when accessing window.history.state
-	    // See https://github.com/mjackson/history/pull/289
-	    return {};
-	  }
-	};
-
-	/**
-	 * Creates a history object that uses the HTML5 history API including
-	 * pushState, replaceState, and the popstate event.
-	 */
-	var createBrowserHistory = function createBrowserHistory() {
-	  var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-	  !_ExecutionEnvironment.canUseDOM ?  true ? (0, _invariant2.default)(false, 'Browser history needs a DOM') : (0, _invariant2.default)(false) : void 0;
-
-	  var globalHistory = window.history;
-	  var canUseHistory = (0, _DOMUtils.supportsHistory)();
-	  var needsHashChangeListener = !(0, _DOMUtils.supportsPopStateOnHashChange)();
-
-	  var _props$basename = props.basename;
-	  var basename = _props$basename === undefined ? '' : _props$basename;
-	  var _props$forceRefresh = props.forceRefresh;
-	  var forceRefresh = _props$forceRefresh === undefined ? false : _props$forceRefresh;
-	  var _props$getUserConfirm = props.getUserConfirmation;
-	  var getUserConfirmation = _props$getUserConfirm === undefined ? _DOMUtils.getConfirmation : _props$getUserConfirm;
-	  var _props$keyLength = props.keyLength;
-	  var keyLength = _props$keyLength === undefined ? 6 : _props$keyLength;
-
-
-	  var getDOMLocation = function getDOMLocation(historyState) {
-	    var _ref = historyState || {};
-
-	    var key = _ref.key;
-	    var state = _ref.state;
-	    var _window$location = window.location;
-	    var pathname = _window$location.pathname;
-	    var search = _window$location.search;
-	    var hash = _window$location.hash;
-
-
-	    var path = pathname + search + hash;
-
-	    if (basename) path = (0, _PathUtils.stripPrefix)(path, basename);
-
-	    return _extends({}, (0, _PathUtils.parsePath)(path), {
-	      state: state,
-	      key: key
-	    });
-	  };
-
-	  var createKey = function createKey() {
-	    return Math.random().toString(36).substr(2, keyLength);
-	  };
-
-	  var transitionManager = (0, _createTransitionManager2.default)();
-
-	  var setState = function setState(nextState) {
-	    _extends(history, nextState);
-
-	    history.length = globalHistory.length;
-
-	    transitionManager.notifyListeners(history.location, history.action);
-	  };
-
-	  var handlePopState = function handlePopState(event) {
-	    if (event.state === undefined) return; // Ignore extraneous popstate events in WebKit.
-
-	    handlePop(getDOMLocation(event.state));
-	  };
-
-	  var handleHashChange = function handleHashChange() {
-	    handlePop(getDOMLocation(getHistoryState()));
-	  };
-
-	  var forceNextPop = false;
-
-	  var handlePop = function handlePop(location) {
-	    if (forceNextPop) {
-	      forceNextPop = false;
-	      setState();
-	    } else {
-	      (function () {
-	        var action = 'POP';
-
-	        transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
-	          if (ok) {
-	            setState({ action: action, location: location });
-	          } else {
-	            revertPop(location);
-	          }
-	        });
-	      })();
-	    }
-	  };
-
-	  var revertPop = function revertPop(fromLocation) {
-	    var toLocation = history.location;
-
-	    // TODO: We could probably make this more reliable by
-	    // keeping a list of keys we've seen in sessionStorage.
-	    // Instead, we just default to 0 for keys we don't know.
-
-	    var toIndex = allKeys.indexOf(toLocation.key);
-
-	    if (toIndex === -1) toIndex = 0;
-
-	    var fromIndex = allKeys.indexOf(fromLocation.key);
-
-	    if (fromIndex === -1) fromIndex = 0;
-
-	    var delta = toIndex - fromIndex;
-
-	    if (delta) {
-	      forceNextPop = true;
-	      go(delta);
-	    }
-	  };
-
-	  var initialLocation = getDOMLocation(getHistoryState());
-	  var allKeys = [initialLocation.key];
-
-	  // Public interface
-
-	  var push = function push(path, state) {
-	     true ? (0, _warning2.default)(!((typeof path === 'undefined' ? 'undefined' : _typeof(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to push when the 1st ' + 'argument is a location-like object that already has state; it is ignored') : void 0;
-
-	    var action = 'PUSH';
-	    var location = (0, _LocationUtils.createLocation)(path, state, createKey(), history.location);
-
-	    transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
-	      if (!ok) return;
-
-	      var url = basename + (0, _PathUtils.createPath)(location);
-	      var key = location.key;
-	      var state = location.state;
-
-
-	      if (canUseHistory) {
-	        globalHistory.pushState({ key: key, state: state }, null, url);
-
-	        if (forceRefresh) {
-	          window.location.href = url;
-	        } else {
-	          var prevIndex = allKeys.indexOf(history.location.key);
-	          var nextKeys = allKeys.slice(0, prevIndex === -1 ? 0 : prevIndex + 1);
-
-	          nextKeys.push(location.key);
-	          allKeys = nextKeys;
-
-	          setState({ action: action, location: location });
-	        }
-	      } else {
-	         true ? (0, _warning2.default)(state === undefined, 'Browser history cannot push state in browsers that do not support HTML5 history') : void 0;
-
-	        window.location.href = url;
-	      }
-	    });
-	  };
-
-	  var replace = function replace(path, state) {
-	     true ? (0, _warning2.default)(!((typeof path === 'undefined' ? 'undefined' : _typeof(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to replace when the 1st ' + 'argument is a location-like object that already has state; it is ignored') : void 0;
-
-	    var action = 'REPLACE';
-	    var location = (0, _LocationUtils.createLocation)(path, state, createKey(), history.location);
-
-	    transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
-	      if (!ok) return;
-
-	      var url = basename + (0, _PathUtils.createPath)(location);
-	      var key = location.key;
-	      var state = location.state;
-
-
-	      if (canUseHistory) {
-	        globalHistory.replaceState({ key: key, state: state }, null, url);
-
-	        if (forceRefresh) {
-	          window.location.replace(url);
-	        } else {
-	          var prevIndex = allKeys.indexOf(history.location.key);
-
-	          if (prevIndex !== -1) allKeys[prevIndex] = location.key;
-
-	          setState({ action: action, location: location });
-	        }
-	      } else {
-	         true ? (0, _warning2.default)(state === undefined, 'Browser history cannot replace state in browsers that do not support HTML5 history') : void 0;
-
-	        window.location.replace(url);
-	      }
-	    });
-	  };
-
-	  var go = function go(n) {
-	    globalHistory.go(n);
-	  };
-
-	  var goBack = function goBack() {
-	    return go(-1);
-	  };
-
-	  var goForward = function goForward() {
-	    return go(1);
-	  };
-
-	  var listenerCount = 0;
-
-	  var checkDOMListeners = function checkDOMListeners(delta) {
-	    listenerCount += delta;
-
-	    if (listenerCount === 1) {
-	      (0, _DOMUtils.addEventListener)(window, PopStateEvent, handlePopState);
-
-	      if (needsHashChangeListener) (0, _DOMUtils.addEventListener)(window, HashChangeEvent, handleHashChange);
-	    } else if (listenerCount === 0) {
-	      (0, _DOMUtils.removeEventListener)(window, PopStateEvent, handlePopState);
-
-	      if (needsHashChangeListener) (0, _DOMUtils.removeEventListener)(window, HashChangeEvent, handleHashChange);
-	    }
-	  };
-
-	  var isBlocked = false;
-
-	  var block = function block() {
-	    var prompt = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-
-	    var unblock = transitionManager.setPrompt(prompt);
-
-	    if (!isBlocked) {
-	      checkDOMListeners(1);
-	      isBlocked = true;
-	    }
-
-	    return function () {
-	      if (isBlocked) {
-	        isBlocked = false;
-	        checkDOMListeners(-1);
-	      }
-
-	      return unblock();
-	    };
-	  };
-
-	  var listen = function listen(listener) {
-	    var unlisten = transitionManager.appendListener(listener);
-	    checkDOMListeners(1);
-
-	    return function () {
-	      checkDOMListeners(-1);
-	      return unlisten();
-	    };
-	  };
-
-	  var history = {
-	    length: globalHistory.length,
-	    action: 'POP',
-	    location: initialLocation,
-	    push: push,
-	    replace: replace,
-	    go: go,
-	    goBack: goBack,
-	    goForward: goForward,
-	    block: block,
-	    listen: listen
-	  };
-
-	  return history;
-	};
-
-	exports.default = createBrowserHistory;
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2014-2015, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 */
-
-	'use strict';
-
-	/**
-	 * Similar to invariant but only logs a warning if the condition is not met.
-	 * This can be used to log issues in development environments in critical
-	 * paths. Removing the logging code for production environments will keep the
-	 * same logic and follow the same code paths.
-	 */
-
-	var warning = function() {};
-
-	if (true) {
-	  warning = function(condition, format, args) {
-	    var len = arguments.length;
-	    args = new Array(len > 2 ? len - 2 : 0);
-	    for (var key = 2; key < len; key++) {
-	      args[key - 2] = arguments[key];
-	    }
-	    if (format === undefined) {
-	      throw new Error(
-	        '`warning(condition, format, ...args)` requires a warning ' +
-	        'message argument'
-	      );
-	    }
-
-	    if (format.length < 10 || (/^[s\W]*$/).test(format)) {
-	      throw new Error(
-	        'The warning format should be able to uniquely identify this ' +
-	        'warning. Please, use a more descriptive format than: ' + format
-	      );
-	    }
-
-	    if (!condition) {
-	      var argIndex = 0;
-	      var message = 'Warning: ' +
-	        format.replace(/%s/g, function() {
-	          return args[argIndex++];
-	        });
-	      if (typeof console !== 'undefined') {
-	        console.error(message);
-	      }
-	      try {
-	        // This error was thrown as a convenience so that you can use this stack
-	        // to find the callsite that caused this warning to fire.
-	        throw new Error(message);
-	      } catch(x) {}
-	    }
-	  };
-	}
-
-	module.exports = warning;
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2013-2015, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 */
-
-	'use strict';
-
-	/**
-	 * Use invariant() to assert state which your program assumes to be true.
-	 *
-	 * Provide sprintf-style format (only %s is supported) and arguments
-	 * to provide information about what broke and what you were
-	 * expecting.
-	 *
-	 * The invariant message will be stripped in production, but the invariant
-	 * will remain to ensure logic does not differ in production.
-	 */
-
-	var invariant = function(condition, format, a, b, c, d, e, f) {
-	  if (true) {
-	    if (format === undefined) {
-	      throw new Error('invariant requires an error message argument');
-	    }
-	  }
-
-	  if (!condition) {
-	    var error;
-	    if (format === undefined) {
-	      error = new Error(
-	        'Minified exception occurred; use the non-minified dev environment ' +
-	        'for the full error message and additional helpful warnings.'
-	      );
-	    } else {
-	      var args = [a, b, c, d, e, f];
-	      var argIndex = 0;
-	      error = new Error(
-	        format.replace(/%s/g, function() { return args[argIndex++]; })
-	      );
-	      error.name = 'Invariant Violation';
-	    }
-
-	    error.framesToPop = 1; // we don't care about invariant's own frame
-	    throw error;
-	  }
-	};
-
-	module.exports = invariant;
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-	exports.locationsAreEqual = exports.createLocation = undefined;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _resolvePathname = __webpack_require__(13);
-
-	var _resolvePathname2 = _interopRequireDefault(_resolvePathname);
-
-	var _valueEqual = __webpack_require__(14);
-
-	var _valueEqual2 = _interopRequireDefault(_valueEqual);
-
-	var _PathUtils = __webpack_require__(15);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var createLocation = exports.createLocation = function createLocation(path, state, key, currentLocation) {
-	  var location = void 0;
-	  if (typeof path === 'string') {
-	    // Two-arg form: push(path, state)
-	    location = (0, _PathUtils.parsePath)(path);
-	    location.state = state;
-	  } else {
-	    // One-arg form: push(location)
-	    location = _extends({}, path);
-
-	    if (location.pathname === undefined) location.pathname = '';
-
-	    if (location.search) {
-	      if (location.search.charAt(0) !== '?') location.search = '?' + location.search;
-	    } else {
-	      location.search = '';
-	    }
-
-	    if (location.hash) {
-	      if (location.hash.charAt(0) !== '#') location.hash = '#' + location.hash;
-	    } else {
-	      location.hash = '';
-	    }
-
-	    if (state !== undefined && location.state === undefined) location.state = state;
-	  }
-
-	  location.key = key;
-
-	  if (currentLocation) {
-	    // Resolve incomplete/relative pathname relative to current location.
-	    if (!location.pathname) {
-	      location.pathname = currentLocation.pathname;
-	    } else if (location.pathname.charAt(0) !== '/') {
-	      location.pathname = (0, _resolvePathname2.default)(location.pathname, currentLocation.pathname);
-	    }
-	  }
-
-	  return location;
-	};
-
-	var locationsAreEqual = exports.locationsAreEqual = function locationsAreEqual(a, b) {
-	  return a.pathname === b.pathname && a.search === b.search && a.hash === b.hash && a.key === b.key && (0, _valueEqual2.default)(a.state, b.state);
-	};
-
-/***/ },
-/* 13 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var isAbsolute = function isAbsolute(pathname) {
-	  return pathname.charAt(0) === '/';
-	};
-
-	// About 1.5x faster than the two-arg version of Array#splice()
-	var spliceOne = function spliceOne(list, index) {
-	  for (var i = index, k = i + 1, n = list.length; k < n; i += 1, k += 1) {
-	    list[i] = list[k];
-	  }list.pop();
-	};
-
-	// This implementation is based heavily on node's url.parse
-	var resolvePathname = function resolvePathname(to) {
-	  var from = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-
-	  var toParts = to && to.split('/') || [];
-	  var fromParts = from && from.split('/') || [];
-
-	  var isToAbs = to && isAbsolute(to);
-	  var isFromAbs = from && isAbsolute(from);
-	  var mustEndAbs = isToAbs || isFromAbs;
-
-	  if (to && isAbsolute(to)) {
-	    // to is absolute
-	    fromParts = toParts;
-	  } else if (toParts.length) {
-	    // to is relative, drop the filename
-	    fromParts.pop();
-	    fromParts = fromParts.concat(toParts);
-	  }
-
-	  if (!fromParts.length) return '/';
-
-	  var hasTrailingSlash = void 0;
-	  if (fromParts.length) {
-	    var last = fromParts[fromParts.length - 1];
-	    hasTrailingSlash = last === '.' || last === '..' || last === '';
-	  } else {
-	    hasTrailingSlash = false;
-	  }
-
-	  var up = 0;
-	  for (var i = fromParts.length; i >= 0; i--) {
-	    var part = fromParts[i];
-
-	    if (part === '.') {
-	      spliceOne(fromParts, i);
-	    } else if (part === '..') {
-	      spliceOne(fromParts, i);
-	      up++;
-	    } else if (up) {
-	      spliceOne(fromParts, i);
-	      up--;
-	    }
-	  }
-
-	  if (!mustEndAbs) for (; up--; up) {
-	    fromParts.unshift('..');
-	  }if (mustEndAbs && fromParts[0] !== '' && (!fromParts[0] || !isAbsolute(fromParts[0]))) fromParts.unshift('');
-
-	  var result = fromParts.join('/');
-
-	  if (hasTrailingSlash && result.substr(-1) !== '/') result += '/';
-
-	  return result;
-	};
-
-	module.exports = resolvePathname;
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-	var valueEqual = function valueEqual(a, b) {
-	  if (a === b) return true;
-
-	  if (a == null || b == null) return false;
-
-	  if (Array.isArray(a)) {
-	    if (!Array.isArray(b) || a.length !== b.length) return false;
-
-	    return a.every(function (item, index) {
-	      return valueEqual(item, b[index]);
-	    });
-	  }
-
-	  var aType = typeof a === 'undefined' ? 'undefined' : _typeof(a);
-	  var bType = typeof b === 'undefined' ? 'undefined' : _typeof(b);
-
-	  if (aType !== bType) return false;
-
-	  if (aType === 'object') {
-	    var aValue = a.valueOf();
-	    var bValue = b.valueOf();
-
-	    if (aValue !== a || bValue !== b) return valueEqual(aValue, bValue);
-
-	    var aKeys = Object.keys(a);
-	    var bKeys = Object.keys(b);
-
-	    if (aKeys.length !== bKeys.length) return false;
-
-	    return aKeys.every(function (key) {
-	      return valueEqual(a[key], b[key]);
-	    });
-	  }
-
-	  return false;
-	};
-
-	exports.default = valueEqual;
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-	var addLeadingSlash = exports.addLeadingSlash = function addLeadingSlash(path) {
-	  return path.charAt(0) === '/' ? path : '/' + path;
-	};
-
-	var stripLeadingSlash = exports.stripLeadingSlash = function stripLeadingSlash(path) {
-	  return path.charAt(0) === '/' ? path.substr(1) : path;
-	};
-
-	var stripPrefix = exports.stripPrefix = function stripPrefix(path, prefix) {
-	  return path.indexOf(prefix) === 0 ? path.substr(prefix.length) : path;
-	};
-
-	var parsePath = exports.parsePath = function parsePath(path) {
-	  var pathname = path || '/';
-	  var search = '';
-	  var hash = '';
-
-	  var hashIndex = pathname.indexOf('#');
-	  if (hashIndex !== -1) {
-	    hash = pathname.substr(hashIndex);
-	    pathname = pathname.substr(0, hashIndex);
-	  }
-
-	  var searchIndex = pathname.indexOf('?');
-	  if (searchIndex !== -1) {
-	    search = pathname.substr(searchIndex);
-	    pathname = pathname.substr(0, searchIndex);
-	  }
-
-	  return {
-	    pathname: pathname,
-	    search: search === '?' ? '' : search,
-	    hash: hash === '#' ? '' : hash
-	  };
-	};
-
-	var createPath = exports.createPath = function createPath(location) {
-	  var pathname = location.pathname;
-	  var search = location.search;
-	  var hash = location.hash;
-
-
-	  var path = pathname || '/';
-
-	  if (search && search !== '?') path += search.charAt(0) === '?' ? search : '?' + search;
-
-	  if (hash && hash !== '#') path += hash.charAt(0) === '#' ? hash : '#' + hash;
-
-	  return path;
-	};
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _warning = __webpack_require__(10);
-
-	var _warning2 = _interopRequireDefault(_warning);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var createTransitionManager = function createTransitionManager() {
-	  var prompt = null;
-
-	  var setPrompt = function setPrompt(nextPrompt) {
-	     true ? (0, _warning2.default)(prompt == null, 'A history supports only one prompt at a time') : void 0;
-
-	    prompt = nextPrompt;
-
-	    return function () {
-	      if (prompt === nextPrompt) prompt = null;
-	    };
-	  };
-
-	  var confirmTransitionTo = function confirmTransitionTo(location, action, getUserConfirmation, callback) {
-	    // TODO: If another transition starts while we're still confirming
-	    // the previous one, we may end up in a weird state. Figure out the
-	    // best way to handle this.
-	    if (prompt != null) {
-	      var result = typeof prompt === 'function' ? prompt(location, action) : prompt;
-
-	      if (typeof result === 'string') {
-	        if (typeof getUserConfirmation === 'function') {
-	          getUserConfirmation(result, callback);
-	        } else {
-	           true ? (0, _warning2.default)(false, 'A history needs a getUserConfirmation function in order to use a prompt message') : void 0;
-
-	          callback(true);
-	        }
-	      } else {
-	        // Return false from a transition hook to cancel the transition.
-	        callback(result !== false);
-	      }
-	    } else {
-	      callback(true);
-	    }
-	  };
-
-	  var listeners = [];
-
-	  var appendListener = function appendListener(listener) {
-	    listeners.push(listener);
-
-	    return function () {
-	      listeners = listeners.filter(function (item) {
-	        return item !== listener;
-	      });
-	    };
-	  };
-
-	  var notifyListeners = function notifyListeners() {
-	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	      args[_key] = arguments[_key];
-	    }
-
-	    return listeners.forEach(function (listener) {
-	      return listener.apply(undefined, args);
-	    });
-	  };
-
-	  return {
-	    setPrompt: setPrompt,
-	    confirmTransitionTo: confirmTransitionTo,
-	    appendListener: appendListener,
-	    notifyListeners: notifyListeners
-	  };
-	};
-
-	exports.default = createTransitionManager;
-
-/***/ },
-/* 17 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-	var canUseDOM = exports.canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
-
-/***/ },
-/* 18 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-	var addEventListener = exports.addEventListener = function addEventListener(node, event, listener) {
-	  return node.addEventListener ? node.addEventListener(event, listener, false) : node.attachEvent('on' + event, listener);
-	};
-
-	var removeEventListener = exports.removeEventListener = function removeEventListener(node, event, listener) {
-	  return node.removeEventListener ? node.removeEventListener(event, listener, false) : node.detachEvent('on' + event, listener);
-	};
-
-	var getConfirmation = exports.getConfirmation = function getConfirmation(message, callback) {
-	  return callback(window.confirm(message));
-	}; // eslint-disable-line no-alert
-
-	/**
-	 * Returns true if the HTML5 history API is supported. Taken from Modernizr.
-	 *
-	 * https://github.com/Modernizr/Modernizr/blob/master/LICENSE
-	 * https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
-	 * changed to avoid false negatives for Windows Phones: https://github.com/reactjs/react-router/issues/586
-	 */
-	var supportsHistory = exports.supportsHistory = function supportsHistory() {
-	  var ua = window.navigator.userAgent;
-
-	  if ((ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) && ua.indexOf('Mobile Safari') !== -1 && ua.indexOf('Chrome') === -1 && ua.indexOf('Windows Phone') === -1) return false;
-
-	  return window.history && 'pushState' in window.history;
-	};
-
-	/**
-	 * Returns true if browser fires popstate on hash change.
-	 * IE10 and IE11 do not.
-	 */
-	var supportsPopStateOnHashChange = exports.supportsPopStateOnHashChange = function supportsPopStateOnHashChange() {
-	  return window.navigator.userAgent.indexOf('Trident') === -1;
-	};
-
-	/**
-	 * Returns false if using go(n) with hash history causes a full page reload.
-	 */
-	var supportsGoWithoutReloadUsingHash = exports.supportsGoWithoutReloadUsingHash = function supportsGoWithoutReloadUsingHash() {
-	  return window.navigator.userAgent.indexOf('Firefox') === -1;
-	};
-
-/***/ },
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -18434,35 +18428,1229 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.replace = exports.push = exports.listenBefore = exports.listen = exports.setHistory = undefined;
 
-	var _createBrowserHistory = __webpack_require__(9);
+	var _redux = __webpack_require__(20);
 
-	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
+	var _reducers = __webpack_require__(40);
+
+	var _reducers2 = _interopRequireDefault(_reducers);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var history = (0, _createBrowserHistory2.default)();
+	var store = (0, _redux.createStore)(_reducers2.default);
 
-	var setHistory = exports.setHistory = function setHistory(h) {
-	  return history = h;
-	};
-	var listen = exports.listen = function listen(fn) {
-	  return history.listen(fn);
-	};
-	var listenBefore = exports.listenBefore = function listenBefore(fn) {
-	  return history.listenBefore(fn);
-	};
-	var push = exports.push = function push() {
-	  var _history;
+	exports.default = store;
 
-	  return (_history = history).push.apply(_history, arguments);
-	};
-	var replace = exports.replace = function replace() {
-	  var _history2;
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
 
-	  return (_history2 = history).replace.apply(_history2, arguments);
+	'use strict';
+
+	exports.__esModule = true;
+	exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
+
+	var _createStore = __webpack_require__(21);
+
+	var _createStore2 = _interopRequireDefault(_createStore);
+
+	var _combineReducers = __webpack_require__(35);
+
+	var _combineReducers2 = _interopRequireDefault(_combineReducers);
+
+	var _bindActionCreators = __webpack_require__(37);
+
+	var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
+
+	var _applyMiddleware = __webpack_require__(38);
+
+	var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
+
+	var _compose = __webpack_require__(39);
+
+	var _compose2 = _interopRequireDefault(_compose);
+
+	var _warning = __webpack_require__(36);
+
+	var _warning2 = _interopRequireDefault(_warning);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	/*
+	* This is a dummy function to check if the function name has been altered by minification.
+	* If the function has been minified and NODE_ENV !== 'production', warn the user.
+	*/
+	function isCrushed() {}
+
+	if (("development") !== 'production' && typeof isCrushed.name === 'string' && isCrushed.name !== 'isCrushed') {
+	  (0, _warning2['default'])('You are currently using minified code outside of NODE_ENV === \'production\'. ' + 'This means that you are running a slower development build of Redux. ' + 'You can use loose-envify (https://github.com/zertosh/loose-envify) for browserify ' + 'or DefinePlugin for webpack (http://stackoverflow.com/questions/30030031) ' + 'to ensure you have the correct code for your production build.');
+	}
+
+	exports.createStore = _createStore2['default'];
+	exports.combineReducers = _combineReducers2['default'];
+	exports.bindActionCreators = _bindActionCreators2['default'];
+	exports.applyMiddleware = _applyMiddleware2['default'];
+	exports.compose = _compose2['default'];
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports.ActionTypes = undefined;
+	exports['default'] = createStore;
+
+	var _isPlainObject = __webpack_require__(22);
+
+	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
+
+	var _symbolObservable = __webpack_require__(32);
+
+	var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	/**
+	 * These are private action types reserved by Redux.
+	 * For any unknown actions, you must return the current state.
+	 * If the current state is undefined, you must return the initial state.
+	 * Do not reference these action types directly in your code.
+	 */
+	var ActionTypes = exports.ActionTypes = {
+	  INIT: '@@redux/INIT'
 	};
+
+	/**
+	 * Creates a Redux store that holds the state tree.
+	 * The only way to change the data in the store is to call `dispatch()` on it.
+	 *
+	 * There should only be a single store in your app. To specify how different
+	 * parts of the state tree respond to actions, you may combine several reducers
+	 * into a single reducer function by using `combineReducers`.
+	 *
+	 * @param {Function} reducer A function that returns the next state tree, given
+	 * the current state tree and the action to handle.
+	 *
+	 * @param {any} [preloadedState] The initial state. You may optionally specify it
+	 * to hydrate the state from the server in universal apps, or to restore a
+	 * previously serialized user session.
+	 * If you use `combineReducers` to produce the root reducer function, this must be
+	 * an object with the same shape as `combineReducers` keys.
+	 *
+	 * @param {Function} enhancer The store enhancer. You may optionally specify it
+	 * to enhance the store with third-party capabilities such as middleware,
+	 * time travel, persistence, etc. The only store enhancer that ships with Redux
+	 * is `applyMiddleware()`.
+	 *
+	 * @returns {Store} A Redux store that lets you read the state, dispatch actions
+	 * and subscribe to changes.
+	 */
+	function createStore(reducer, preloadedState, enhancer) {
+	  var _ref2;
+
+	  if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
+	    enhancer = preloadedState;
+	    preloadedState = undefined;
+	  }
+
+	  if (typeof enhancer !== 'undefined') {
+	    if (typeof enhancer !== 'function') {
+	      throw new Error('Expected the enhancer to be a function.');
+	    }
+
+	    return enhancer(createStore)(reducer, preloadedState);
+	  }
+
+	  if (typeof reducer !== 'function') {
+	    throw new Error('Expected the reducer to be a function.');
+	  }
+
+	  var currentReducer = reducer;
+	  var currentState = preloadedState;
+	  var currentListeners = [];
+	  var nextListeners = currentListeners;
+	  var isDispatching = false;
+
+	  function ensureCanMutateNextListeners() {
+	    if (nextListeners === currentListeners) {
+	      nextListeners = currentListeners.slice();
+	    }
+	  }
+
+	  /**
+	   * Reads the state tree managed by the store.
+	   *
+	   * @returns {any} The current state tree of your application.
+	   */
+	  function getState() {
+	    return currentState;
+	  }
+
+	  /**
+	   * Adds a change listener. It will be called any time an action is dispatched,
+	   * and some part of the state tree may potentially have changed. You may then
+	   * call `getState()` to read the current state tree inside the callback.
+	   *
+	   * You may call `dispatch()` from a change listener, with the following
+	   * caveats:
+	   *
+	   * 1. The subscriptions are snapshotted just before every `dispatch()` call.
+	   * If you subscribe or unsubscribe while the listeners are being invoked, this
+	   * will not have any effect on the `dispatch()` that is currently in progress.
+	   * However, the next `dispatch()` call, whether nested or not, will use a more
+	   * recent snapshot of the subscription list.
+	   *
+	   * 2. The listener should not expect to see all state changes, as the state
+	   * might have been updated multiple times during a nested `dispatch()` before
+	   * the listener is called. It is, however, guaranteed that all subscribers
+	   * registered before the `dispatch()` started will be called with the latest
+	   * state by the time it exits.
+	   *
+	   * @param {Function} listener A callback to be invoked on every dispatch.
+	   * @returns {Function} A function to remove this change listener.
+	   */
+	  function subscribe(listener) {
+	    if (typeof listener !== 'function') {
+	      throw new Error('Expected listener to be a function.');
+	    }
+
+	    var isSubscribed = true;
+
+	    ensureCanMutateNextListeners();
+	    nextListeners.push(listener);
+
+	    return function unsubscribe() {
+	      if (!isSubscribed) {
+	        return;
+	      }
+
+	      isSubscribed = false;
+
+	      ensureCanMutateNextListeners();
+	      var index = nextListeners.indexOf(listener);
+	      nextListeners.splice(index, 1);
+	    };
+	  }
+
+	  /**
+	   * Dispatches an action. It is the only way to trigger a state change.
+	   *
+	   * The `reducer` function, used to create the store, will be called with the
+	   * current state tree and the given `action`. Its return value will
+	   * be considered the **next** state of the tree, and the change listeners
+	   * will be notified.
+	   *
+	   * The base implementation only supports plain object actions. If you want to
+	   * dispatch a Promise, an Observable, a thunk, or something else, you need to
+	   * wrap your store creating function into the corresponding middleware. For
+	   * example, see the documentation for the `redux-thunk` package. Even the
+	   * middleware will eventually dispatch plain object actions using this method.
+	   *
+	   * @param {Object} action A plain object representing “what changed”. It is
+	   * a good idea to keep actions serializable so you can record and replay user
+	   * sessions, or use the time travelling `redux-devtools`. An action must have
+	   * a `type` property which may not be `undefined`. It is a good idea to use
+	   * string constants for action types.
+	   *
+	   * @returns {Object} For convenience, the same action object you dispatched.
+	   *
+	   * Note that, if you use a custom middleware, it may wrap `dispatch()` to
+	   * return something else (for example, a Promise you can await).
+	   */
+	  function dispatch(action) {
+	    if (!(0, _isPlainObject2['default'])(action)) {
+	      throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
+	    }
+
+	    if (typeof action.type === 'undefined') {
+	      throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
+	    }
+
+	    if (isDispatching) {
+	      throw new Error('Reducers may not dispatch actions.');
+	    }
+
+	    try {
+	      isDispatching = true;
+	      currentState = currentReducer(currentState, action);
+	    } finally {
+	      isDispatching = false;
+	    }
+
+	    var listeners = currentListeners = nextListeners;
+	    for (var i = 0; i < listeners.length; i++) {
+	      listeners[i]();
+	    }
+
+	    return action;
+	  }
+
+	  /**
+	   * Replaces the reducer currently used by the store to calculate the state.
+	   *
+	   * You might need this if your app implements code splitting and you want to
+	   * load some of the reducers dynamically. You might also need this if you
+	   * implement a hot reloading mechanism for Redux.
+	   *
+	   * @param {Function} nextReducer The reducer for the store to use instead.
+	   * @returns {void}
+	   */
+	  function replaceReducer(nextReducer) {
+	    if (typeof nextReducer !== 'function') {
+	      throw new Error('Expected the nextReducer to be a function.');
+	    }
+
+	    currentReducer = nextReducer;
+	    dispatch({ type: ActionTypes.INIT });
+	  }
+
+	  /**
+	   * Interoperability point for observable/reactive libraries.
+	   * @returns {observable} A minimal observable of state changes.
+	   * For more information, see the observable proposal:
+	   * https://github.com/zenparsing/es-observable
+	   */
+	  function observable() {
+	    var _ref;
+
+	    var outerSubscribe = subscribe;
+	    return _ref = {
+	      /**
+	       * The minimal observable subscription method.
+	       * @param {Object} observer Any object that can be used as an observer.
+	       * The observer object should have a `next` method.
+	       * @returns {subscription} An object with an `unsubscribe` method that can
+	       * be used to unsubscribe the observable from the store, and prevent further
+	       * emission of values from the observable.
+	       */
+	      subscribe: function subscribe(observer) {
+	        if (typeof observer !== 'object') {
+	          throw new TypeError('Expected the observer to be an object.');
+	        }
+
+	        function observeState() {
+	          if (observer.next) {
+	            observer.next(getState());
+	          }
+	        }
+
+	        observeState();
+	        var unsubscribe = outerSubscribe(observeState);
+	        return { unsubscribe: unsubscribe };
+	      }
+	    }, _ref[_symbolObservable2['default']] = function () {
+	      return this;
+	    }, _ref;
+	  }
+
+	  // When a store is created, an "INIT" action is dispatched so that every
+	  // reducer returns their initial state. This effectively populates
+	  // the initial state tree.
+	  dispatch({ type: ActionTypes.INIT });
+
+	  return _ref2 = {
+	    dispatch: dispatch,
+	    subscribe: subscribe,
+	    getState: getState,
+	    replaceReducer: replaceReducer
+	  }, _ref2[_symbolObservable2['default']] = observable, _ref2;
+	}
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var baseGetTag = __webpack_require__(23),
+	    getPrototype = __webpack_require__(29),
+	    isObjectLike = __webpack_require__(31);
+
+	/** `Object#toString` result references. */
+	var objectTag = '[object Object]';
+
+	/** Used for built-in method references. */
+	var funcProto = Function.prototype,
+	    objectProto = Object.prototype;
+
+	/** Used to resolve the decompiled source of functions. */
+	var funcToString = funcProto.toString;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/** Used to infer the `Object` constructor. */
+	var objectCtorString = funcToString.call(Object);
+
+	/**
+	 * Checks if `value` is a plain object, that is, an object created by the
+	 * `Object` constructor or one with a `[[Prototype]]` of `null`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.8.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 * }
+	 *
+	 * _.isPlainObject(new Foo);
+	 * // => false
+	 *
+	 * _.isPlainObject([1, 2, 3]);
+	 * // => false
+	 *
+	 * _.isPlainObject({ 'x': 0, 'y': 0 });
+	 * // => true
+	 *
+	 * _.isPlainObject(Object.create(null));
+	 * // => true
+	 */
+	function isPlainObject(value) {
+	  if (!isObjectLike(value) || baseGetTag(value) != objectTag) {
+	    return false;
+	  }
+	  var proto = getPrototype(value);
+	  if (proto === null) {
+	    return true;
+	  }
+	  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+	  return typeof Ctor == 'function' && Ctor instanceof Ctor &&
+	    funcToString.call(Ctor) == objectCtorString;
+	}
+
+	module.exports = isPlainObject;
+
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Symbol = __webpack_require__(24),
+	    getRawTag = __webpack_require__(27),
+	    objectToString = __webpack_require__(28);
+
+	/** `Object#toString` result references. */
+	var nullTag = '[object Null]',
+	    undefinedTag = '[object Undefined]';
+
+	/** Built-in value references. */
+	var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+	/**
+	 * The base implementation of `getTag` without fallbacks for buggy environments.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @returns {string} Returns the `toStringTag`.
+	 */
+	function baseGetTag(value) {
+	  if (value == null) {
+	    return value === undefined ? undefinedTag : nullTag;
+	  }
+	  value = Object(value);
+	  return (symToStringTag && symToStringTag in value)
+	    ? getRawTag(value)
+	    : objectToString(value);
+	}
+
+	module.exports = baseGetTag;
+
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var root = __webpack_require__(25);
+
+	/** Built-in value references. */
+	var Symbol = root.Symbol;
+
+	module.exports = Symbol;
+
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var freeGlobal = __webpack_require__(26);
+
+	/** Detect free variable `self`. */
+	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+	/** Used as a reference to the global object. */
+	var root = freeGlobal || freeSelf || Function('return this')();
+
+	module.exports = root;
+
+
+/***/ },
+/* 26 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
+	var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+
+	module.exports = freeGlobal;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Symbol = __webpack_require__(24);
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var nativeObjectToString = objectProto.toString;
+
+	/** Built-in value references. */
+	var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+	/**
+	 * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @returns {string} Returns the raw `toStringTag`.
+	 */
+	function getRawTag(value) {
+	  var isOwn = hasOwnProperty.call(value, symToStringTag),
+	      tag = value[symToStringTag];
+
+	  try {
+	    value[symToStringTag] = undefined;
+	    var unmasked = true;
+	  } catch (e) {}
+
+	  var result = nativeObjectToString.call(value);
+	  if (unmasked) {
+	    if (isOwn) {
+	      value[symToStringTag] = tag;
+	    } else {
+	      delete value[symToStringTag];
+	    }
+	  }
+	  return result;
+	}
+
+	module.exports = getRawTag;
+
+
+/***/ },
+/* 28 */
+/***/ function(module, exports) {
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var nativeObjectToString = objectProto.toString;
+
+	/**
+	 * Converts `value` to a string using `Object.prototype.toString`.
+	 *
+	 * @private
+	 * @param {*} value The value to convert.
+	 * @returns {string} Returns the converted string.
+	 */
+	function objectToString(value) {
+	  return nativeObjectToString.call(value);
+	}
+
+	module.exports = objectToString;
+
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var overArg = __webpack_require__(30);
+
+	/** Built-in value references. */
+	var getPrototype = overArg(Object.getPrototypeOf, Object);
+
+	module.exports = getPrototype;
+
+
+/***/ },
+/* 30 */
+/***/ function(module, exports) {
+
+	/**
+	 * Creates a unary function that invokes `func` with its argument transformed.
+	 *
+	 * @private
+	 * @param {Function} func The function to wrap.
+	 * @param {Function} transform The argument transform.
+	 * @returns {Function} Returns the new function.
+	 */
+	function overArg(func, transform) {
+	  return function(arg) {
+	    return func(transform(arg));
+	  };
+	}
+
+	module.exports = overArg;
+
+
+/***/ },
+/* 31 */
+/***/ function(module, exports) {
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return value != null && typeof value == 'object';
+	}
+
+	module.exports = isObjectLike;
+
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(33);
+
+
+/***/ },
+/* 33 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, module) {'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _ponyfill = __webpack_require__(34);
+
+	var _ponyfill2 = _interopRequireDefault(_ponyfill);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var root; /* global window */
+
+
+	if (typeof self !== 'undefined') {
+	  root = self;
+	} else if (typeof window !== 'undefined') {
+	  root = window;
+	} else if (typeof global !== 'undefined') {
+	  root = global;
+	} else if (true) {
+	  root = module;
+	} else {
+	  root = Function('return this')();
+	}
+
+	var result = (0, _ponyfill2['default'])(root);
+	exports['default'] = result;
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(18)(module)))
+
+/***/ },
+/* 34 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports['default'] = symbolObservablePonyfill;
+	function symbolObservablePonyfill(root) {
+		var result;
+		var _Symbol = root.Symbol;
+
+		if (typeof _Symbol === 'function') {
+			if (_Symbol.observable) {
+				result = _Symbol.observable;
+			} else {
+				result = _Symbol('observable');
+				_Symbol.observable = result;
+			}
+		} else {
+			result = '@@observable';
+		}
+
+		return result;
+	};
+
+/***/ },
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports['default'] = combineReducers;
+
+	var _createStore = __webpack_require__(21);
+
+	var _isPlainObject = __webpack_require__(22);
+
+	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
+
+	var _warning = __webpack_require__(36);
+
+	var _warning2 = _interopRequireDefault(_warning);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function getUndefinedStateErrorMessage(key, action) {
+	  var actionType = action && action.type;
+	  var actionName = actionType && '"' + actionType.toString() + '"' || 'an action';
+
+	  return 'Given action ' + actionName + ', reducer "' + key + '" returned undefined. ' + 'To ignore an action, you must explicitly return the previous state.';
+	}
+
+	function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, unexpectedKeyCache) {
+	  var reducerKeys = Object.keys(reducers);
+	  var argumentName = action && action.type === _createStore.ActionTypes.INIT ? 'preloadedState argument passed to createStore' : 'previous state received by the reducer';
+
+	  if (reducerKeys.length === 0) {
+	    return 'Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.';
+	  }
+
+	  if (!(0, _isPlainObject2['default'])(inputState)) {
+	    return 'The ' + argumentName + ' has unexpected type of "' + {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected argument to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"');
+	  }
+
+	  var unexpectedKeys = Object.keys(inputState).filter(function (key) {
+	    return !reducers.hasOwnProperty(key) && !unexpectedKeyCache[key];
+	  });
+
+	  unexpectedKeys.forEach(function (key) {
+	    unexpectedKeyCache[key] = true;
+	  });
+
+	  if (unexpectedKeys.length > 0) {
+	    return 'Unexpected ' + (unexpectedKeys.length > 1 ? 'keys' : 'key') + ' ' + ('"' + unexpectedKeys.join('", "') + '" found in ' + argumentName + '. ') + 'Expected to find one of the known reducer keys instead: ' + ('"' + reducerKeys.join('", "') + '". Unexpected keys will be ignored.');
+	  }
+	}
+
+	function assertReducerSanity(reducers) {
+	  Object.keys(reducers).forEach(function (key) {
+	    var reducer = reducers[key];
+	    var initialState = reducer(undefined, { type: _createStore.ActionTypes.INIT });
+
+	    if (typeof initialState === 'undefined') {
+	      throw new Error('Reducer "' + key + '" returned undefined during initialization. ' + 'If the state passed to the reducer is undefined, you must ' + 'explicitly return the initial state. The initial state may ' + 'not be undefined.');
+	    }
+
+	    var type = '@@redux/PROBE_UNKNOWN_ACTION_' + Math.random().toString(36).substring(7).split('').join('.');
+	    if (typeof reducer(undefined, { type: type }) === 'undefined') {
+	      throw new Error('Reducer "' + key + '" returned undefined when probed with a random type. ' + ('Don\'t try to handle ' + _createStore.ActionTypes.INIT + ' or other actions in "redux/*" ') + 'namespace. They are considered private. Instead, you must return the ' + 'current state for any unknown actions, unless it is undefined, ' + 'in which case you must return the initial state, regardless of the ' + 'action type. The initial state may not be undefined.');
+	    }
+	  });
+	}
+
+	/**
+	 * Turns an object whose values are different reducer functions, into a single
+	 * reducer function. It will call every child reducer, and gather their results
+	 * into a single state object, whose keys correspond to the keys of the passed
+	 * reducer functions.
+	 *
+	 * @param {Object} reducers An object whose values correspond to different
+	 * reducer functions that need to be combined into one. One handy way to obtain
+	 * it is to use ES6 `import * as reducers` syntax. The reducers may never return
+	 * undefined for any action. Instead, they should return their initial state
+	 * if the state passed to them was undefined, and the current state for any
+	 * unrecognized action.
+	 *
+	 * @returns {Function} A reducer function that invokes every reducer inside the
+	 * passed object, and builds a state object with the same shape.
+	 */
+	function combineReducers(reducers) {
+	  var reducerKeys = Object.keys(reducers);
+	  var finalReducers = {};
+	  for (var i = 0; i < reducerKeys.length; i++) {
+	    var key = reducerKeys[i];
+
+	    if (true) {
+	      if (typeof reducers[key] === 'undefined') {
+	        (0, _warning2['default'])('No reducer provided for key "' + key + '"');
+	      }
+	    }
+
+	    if (typeof reducers[key] === 'function') {
+	      finalReducers[key] = reducers[key];
+	    }
+	  }
+	  var finalReducerKeys = Object.keys(finalReducers);
+
+	  if (true) {
+	    var unexpectedKeyCache = {};
+	  }
+
+	  var sanityError;
+	  try {
+	    assertReducerSanity(finalReducers);
+	  } catch (e) {
+	    sanityError = e;
+	  }
+
+	  return function combination() {
+	    var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	    var action = arguments[1];
+
+	    if (sanityError) {
+	      throw sanityError;
+	    }
+
+	    if (true) {
+	      var warningMessage = getUnexpectedStateShapeWarningMessage(state, finalReducers, action, unexpectedKeyCache);
+	      if (warningMessage) {
+	        (0, _warning2['default'])(warningMessage);
+	      }
+	    }
+
+	    var hasChanged = false;
+	    var nextState = {};
+	    for (var i = 0; i < finalReducerKeys.length; i++) {
+	      var key = finalReducerKeys[i];
+	      var reducer = finalReducers[key];
+	      var previousStateForKey = state[key];
+	      var nextStateForKey = reducer(previousStateForKey, action);
+	      if (typeof nextStateForKey === 'undefined') {
+	        var errorMessage = getUndefinedStateErrorMessage(key, action);
+	        throw new Error(errorMessage);
+	      }
+	      nextState[key] = nextStateForKey;
+	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+	    }
+	    return hasChanged ? nextState : state;
+	  };
+	}
+
+/***/ },
+/* 36 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports['default'] = warning;
+	/**
+	 * Prints a warning in the console if it exists.
+	 *
+	 * @param {String} message The warning message.
+	 * @returns {void}
+	 */
+	function warning(message) {
+	  /* eslint-disable no-console */
+	  if (typeof console !== 'undefined' && typeof console.error === 'function') {
+	    console.error(message);
+	  }
+	  /* eslint-enable no-console */
+	  try {
+	    // This error was thrown as a convenience so that if you enable
+	    // "break on all exceptions" in your console,
+	    // it would pause the execution at this line.
+	    throw new Error(message);
+	    /* eslint-disable no-empty */
+	  } catch (e) {}
+	  /* eslint-enable no-empty */
+	}
+
+/***/ },
+/* 37 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports['default'] = bindActionCreators;
+	function bindActionCreator(actionCreator, dispatch) {
+	  return function () {
+	    return dispatch(actionCreator.apply(undefined, arguments));
+	  };
+	}
+
+	/**
+	 * Turns an object whose values are action creators, into an object with the
+	 * same keys, but with every function wrapped into a `dispatch` call so they
+	 * may be invoked directly. This is just a convenience method, as you can call
+	 * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
+	 *
+	 * For convenience, you can also pass a single function as the first argument,
+	 * and get a function in return.
+	 *
+	 * @param {Function|Object} actionCreators An object whose values are action
+	 * creator functions. One handy way to obtain it is to use ES6 `import * as`
+	 * syntax. You may also pass a single function.
+	 *
+	 * @param {Function} dispatch The `dispatch` function available on your Redux
+	 * store.
+	 *
+	 * @returns {Function|Object} The object mimicking the original object, but with
+	 * every action creator wrapped into the `dispatch` call. If you passed a
+	 * function as `actionCreators`, the return value will also be a single
+	 * function.
+	 */
+	function bindActionCreators(actionCreators, dispatch) {
+	  if (typeof actionCreators === 'function') {
+	    return bindActionCreator(actionCreators, dispatch);
+	  }
+
+	  if (typeof actionCreators !== 'object' || actionCreators === null) {
+	    throw new Error('bindActionCreators expected an object or a function, instead received ' + (actionCreators === null ? 'null' : typeof actionCreators) + '. ' + 'Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?');
+	  }
+
+	  var keys = Object.keys(actionCreators);
+	  var boundActionCreators = {};
+	  for (var i = 0; i < keys.length; i++) {
+	    var key = keys[i];
+	    var actionCreator = actionCreators[key];
+	    if (typeof actionCreator === 'function') {
+	      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
+	    }
+	  }
+	  return boundActionCreators;
+	}
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports['default'] = applyMiddleware;
+
+	var _compose = __webpack_require__(39);
+
+	var _compose2 = _interopRequireDefault(_compose);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	/**
+	 * Creates a store enhancer that applies middleware to the dispatch method
+	 * of the Redux store. This is handy for a variety of tasks, such as expressing
+	 * asynchronous actions in a concise manner, or logging every action payload.
+	 *
+	 * See `redux-thunk` package as an example of the Redux middleware.
+	 *
+	 * Because middleware is potentially asynchronous, this should be the first
+	 * store enhancer in the composition chain.
+	 *
+	 * Note that each middleware will be given the `dispatch` and `getState` functions
+	 * as named arguments.
+	 *
+	 * @param {...Function} middlewares The middleware chain to be applied.
+	 * @returns {Function} A store enhancer applying the middleware.
+	 */
+	function applyMiddleware() {
+	  for (var _len = arguments.length, middlewares = Array(_len), _key = 0; _key < _len; _key++) {
+	    middlewares[_key] = arguments[_key];
+	  }
+
+	  return function (createStore) {
+	    return function (reducer, preloadedState, enhancer) {
+	      var store = createStore(reducer, preloadedState, enhancer);
+	      var _dispatch = store.dispatch;
+	      var chain = [];
+
+	      var middlewareAPI = {
+	        getState: store.getState,
+	        dispatch: function dispatch(action) {
+	          return _dispatch(action);
+	        }
+	      };
+	      chain = middlewares.map(function (middleware) {
+	        return middleware(middlewareAPI);
+	      });
+	      _dispatch = _compose2['default'].apply(undefined, chain)(store.dispatch);
+
+	      return _extends({}, store, {
+	        dispatch: _dispatch
+	      });
+	    };
+	  };
+	}
+
+/***/ },
+/* 39 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	exports.__esModule = true;
+	exports["default"] = compose;
+	/**
+	 * Composes single-argument functions from right to left. The rightmost
+	 * function can take multiple arguments as it provides the signature for
+	 * the resulting composite function.
+	 *
+	 * @param {...Function} funcs The functions to compose.
+	 * @returns {Function} A function obtained by composing the argument functions
+	 * from right to left. For example, compose(f, g, h) is identical to doing
+	 * (...args) => f(g(h(...args))).
+	 */
+
+	function compose() {
+	  for (var _len = arguments.length, funcs = Array(_len), _key = 0; _key < _len; _key++) {
+	    funcs[_key] = arguments[_key];
+	  }
+
+	  if (funcs.length === 0) {
+	    return function (arg) {
+	      return arg;
+	    };
+	  }
+
+	  if (funcs.length === 1) {
+	    return funcs[0];
+	  }
+
+	  var last = funcs[funcs.length - 1];
+	  var rest = funcs.slice(0, -1);
+	  return function () {
+	    return rest.reduceRight(function (composed, f) {
+	      return f(composed);
+	    }, last.apply(undefined, arguments));
+	  };
+	}
+
+/***/ },
+/* 40 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports.reducer = reducer;
+
+	exports.default = function () {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+	  var action = arguments[1];
+
+	  return _extends({}, reducer(state, action), { lastAction: action.type, lastState: state });
+	};
+
+	var _ActionTypes = __webpack_require__(2);
+
+	var _history = __webpack_require__(16);
+
+	var utils = _interopRequireWildcard(_history);
+
+	var _defaultTabBehavior = __webpack_require__(41);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	var initialState = {
+	  browserHistory: {
+	    back: [],
+	    current: null,
+	    forward: []
+	  },
+	  tabHistories: [],
+	  currentTab: 0,
+	  lastId: 0,
+	  lastAction: null,
+	  lastState: null
+	};
+
+	function go(state, n) {
+	  var tab = state.currentTab;
+	  if (n === 0) {
+	    return state;
+	  } else {
+	    var f = n < 0 ? utils.back : utils.forward;
+	    var browserHistory = f(state.browserHistory);
+	    var tabHistory = state.tabHistories[tab];
+	    var stack = n < 0 ? tabHistory.back : tabHistory.forward;
+	    var tabCanGo = stack.length > 0;
+	    var nextN = n < 0 ? n + 1 : n - 1;
+	    if (tabCanGo) {
+	      return go(_extends({}, state, {
+	        browserHistory: browserHistory,
+	        tabHistories: utils.updateTab(state, tab, f)
+	      }), nextN);
+	    } else {
+	      return go(_extends({}, state, {
+	        browserHistory: browserHistory,
+	        currentTab: browserHistory.current.tab
+	      }), nextN);
+	    }
+	  }
+	}
+
+	function reducer() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case _ActionTypes.SET_TABS:
+	      {
+	        var _ret = function () {
+	          var id = ++state.lastId;
+	          return {
+	            v: _extends({}, state, {
+	              browserHistory: {
+	                back: [],
+	                current: { url: action.initialUrls[0], tab: 0, id: id },
+	                forward: []
+	              },
+	              tabHistories: action.initialUrls.map(function (url, i) {
+	                return {
+	                  back: [],
+	                  current: { url: url, tab: i, id: id + i + 1 },
+	                  forward: []
+	                };
+	              }),
+	              currentTab: 0,
+	              lastId: id + action.initialUrls.length + 1
+	            })
+	          };
+	        }();
+
+	        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	      }
+	    case _ActionTypes.SWITCH_TO_TAB:
+	      {
+	        var newState = (0, _defaultTabBehavior.switchToTab)({ historyState: state, tab: action.tab });
+	        return _extends({}, state, newState, { currentTab: action.tab });
+	      }
+	    case _ActionTypes.PUSH:
+	      {
+	        var _ret2 = function () {
+	          var tab = state.currentTab;
+	          var id = state.lastId + 1;
+	          var page = { url: action.url, tab: tab, id: id };
+	          return {
+	            v: _extends({}, state, {
+	              browserHistory: utils.pushPage(state.browserHistory, page),
+	              tabHistories: utils.updateTab(state, tab, function (t) {
+	                return utils.pushPage(t, page);
+	              }),
+	              lastId: id
+	            })
+	          };
+	        }();
+
+	        if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+	      }
+	    case _ActionTypes.BACK:
+	      {
+	        return _extends({}, state, go(state, 0 - action.n || -1));
+	      }
+	    case _ActionTypes.FORWARD:
+	    case _ActionTypes.GO:
+	      {
+	        return _extends({}, state, go(state, action.n || 1));
+	      }
+	    case _ActionTypes.POPSTATE:
+	      {
+	        var _id = action.location.state.id;
+
+	        return _extends({}, state, {
+	          browserHistory: utils.constructNewBrowserHistory(state.browserHistory, { id: _id })
+	        });
+	      }
+	  }
+	  return state;
+	}
+
+/***/ },
+/* 41 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports.switchToTab = switchToTab;
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	/**
+	 * Switch tab using mobile-app like behavior (with a default tab: index == 0)
+	 * Structure of a history object:
+	 *    { back: [String], current: String, forward: [String] }
+	 * @param {Array} tabHistories - The stored histories of each individual tab
+	 * @param {Number} tab - The index of the new tab
+	 * @returns {Object} A new historyState object
+	 */
+	function switchToTab(_ref) {
+	  var tabHistories = _ref.historyState.tabHistories,
+	      tab = _ref.tab;
+
+	  var defaultTab = tabHistories[0];
+	  var toTab = tabHistories[tab];
+	  var createNewHistoryState = function createNewHistoryState(browserHistory) {
+	    return {
+	      tabHistories: tabHistories,
+	      browserHistory: browserHistory
+	    };
+	  };
+	  if (tab === 0) {
+	    // going to default tab
+	    return createNewHistoryState(_extends({}, toTab, {
+	      back: [].concat(_toConsumableArray(toTab.back))
+	    }));
+	  } else {
+	    // going to non-default tab
+	    return createNewHistoryState(_extends({}, toTab, {
+	      back: [].concat(_toConsumableArray(defaultTab.back), [defaultTab.current], _toConsumableArray(toTab.back))
+	    }));
+	  }
+	}
 
 /***/ }
 /******/ ])
