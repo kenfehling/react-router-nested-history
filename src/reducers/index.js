@@ -15,35 +15,6 @@ const initialState = {
   lastState: null
 };
 
-function go(state, n) {
-  const tab = state.currentTab;
-  if (n === 0) {
-    return state;
-  }
-  else {
-    const f = n < 0 ? utils.back : utils.forward;
-    const browserHistory = f(state.browserHistory);
-    const tabHistory = state.tabHistories[tab];
-    const stack = n < 0 ? tabHistory.back : tabHistory.forward;
-    const tabCanGo = stack.length > 0;
-    const nextN = n < 0 ? n + 1 : n - 1;
-    if (tabCanGo) {
-      return go({
-        ...state,
-        browserHistory,
-        tabHistories: utils.updateTab(state, tab, f)
-      }, nextN);
-    }
-    else {
-      return go({
-        ...state,
-        browserHistory,
-        currentTab: browserHistory.current.tab
-      }, nextN);
-    }
-  }
-}
-
 export function reducer(state=initialState, action) {
   switch (action.type) {
     case SET_TABS: {
@@ -79,14 +50,13 @@ export function reducer(state=initialState, action) {
         lastId: id
       };
     }
-    case BACK: { return {...state, ...go(state, 0 - action.n || -1)}; }
+    case BACK: { return {...state, ...utils.go(state, 0 - action.n || -1)}; }
     case FORWARD:
-    case GO: { return {...state, ...go(state, action.n || 1)}; }
+    case GO: { return {...state, ...utils.go(state, action.n || 1)}; }
     case POPSTATE: {
-      const {id} = action.location.state;
       return {
         ...state,
-        browserHistory: utils.constructNewBrowserHistory(state.browserHistory, {id})
+        ...utils.constructNewHistory(state, action.id)
       }
     }
   }

@@ -110,24 +110,27 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _store2 = _interopRequireDefault(_store);
 
+	var _lodash = __webpack_require__(17);
+
+	var _ = _interopRequireWildcard(_lodash);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+	var needsPop = [browser.back, browser.forward, browser.go];
 	var unlisten = void 0;
 
 	var startListening = function startListening() {
 	  unlisten = (0, _historyListener.listen)(function (location) {
-	    console.log("POPSTATE", location);
-	    _store2.default.dispatch(actions.popstate(location));
+	    _store2.default.dispatch(actions.popstate(location.state.id));
 	  });
 	};
 
 	var unlistenPromise = function unlistenPromise() {
 	  return new Promise(function (resolve) {
-	    console.log("UNLISTEN");
 	    unlisten();
 	    return resolve();
 	  });
@@ -135,7 +138,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var startListeningPromise = function startListeningPromise() {
 	  return new Promise(function (resolve) {
-	    console.log("LISTEN AGAIN");
 	    startListening();
 	    return resolve();
 	  });
@@ -174,21 +176,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  switch (state.lastAction) {
 	    case _ActionTypes.SET_TABS:
 	      {
-	        console.log(state);
 	        browser.replace(state.browserHistory.current);
 	        break;
 	      }
 	    case _ActionTypes.SWITCH_TO_TAB:
 	      {
+
+	        console.log(state);
+
 	        var steps = (0, _history.diffStateForSteps)(state.lastState, state).map(function (s) {
 	          return function () {
-	            console.log("NOT REALLY");
 	            s.fn.apply(s, _toConsumableArray(s.args));
-	            if (s.fn === browser.back || s.fn === browser.forward || s.fn === browser.go) {
-	              return (0, _historyListener.listenPromise)();
-	            } else {
-	              return Promise.resolve();
-	            }
+	            return _.includes(needsPop, s.fn) ? (0, _historyListener.listenPromise)() : Promise.resolve();
 	          };
 	        });
 	        [unlistenPromise].concat(_toConsumableArray(steps), [startListeningPromise]).reduce(function (p, step) {
@@ -292,10 +291,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 
-	var popstate = exports.popstate = function popstate(location) {
+	var popstate = exports.popstate = function popstate(id) {
 	  return {
 	    type: _ActionTypes.POPSTATE,
-	    location: location
+	    id: id
 	  };
 	};
 
@@ -1176,7 +1175,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -1213,9 +1212,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var listenPromise = exports.listenPromise = function listenPromise() {
 	  return new Promise(function (resolve) {
-	    console.log("Let's listen");
 	    var unListen = history.listen(function (location) {
-	      console.log(location);
 	      unListen();
 	      resolve(location);
 	    });
@@ -1231,7 +1228,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.constructNewBrowserHistory = exports.diffStateForSteps = exports.shiftHistory = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.pushPage = undefined;
+	exports.constructNewHistory = exports.diffStateForSteps = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.pushPage = undefined;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports.go = go;
 
 	var _lodash = __webpack_require__(17);
 
@@ -1273,16 +1274,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return [].concat(_toConsumableArray(state.tabHistories.slice(0, tab)), [fn(state.tabHistories[tab])], _toConsumableArray(state.tabHistories.slice(tab + 1)));
 	};
 
-	var getHistoryShiftAmount = exports.getHistoryShiftAmount = function getHistoryShiftAmount(oldHistory, newCurrent) {
-	  if (!newCurrent) {
-	    throw new Error("newCurrent must be defined");
+	function go(state, n) {
+	  var tab = state.currentTab;
+	  if (n === 0) {
+	    return state;
+	  } else {
+	    var f = n < 0 ? back : forward;
+	    var browserHistory = f(state.browserHistory);
+	    var tabHistory = state.tabHistories[tab];
+	    var stack = n < 0 ? tabHistory.back : tabHistory.forward;
+	    var tabCanGo = stack.length > 0;
+	    var nextN = n < 0 ? n + 1 : n - 1;
+	    if (tabCanGo) {
+	      return go(_extends({}, state, {
+	        browserHistory: browserHistory,
+	        tabHistories: updateTab(state, tab, f)
+	      }), nextN);
+	    } else {
+	      return go(_extends({}, state, {
+	        browserHistory: browserHistory,
+	        currentTab: browserHistory.current.tab
+	      }), nextN);
+	    }
 	  }
-	  if (!newCurrent.id) {
-	    throw new Error("newCurrent must have an id. Received:", newCurrent);
-	  }
+	}
+
+	var getHistoryShiftAmount = exports.getHistoryShiftAmount = function getHistoryShiftAmount(oldState, newCurrentId) {
+	  var oldHistory = oldState.browserHistory;
 	  if (!_.isEmpty(oldHistory.back)) {
 	    var i = _.findIndex(oldHistory.back, function (b) {
-	      return b.id === newCurrent.id;
+	      return b.id === newCurrentId;
 	    });
 	    if (i !== -1) {
 	      return 0 - _.size(oldHistory.back) - i;
@@ -1290,19 +1311,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	  if (!_.isEmpty(oldHistory.forward)) {
 	    var _i = _.findIndex(oldHistory.forward, function (b) {
-	      return b.id === newCurrent.id;
+	      return b.id === newCurrentId;
 	    });
 	    if (_i !== -1) {
 	      return _i + 1;
 	    }
 	  }
 	  return 0;
-	};
-
-	var shiftHistory = exports.shiftHistory = function shiftHistory(oldHistory, amount) {
-	  var f = amount > 0 ? forward : back;
-	  var n = amount > 0 ? amount - 1 : amount + 1;
-	  return n === 0 ? f(oldHistory) : shiftHistory(f(oldHistory), n);
 	};
 
 	/**
@@ -1317,17 +1332,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var h2 = newState.browserHistory;
 	  return _.flatten([_.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
 	    return { fn: browser.push, args: [b] };
-	  }), { fn: browser.replace, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
+	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
 	    return { fn: browser.push, args: [f] };
 	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
 	};
 
-	var constructNewBrowserHistory = exports.constructNewBrowserHistory = function constructNewBrowserHistory(oldHistory, newCurrent) {
-	  var shiftAmount = getHistoryShiftAmount(oldHistory, newCurrent);
+	var constructNewHistory = exports.constructNewHistory = function constructNewHistory(state, newCurrentId) {
+	  var shiftAmount = getHistoryShiftAmount(state, newCurrentId);
 	  if (shiftAmount === 0) {
 	    throw new Error("This should be used for back and forward");
 	  } else {
-	    return shiftHistory(oldHistory, shiftAmount);
+	    return go(state, shiftAmount);
 	  }
 	};
 
@@ -19502,31 +19517,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  lastState: null
 	};
 
-	function go(state, n) {
-	  var tab = state.currentTab;
-	  if (n === 0) {
-	    return state;
-	  } else {
-	    var f = n < 0 ? utils.back : utils.forward;
-	    var browserHistory = f(state.browserHistory);
-	    var tabHistory = state.tabHistories[tab];
-	    var stack = n < 0 ? tabHistory.back : tabHistory.forward;
-	    var tabCanGo = stack.length > 0;
-	    var nextN = n < 0 ? n + 1 : n - 1;
-	    if (tabCanGo) {
-	      return go(_extends({}, state, {
-	        browserHistory: browserHistory,
-	        tabHistories: utils.updateTab(state, tab, f)
-	      }), nextN);
-	    } else {
-	      return go(_extends({}, state, {
-	        browserHistory: browserHistory,
-	        currentTab: browserHistory.current.tab
-	      }), nextN);
-	    }
-	  }
-	}
-
 	function reducer() {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
 	  var action = arguments[1];
@@ -19584,20 +19574,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    case _ActionTypes.BACK:
 	      {
-	        return _extends({}, state, go(state, 0 - action.n || -1));
+	        return _extends({}, state, utils.go(state, 0 - action.n || -1));
 	      }
 	    case _ActionTypes.FORWARD:
 	    case _ActionTypes.GO:
 	      {
-	        return _extends({}, state, go(state, action.n || 1));
+	        return _extends({}, state, utils.go(state, action.n || 1));
 	      }
 	    case _ActionTypes.POPSTATE:
 	      {
-	        var _id = action.location.state.id;
-
-	        return _extends({}, state, {
-	          browserHistory: utils.constructNewBrowserHistory(state.browserHistory, { id: _id })
-	        });
+	        return _extends({}, state, utils.constructNewHistory(state, action.id));
 	      }
 	  }
 	  return state;

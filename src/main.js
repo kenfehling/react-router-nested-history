@@ -4,12 +4,14 @@ import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
 import { diffStateForSteps } from './util/history';
 import store from './store';
+import * as _ from 'lodash';
 
+const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
 
 const startListening = () => {
   unlisten = listen(location => {
-    store.dispatch(actions.popstate(location));
+    store.dispatch(actions.popstate(location.state.id));
   });
 };
 
@@ -36,19 +38,13 @@ store.subscribe(() => {
   const state = store.getState();
   switch(state.lastAction) {
     case SET_TABS: {
-      console.log(state);
       browser.replace(state.browserHistory.current);
       break;
     }
     case SWITCH_TO_TAB: {
       const steps = diffStateForSteps(state.lastState, state).map(s => () => {
         s.fn(...s.args);
-        if (s.fn === browser.back || s.fn === browser.forward || s.fn === browser.go) {
-          return listenPromise();
-        }
-        else {
-          return Promise.resolve();
-        }
+        return _.includes(needsPop, s.fn) ? listenPromise() : Promise.resolve();
       });
       [unlistenPromise, ...steps, startListeningPromise].reduce(
         (p, step) => p.then(step),

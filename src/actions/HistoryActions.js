@@ -30,7 +30,7 @@ export const go = (n) => ({
   n
 });
 
-export const popstate = (location) => ({
+export const popstate = (id) => ({
   type: POPSTATE,
-  location
+  id
 });

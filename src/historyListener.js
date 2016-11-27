@@ -10,7 +10,6 @@ export const replace = (...args) => history.replace(...args);
 
 export const listenPromise = () => new Promise(resolve => {
   const unListen = history.listen(location => {
-    console.log(location);
     unListen();
     resolve(location);
   });
