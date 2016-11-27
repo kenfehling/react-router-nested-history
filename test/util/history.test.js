@@ -62,4 +62,10 @@ describe('history utils', () => {
     ]);
   });
 
+  it('gets history shift amount', () => {
+    const oldState = {browserHistory: {back: [a, a1], current: b, forward: []}};
+    expect(util.getHistoryShiftAmount(oldState, 3)).toEqual(-1);
+    expect(util.getHistoryShiftAmount(oldState, 1)).toEqual(-2);
+  });
+
 });
