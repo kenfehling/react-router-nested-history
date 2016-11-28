@@ -18,7 +18,7 @@ const initialState = {
 export const switchToTab = (state, tab) => ({
   ...state,
   ...behavior.switchToTab({historyState: state, tab}),
-  currentTab: tab
+  currentTab: tab.index
 });
 
 export const pushToStack = (historyStack, page) => ({
@@ -137,39 +137,46 @@ export function reducer(state=initialState, action) {
   switch (action.type) {
     case SET_TABS: {
       const {tabs, currentUrl} = action;
+
+      console.log(tabs);
+
       const tabUrlPatterns = tabs.map(tab => tab.urlPatterns);
       const initialTabUrls = tabs.map(tab => tab.initialUrl);
       const id = state.lastId + 1;
       const startState = {
         ...state,
         browserHistory: {
-          back: [],
-          current: {url: initialTabUrls[0], tab: 0, id},
-          forward: []
+          ...state.browserHistory,
+          current: state.browserHistory.current || {url: initialTabUrls[0], tab: 0, id}
         },
-        tabHistories: initialTabUrls.map((url, i) => ({
+        tabHistories: [...state.tabHistories, ...initialTabUrls.map((url, i) => ({
           back: [],
           current: {url, tab: i, id: id + i},
           forward: []
-        })),
-        currentTab: 0,
-        lastId: initialTabUrls.length
+        }))],
+        currentTab: state.currentTab || 0,
+        lastId: state.lastId || initialTabUrls.length
       };
       if (currentUrl === initialTabUrls[0]) {
         return startState;
       }
       else {
-        const tab = initialTabUrls.indexOf(currentUrl);
-        if (tab >= 0) {
-          return switchToTab(startState, tab);
+
+        console.log(initialTabUrls, currentUrl, initialTabUrls.indexOf(currentUrl));
+
+        const tabIndex = initialTabUrls.indexOf(currentUrl);
+        if (tabIndex >= 0) {
+          return switchToTab(startState, tabs[tabIndex]);
         }
         else {
           const tab = _.findIndex(tabUrlPatterns, patterns =>
               _.some(patterns, pattern => pathsMatch(pattern, currentUrl)));
-          if (tab < 0) {
-            throw new Error('Tab not found for url: ' + currentUrl);
+          if (tab >= 0) {
+            return push(switchToTab(startState, tab), currentUrl);
           }
-          return push(switchToTab(startState, tab), currentUrl);
+          else {
+            return state;  // ignore because this doesn't match this container
+          }
         }
       }
     }
@@ -201,9 +208,19 @@ export const deriveState = (actionHistory) => {
   }
 };
 
-export function getContainerStackOrder(pageHistories, filter=()=>true) {
-  return _.sortBy(_.filter(_.keys(pageHistories), filter), key => {
-    const currentPage = _.last(pageHistories[key]);
-    return currentPage ? 0 - currentPage.time : 0;
-  });
+// TODO: What about the filter?
+export function getContainerStackOrder(actionHistory, filter=()=>true) {
+  const tabSwitchNumbers = [];
+  actionHistory.reduce((oldState, action) => {
+    const newState = reducer(oldState, action);
+    if (oldState.currentTab !== newState.currentTab) {
+      tabSwitchNumbers.push(newState.currentTab);
+    }
+    return newState;
+  }, initialState);
+  return _.uniq(_.reverse(tabSwitchNumbers));
+}
+
+export function getActiveContainer(actionHistory, filter=()=>true) {
+  return _.last(getContainerStackOrder(actionHistory));
 }

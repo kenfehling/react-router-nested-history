@@ -2,14 +2,14 @@ import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "./co
 import * as actions from './actions/HistoryActions';
 import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
-import { diffStateToSteps, deriveState } from './util/history';
+import { diffStateToSteps, deriveState, getActiveContainer, getContainerStackOrder } from './util/history';
 import store from './store';
 import * as _ from 'lodash';
 
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
 
-const getDerivedState = () => deriveState(store.getState());
+const getDerivedState = () => { console.log(deriveState(store.getState())); return deriveState(store.getState()) };
 
 const startListening = () => {
   unlisten = listen(location => {
@@ -31,7 +31,20 @@ startListening();
 
 export const setTabs = (tabs) => {
   const currentUrl = window.location.pathname;
-  store.dispatch(actions.setTabs(tabs, currentUrl));
+  const tabsWithIndexes = tabs.map((tab, index) => ({...tab, index}));
+  store.dispatch(actions.setTabs(tabsWithIndexes, currentUrl));
+  return {
+    switchToTab: index => switchToTab(tabsWithIndexes[index]),
+    getActiveContainer: () => getActiveContainer(store.getState()),
+    getContainerStackOrder: () => getContainerStackOrder(store.getState()),
+    addChangeListener: fn => store.subscribe(() => {
+      const state = store.getState();
+      fn({
+        activeContainer: getActiveContainer(state),
+        containerStackOrder: getContainerStackOrder(state)
+      });
+    })
+  };
 };
 
 export const switchToTab = (tab) => store.dispatch(actions.switchToTab(tab));
@@ -39,20 +52,6 @@ export const push = (url) => store.dispatch(actions.push(url));
 export const go = (n=1) => store.dispatch(actions.go(n));
 export const back = (n=1) => store.dispatch(actions.back(n));
 export const forward = (n=1) => store.dispatch(actions.forward(n));
-
-export const addChangeListener = (fn) => {
-  store.subscribe(() => {
-    const state = getDerivedState();
-    fn({
-      currentTab: getCurrentTab()
-    });
-  });
-};
-
-export const getCurrentTab = () => {
-  const state = getDerivedState();
-  return state.browserHistory.current.tab;
-};
 
 store.subscribe(() => {
   const state = getDerivedState();

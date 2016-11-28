@@ -3,17 +3,20 @@
  * Structure of a history object:
  *    { back: [String], current: String, forward: [String] }
  * @param {Array} tabHistories - The stored histories of each individual tab
- * @param {Number} tab - The index of the new tab
+ * @param {Object} tab - The index of the new tab
  * @returns {Object} A new historyState object
  */
-export function switchToTab({historyState: {tabHistories}, tab}) {
+export function switchToTab({historyState: {tabHistories}, tab: {index}}) {
   const defaultTab = tabHistories[0];
-  const toTab = tabHistories[tab];
+  const toTab = tabHistories[index];
+
+  console.log(index, toTab);
+
   const createNewHistoryState = (browserHistory) => ({
     tabHistories,
     browserHistory
   });
-  if (tab === 0) {  // going to default tab
+  if (index === 0) {  // going to default tab
     return createNewHistoryState({
       ...toTab,
       back: [...toTab.back]
