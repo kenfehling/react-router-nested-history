@@ -27,7 +27,7 @@ const startListeningPromise = () => new Promise(resolve => {
 
 startListening();
 
-export const setTabs = (...tabs) => {
+export const setTabs = (tabs) => {
   const currentUrl = window.location.pathname;
   store.dispatch(actions.setTabs(tabs, currentUrl));
 };
@@ -40,9 +40,6 @@ export const forward = (n=1) => store.dispatch(actions.forward(n));
 
 export const getCurrentTab = () => {
   const state = store.getState();
-
-  console.log(state);
-
   return state.browserHistory.current.tab;
 };
 

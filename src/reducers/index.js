@@ -18,8 +18,8 @@ export function reducer(state=initialState, action) {
   switch (action.type) {
     case SET_TABS: {
       const {tabs, currentUrl} = action;
-      const initialTabUrls = tabs.map(tab => tab.initialUrl);
       const tabUrlPatterns = tabs.map(tab => tab.urlPatterns);
+      const initialTabUrls = tabs.map(tab => tab.initialUrl);
       const id = state.lastId + 1;
       const startState = {
         ...state,

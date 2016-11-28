@@ -112,7 +112,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _history = __webpack_require__(16);
 
-	var _store = __webpack_require__(19);
+	var _store = __webpack_require__(20);
 
 	var _store2 = _interopRequireDefault(_store);
 
@@ -126,13 +126,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-<<<<<<< HEAD:dist/react-nav-thing.js
-	(0, _historyListener.listen)(function (location) {
-	  var oldState = (0, _historyStore.getState)();
-	  var newState = (0, _history.constructNewStateForBackOrForward)(oldState, location.state);
-	  (0, _historyStore.setState)(newState);
-	});
-=======
 	var needsPop = [browser.back, browser.forward, browser.go];
 	var unlisten = void 0;
 
@@ -148,7 +141,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return resolve();
 	  });
 	};
->>>>>>> redux:dist/tab-history-library.js
 
 	var startListeningPromise = function startListeningPromise() {
 	  return new Promise(function (resolve) {
@@ -159,13 +151,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	startListening();
 
-	var setTabs = exports.setTabs = function setTabs() {
-	  for (var _len = arguments.length, initialUrls = Array(_len), _key = 0; _key < _len; _key++) {
-	    initialUrls[_key] = arguments[_key];
-	  }
-
-	  return _store2.default.dispatch(actions.setTabs(initialUrls));
+	var setTabs = exports.setTabs = function setTabs(tabs) {
+	  var currentUrl = window.location.pathname;
+	  _store2.default.dispatch(actions.setTabs(tabs, currentUrl));
 	};
+
 	var switchToTab = exports.switchToTab = function switchToTab(tab) {
 	  return _store2.default.dispatch(actions.switchToTab(tab));
 	};
@@ -268,10 +258,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ActionTypes = __webpack_require__(2);
 
-	var setTabs = exports.setTabs = function setTabs(initialUrls) {
+	var setTabs = exports.setTabs = function setTabs(tabs, currentUrl) {
 	  return {
 	    type: _ActionTypes.SET_TABS,
-	    initialUrls: initialUrls
+	    tabs: tabs,
+	    currentUrl: currentUrl
 	  };
 	};
 
@@ -1247,7 +1238,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.constructNewHistory = exports.diffStateForSteps = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.pushPage = undefined;
+	exports.constructNewHistory = exports.diffStateForSteps = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.push = exports.pushToStack = exports.switchToTab = undefined;
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -1261,16 +1252,39 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var browser = _interopRequireWildcard(_browserFunctions);
 
+	var _defaultTabBehavior = __webpack_require__(19);
+
+	var behavior = _interopRequireWildcard(_defaultTabBehavior);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	var pushPage = exports.pushPage = function pushPage(historyStack, page) {
+	var switchToTab = exports.switchToTab = function switchToTab(state, tab) {
+	  return _extends({}, state, behavior.switchToTab({ historyState: state, tab: tab }), {
+	    currentTab: tab
+	  });
+	};
+
+	var pushToStack = exports.pushToStack = function pushToStack(historyStack, page) {
 	  return {
 	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
 	    current: page,
 	    forward: []
 	  };
+	};
+
+	var push = exports.push = function push(state, url) {
+	  var tab = state.currentTab;
+	  var id = state.lastId + 1;
+	  var page = { url: url, tab: tab, id: id };
+	  return _extends({}, state, {
+	    browserHistory: pushToStack(state.browserHistory, page),
+	    tabHistories: updateTab(state, tab, function (t) {
+	      return pushToStack(t, page);
+	    }),
+	    lastId: id
+	  });
 	};
 
 	var back = exports.back = function back(historyStack) {
@@ -17845,12 +17859,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    /*------------------------------------------------------------------------*/
 
-<<<<<<< HEAD:dist/react-nav-thing.js
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.constructNewStateForBackOrForward = exports.constructNewBrowserHistory = exports.diffStateForSteps = exports.shiftHistory = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.pushPage = undefined;
-=======
 	    // Add methods that return wrapped values in chain sequences.
 	    lodash.after = after;
 	    lodash.ary = ary;
@@ -18001,7 +18009,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    lodash.zipObject = zipObject;
 	    lodash.zipObjectDeep = zipObjectDeep;
 	    lodash.zipWith = zipWith;
->>>>>>> redux:dist/tab-history-library.js
 
 	    // Add aliases.
 	    lodash.entries = toPairs;
@@ -18222,29 +18229,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      };
 	    });
 
-<<<<<<< HEAD:dist/react-nav-thing.js
-	/**
-	 * Get the difference between oldState and newState and return a list of
-	 * browser functions to transform the browser history from oldState to newState
-	 * @param oldState {Object} The original historyStore state
-	 * @param newState {Object} The new historyStore state
-	 * @returns {[Object]} An array of steps to get from old state to new state
-	 */
-	var diffStateForSteps = exports.diffStateForSteps = function diffStateForSteps(oldState, newState) {
-	  var h1 = oldState.browserHistory;
-	  var h2 = newState.browserHistory;
-	  return _.flatten([_.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
-	    return { fn: browser.push, args: [b] };
-	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
-	    return { fn: browser.push, args: [f] };
-	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
-	};
-=======
 	    // Add `LazyWrapper` methods that accept an `iteratee` value.
 	    arrayEach(['filter', 'map', 'takeWhile'], function(methodName, index) {
 	      var type = index + 1,
 	          isFilter = type == LAZY_FILTER_FLAG || type == LAZY_WHILE_FLAG;
->>>>>>> redux:dist/tab-history-library.js
 
 	      LazyWrapper.prototype[methodName] = function(iteratee) {
 	        var result = this.clone();
@@ -18257,17 +18245,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      };
 	    });
 
-<<<<<<< HEAD:dist/react-nav-thing.js
-	var constructNewStateForBackOrForward = exports.constructNewStateForBackOrForward = function constructNewStateForBackOrForward(oldState, newCurrent) {
-	  return _extends({}, oldState, {
-	    browserHistory: constructNewBrowserHistory(oldState.browserHistory, newCurrent)
-	  });
-	};
-=======
 	    // Add `LazyWrapper` methods for `_.head` and `_.last`.
 	    arrayEach(['head', 'last'], function(methodName, index) {
 	      var takeName = 'take' + (index ? 'Right' : '');
->>>>>>> redux:dist/tab-history-library.js
 
 	      LazyWrapper.prototype[methodName] = function() {
 	        return this[takeName](1).value()[0];
@@ -18489,6 +18469,55 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 19 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports.switchToTab = switchToTab;
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	/**
+	 * Switch tab using mobile-app like behavior (with a default tab: index == 0)
+	 * Structure of a history object:
+	 *    { back: [String], current: String, forward: [String] }
+	 * @param {Array} tabHistories - The stored histories of each individual tab
+	 * @param {Number} tab - The index of the new tab
+	 * @returns {Object} A new historyState object
+	 */
+	function switchToTab(_ref) {
+	  var tabHistories = _ref.historyState.tabHistories,
+	      tab = _ref.tab;
+
+	  var defaultTab = tabHistories[0];
+	  var toTab = tabHistories[tab];
+	  var createNewHistoryState = function createNewHistoryState(browserHistory) {
+	    return {
+	      tabHistories: tabHistories,
+	      browserHistory: browserHistory
+	    };
+	  };
+	  if (tab === 0) {
+	    // going to default tab
+	    return createNewHistoryState(_extends({}, toTab, {
+	      back: [].concat(_toConsumableArray(toTab.back))
+	    }));
+	  } else {
+	    // going to non-default tab
+	    return createNewHistoryState(_extends({}, toTab, {
+	      back: [].concat(_toConsumableArray(defaultTab.back), [defaultTab.current], _toConsumableArray(toTab.back))
+	    }));
+	  }
+	}
+
+/***/ },
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18497,9 +18526,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _redux = __webpack_require__(20);
+	var _redux = __webpack_require__(21);
 
-	var _reducers = __webpack_require__(40);
+	var _reducers = __webpack_require__(41);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -18510,7 +18539,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = store;
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18518,27 +18547,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
 
-	var _createStore = __webpack_require__(21);
+	var _createStore = __webpack_require__(22);
 
 	var _createStore2 = _interopRequireDefault(_createStore);
 
-	var _combineReducers = __webpack_require__(35);
+	var _combineReducers = __webpack_require__(36);
 
 	var _combineReducers2 = _interopRequireDefault(_combineReducers);
 
-	var _bindActionCreators = __webpack_require__(37);
+	var _bindActionCreators = __webpack_require__(38);
 
 	var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
 
-	var _applyMiddleware = __webpack_require__(38);
+	var _applyMiddleware = __webpack_require__(39);
 
 	var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
 
-	var _compose = __webpack_require__(39);
+	var _compose = __webpack_require__(40);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
-	var _warning = __webpack_require__(36);
+	var _warning = __webpack_require__(37);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -18561,7 +18590,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.compose = _compose2['default'];
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18570,11 +18599,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.ActionTypes = undefined;
 	exports['default'] = createStore;
 
-	var _isPlainObject = __webpack_require__(22);
+	var _isPlainObject = __webpack_require__(23);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _symbolObservable = __webpack_require__(32);
+	var _symbolObservable = __webpack_require__(33);
 
 	var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
 
@@ -18827,12 +18856,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(23),
-	    getPrototype = __webpack_require__(29),
-	    isObjectLike = __webpack_require__(31);
+	var baseGetTag = __webpack_require__(24),
+	    getPrototype = __webpack_require__(30),
+	    isObjectLike = __webpack_require__(32);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -18895,12 +18924,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(24),
-	    getRawTag = __webpack_require__(27),
-	    objectToString = __webpack_require__(28);
+	var Symbol = __webpack_require__(25),
+	    getRawTag = __webpack_require__(28),
+	    objectToString = __webpack_require__(29);
 
 	/** `Object#toString` result references. */
 	var nullTag = '[object Null]',
@@ -18930,10 +18959,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(25);
+	var root = __webpack_require__(26);
 
 	/** Built-in value references. */
 	var Symbol = root.Symbol;
@@ -18942,10 +18971,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var freeGlobal = __webpack_require__(26);
+	var freeGlobal = __webpack_require__(27);
 
 	/** Detect free variable `self`. */
 	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -18957,7 +18986,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
@@ -18968,10 +18997,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(24);
+	var Symbol = __webpack_require__(25);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -19020,7 +19049,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -19048,10 +19077,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var overArg = __webpack_require__(30);
+	var overArg = __webpack_require__(31);
 
 	/** Built-in value references. */
 	var getPrototype = overArg(Object.getPrototypeOf, Object);
@@ -19060,7 +19089,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports) {
 
 	/**
@@ -19081,7 +19110,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports) {
 
 	/**
@@ -19116,14 +19145,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(33);
+	module.exports = __webpack_require__(34);
 
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, module) {'use strict';
@@ -19132,7 +19161,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _ponyfill = __webpack_require__(34);
+	var _ponyfill = __webpack_require__(35);
 
 	var _ponyfill2 = _interopRequireDefault(_ponyfill);
 
@@ -19158,7 +19187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(18)(module)))
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19186,7 +19215,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19194,13 +19223,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports['default'] = combineReducers;
 
-	var _createStore = __webpack_require__(21);
+	var _createStore = __webpack_require__(22);
 
-	var _isPlainObject = __webpack_require__(22);
+	var _isPlainObject = __webpack_require__(23);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _warning = __webpack_require__(36);
+	var _warning = __webpack_require__(37);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -19333,7 +19362,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19363,7 +19392,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19419,7 +19448,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19430,7 +19459,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports['default'] = applyMiddleware;
 
-	var _compose = __webpack_require__(39);
+	var _compose = __webpack_require__(40);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
@@ -19482,7 +19511,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -19525,7 +19554,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19553,7 +19582,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var utils = _interopRequireWildcard(_history);
 
-	var _defaultTabBehavior = __webpack_require__(41);
+	var _lodash = __webpack_require__(17);
+
+	var _ = _interopRequireWildcard(_lodash);
+
+	var _url = __webpack_require__(42);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -19565,9 +19598,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 	  tabHistories: [],
 	  currentTab: 0,
-	  lastId: 0,
-	  lastAction: null,
-	  lastState: null
+	  lastId: 0
 	};
 
 	function reducer() {
@@ -19578,52 +19609,67 @@ return /******/ (function(modules) { // webpackBootstrap
 	    case _ActionTypes.SET_TABS:
 	      {
 	        var _ret = function () {
-	          var id = ++state.lastId;
-	          return {
-	            v: _extends({}, state, {
-	              browserHistory: {
+	          var tabs = action.tabs,
+	              currentUrl = action.currentUrl;
+
+	          var tabUrlPatterns = tabs.map(function (tab) {
+	            return tab.urlPatterns;
+	          });
+	          var initialTabUrls = tabs.map(function (tab) {
+	            return tab.initialUrl;
+	          });
+	          var id = state.lastId + 1;
+	          var startState = _extends({}, state, {
+	            browserHistory: {
+	              back: [],
+	              current: { url: initialTabUrls[0], tab: 0, id: id },
+	              forward: []
+	            },
+	            tabHistories: initialTabUrls.map(function (url, i) {
+	              return {
 	                back: [],
-	                current: { url: action.initialUrls[0], tab: 0, id: id },
+	                current: { url: url, tab: i, id: id + i },
 	                forward: []
-	              },
-	              tabHistories: action.initialUrls.map(function (url, i) {
-	                return {
-	                  back: [],
-	                  current: { url: url, tab: i, id: id + i + 1 },
-	                  forward: []
-	                };
-	              }),
-	              currentTab: 0,
-	              lastId: id + action.initialUrls.length + 1
-	            })
-	          };
+	              };
+	            }),
+	            currentTab: 0,
+	            lastId: initialTabUrls.length
+	          });
+	          if (currentUrl === initialTabUrls[0]) {
+	            return {
+	              v: startState
+	            };
+	          } else {
+	            var tab = initialTabUrls.indexOf(currentUrl);
+	            if (tab >= 0) {
+	              return {
+	                v: utils.switchToTab(startState, tab)
+	              };
+	            } else {
+	              var _tab = _.findIndex(tabUrlPatterns, function (patterns) {
+	                return _.some(patterns, function (pattern) {
+	                  return (0, _url.pathsMatch)(pattern, currentUrl);
+	                });
+	              });
+	              if (_tab < 0) {
+	                throw new Error('Tab not found for url: ' + currentUrl);
+	              }
+	              return {
+	                v: utils.push(utils.switchToTab(startState, _tab), currentUrl)
+	              };
+	            }
+	          }
 	        }();
 
 	        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 	      }
 	    case _ActionTypes.SWITCH_TO_TAB:
 	      {
-	        var newState = (0, _defaultTabBehavior.switchToTab)({ historyState: state, tab: action.tab });
-	        return _extends({}, state, newState, { currentTab: action.tab });
+	        return utils.switchToTab(state, action.tab);
 	      }
 	    case _ActionTypes.PUSH:
 	      {
-	        var _ret2 = function () {
-	          var tab = state.currentTab;
-	          var id = state.lastId + 1;
-	          var page = { url: action.url, tab: tab, id: id };
-	          return {
-	            v: _extends({}, state, {
-	              browserHistory: utils.pushPage(state.browserHistory, page),
-	              tabHistories: utils.updateTab(state, tab, function (t) {
-	                return utils.pushPage(t, page);
-	              }),
-	              lastId: id
-	            })
-	          };
-	        }();
-
-	        if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+	        return utils.push(state, action.url);
 	      }
 	    case _ActionTypes.BACK:
 	      {
@@ -19643,53 +19689,106 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 41 */
-/***/ function(module, exports) {
+/* 42 */
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.isParentOrEqualPath = exports.isParentPath = exports.pathsMatch = exports.doPathPartsMatch = exports.getParentPaths = exports.getParentPath = exports.appendToPath = exports.getPathParts = exports.stripTrailingSlash = exports.stripLeadingSlash = exports.addTrailingSlash = exports.addLeadingSlash = undefined;
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _lodash = __webpack_require__(17);
 
-	exports.switchToTab = switchToTab;
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	/**
-	 * Switch tab using mobile-app like behavior (with a default tab: index == 0)
-	 * Structure of a history object:
-	 *    { back: [String], current: String, forward: [String] }
-	 * @param {Array} tabHistories - The stored histories of each individual tab
-	 * @param {Number} tab - The index of the new tab
-	 * @returns {Object} A new historyState object
-	 */
-	function switchToTab(_ref) {
-	  var tabHistories = _ref.historyState.tabHistories,
-	      tab = _ref.tab;
+	var addLeadingSlash = exports.addLeadingSlash = function addLeadingSlash(path) {
+	  return path.replace(/\/?(\?|#|$)?/, '/$1');
+	};
 
-	  var defaultTab = tabHistories[0];
-	  var toTab = tabHistories[tab];
-	  var createNewHistoryState = function createNewHistoryState(browserHistory) {
-	    return {
-	      tabHistories: tabHistories,
-	      browserHistory: browserHistory
-	    };
-	  };
-	  if (tab === 0) {
-	    // going to default tab
-	    return createNewHistoryState(_extends({}, toTab, {
-	      back: [].concat(_toConsumableArray(toTab.back))
-	    }));
+	var addTrailingSlash = exports.addTrailingSlash = function addTrailingSlash(path) {
+	  return path.replace(/\/?(\?|#|$)/, '/$1');
+	};
+
+	var stripLeadingSlash = exports.stripLeadingSlash = function stripLeadingSlash(path) {
+	  return path.charAt(0) === '/' ? path.substr(1) : path;
+	};
+
+	var stripTrailingSlash = exports.stripTrailingSlash = function stripTrailingSlash(path) {
+	  return path.charAt(path.length - 1) === '/' ? path.substr(0, path.length - 1) : path;
+	};
+
+	var getPathParts = exports.getPathParts = function getPathParts(path) {
+	  var strippedPath = stripTrailingSlash(stripLeadingSlash(path));
+	  if (!strippedPath) {
+	    return [];
 	  } else {
-	    // going to non-default tab
-	    return createNewHistoryState(_extends({}, toTab, {
-	      back: [].concat(_toConsumableArray(defaultTab.back), [defaultTab.current], _toConsumableArray(toTab.back))
-	    }));
+	    return strippedPath.split('/');
 	  }
-	}
+	};
+
+	var appendToPath = exports.appendToPath = function appendToPath(path, newPart) {
+	  return (path ? addTrailingSlash(path) : '/') + newPart;
+	};
+
+	var getParentPath = exports.getParentPath = function getParentPath(path) {
+	  return _lodash2.default.initial(getPathParts(path)).join('/');
+	};
+
+	var getParentPaths = exports.getParentPaths = function getParentPaths(path) {
+	  return _lodash2.default.reduce(_lodash2.default.initial(getPathParts(path)), function (array, part) {
+	    return [].concat(_toConsumableArray(array), [appendToPath(_lodash2.default.last(array), part)]);
+	  }, []);
+	};
+
+	var doPathPartsMatch = exports.doPathPartsMatch = function doPathPartsMatch(p1, p2) {
+	  var wildcards = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['*'];
+
+	  return !p1 || !p2 || p1 === p2 || _lodash2.default.some(wildcards, function (w) {
+	    return p1.includes(w);
+	  }) || _lodash2.default.some(wildcards, function (w) {
+	    return p2.includes(w);
+	  });
+	};
+
+	var pathsMatch = exports.pathsMatch = function pathsMatch(path1, path2) {
+	  var wildcards = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['*'];
+
+	  var parts1 = getPathParts(path1);
+	  var parts2 = getPathParts(path2);
+	  if (parts1.length !== parts2.length) {
+	    return false;
+	  }
+	  for (var i = 0; i < parts1.length; i++) {
+	    if (!doPathPartsMatch(parts1[i], parts2[i], wildcards)) {
+	      return false;
+	    }
+	  }
+	  return true;
+	};
+
+	var isParentPath = exports.isParentPath = function isParentPath(parentPath, childPath) {
+	  var parentPathParts = getPathParts(parentPath);
+	  var childPathParts = getPathParts(childPath);
+	  if (parentPathParts.length >= childPathParts.length) {
+	    return false;
+	  }
+	  for (var i = 0; i < childPathParts.length; i++) {
+	    if (!doPathPartsMatch(childPathParts[i], parentPathParts[i])) {
+	      return false;
+	    }
+	  }
+	  return true;
+	};
+
+	var isParentOrEqualPath = exports.isParentOrEqualPath = function isParentOrEqualPath(parentPath, childPath) {
+	  return pathsMatch(parentPath, childPath) || isParentPath(parentPath, childPath);
+	};
 
 /***/ }
 /******/ ])
