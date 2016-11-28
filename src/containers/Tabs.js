@@ -1,6 +1,6 @@
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs';
-import { setTabs, switchToTab, getCurrentTab } from '../../../../dist/tab-history-library';
+import { setTabs, switchToTab, addChangeListener } from '../../../../dist/tab-history-library';
 import { Match, Link } from 'react-router';
 import './Tabs.css';
 import TabMaster1 from "../components/TabMaster1";
@@ -63,38 +63,55 @@ const onTabClick = (router, index) => {
   //}
 };
 
-const Tabs = ({}, {router, match:matchContext}) => {
-  const onClick = onTabClick.bind(null, router);
-  return (<div>
-    <h2>Tabs example</h2>
-    <div className="description">
-      <p>Each tab has its own individual history.</p>
-      <p>Clicking on an already active tab goes to the top of its history stack.</p>
-    </div>
-    <ReactTabs selectedIndex={getCurrentTab()}>
-      <TabList>
-        <ReactTab onClick={() => onClick(0)}>One</ReactTab>
-        <ReactTab onClick={() => onClick(1)}>Two</ReactTab>
-        <ReactTab onClick={() => onClick(2)}>Three</ReactTab>
-      </TabList>
-      <TabPanel>
-        <div className="tab-content">
-          <Tab1 />
-        </div>
-      </TabPanel>
-      <TabPanel>
-        <div className="tab-content">
-          <Tab2 />
-        </div>
-      </TabPanel>
-      <TabPanel>
-        <div className="tab-content">
-          <Tab3 />
-        </div>
-      </TabPanel>
-    </ReactTabs>
-  </div>);
-};
+class Tabs extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentTab: 0
+    }
+  }
+
+  componentWillMount() {
+    addChangeListener(state => {
+      this.setState(state);
+    })
+  }
+
+  render() {
+    const {router, match:matchContext} = this.props;
+    const onClick = onTabClick.bind(null, router);
+    return (<div>
+      <h2>Tabs example</h2>
+      <div className="description">
+        <p>Each tab has its own individual history.</p>
+        <p>Clicking on an already active tab goes to the top of its history stack.</p>
+      </div>
+      <ReactTabs selectedIndex={this.state.currentTab}>
+        <TabList>
+          <ReactTab onClick={() => onClick(0)}>One</ReactTab>
+          <ReactTab onClick={() => onClick(1)}>Two</ReactTab>
+          <ReactTab onClick={() => onClick(2)}>Three</ReactTab>
+        </TabList>
+        <TabPanel>
+          <div className="tab-content">
+            <Tab1 />
+          </div>
+        </TabPanel>
+        <TabPanel>
+          <div className="tab-content">
+            <Tab2 />
+          </div>
+        </TabPanel>
+        <TabPanel>
+          <div className="tab-content">
+            <Tab3 />
+          </div>
+        </TabPanel>
+      </ReactTabs>
+    </div>);
+  }
+}
 
 Tabs.contextTypes = {
   router: PropTypes.any.isRequired,
