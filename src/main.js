@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
 
-const getDerivedState = () => { console.log(deriveState(store.getState())); return deriveState(store.getState()) };
+const getDerivedState = () => deriveState(store.getState());
 
 const startListening = () => {
   unlisten = listen(location => {
@@ -32,16 +32,17 @@ startListening();
 export const setTabs = (tabs) => {
   const currentUrl = window.location.pathname;
   const tabsWithIndexes = tabs.map((tab, index) => ({...tab, index}));
+  const patterns = _.flatMap(tabs, tab => tab.urlPatterns);
   store.dispatch(actions.setTabs(tabsWithIndexes, currentUrl));
   return {
     switchToTab: index => switchToTab(tabsWithIndexes[index]),
-    getActiveContainer: () => getActiveContainer(store.getState()),
-    getContainerStackOrder: () => getContainerStackOrder(store.getState()),
+    getActiveContainer: () => getActiveContainer(store.getState(), patterns),
+    getContainerStackOrder: () => getContainerStackOrder(store.getState(), patterns),
     addChangeListener: fn => store.subscribe(() => {
       const state = store.getState();
       fn({
-        activeContainer: getActiveContainer(state),
-        containerStackOrder: getContainerStackOrder(state)
+        activeContainer: getActiveContainer(state, patterns),
+        containerStackOrder: getContainerStackOrder(state, patterns)
       });
     })
   };

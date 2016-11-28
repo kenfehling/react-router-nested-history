@@ -68,8 +68,8 @@ class Tabs extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentTab: 0
-    }
+      currentTab: tabs.getActiveContainer()
+    };
   }
 
   componentWillMount() {

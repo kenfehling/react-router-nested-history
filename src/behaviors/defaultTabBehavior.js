@@ -9,9 +9,6 @@
 export function switchToTab({historyState: {tabHistories}, tab: {index}}) {
   const defaultTab = tabHistories[0];
   const toTab = tabHistories[index];
-
-  console.log(index, toTab);
-
   const createNewHistoryState = (browserHistory) => ({
     tabHistories,
     browserHistory

@@ -120,7 +120,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var unlisten = void 0;
 
 	var getDerivedState = function getDerivedState() {
-	  console.log((0, _history.deriveState)(_store2.default.getState()));return (0, _history.deriveState)(_store2.default.getState());
+	  return (0, _history.deriveState)(_store2.default.getState());
 	};
 
 	var startListening = function startListening() {
@@ -150,23 +150,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var tabsWithIndexes = tabs.map(function (tab, index) {
 	    return _extends({}, tab, { index: index });
 	  });
+	  var patterns = _.flatMap(tabs, function (tab) {
+	    return tab.urlPatterns;
+	  });
 	  _store2.default.dispatch(actions.setTabs(tabsWithIndexes, currentUrl));
 	  return {
 	    switchToTab: function switchToTab(index) {
 	      return _switchToTab(tabsWithIndexes[index]);
 	    },
 	    getActiveContainer: function getActiveContainer() {
-	      return (0, _history.getActiveContainer)(_store2.default.getState());
+	      return (0, _history.getActiveContainer)(_store2.default.getState(), patterns);
 	    },
 	    getContainerStackOrder: function getContainerStackOrder() {
-	      return (0, _history.getContainerStackOrder)(_store2.default.getState());
+	      return (0, _history.getContainerStackOrder)(_store2.default.getState(), patterns);
 	    },
 	    addChangeListener: function addChangeListener(fn) {
 	      return _store2.default.subscribe(function () {
 	        var state = _store2.default.getState();
 	        fn({
-	          activeContainer: (0, _history.getActiveContainer)(state),
-	          containerStackOrder: (0, _history.getContainerStackOrder)(state)
+	          activeContainer: (0, _history.getActiveContainer)(state, patterns),
+	          containerStackOrder: (0, _history.getContainerStackOrder)(state, patterns)
 	        });
 	      });
 	    }
@@ -1421,9 +1424,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	          var tabs = action.tabs,
 	              currentUrl = action.currentUrl;
 
-
-	          console.log(tabs);
-
 	          var tabUrlPatterns = tabs.map(function (tab) {
 	            return tab.urlPatterns;
 	          });
@@ -1450,9 +1450,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	              v: startState
 	            };
 	          } else {
-
-	            console.log(initialTabUrls, currentUrl, initialTabUrls.indexOf(currentUrl));
-
 	            var tabIndex = initialTabUrls.indexOf(currentUrl);
 	            if (tabIndex >= 0) {
 	              return {
@@ -1516,17 +1513,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	};
 
-	// TODO: What about the filter?
 	function getContainerStackOrder(actionHistory) {
-	  var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-	    return true;
-	  };
+	  var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ['*'];
 
 	  var tabSwitchNumbers = [];
 	  actionHistory.reduce(function (oldState, action) {
 	    var newState = reducer(oldState, action);
 	    if (oldState.currentTab !== newState.currentTab) {
-	      tabSwitchNumbers.push(newState.currentTab);
+	      if (_.some(patterns, function (p) {
+	        return (0, _url.pathsMatch)(p, newState.browserHistory.current.url);
+	      })) {
+	        tabSwitchNumbers.push(newState.currentTab);
+	      }
 	    }
 	    return newState;
 	  }, initialState);
@@ -1534,11 +1532,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	function getActiveContainer(actionHistory) {
-	  var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-	    return true;
-	  };
+	  var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ['*'];
 
-	  return _.last(getContainerStackOrder(actionHistory));
+	  return _.first(getContainerStackOrder(actionHistory, patterns));
 	}
 
 /***/ },
@@ -18761,9 +18757,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  var defaultTab = tabHistories[0];
 	  var toTab = tabHistories[index];
-
-	  console.log(index, toTab);
-
 	  var createNewHistoryState = function createNewHistoryState(browserHistory) {
 	    return {
 	      tabHistories: tabHistories,

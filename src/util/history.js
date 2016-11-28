@@ -137,9 +137,6 @@ export function reducer(state=initialState, action) {
   switch (action.type) {
     case SET_TABS: {
       const {tabs, currentUrl} = action;
-
-      console.log(tabs);
-
       const tabUrlPatterns = tabs.map(tab => tab.urlPatterns);
       const initialTabUrls = tabs.map(tab => tab.initialUrl);
       const id = state.lastId + 1;
@@ -161,9 +158,6 @@ export function reducer(state=initialState, action) {
         return startState;
       }
       else {
-
-        console.log(initialTabUrls, currentUrl, initialTabUrls.indexOf(currentUrl));
-
         const tabIndex = initialTabUrls.indexOf(currentUrl);
         if (tabIndex >= 0) {
           return switchToTab(startState, tabs[tabIndex]);
@@ -208,19 +202,20 @@ export const deriveState = (actionHistory) => {
   }
 };
 
-// TODO: What about the filter?
-export function getContainerStackOrder(actionHistory, filter=()=>true) {
+export function getContainerStackOrder(actionHistory, patterns=['*']) {
   const tabSwitchNumbers = [];
   actionHistory.reduce((oldState, action) => {
     const newState = reducer(oldState, action);
     if (oldState.currentTab !== newState.currentTab) {
-      tabSwitchNumbers.push(newState.currentTab);
+      if (_.some(patterns, p => pathsMatch(p, newState.browserHistory.current.url))) {
+        tabSwitchNumbers.push(newState.currentTab);
+      }
     }
     return newState;
   }, initialState);
   return _.uniq(_.reverse(tabSwitchNumbers));
 }
 
-export function getActiveContainer(actionHistory, filter=()=>true) {
-  return _.last(getContainerStackOrder(actionHistory));
+export function getActiveContainer(actionHistory, patterns=['*']) {
+  return _.first(getContainerStackOrder(actionHistory, patterns));
 }
