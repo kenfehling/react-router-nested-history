@@ -1,23 +1,28 @@
 import React from 'react';
-import { switchContainer, connectContainer, getContainerStackOrder } from '../../../dist/react-nav-thing';
+import { setTabs, switchToTab, addChangeListener } from '../../../../dist/tab-history-library';
 import './Windows.css';
 
 const getStackOrder = () => getContainerStackOrder(path => path.startsWith('/windows'));
+
+setTabs([
+  {initialUrl: '/windows/1', urlPatterns: ['/windows/1', '/windows/1/*']},
+  {initialUrl: '/windows/2', urlPatterns: ['/windows/2', '/windows/2/*']}
+]);
 
 const getZIndex = containerPath => {
   const order = getStackOrder();
   return order.length - order.indexOf(containerPath) + 1;
 };
 
-const Window = ({className, containerPath, children}) => (
-  <div className={`window ${className}`} onClick={() => switchContainer({path: containerPath})}
+const Window = ({className, containerPath, index, children}) => (
+  <div className={`window ${className}`} onClick={() => switchToTab(index)}
        style={{zIndex: getZIndex(containerPath)}}>
     {children}
   </div>
 );
 
-export const Window1 = connectContainer(props => <Window className="window1" {...props} />);
-export const Window2 = connectContainer(props => <Window className="window2" {...props} />);
+export const Window1 = props => <Window className="window1" index={0} {...props} />;
+export const Window2 = props => <Window className="window2" index={1} {...props} />;
 
 export default () => (
     <div className="windows">

@@ -15,10 +15,10 @@ setTabs([
 ]);
 
 export const Tab1 = () => (
-    <div>
-      <Match exactly pattern="/tabs/1" component={TabMaster1} />
-      <Match exactly pattern="/tabs/1/:page" component={TabPage} />
-    </div>
+  <div>
+    <Match exactly pattern="/tabs/1" component={TabMaster1} />
+    <Match exactly pattern="/tabs/1/:page" component={TabPage} />
+  </div>
 );
 
 export const Tab2 = () => (
