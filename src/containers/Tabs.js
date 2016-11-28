@@ -9,9 +9,9 @@ import TabMaster3 from "../components/TabMaster3";
 import TabPage from "../components/TabPage";
 
 setTabs([
-  {initialUrl: '/tabs/1', urlPatterns: ['/tabs/1/*']},
-  {initialUrl: '/tabs/2', urlPatterns: ['/tabs/2/*']},
-  {initialUrl: '/tabs/3', urlPatterns: ['/tabs/3/*']}
+  {initialUrl: '/tabs/1', urlPatterns: ['/tabs/1', '/tabs/1/*']},
+  {initialUrl: '/tabs/2', urlPatterns: ['/tabs/2', '/tabs/2/*']},
+  {initialUrl: '/tabs/3', urlPatterns: ['/tabs/3', '/tabs/3/*']}
 ]);
 
 export const Tab1 = () => (
