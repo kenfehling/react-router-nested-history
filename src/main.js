@@ -38,6 +38,15 @@ export const go = (n=1) => store.dispatch(actions.go(n));
 export const back = (n=1) => store.dispatch(actions.back(n));
 export const forward = (n=1) => store.dispatch(actions.forward(n));
 
+export const addChangeListener = (fn) => {
+  store.subscribe(() => {
+    const state = store.getState();
+    fn({
+      currentTab: getCurrentTab()
+    });
+  });
+};
+
 export const getCurrentTab = () => {
   const state = store.getState();
   return state.browserHistory.current.tab;

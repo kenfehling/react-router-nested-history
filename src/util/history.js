@@ -112,6 +112,7 @@ export const diffStateForSteps = (oldState, newState) => {
 export const constructNewHistory = (state, newCurrentId) => {
   const shiftAmount = getHistoryShiftAmount(state, newCurrentId);
   if (shiftAmount === 0) {
+    console.error(state, newCurrentId);
     throw new Error("This should be used for back and forward");
   }
   else {

@@ -86,6 +86,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return _main.getCurrentTab;
 	  }
 	});
+	Object.defineProperty(exports, 'addChangeListener', {
+	  enumerable: true,
+	  get: function get() {
+	    return _main.addChangeListener;
+	  }
+	});
 
 /***/ },
 /* 1 */
@@ -96,7 +102,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.getCurrentTab = exports.forward = exports.back = exports.go = exports.push = exports.switchToTab = exports.setTabs = undefined;
+	exports.getCurrentTab = exports.addChangeListener = exports.forward = exports.back = exports.go = exports.push = exports.switchToTab = exports.setTabs = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -175,11 +181,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.dispatch(actions.forward(n));
 	};
 
+	var addChangeListener = exports.addChangeListener = function addChangeListener(fn) {
+	  _store2.default.subscribe(function () {
+	    var state = _store2.default.getState();
+	    fn({
+	      currentTab: getCurrentTab()
+	    });
+	  });
+	};
+
 	var getCurrentTab = exports.getCurrentTab = function getCurrentTab() {
 	  var state = _store2.default.getState();
-
-	  console.log(state);
-
 	  return state.browserHistory.current.tab;
 	};
 
@@ -1373,6 +1385,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var constructNewHistory = exports.constructNewHistory = function constructNewHistory(state, newCurrentId) {
 	  var shiftAmount = getHistoryShiftAmount(state, newCurrentId);
 	  if (shiftAmount === 0) {
+	    console.error(state, newCurrentId);
 	    throw new Error("This should be used for back and forward");
 	  } else {
 	    return go(state, shiftAmount);
@@ -19572,6 +19585,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = function () {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
 	  var action = arguments[1];
+
+
+	  console.log(action);
+	  console.log(_extends({}, reducer(state, action), { lastAction: action.type, lastState: state }));
 
 	  return _extends({}, reducer(state, action), { lastAction: action.type, lastState: state });
 	};

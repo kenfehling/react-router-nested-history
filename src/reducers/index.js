@@ -1,7 +1,7 @@
 import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as utils from '../util/history';
 import * as _ from 'lodash';
-import {pathsMatch} from "../util/url";
+import { pathsMatch } from "../util/url";
 
 const initialState = {
   browserHistory: {
@@ -54,7 +54,9 @@ export function reducer(state=initialState, action) {
         }
       }
     }
-    case SWITCH_TO_TAB: { return utils.switchToTab(state, action.tab); }
+    case SWITCH_TO_TAB: {
+      return utils.switchToTab(state, action.tab);
+    }
     case PUSH: { return utils.push(state, action.url); }
     case BACK: { return {...state, ...utils.go(state, 0 - action.n || -1)}; }
     case FORWARD:
