@@ -27,9 +27,9 @@ const startListeningPromise = () => new Promise(resolve => {
 
 startListening();
 
-export const setTabs = (...initialTabUrls) => {
+export const setTabs = (...tabs) => {
   const currentUrl = window.location.pathname;
-  store.dispatch(actions.setTabs(initialTabUrls, currentUrl));
+  store.dispatch(actions.setTabs(tabs, currentUrl));
 };
 
 export const switchToTab = (tab) => store.dispatch(actions.switchToTab(tab));

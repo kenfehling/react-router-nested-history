@@ -1,5 +1,7 @@
 import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as utils from '../util/history';
+import * as _ from 'lodash';
+import {pathsMatch} from "../util/url";
 
 const initialState = {
   browserHistory: {
@@ -15,7 +17,9 @@ const initialState = {
 export function reducer(state=initialState, action) {
   switch (action.type) {
     case SET_TABS: {
-      const {initialTabUrls, currentUrl} = action;
+      const {tabs, currentUrl} = action;
+      const initialTabUrls = tabs.map(tab => tab.initialUrl);
+      const tabUrlPatterns = tabs.map(tab => tab.urlPatterns);
       const id = state.lastId + 1;
       const startState = {
         ...state,
@@ -41,7 +45,12 @@ export function reducer(state=initialState, action) {
           return utils.switchToTab(startState, tab);
         }
         else {
-          return utils.push(startState, currentUrl);  // TODO: Need to switch tabs first?
+          const tab = _.findIndex(tabUrlPatterns, patterns =>
+              _.some(patterns, pattern => pathsMatch(pattern, currentUrl)));
+          if (tab < 0) {
+            throw new Error('Tab not found for url: ' + currentUrl);
+          }
+          return utils.push(utils.switchToTab(startState, tab), currentUrl);
         }
       }
     }

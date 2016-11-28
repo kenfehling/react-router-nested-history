@@ -1,6 +1,12 @@
 import { reducer } from '../../src/reducers/index';
 import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../../src/constants/ActionTypes";
 
+const tabs = [
+  {initialUrl: '/a', urlPatterns: ['/a/*']},
+  {initialUrl: '/b', urlPatterns: ['/b/*']},
+  {initialUrl: '/c', urlPatterns: ['/c/*']}
+];
+
 describe('main', () => {
   const state = {
     browserHistory: {
@@ -28,7 +34,7 @@ describe('main', () => {
   };
 
   it('loads correctly (default tab)', () => {
-    expect(reducer(undefined, {type: SET_TABS, initialTabUrls: ['/a', '/b', '/c'], currentUrl: '/a'})).toEqual({
+    expect(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/a'})).toEqual({
       browserHistory: {
         back: [],
         current: {url: '/a', tab: 0, id: 1},
@@ -55,7 +61,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-default tab)', () => {
-    expect(reducer(undefined, {type: SET_TABS, initialTabUrls: ['/a', '/b', '/c'], currentUrl: '/b'})).toEqual({
+    expect(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/b'})).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}],
         current: {url: '/b', tab: 1, id: 2},
@@ -82,7 +88,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-initial page on default tab)', () => {
-    expect(reducer(undefined, {type: SET_TABS, initialTabUrls: ['/a', '/b', '/c'], currentUrl: '/a/1'})).toEqual({
+    expect(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/a/1'})).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}],
         current: {url: '/a/1', tab: 0, id: 4},
@@ -109,7 +115,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-initial page on non-default tab)', () => {
-    expect(reducer(undefined, {type: SET_TABS, initialTabUrls: ['/a', '/b', '/c'], currentUrl: '/b/1'})).toEqual({
+    expect(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/b/1'})).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}, {url: '/b', tab: 1, id: 2}],
         current: {url: '/b/1', tab: 1, id: 4},
@@ -117,8 +123,8 @@ describe('main', () => {
       },
       tabHistories: [
         {
-          back: [{url: '/a', tab: 0, id: 1}],
-          current: {url: '/a/1', tab: 0, id: 4},
+          back: [],
+          current: {url: '/a', tab: 0, id: 1},
           forward: []
         }, {
           back: [{url: '/b', tab: 1, id: 2}],
