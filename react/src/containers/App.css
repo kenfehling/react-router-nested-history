@@ -1,3 +1,8 @@
+a {
+  color: blue;
+  text-decoration: underline;
+}
+
 .app-container {
   display: flex;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
