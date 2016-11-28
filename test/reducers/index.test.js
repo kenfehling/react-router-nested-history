@@ -1,5 +1,5 @@
 import { reducer } from '../../src/reducers/index';
-import { SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../../src/constants/ActionTypes";
+import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../../src/constants/ActionTypes";
 
 describe('main', () => {
   const state = {
@@ -26,6 +26,114 @@ describe('main', () => {
       },
     ]
   };
+
+  it('loads correctly (default tab)', () => {
+    expect(reducer(undefined, {type: SET_TABS, initialTabUrls: ['/a', '/b', '/c'], currentUrl: '/a'})).toEqual({
+      browserHistory: {
+        back: [],
+        current: {url: '/a', tab: 0, id: 1},
+        forward: []
+      },
+      tabHistories: [
+        {
+          back: [],
+          current: {url: '/a', tab: 0, id: 1},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/b', tab: 1, id: 2},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2, id: 3},
+          forward: []
+        },
+      ],
+      currentTab: 0,
+      lastId: 3
+    });
+  });
+
+  it('loads correctly (non-default tab)', () => {
+    expect(reducer(undefined, {type: SET_TABS, initialTabUrls: ['/a', '/b', '/c'], currentUrl: '/b'})).toEqual({
+      browserHistory: {
+        back: [{url: '/a', tab: 0, id: 1}],
+        current: {url: '/b', tab: 1, id: 2},
+        forward: []
+      },
+      tabHistories: [
+        {
+          back: [],
+          current: {url: '/a', tab: 0, id: 1},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/b', tab: 1, id: 2},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2, id: 3},
+          forward: []
+        },
+      ],
+      currentTab: 1,
+      lastId: 3
+    });
+  });
+
+  it('loads correctly (non-initial page on default tab)', () => {
+    expect(reducer(undefined, {type: SET_TABS, initialTabUrls: ['/a', '/b', '/c'], currentUrl: '/a/1'})).toEqual({
+      browserHistory: {
+        back: [{url: '/a', tab: 0, id: 1}],
+        current: {url: '/a/1', tab: 0, id: 4},
+        forward: []
+      },
+      tabHistories: [
+        {
+          back: [{url: '/a', tab: 0, id: 1}],
+          current: {url: '/a/1', tab: 0, id: 4},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/b', tab: 1, id: 2},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2, id: 3},
+          forward: []
+        },
+      ],
+      currentTab: 0,
+      lastId: 4
+    });
+  });
+
+  it('loads correctly (non-initial page on non-default tab)', () => {
+    expect(reducer(undefined, {type: SET_TABS, initialTabUrls: ['/a', '/b', '/c'], currentUrl: '/b/1'})).toEqual({
+      browserHistory: {
+        back: [{url: '/a', tab: 0, id: 1}, {url: '/b', tab: 1, id: 2}],
+        current: {url: '/b/1', tab: 1, id: 4},
+        forward: []
+      },
+      tabHistories: [
+        {
+          back: [{url: '/a', tab: 0, id: 1}],
+          current: {url: '/a/1', tab: 0, id: 4},
+          forward: []
+        }, {
+          back: [{url: '/b', tab: 1, id: 2}],
+          current: {url: '/b/1', tab: 1, id: 4},
+          forward: []
+        }, {
+          back: [],
+          current: {url: '/c', tab: 2, id: 3},
+          forward: []
+        },
+      ],
+      currentTab: 1,
+      lastId: 4
+    });
+  });
 
   it('switches tab', () => {
     expect(reducer(state, {type: SWITCH_TO_TAB, tab: 2})).toEqual({

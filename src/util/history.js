@@ -1,11 +1,30 @@
 import * as _ from 'lodash';
 import * as browser from '../../src/browserFunctions';
+import * as behavior from '../behaviors/defaultTabBehavior';
 
-export const pushPage = (historyStack, page) => ({
+export const switchToTab = (state, tab) => ({
+  ...state,
+  ...behavior.switchToTab({historyState: state, tab}),
+  currentTab: tab
+});
+
+export const pushToStack = (historyStack, page) => ({
   back: [...historyStack.back, historyStack.current],
   current: page,
   forward: []
 });
+
+export const push = (state, url) => {
+  const tab = state.currentTab;
+  const id = state.lastId + 1;
+  const page = {url: url, tab, id};
+  return {
+    ...state,
+    browserHistory: pushToStack(state.browserHistory, page),
+    tabHistories: updateTab(state, tab, t => pushToStack(t, page)),
+    lastId: id
+  };
+};
 
 export const back = (historyStack) => ({
   back: _.initial(historyStack.back),
@@ -98,13 +117,4 @@ export const constructNewHistory = (state, newCurrentId) => {
   else {
     return go(state, shiftAmount);
   }
-<<<<<<< HEAD
 };
-
-export const constructNewStateForBackOrForward = (oldState, newCurrent) => ({
-  ...oldState,
-  browserHistory: constructNewBrowserHistory(oldState.browserHistory, newCurrent)
-});
-=======
-};
->>>>>>> redux

@@ -62,23 +62,10 @@ describe('history utils', () => {
     ]);
   });
 
-<<<<<<< HEAD
-  it('constructs new browser history for back(n)', () => {
-    const oldHistory = {back: [a, a1], current: b, forward: []};
-    const newHistory = {back: [], current: a, forward: [a1, b]};
-    expect(util.constructNewBrowserHistory(oldHistory, a)).toEqual(newHistory);
-  });
-
-  it('constructs new browser history for forward(n)', () => {
-    const oldHistory = {back: [], current: a, forward: [a1, b]};
-    const newHistory = {back: [a, a1], current: b, forward: []};
-    expect(util.constructNewBrowserHistory(oldHistory, b)).toEqual(newHistory);
-=======
   it('gets history shift amount', () => {
     const oldState = {browserHistory: {back: [a, a1], current: b, forward: []}};
     expect(util.getHistoryShiftAmount(oldState, 3)).toEqual(-1);
     expect(util.getHistoryShiftAmount(oldState, 1)).toEqual(-2);
->>>>>>> redux
   });
 
 });

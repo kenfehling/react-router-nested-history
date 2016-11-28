@@ -1,6 +1,5 @@
 import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as utils from '../util/history';
-import { switchToTab } from '../behaviors/defaultTabBehavior';
 
 const initialState = {
   browserHistory: {
@@ -10,46 +9,44 @@ const initialState = {
   },
   tabHistories: [],
   currentTab: 0,
-  lastId: 0,
-  lastAction: null,
-  lastState: null
+  lastId: 0
 };
 
 export function reducer(state=initialState, action) {
   switch (action.type) {
     case SET_TABS: {
-      const id = ++state.lastId;
-      return {
+      const {initialTabUrls, currentUrl} = action;
+      const id = state.lastId + 1;
+      const startState = {
         ...state,
         browserHistory: {
           back: [],
-          current: {url: action.initialUrls[0], tab: 0, id},
+          current: {url: initialTabUrls[0], tab: 0, id},
           forward: []
         },
-        tabHistories: action.initialUrls.map((url, i) => ({
+        tabHistories: initialTabUrls.map((url, i) => ({
           back: [],
-          current: {url, tab: i, id: id + i + 1},
+          current: {url, tab: i, id: id + i},
           forward: []
         })),
         currentTab: 0,
-        lastId: id + action.initialUrls.length + 1
+        lastId: initialTabUrls.length
       };
+      if (currentUrl === initialTabUrls[0]) {
+        return startState;
+      }
+      else {
+        const tab = initialTabUrls.indexOf(currentUrl);
+        if (tab >= 0) {
+          return utils.switchToTab(startState, tab);
+        }
+        else {
+          return utils.push(startState, currentUrl);  // TODO: Need to switch tabs first?
+        }
+      }
     }
-    case SWITCH_TO_TAB: {
-      const newState = switchToTab({historyState: state, tab: action.tab});
-      return {...state, ...newState, currentTab: action.tab};
-    }
-    case PUSH: {
-      const tab = state.currentTab;
-      const id = state.lastId + 1;
-      const page = {url: action.url, tab, id};
-      return {
-        ...state,
-        browserHistory: utils.pushPage(state.browserHistory, page),
-        tabHistories: utils.updateTab(state, tab, t => utils.pushPage(t, page)),
-        lastId: id
-      };
-    }
+    case SWITCH_TO_TAB: { return utils.switchToTab(state, action.tab); }
+    case PUSH: { return utils.push(state, action.url); }
     case BACK: { return {...state, ...utils.go(state, 0 - action.n || -1)}; }
     case FORWARD:
     case GO: { return {...state, ...utils.go(state, action.n || 1)}; }

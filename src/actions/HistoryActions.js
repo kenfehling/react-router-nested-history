@@ -1,8 +1,9 @@
 import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 
-export const setTabs = (initialUrls) => ({
+export const setTabs = (initialTabUrls, currentUrl) => ({
   type: SET_TABS,
-  initialUrls
+  initialTabUrls,
+  currentUrl
 });
 
 export const switchToTab = (tab) => ({
