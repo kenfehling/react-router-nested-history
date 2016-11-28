@@ -1,5 +1,7 @@
-import { reducer } from '../../src/reducers/index';
+import reducer from '../../src/reducers/index';
+import { deriveState } from '../../src/util/history';
 import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../../src/constants/ActionTypes";
+import * as _ from 'lodash';
 
 const tabs = [
   {initialUrl: '/a', urlPatterns: ['/a/*']},
@@ -7,34 +9,17 @@ const tabs = [
   {initialUrl: '/c', urlPatterns: ['/c/*']}
 ];
 
-describe('main', () => {
-  const state = {
-    browserHistory: {
-      back: [{url: '/a', tab: 0, id: 1}, {url: '/a/1', tab: 0, id: 4}],
-      current: {url: '/b', tab: 1, id: 2},
-      forward: [{url: '/b/1', tab: 1, id: 5}]
-    },
-    currentTab: 1,
-    lastId: 5,
-    tabHistories: [
-      {
-        back: [{url: '/a', tab: 0, id: 1}],
-        current: {url: '/a/1', tab: 0, id: 4},
-        forward: []
-      }, {
-        back: [],
-        current: {url: '/b', tab: 1, id: 2},
-        forward: [{url: '/b/1', tab: 1, id: 5}]
-      }, {
-        back: [],
-        current: {url: '/c', tab: 2, id: 3},
-        forward: []
-      },
-    ]
-  };
+const deriveAndStripState = s => _.omit(deriveState(s), ['lastAction', 'previousState']);
 
-  it('loads correctly (default tab)', () => {
-    expect(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/a'})).toEqual({
+describe('main', () => {
+  const state = [
+    {type: SET_TABS, tabs, currentUrl: '/a'},
+    {type: PUSH, url: '/a/1'},
+    {type: SWITCH_TO_TAB, tab: 1}
+  ];
+
+  it.only('loads correctly (default tab)', () => {
+    expect(deriveAndStripState(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/a'}))).toEqual({
       browserHistory: {
         back: [],
         current: {url: '/a', tab: 0, id: 1},
@@ -61,7 +46,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-default tab)', () => {
-    expect(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/b'})).toEqual({
+    expect(deriveAndStripState(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/b'}))).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}],
         current: {url: '/b', tab: 1, id: 2},
@@ -88,7 +73,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-initial page on default tab)', () => {
-    expect(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/a/1'})).toEqual({
+    expect(deriveAndStripState(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/a/1'}))).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}],
         current: {url: '/a/1', tab: 0, id: 4},
@@ -115,7 +100,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-initial page on non-default tab)', () => {
-    expect(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/b/1'})).toEqual({
+    expect(deriveAndStripState(reducer(undefined, {type: SET_TABS, tabs, currentUrl: '/b/1'}))).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}, {url: '/b', tab: 1, id: 2}],
         current: {url: '/b/1', tab: 1, id: 4},
@@ -142,7 +127,7 @@ describe('main', () => {
   });
 
   it('switches tab', () => {
-    expect(reducer(state, {type: SWITCH_TO_TAB, tab: 2})).toEqual({
+    expect(deriveAndStripState(reducer(state, {type: SWITCH_TO_TAB, tab: 2}))).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}, {url: '/a/1', tab: 0, id: 4}],
         current: {url: '/c', tab: 2, id: 3},
@@ -169,7 +154,7 @@ describe('main', () => {
   });
 
   it('switches tab(2)', () => {
-    expect(reducer(state, {type: SWITCH_TO_TAB, tab: 2})).toEqual({
+    expect(deriveAndStripState(reducer(state, {type: SWITCH_TO_TAB, tab: 2}))).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}, {url: '/a/1', tab: 0, id: 4}],
         current: {url: '/c', tab: 2, id: 3},
@@ -196,7 +181,7 @@ describe('main', () => {
   });
 
   it('pushes page', () => {
-    expect(reducer(state, {type: PUSH, url: '/b/2'})).toEqual({
+    expect(deriveAndStripState(reducer(state, {type: PUSH, url: '/b/2'}))).toEqual({
       browserHistory: {
         back: [
           {url: '/a', tab: 0, id: 1},
@@ -227,7 +212,7 @@ describe('main', () => {
   });
 
   it('goes back in history', () => {
-    expect(reducer(state, {type: BACK})).toEqual({
+    expect(deriveAndStripState(reducer(state, {type: BACK}))).toEqual({
       browserHistory: {
         back: [{url: '/a', tab: 0, id: 1}],
         current: {url: '/a/1', tab: 0, id: 4},
@@ -254,7 +239,7 @@ describe('main', () => {
   });
 
   it('goes forward in history', () => {
-    expect(reducer(state, {type: FORWARD})).toEqual({
+    expect(deriveAndStripState(reducer(state, {type: FORWARD}))).toEqual({
       browserHistory: {
         back: [
           {url: '/a', tab: 0, id: 1},
@@ -293,7 +278,7 @@ describe('main', () => {
   });
 
   it('correctly updates history from popstate', () => {
-    expect(reducer(state, {type: POPSTATE, id: 5})).toEqual({
+    expect(deriveAndStripState(reducer(state, {type: POPSTATE, id: 5}))).toEqual({
       browserHistory: {
         back: [
           {url: '/a', tab: 0, id: 1},
@@ -328,7 +313,7 @@ describe('main', () => {
     newState = reducer(newState, {type: BACK});
     newState = reducer(newState, {type: SWITCH_TO_TAB, tab: 1});
     newState = reducer(newState, {type: SWITCH_TO_TAB, tab: 0});
-    expect(newState).toEqual({
+    expect(deriveAndStripState(newState)).toEqual({
       browserHistory: {
         back: [],
         current: {url: '/a', tab: 0, id: 1},

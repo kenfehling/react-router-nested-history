@@ -118,7 +118,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _history = __webpack_require__(16);
 
-	var _store = __webpack_require__(20);
+	var _store = __webpack_require__(21);
 
 	var _store2 = _interopRequireDefault(_store);
 
@@ -134,6 +134,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var needsPop = [browser.back, browser.forward, browser.go];
 	var unlisten = void 0;
+
+	var getDerivedState = function getDerivedState() {
+	  return (0, _history.deriveState)(_store2.default.getState());
+	};
 
 	var startListening = function startListening() {
 	  unlisten = (0, _historyListener.listen)(function (location) {
@@ -183,7 +187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var addChangeListener = exports.addChangeListener = function addChangeListener(fn) {
 	  _store2.default.subscribe(function () {
-	    var state = _store2.default.getState();
+	    var state = getDerivedState();
 	    fn({
 	      currentTab: getCurrentTab()
 	    });
@@ -191,13 +195,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var getCurrentTab = exports.getCurrentTab = function getCurrentTab() {
-	  var state = _store2.default.getState();
+	  var state = getDerivedState();
 	  return state.browserHistory.current.tab;
 	};
 
 	_store2.default.subscribe(function () {
-	  var state = _store2.default.getState();
-	  switch (state.lastAction) {
+	  var state = getDerivedState();
+	  switch (state.lastAction.type) {
 	    case _ActionTypes.SET_TABS:
 	      {
 	        browser.replace(state.browserHistory.current);
@@ -205,7 +209,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    case _ActionTypes.SWITCH_TO_TAB:
 	      {
-	        var steps = (0, _history.diffStateForSteps)(state.lastState, state).map(function (s) {
+	        var steps = (0, _history.diffStateToSteps)(state.previousState, state).map(function (s) {
 	          return function () {
 	            s.fn.apply(s, _toConsumableArray(s.args));
 	            return _.includes(needsPop, s.fn) ? (0, _historyListener.listenPromise)() : Promise.resolve();
@@ -1245,32 +1249,50 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.constructNewHistory = exports.diffStateForSteps = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.push = exports.pushToStack = exports.switchToTab = undefined;
+	exports.deriveState = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.push = exports.pushToStack = exports.switchToTab = undefined;
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	exports.go = go;
+	exports.reducer = reducer;
+
+	var _ActionTypes = __webpack_require__(2);
 
 	var _lodash = __webpack_require__(17);
 
 	var _ = _interopRequireWildcard(_lodash);
 
+	var _url = __webpack_require__(19);
+
 	var _browserFunctions = __webpack_require__(4);
 
 	var browser = _interopRequireWildcard(_browserFunctions);
 
-	var _defaultTabBehavior = __webpack_require__(19);
+	var _defaultTabBehavior = __webpack_require__(20);
 
 	var behavior = _interopRequireWildcard(_defaultTabBehavior);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	var initialState = {
+	  browserHistory: {
+	    back: [],
+	    current: null,
+	    forward: []
+	  },
+	  tabHistories: [],
+	  currentTab: 0,
+	  lastId: 0
+	};
 
 	var switchToTab = exports.switchToTab = function switchToTab(state, tab) {
 	  return _extends({}, state, behavior.switchToTab({ historyState: state, tab: tab }), {
@@ -1372,7 +1394,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param newState {Object} The new historyStore state
 	 * @returns {[Object]} An array of steps to get from old state to new state
 	 */
-	var diffStateForSteps = exports.diffStateForSteps = function diffStateForSteps(oldState, newState) {
+	var diffStateToSteps = exports.diffStateToSteps = function diffStateToSteps(oldState, newState) {
 	  var h1 = oldState.browserHistory;
 	  var h2 = newState.browserHistory;
 	  return _.flatten([_.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
@@ -1390,6 +1412,105 @@ return /******/ (function(modules) { // webpackBootstrap
 	  } else {
 	    return go(state, shiftAmount);
 	  }
+	};
+
+	function reducer() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case _ActionTypes.SET_TABS:
+	      {
+	        var _ret = function () {
+	          var tabs = action.tabs,
+	              currentUrl = action.currentUrl;
+
+	          var tabUrlPatterns = tabs.map(function (tab) {
+	            return tab.urlPatterns;
+	          });
+	          var initialTabUrls = tabs.map(function (tab) {
+	            return tab.initialUrl;
+	          });
+	          var id = state.lastId + 1;
+	          var startState = _extends({}, state, {
+	            browserHistory: {
+	              back: [],
+	              current: { url: initialTabUrls[0], tab: 0, id: id },
+	              forward: []
+	            },
+	            tabHistories: initialTabUrls.map(function (url, i) {
+	              return {
+	                back: [],
+	                current: { url: url, tab: i, id: id + i },
+	                forward: []
+	              };
+	            }),
+	            currentTab: 0,
+	            lastId: initialTabUrls.length
+	          });
+	          if (currentUrl === initialTabUrls[0]) {
+	            return {
+	              v: startState
+	            };
+	          } else {
+	            var tab = initialTabUrls.indexOf(currentUrl);
+	            if (tab >= 0) {
+	              return {
+	                v: switchToTab(startState, tab)
+	              };
+	            } else {
+	              var _tab = _.findIndex(tabUrlPatterns, function (patterns) {
+	                return _.some(patterns, function (pattern) {
+	                  return (0, _url.pathsMatch)(pattern, currentUrl);
+	                });
+	              });
+	              if (_tab < 0) {
+	                throw new Error('Tab not found for url: ' + currentUrl);
+	              }
+	              return {
+	                v: push(switchToTab(startState, _tab), currentUrl)
+	              };
+	            }
+	          }
+	        }();
+
+	        if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
+	      }
+	    case _ActionTypes.SWITCH_TO_TAB:
+	      {
+	        return switchToTab(state, action.tab);
+	      }
+	    case _ActionTypes.PUSH:
+	      {
+	        return push(state, action.url);
+	      }
+	    case _ActionTypes.BACK:
+	      {
+	        return _extends({}, state, go(state, 0 - action.n || -1));
+	      }
+	    case _ActionTypes.FORWARD:
+	    case _ActionTypes.GO:
+	      {
+	        return _extends({}, state, go(state, action.n || 1));
+	      }
+	    case _ActionTypes.POPSTATE:
+	      {
+	        return _extends({}, state, constructNewHistory(state, action.id));
+	      }
+	  }
+	  return state;
+	}
+
+	var deriveState = exports.deriveState = function deriveState(actionHistory) {
+	  var lastAction = _.last(actionHistory);
+	  var previousState = _.initial(actionHistory).reduce(function (state, action) {
+	    return reducer(state, action);
+	  }, initialState);
+	  var finalState = reducer(previousState, lastAction);
+	  return _extends({}, finalState, {
+	    previousState: previousState,
+	    lastAction: lastAction
+	  });
 	};
 
 /***/ },
@@ -18482,6 +18603,108 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.isParentOrEqualPath = exports.isParentPath = exports.pathsMatch = exports.doPathPartsMatch = exports.getParentPaths = exports.getParentPath = exports.appendToPath = exports.getPathParts = exports.stripTrailingSlash = exports.stripLeadingSlash = exports.addTrailingSlash = exports.addLeadingSlash = undefined;
+
+	var _lodash = __webpack_require__(17);
+
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	var addLeadingSlash = exports.addLeadingSlash = function addLeadingSlash(path) {
+	  return path.replace(/\/?(\?|#|$)?/, '/$1');
+	};
+
+	var addTrailingSlash = exports.addTrailingSlash = function addTrailingSlash(path) {
+	  return path.replace(/\/?(\?|#|$)/, '/$1');
+	};
+
+	var stripLeadingSlash = exports.stripLeadingSlash = function stripLeadingSlash(path) {
+	  return path.charAt(0) === '/' ? path.substr(1) : path;
+	};
+
+	var stripTrailingSlash = exports.stripTrailingSlash = function stripTrailingSlash(path) {
+	  return path.charAt(path.length - 1) === '/' ? path.substr(0, path.length - 1) : path;
+	};
+
+	var getPathParts = exports.getPathParts = function getPathParts(path) {
+	  var strippedPath = stripTrailingSlash(stripLeadingSlash(path));
+	  if (!strippedPath) {
+	    return [];
+	  } else {
+	    return strippedPath.split('/');
+	  }
+	};
+
+	var appendToPath = exports.appendToPath = function appendToPath(path, newPart) {
+	  return (path ? addTrailingSlash(path) : '/') + newPart;
+	};
+
+	var getParentPath = exports.getParentPath = function getParentPath(path) {
+	  return _lodash2.default.initial(getPathParts(path)).join('/');
+	};
+
+	var getParentPaths = exports.getParentPaths = function getParentPaths(path) {
+	  return _lodash2.default.reduce(_lodash2.default.initial(getPathParts(path)), function (array, part) {
+	    return [].concat(_toConsumableArray(array), [appendToPath(_lodash2.default.last(array), part)]);
+	  }, []);
+	};
+
+	var doPathPartsMatch = exports.doPathPartsMatch = function doPathPartsMatch(p1, p2) {
+	  var wildcards = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['*'];
+
+	  return !p1 || !p2 || p1 === p2 || _lodash2.default.some(wildcards, function (w) {
+	    return p1.includes(w);
+	  }) || _lodash2.default.some(wildcards, function (w) {
+	    return p2.includes(w);
+	  });
+	};
+
+	var pathsMatch = exports.pathsMatch = function pathsMatch(path1, path2) {
+	  var wildcards = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['*'];
+
+	  var parts1 = getPathParts(path1);
+	  var parts2 = getPathParts(path2);
+	  if (parts1.length !== parts2.length) {
+	    return false;
+	  }
+	  for (var i = 0; i < parts1.length; i++) {
+	    if (!doPathPartsMatch(parts1[i], parts2[i], wildcards)) {
+	      return false;
+	    }
+	  }
+	  return true;
+	};
+
+	var isParentPath = exports.isParentPath = function isParentPath(parentPath, childPath) {
+	  var parentPathParts = getPathParts(parentPath);
+	  var childPathParts = getPathParts(childPath);
+	  if (parentPathParts.length >= childPathParts.length) {
+	    return false;
+	  }
+	  for (var i = 0; i < childPathParts.length; i++) {
+	    if (!doPathPartsMatch(childPathParts[i], parentPathParts[i])) {
+	      return false;
+	    }
+	  }
+	  return true;
+	};
+
+	var isParentOrEqualPath = exports.isParentOrEqualPath = function isParentOrEqualPath(parentPath, childPath) {
+	  return pathsMatch(parentPath, childPath) || isParentPath(parentPath, childPath);
+	};
+
+/***/ },
+/* 20 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -18530,7 +18753,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18539,9 +18762,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _redux = __webpack_require__(21);
+	var _redux = __webpack_require__(22);
 
-	var _reducers = __webpack_require__(41);
+	var _reducers = __webpack_require__(42);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -18552,7 +18775,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = store;
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18560,27 +18783,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
 
-	var _createStore = __webpack_require__(22);
+	var _createStore = __webpack_require__(23);
 
 	var _createStore2 = _interopRequireDefault(_createStore);
 
-	var _combineReducers = __webpack_require__(36);
+	var _combineReducers = __webpack_require__(37);
 
 	var _combineReducers2 = _interopRequireDefault(_combineReducers);
 
-	var _bindActionCreators = __webpack_require__(38);
+	var _bindActionCreators = __webpack_require__(39);
 
 	var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
 
-	var _applyMiddleware = __webpack_require__(39);
+	var _applyMiddleware = __webpack_require__(40);
 
 	var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
 
-	var _compose = __webpack_require__(40);
+	var _compose = __webpack_require__(41);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
-	var _warning = __webpack_require__(37);
+	var _warning = __webpack_require__(38);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -18603,7 +18826,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.compose = _compose2['default'];
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18612,11 +18835,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.ActionTypes = undefined;
 	exports['default'] = createStore;
 
-	var _isPlainObject = __webpack_require__(23);
+	var _isPlainObject = __webpack_require__(24);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _symbolObservable = __webpack_require__(33);
+	var _symbolObservable = __webpack_require__(34);
 
 	var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
 
@@ -18869,12 +19092,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(24),
-	    getPrototype = __webpack_require__(30),
-	    isObjectLike = __webpack_require__(32);
+	var baseGetTag = __webpack_require__(25),
+	    getPrototype = __webpack_require__(31),
+	    isObjectLike = __webpack_require__(33);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -18937,12 +19160,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(25),
-	    getRawTag = __webpack_require__(28),
-	    objectToString = __webpack_require__(29);
+	var Symbol = __webpack_require__(26),
+	    getRawTag = __webpack_require__(29),
+	    objectToString = __webpack_require__(30);
 
 	/** `Object#toString` result references. */
 	var nullTag = '[object Null]',
@@ -18972,10 +19195,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(26);
+	var root = __webpack_require__(27);
 
 	/** Built-in value references. */
 	var Symbol = root.Symbol;
@@ -18984,10 +19207,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var freeGlobal = __webpack_require__(27);
+	var freeGlobal = __webpack_require__(28);
 
 	/** Detect free variable `self`. */
 	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -18999,7 +19222,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
@@ -19010,10 +19233,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(25);
+	var Symbol = __webpack_require__(26);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -19062,7 +19285,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -19090,10 +19313,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var overArg = __webpack_require__(31);
+	var overArg = __webpack_require__(32);
 
 	/** Built-in value references. */
 	var getPrototype = overArg(Object.getPrototypeOf, Object);
@@ -19102,7 +19325,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports) {
 
 	/**
@@ -19123,7 +19346,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports) {
 
 	/**
@@ -19158,14 +19381,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(34);
+	module.exports = __webpack_require__(35);
 
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, module) {'use strict';
@@ -19174,7 +19397,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _ponyfill = __webpack_require__(35);
+	var _ponyfill = __webpack_require__(36);
 
 	var _ponyfill2 = _interopRequireDefault(_ponyfill);
 
@@ -19200,7 +19423,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(18)(module)))
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19228,7 +19451,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19236,13 +19459,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports['default'] = combineReducers;
 
-	var _createStore = __webpack_require__(22);
+	var _createStore = __webpack_require__(23);
 
-	var _isPlainObject = __webpack_require__(23);
+	var _isPlainObject = __webpack_require__(24);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _warning = __webpack_require__(37);
+	var _warning = __webpack_require__(38);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -19375,7 +19598,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19405,7 +19628,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19461,7 +19684,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19472,7 +19695,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports['default'] = applyMiddleware;
 
-	var _compose = __webpack_require__(40);
+	var _compose = __webpack_require__(41);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
@@ -19524,7 +19747,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -19567,245 +19790,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	exports.reducer = reducer;
 
 	exports.default = function () {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
 	  var action = arguments[1];
 
-
-	  console.log(action);
-	  console.log(_extends({}, reducer(state, action), { lastAction: action.type, lastState: state }));
-
-	  return _extends({}, reducer(state, action), { lastAction: action.type, lastState: state });
+	  if (_.includes(_.values(actionTypes), action.type)) {
+	    return [].concat(_toConsumableArray(state), [action]);
+	  }
+	  return state;
 	};
 
 	var _ActionTypes = __webpack_require__(2);
 
-	var _history = __webpack_require__(16);
-
-	var utils = _interopRequireWildcard(_history);
+	var actionTypes = _interopRequireWildcard(_ActionTypes);
 
 	var _lodash = __webpack_require__(17);
 
 	var _ = _interopRequireWildcard(_lodash);
 
-	var _url = __webpack_require__(42);
-
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	var initialState = {
-	  browserHistory: {
-	    back: [],
-	    current: null,
-	    forward: []
-	  },
-	  tabHistories: [],
-	  currentTab: 0,
-	  lastId: 0
-	};
-
-	function reducer() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case _ActionTypes.SET_TABS:
-	      {
-	        var _ret = function () {
-	          var tabs = action.tabs,
-	              currentUrl = action.currentUrl;
-
-	          var tabUrlPatterns = tabs.map(function (tab) {
-	            return tab.urlPatterns;
-	          });
-	          var initialTabUrls = tabs.map(function (tab) {
-	            return tab.initialUrl;
-	          });
-	          var id = state.lastId + 1;
-	          var startState = _extends({}, state, {
-	            browserHistory: {
-	              back: [],
-	              current: { url: initialTabUrls[0], tab: 0, id: id },
-	              forward: []
-	            },
-	            tabHistories: initialTabUrls.map(function (url, i) {
-	              return {
-	                back: [],
-	                current: { url: url, tab: i, id: id + i },
-	                forward: []
-	              };
-	            }),
-	            currentTab: 0,
-	            lastId: initialTabUrls.length
-	          });
-	          if (currentUrl === initialTabUrls[0]) {
-	            return {
-	              v: startState
-	            };
-	          } else {
-	            var tab = initialTabUrls.indexOf(currentUrl);
-	            if (tab >= 0) {
-	              return {
-	                v: utils.switchToTab(startState, tab)
-	              };
-	            } else {
-	              var _tab = _.findIndex(tabUrlPatterns, function (patterns) {
-	                return _.some(patterns, function (pattern) {
-	                  return (0, _url.pathsMatch)(pattern, currentUrl);
-	                });
-	              });
-	              if (_tab < 0) {
-	                throw new Error('Tab not found for url: ' + currentUrl);
-	              }
-	              return {
-	                v: utils.push(utils.switchToTab(startState, _tab), currentUrl)
-	              };
-	            }
-	          }
-	        }();
-
-	        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
-	      }
-	    case _ActionTypes.SWITCH_TO_TAB:
-	      {
-	        return utils.switchToTab(state, action.tab);
-	      }
-	    case _ActionTypes.PUSH:
-	      {
-	        return utils.push(state, action.url);
-	      }
-	    case _ActionTypes.BACK:
-	      {
-	        return _extends({}, state, utils.go(state, 0 - action.n || -1));
-	      }
-	    case _ActionTypes.FORWARD:
-	    case _ActionTypes.GO:
-	      {
-	        return _extends({}, state, utils.go(state, action.n || 1));
-	      }
-	    case _ActionTypes.POPSTATE:
-	      {
-	        return _extends({}, state, utils.constructNewHistory(state, action.id));
-	      }
-	  }
-	  return state;
-	}
-
-/***/ },
-/* 42 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.isParentOrEqualPath = exports.isParentPath = exports.pathsMatch = exports.doPathPartsMatch = exports.getParentPaths = exports.getParentPath = exports.appendToPath = exports.getPathParts = exports.stripTrailingSlash = exports.stripLeadingSlash = exports.addTrailingSlash = exports.addLeadingSlash = undefined;
-
-	var _lodash = __webpack_require__(17);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	var addLeadingSlash = exports.addLeadingSlash = function addLeadingSlash(path) {
-	  return path.replace(/\/?(\?|#|$)?/, '/$1');
-	};
-
-	var addTrailingSlash = exports.addTrailingSlash = function addTrailingSlash(path) {
-	  return path.replace(/\/?(\?|#|$)/, '/$1');
-	};
-
-	var stripLeadingSlash = exports.stripLeadingSlash = function stripLeadingSlash(path) {
-	  return path.charAt(0) === '/' ? path.substr(1) : path;
-	};
-
-	var stripTrailingSlash = exports.stripTrailingSlash = function stripTrailingSlash(path) {
-	  return path.charAt(path.length - 1) === '/' ? path.substr(0, path.length - 1) : path;
-	};
-
-	var getPathParts = exports.getPathParts = function getPathParts(path) {
-	  var strippedPath = stripTrailingSlash(stripLeadingSlash(path));
-	  if (!strippedPath) {
-	    return [];
-	  } else {
-	    return strippedPath.split('/');
-	  }
-	};
-
-	var appendToPath = exports.appendToPath = function appendToPath(path, newPart) {
-	  return (path ? addTrailingSlash(path) : '/') + newPart;
-	};
-
-	var getParentPath = exports.getParentPath = function getParentPath(path) {
-	  return _lodash2.default.initial(getPathParts(path)).join('/');
-	};
-
-	var getParentPaths = exports.getParentPaths = function getParentPaths(path) {
-	  return _lodash2.default.reduce(_lodash2.default.initial(getPathParts(path)), function (array, part) {
-	    return [].concat(_toConsumableArray(array), [appendToPath(_lodash2.default.last(array), part)]);
-	  }, []);
-	};
-
-	var doPathPartsMatch = exports.doPathPartsMatch = function doPathPartsMatch(p1, p2) {
-	  var wildcards = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['*'];
-
-	  return !p1 || !p2 || p1 === p2 || _lodash2.default.some(wildcards, function (w) {
-	    return p1.includes(w);
-	  }) || _lodash2.default.some(wildcards, function (w) {
-	    return p2.includes(w);
-	  });
-	};
-
-	var pathsMatch = exports.pathsMatch = function pathsMatch(path1, path2) {
-	  var wildcards = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['*'];
-
-	  var parts1 = getPathParts(path1);
-	  var parts2 = getPathParts(path2);
-	  if (parts1.length !== parts2.length) {
-	    return false;
-	  }
-	  for (var i = 0; i < parts1.length; i++) {
-	    if (!doPathPartsMatch(parts1[i], parts2[i], wildcards)) {
-	      return false;
-	    }
-	  }
-	  return true;
-	};
-
-	var isParentPath = exports.isParentPath = function isParentPath(parentPath, childPath) {
-	  var parentPathParts = getPathParts(parentPath);
-	  var childPathParts = getPathParts(childPath);
-	  if (parentPathParts.length >= childPathParts.length) {
-	    return false;
-	  }
-	  for (var i = 0; i < childPathParts.length; i++) {
-	    if (!doPathPartsMatch(childPathParts[i], parentPathParts[i])) {
-	      return false;
-	    }
-	  }
-	  return true;
-	};
-
-	var isParentOrEqualPath = exports.isParentOrEqualPath = function isParentOrEqualPath(parentPath, childPath) {
-	  return pathsMatch(parentPath, childPath) || isParentPath(parentPath, childPath);
-	};
+	var initialState = [];
 
 /***/ }
 /******/ ])

@@ -2,12 +2,14 @@ import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "./co
 import * as actions from './actions/HistoryActions';
 import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
-import { diffStateForSteps } from './util/history';
+import { diffStateToSteps, deriveState } from './util/history';
 import store from './store';
 import * as _ from 'lodash';
 
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
+
+const getDerivedState = () => deriveState(store.getState());
 
 const startListening = () => {
   unlisten = listen(location => {
@@ -40,7 +42,7 @@ export const forward = (n=1) => store.dispatch(actions.forward(n));
 
 export const addChangeListener = (fn) => {
   store.subscribe(() => {
-    const state = store.getState();
+    const state = getDerivedState();
     fn({
       currentTab: getCurrentTab()
     });
@@ -48,19 +50,19 @@ export const addChangeListener = (fn) => {
 };
 
 export const getCurrentTab = () => {
-  const state = store.getState();
+  const state = getDerivedState();
   return state.browserHistory.current.tab;
 };
 
 store.subscribe(() => {
-  const state = store.getState();
-  switch(state.lastAction) {
+  const state = getDerivedState();
+  switch(state.lastAction.type) {
     case SET_TABS: {
       browser.replace(state.browserHistory.current);
       break;
     }
     case SWITCH_TO_TAB: {
-      const steps = diffStateForSteps(state.lastState, state).map(s => () => {
+      const steps = diffStateToSteps(state.previousState, state).map(s => () => {
         s.fn(...s.args);
         return _.includes(needsPop, s.fn) ? listenPromise() : Promise.resolve();
       });
