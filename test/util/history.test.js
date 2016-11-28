@@ -9,7 +9,7 @@ describe('history utils', () => {
   it('diffs old state and new state for push', () => {
     const oldState = {browserHistory: {back: [], current: a, forward: []}};
     const newState = {browserHistory: {back: [a], current: b, forward: []}};
-    const steps = util.diffStateForSteps(oldState, newState);
+    const steps = util.diffStateToSteps(oldState, newState);
     expect(steps).toEqual([
       {fn: push, args: [a]},
       {fn: push, args: [b]}
@@ -19,7 +19,7 @@ describe('history utils', () => {
   it('diffs old state and new state for back', () => {
     const oldState = {browserHistory: {back: [a], current: b, forward: []}};
     const newState = {browserHistory: {back: [], current: a, forward: [b]}};
-    const steps = util.diffStateForSteps(oldState, newState);
+    const steps = util.diffStateToSteps(oldState, newState);
     expect(steps).toEqual([
       {fn: back, args: [1]},
       {fn: push, args: [a]},
@@ -31,7 +31,7 @@ describe('history utils', () => {
   it('diffs old state and new state for forward', () => {
     const oldState = {browserHistory: {back: [], current: a, forward: [b]}};
     const newState = {browserHistory: {back: [a], current: b, forward: []}};
-    const steps = util.diffStateForSteps(oldState, newState);
+    const steps = util.diffStateToSteps(oldState, newState);
     expect(steps).toEqual([
       {fn: push, args: [a]},
       {fn: push, args: [b]}
@@ -41,7 +41,7 @@ describe('history utils', () => {
   it('diffs old state and new state for back(n)', () => {
     const oldState = {browserHistory: {back: [a, a1], current: b, forward: []}};
     const newState = {browserHistory: {back: [], current: a, forward: [a1, b]}};
-    const steps = util.diffStateForSteps(oldState, newState);
+    const steps = util.diffStateToSteps(oldState, newState);
     expect(steps).toEqual([
       {fn: back, args: [2]},
       {fn: push, args: [a]},
@@ -54,7 +54,7 @@ describe('history utils', () => {
   it('diffs old state and new state for forward(n)', () => {
     const oldState = {browserHistory: {back: [], current: a, forward: [a1, b]}};
     const newState = {browserHistory: {back: [a, a1], current: b, forward: []}};
-    const steps = util.diffStateForSteps(oldState, newState);
+    const steps = util.diffStateToSteps(oldState, newState);
     expect(steps).toEqual([
       {fn: push, args: [a]},
       {fn: push, args: [a1]},

@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs';
-import { setTabs, switchToTab, addChangeListener } from '../../../../dist/tab-history-library';
+import { setTabs } from '../../../../dist/tab-history-library';
 import { Match, Link } from 'react-router';
 import './Tabs.css';
 import TabMaster1 from "../components/TabMaster1";
@@ -8,7 +8,7 @@ import TabMaster2 from "../components/TabMaster2";
 import TabMaster3 from "../components/TabMaster3";
 import TabPage from "../components/TabPage";
 
-setTabs([
+const tabs = setTabs([
   {initialUrl: '/tabs/1', urlPatterns: ['/tabs/1', '/tabs/1/*']},
   {initialUrl: '/tabs/2', urlPatterns: ['/tabs/2', '/tabs/2/*']},
   {initialUrl: '/tabs/3', urlPatterns: ['/tabs/3', '/tabs/3/*']}
@@ -59,7 +59,7 @@ const onTabClick = (router, index) => {
   }
   else {
   */
-    switchToTab(index);
+    tabs.switchToTab(index);
   //}
 };
 
@@ -68,13 +68,13 @@ class Tabs extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentTab: 0
-    }
+      currentTab: tabs.getActiveContainer()
+    };
   }
 
   componentWillMount() {
-    addChangeListener(state => {
-      this.setState(state);
+    tabs.addChangeListener(state => {
+      this.setState({currentTab: state.activeContainer});
     })
   }
 

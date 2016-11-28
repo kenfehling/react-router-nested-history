@@ -1,11 +1,24 @@
+import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as _ from 'lodash';
+import { pathsMatch } from "../util/url";
 import * as browser from '../../src/browserFunctions';
 import * as behavior from '../behaviors/defaultTabBehavior';
+
+const initialState = {
+  browserHistory: {
+    back: [],
+    current: null,
+    forward: []
+  },
+  tabHistories: [],
+  currentTab: 0,
+  lastId: 0
+};
 
 export const switchToTab = (state, tab) => ({
   ...state,
   ...behavior.switchToTab({historyState: state, tab}),
-  currentTab: tab
+  currentTab: tab.index
 });
 
 export const pushToStack = (historyStack, page) => ({
@@ -97,7 +110,7 @@ export const getHistoryShiftAmount = (oldState, newCurrentId) => {
  * @param newState {Object} The new historyStore state
  * @returns {[Object]} An array of steps to get from old state to new state
  */
-export const diffStateForSteps = (oldState, newState) => {
+export const diffStateToSteps = (oldState, newState) => {
   const h1 = oldState.browserHistory;
   const h2 = newState.browserHistory;
   return _.flatten([
@@ -119,3 +132,90 @@ export const constructNewHistory = (state, newCurrentId) => {
     return go(state, shiftAmount);
   }
 };
+
+export function reducer(state=initialState, action) {
+  switch (action.type) {
+    case SET_TABS: {
+      const {tabs, currentUrl} = action;
+      const tabUrlPatterns = tabs.map(tab => tab.urlPatterns);
+      const initialTabUrls = tabs.map(tab => tab.initialUrl);
+      const id = state.lastId + 1;
+      const startState = {
+        ...state,
+        browserHistory: {
+          ...state.browserHistory,
+          current: state.browserHistory.current || {url: initialTabUrls[0], tab: 0, id}
+        },
+        tabHistories: [...state.tabHistories, ...initialTabUrls.map((url, i) => ({
+          back: [],
+          current: {url, tab: i, id: id + i},
+          forward: []
+        }))],
+        currentTab: state.currentTab || 0,
+        lastId: state.lastId || initialTabUrls.length
+      };
+      if (currentUrl === initialTabUrls[0]) {
+        return startState;
+      }
+      else {
+        const tabIndex = initialTabUrls.indexOf(currentUrl);
+        if (tabIndex >= 0) {
+          return switchToTab(startState, tabs[tabIndex]);
+        }
+        else {
+          const tab = _.findIndex(tabUrlPatterns, patterns =>
+              _.some(patterns, pattern => pathsMatch(pattern, currentUrl)));
+          if (tab >= 0) {
+            return push(switchToTab(startState, tab), currentUrl);
+          }
+          else {
+            return state;  // ignore because this doesn't match this container
+          }
+        }
+      }
+    }
+    case SWITCH_TO_TAB: {
+      return switchToTab(state, action.tab);
+    }
+    case PUSH: { return push(state, action.url); }
+    case BACK: { return {...state, ...go(state, 0 - action.n || -1)}; }
+    case FORWARD:
+    case GO: { return {...state, ...go(state, action.n || 1)}; }
+    case POPSTATE: {
+      return {
+        ...state,
+        ...constructNewHistory(state, action.id)
+      }
+    }
+  }
+  return state;
+}
+
+export const deriveState = (actionHistory) => {
+  const lastAction = _.last(actionHistory);
+  const previousState = _.initial(actionHistory).reduce((state, action) => reducer(state, action), initialState);
+  const finalState = reducer(previousState, lastAction);
+  return {
+    ...finalState,
+    previousState,
+    lastAction
+  }
+};
+
+export function getContainerStackOrder(actionHistory, patterns=['*']) {
+  const tabSwitchNumbers = [];
+  actionHistory.reduce((oldState, action) => {
+    const newState = reducer(oldState, action);
+    if (oldState.currentTab !== newState.currentTab) {
+      if (_.some(patterns, p => pathsMatch(p, newState.browserHistory.current.url))) {
+        tabSwitchNumbers.push(newState.currentTab);
+      }
+    }
+    return newState;
+  }, initialState);
+  return _.uniq(_.reverse(tabSwitchNumbers));
+}
+
+export function getActiveContainer(actionHistory, patterns=['*']) {
+  return _.first(getContainerStackOrder(actionHistory, patterns));
+}

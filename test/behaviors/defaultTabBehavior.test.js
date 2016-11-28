@@ -21,7 +21,7 @@ describe('default tab behavior', () => {
           }
         ]
       },
-      tab: 1
+      tab: {index: 1}
     }).browserHistory).toEqual({
       back: [{url: '/a', tab: 0}],
       current: {url: '/b', tab: 1},
@@ -47,7 +47,7 @@ describe('default tab behavior', () => {
           }
         ]
       },
-      tab: 1
+      tab: {index: 1}
     }).browserHistory).toEqual({
       back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}],
       current: {url: '/b', tab: 1},
@@ -73,7 +73,7 @@ describe('default tab behavior', () => {
           }
         ]
       },
-      tab: 0
+      tab: {index: 0}
     }).browserHistory).toEqual({
       back: [],
       current: {url: '/a', tab: 0},
@@ -99,7 +99,7 @@ describe('default tab behavior', () => {
           },
         ],
       },
-      tab: 0
+      tab: {index: 0}
     }).browserHistory).toEqual({
       back: [{url: '/a', tab: 0}],
       current: {url: '/a/1', tab: 0},
@@ -129,7 +129,7 @@ describe('default tab behavior', () => {
           }
         ]
       },
-      tab: 2
+      tab: {index: 2}
     }).browserHistory).toEqual({
       back: [{url: '/a', tab: 0}],
       current: {url: '/c', tab: 2},
@@ -159,7 +159,7 @@ describe('default tab behavior', () => {
           }
         ]
       },
-      tab: 2
+      tab: {index: 2}
     }).browserHistory).toEqual({
       back: [{url: '/a', tab: 0}, {url: '/a/1', tab: 0}],
       current: {url: '/c', tab: 2},
