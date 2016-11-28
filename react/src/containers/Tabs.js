@@ -8,7 +8,11 @@ import TabMaster2 from "../components/TabMaster2";
 import TabMaster3 from "../components/TabMaster3";
 import TabPage from "../components/TabPage";
 
-setTabs('/tabs/1', '/tabs/2', '/tabs/3');
+setTabs([
+  {initialUrl: '/tabs/1', urlPatterns: ['/tabs/1/*']},
+  {initialUrl: '/tabs/2', urlPatterns: ['/tabs/2/*']},
+  {initialUrl: '/tabs/3', urlPatterns: ['/tabs/3/*']}
+]);
 
 export const Tab1 = () => (
     <div>
