@@ -1,71 +1,77 @@
+// @flow
+
 import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as _ from 'lodash';
 import { pathsMatch } from "../util/url";
 import * as browser from '../../src/browserFunctions';
 import * as behavior from '../behaviors/defaultTabBehavior';
+import type { History, State, Container, Page, ContainerConfig } from '../model';
 
-const initialState = {
+const initialState : State = {
   browserHistory: {
     back: [],
     current: null,
     forward: []
   },
-  tabHistories: [],
-  currentTab: 0,
+  containers: [],
+  currentContainer: null,
   lastId: 0
 };
 
-export const switchToTab = (state, tab) => ({
+export const switchToTab = (state: State, tab: Container) => ({
   ...state,
-  ...behavior.switchToTab({historyState: state, tab}),
-  currentTab: tab.index
+  ...behavior.switchToTab(state, tab),
+  currentContainer: tab
 });
 
-export const pushToStack = (historyStack, page) => ({
+export const pushToStack = (historyStack: History, page: Page) : History => ({
   back: [...historyStack.back, historyStack.current],
   current: page,
   forward: []
 });
 
-export const push = (state, url) => {
-  const tab = state.currentTab;
-  const id = state.lastId + 1;
-  const page = {url: url, tab, id};
-  return {
-    ...state,
-    browserHistory: pushToStack(state.browserHistory, page),
-    tabHistories: updateTab(state, tab, t => pushToStack(t, page)),
-    lastId: id
-  };
-};
-
-export const back = (historyStack) => ({
+export const back = (historyStack: History) => ({
   back: _.initial(historyStack.back),
   current: _.last(historyStack.back),
   forward: [historyStack.current, ...historyStack.forward]
 });
 
-export const forward = (historyStack) => ({
+export const forward = (historyStack: History) => ({
   back: [...historyStack.back, historyStack.current],
   current: _.head(historyStack.forward),
   forward: _.tail(historyStack.forward)
 });
 
-export const updateTab = (state, tab, fn) => [
-  ...state.tabHistories.slice(0, tab),
-  fn(state.tabHistories[tab]),
-  ...state.tabHistories.slice(tab + 1)
-];
+export const updateTabHistory = (state: State, tab: Container, fn: Function) => {
+  const index = _.findIndex(state.containers, c => c.group === tab.group && c.initialUrl === tab.initialUrl);
+  return [
+    ...state.containers.slice(0, index),
+    {...state.containers[index], history: fn(state.containers[index])},
+    ...state.containers.slice(index + 1)
+  ];
+};
 
-export function go(state, n) {
-  const tab = state.currentTab;
+export const push = (state: State, url: string) => {
+  const tab = state.currentContainer;
+  const id = state.lastId + 1;
+  const page = {url: url, tab, id};
+  return {
+    ...state,
+    browserHistory: pushToStack(state.browserHistory, page),
+    tabs: updateTabHistory(state, tab, t => pushToStack(t, page)),
+    lastId: id
+  };
+};
+
+export function go(state: State, n: number) {
+  const tab = state.currentContainer;
   if (n === 0) {
     return state;
   }
   else {
     const f = n < 0 ? back : forward;
     const browserHistory = f(state.browserHistory);
-    const tabHistory = state.tabHistories[tab];
+    const tabHistory = tab.history;
     const stack = n < 0 ? tabHistory.back : tabHistory.forward;
     const tabCanGo = stack.length > 0;
     const nextN = n < 0 ? n + 1 : n - 1;
@@ -73,14 +79,14 @@ export function go(state, n) {
       return go({
         ...state,
         browserHistory,
-        tabHistories: updateTab(state, tab, f)
+        tabs: updateTabHistory(state, tab, f)
       }, nextN);
     }
     else {
       return go({
         ...state,
         browserHistory,
-        currentTab: browserHistory.current.tab
+        currentContainer: browserHistory.current.tab
       }, nextN);
     }
   }
@@ -137,8 +143,6 @@ export function reducer(state=initialState, action) {
   switch (action.type) {
     case SET_TABS: {
       const {tabs, currentUrl} = action;
-      const tabUrlPatterns = tabs.map(tab => tab.urlPatterns);
-      const initialTabUrls = tabs.map(tab => tab.initialUrl);
       const id = state.lastId + 1;
       const startState = {
         ...state,
@@ -146,33 +150,33 @@ export function reducer(state=initialState, action) {
           ...state.browserHistory,
           current: state.browserHistory.current || {url: initialTabUrls[0], tab: 0, id}
         },
-        tabHistories: [...state.tabHistories, ...initialTabUrls.map((url, i) => ({
+        tabHistories: [...state.tabHistories, ...tabs.map((t, i) => ({
           back: [],
-          current: {url, tab: i, id: id + i},
+          current: {url: t.initialUrl, tab: t, id: id + i},
           forward: []
         }))],
-        currentTab: state.currentTab || 0,
-        lastId: state.lastId || initialTabUrls.length
+        currentContainer: state.currentContainer || 0,
+        lastId: state.lastId || tabs.length
       };
-      if (currentUrl === initialTabUrls[0]) {
-        return startState;
-      }
-      else {
-        const tabIndex = initialTabUrls.indexOf(currentUrl);
-        if (tabIndex >= 0) {
-          return switchToTab(startState, tabs[tabIndex]);
+      const initialTab = _.find(tabs, t => pathsMatch(t.initialUrl, currentUrl));
+      if (initialTab) {
+        if (initialTab.isDefault) {
+          return state;
         }
         else {
-          const tab = _.findIndex(tabUrlPatterns, patterns =>
-              _.some(patterns, pattern => pathsMatch(pattern, currentUrl)));
-          if (tab >= 0) {
-            return push(switchToTab(startState, tab), currentUrl);
-          }
-          else {
-            return state;  // ignore because this doesn't match this container
-          }
+          return switchToTab(startState, initialTab);
         }
       }
+      const matchingTab = _.find(tabs, t => _.some(t.urlPatterns, p => pathsMatch(p, currentUrl)));
+      if (matchingTab) {
+        if (matchingTab.isDefault) {
+          return push(startState, currentUrl);
+        }
+        else {
+          return push(switchToTab(startState, matchingTab), currentUrl);
+        }
+      }
+      return state;  // ignore, current URL doesn't match this container
     }
     case SWITCH_TO_TAB: {
       return switchToTab(state, action.tab);
@@ -206,9 +210,9 @@ export function getContainerStackOrder(actionHistory, patterns=['*']) {
   const tabSwitchNumbers = [];
   actionHistory.reduce((oldState, action) => {
     const newState = reducer(oldState, action);
-    if (oldState.currentTab !== newState.currentTab) {
+    if (oldState.currentContainer !== newState.currentContainer) {
       if (_.some(patterns, p => pathsMatch(p, newState.browserHistory.current.url))) {
-        tabSwitchNumbers.push(newState.currentTab);
+        tabSwitchNumbers.push(newState.currentContainer);
       }
     }
     return newState;

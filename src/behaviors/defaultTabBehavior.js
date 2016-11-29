@@ -1,28 +1,34 @@
+// @flow
+
+import * as _ from 'lodash';
+import type { State, Container } from '../model';
+
 /**
  * Switch tab using mobile-app like behavior (with a default tab: index == 0)
  * Structure of a history object:
  *    { back: [String], current: String, forward: [String] }
- * @param {Array} tabHistories - The stored histories of each individual tab
- * @param {Object} tab - The index of the new tab
- * @returns {Object} A new historyState object
+ * @param {State} state - Current state
+ * @param {Container} tab - The tab to switch to
+ * @returns {Object} A new state object
  */
-export function switchToTab({historyState: {tabHistories}, tab: {index}}) {
-  const defaultTab = tabHistories[0];
-  const toTab = tabHistories[index];
-  const createNewHistoryState = (browserHistory) => ({
-    tabHistories,
-    browserHistory
-  });
-  if (index === 0) {  // going to default tab
-    return createNewHistoryState({
-      ...toTab,
-      back: [...toTab.back]
-    });
+export function switchToTab(state: State, tab: Container) : State {
+  if (tab.isDefault) {  // going to default tab
+    return {
+      ...state,
+      browserHistory: {
+        ...tab.history,
+        back: [...tab.history.back]
+      }
+    };
   }
   else {  // going to non-default tab
-    return createNewHistoryState({
-      ...toTab,
-      back: [...defaultTab.back, defaultTab.current, ...toTab.back]
-    });
+    const defaultTab = _.find(state.containers, c => c.group === tab.group && c.isDefault).history;
+    return {
+      ...state,
+      browserHistory: {
+        ...tab.history,
+        back: [...defaultTab.back, defaultTab.current, ...tab.history.back]
+      }
+    }
   }
 }
