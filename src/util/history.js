@@ -5,18 +5,7 @@ import * as _ from 'lodash';
 import { pathsMatch } from "../util/url";
 import * as browser from '../../src/browserFunctions';
 import * as behavior from '../behaviors/defaultTabBehavior';
-import type { History, State, Container, Page, ContainerConfig } from '../model';
-
-const initialState : State = {
-  browserHistory: {
-    back: [],
-    current: null,
-    forward: []
-  },
-  containers: [],
-  currentContainer: null,
-  lastId: 0
-};
+import type { History, State, Container, Page, ContainerConfig, defaultState } from '../model';
 
 export const switchToTab = (state: State, tab: Container) => ({
   ...state,
@@ -139,7 +128,7 @@ export const constructNewHistory = (state, newCurrentId) => {
   }
 };
 
-export function reducer(state=initialState, action) {
+export function reducer(state=defaultState, action) {
   switch (action.type) {
     case SET_TABS: {
       const {tabs, currentUrl} = action;
@@ -197,7 +186,7 @@ export function reducer(state=initialState, action) {
 
 export const deriveState = (actionHistory) => {
   const lastAction = _.last(actionHistory);
-  const previousState = _.initial(actionHistory).reduce((state, action) => reducer(state, action), initialState);
+  const previousState = _.initial(actionHistory).reduce((state, action) => reducer(state, action), defaultState);
   const finalState = reducer(previousState, lastAction);
   return {
     ...finalState,
@@ -216,7 +205,7 @@ export function getContainerStackOrder(actionHistory, patterns=['*']) {
       }
     }
     return newState;
-  }, initialState);
+  }, defaultState);
   return _.uniq(_.reverse(tabSwitchNumbers));
 }
 

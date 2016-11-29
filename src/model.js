@@ -3,10 +3,10 @@
 export type Page = {
   url: string,
   id: number,
-  tab: Container
+  container: Container
 }
 
-export type History ={
+export type History = {
   back: Page[],
   current: Page,
   forward: Page[]
@@ -15,14 +15,14 @@ export type History ={
 export type ContainerConfig = {
   initialUrl: string,
   urlPatterns: string[],
-  isDefault: boolean,
+  isdefault: boolean,
   group: number
 }
 
 export type Container = {
   initialUrl: string,
   urlPatterns: string[],
-  isDefault: boolean,
+  isdefault: boolean,
   group: number,
   history: History
 }
@@ -30,7 +30,33 @@ export type Container = {
 export type State = {
   browserHistory: History,
   containers: Container[],
-  currentContainer: ?Container,
+  currentContainer: Container,
   lastId: number
 }
 
+export const defaultHistory : History = {
+  back: [],
+  current: defaultPage,
+  forward: []
+};
+
+export const defaultContainer : Container = {
+  initialUrl: '/',
+  urlPatterns: '*',
+  isdefault: true,
+  group: 0,
+  history: defaultHistory
+};
+
+export const defaultPage : Page = {
+  url: '/',
+  id: 0,
+  container: defaultContainer
+};
+
+export const defaultState : State = {
+  browserHistory: defaultHistory,
+  containers: [],
+  currentContainer: defaultContainer,
+  lastId: 1
+};
