@@ -1,7 +1,7 @@
 // @flow
 
 import * as _ from 'lodash';
-import type { State, Container } from '../model';
+import type { State, Container } from '../types';
 
 /**
  * Switch tab using mobile-app like behavior (with a default tab: index == 0)
@@ -11,7 +11,7 @@ import type { State, Container } from '../model';
  * @param {Container} tab - The tab to switch to
  * @returns {Object} A new state object
  */
-export function switchToTab(state: State, tab: Container) : State {
+export function switchToContainer(state: State, tab: Container) : State {
   if (tab.isDefault) {  // going to default tab
     return {
       ...state,
@@ -22,6 +22,9 @@ export function switchToTab(state: State, tab: Container) : State {
     };
   }
   else {  // going to non-default tab
+
+    console.log(tab, state.containers);
+
     const defaultTab = _.find(state.containers, c => c.group === tab.group && c.isDefault).history;
     return {
       ...state,

@@ -1,38 +1,38 @@
 // @flow
 
-import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
+import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as _ from 'lodash';
 import { pathsMatch } from "../util/url";
 import * as browser from '../../src/browserFunctions';
-import * as behavior from '../behaviors/defaultTabBehavior';
-import type { History, State, Container, Page, ContainerConfig, defaultState } from '../model';
+import * as behavior from '../behaviors/defaultBehavior';
+import type { History, State, StateSnapshot, Container, ContainerConfig, Page } from '../types';
 
-export const switchToTab = (state: State, tab: Container) => ({
+export const switchToContainer = (state:State, container: Container) => ({
   ...state,
-  ...behavior.switchToTab(state, tab),
-  currentContainer: tab
+  ...behavior.switchToContainer(state, container),
+  currentContainer: container
 });
 
-export const pushToStack = (historyStack: History, page: Page) : History => ({
+export const pushToStack = (historyStack:History, page:Page) : History => ({
   back: [...historyStack.back, historyStack.current],
   current: page,
   forward: []
 });
 
-export const back = (historyStack: History) => ({
+export const back = (historyStack:History) : History => ({
   back: _.initial(historyStack.back),
   current: _.last(historyStack.back),
   forward: [historyStack.current, ...historyStack.forward]
 });
 
-export const forward = (historyStack: History) => ({
+export const forward = (historyStack:History) : History => ({
   back: [...historyStack.back, historyStack.current],
   current: _.head(historyStack.forward),
   forward: _.tail(historyStack.forward)
 });
 
-export const updateTabHistory = (state: State, tab: Container, fn: Function) => {
-  const index = _.findIndex(state.containers, c => c.group === tab.group && c.initialUrl === tab.initialUrl);
+export const updateContainerHistory = (state:State, container:Container, fn:Function) : Container[] => {
+  const index = _.findIndex(state.containers, c => c.group === container.group && c.initialUrl === container.initialUrl);
   return [
     ...state.containers.slice(0, index),
     {...state.containers[index], history: fn(state.containers[index])},
@@ -40,48 +40,48 @@ export const updateTabHistory = (state: State, tab: Container, fn: Function) => 
   ];
 };
 
-export const push = (state: State, url: string) => {
-  const tab = state.currentContainer;
+export const push = (state:State, url:string) :State => {
+  const container = state.currentContainer;
   const id = state.lastId + 1;
-  const page = {url: url, tab, id};
+  const page = {url: url, container, id};
   return {
     ...state,
     browserHistory: pushToStack(state.browserHistory, page),
-    tabs: updateTabHistory(state, tab, t => pushToStack(t, page)),
+    containers: updateContainerHistory(state, container, t => pushToStack(t, page)),
     lastId: id
   };
 };
 
-export function go(state: State, n: number) {
-  const tab = state.currentContainer;
+export function go(state:State, n:number) :State {
+  const container = state.currentContainer;
   if (n === 0) {
     return state;
   }
   else {
     const f = n < 0 ? back : forward;
     const browserHistory = f(state.browserHistory);
-    const tabHistory = tab.history;
-    const stack = n < 0 ? tabHistory.back : tabHistory.forward;
-    const tabCanGo = stack.length > 0;
+    const containerHistory = container.history;
+    const stack = n < 0 ? containerHistory.back : containerHistory.forward;
+    const containerCanGo = stack.length > 0;
     const nextN = n < 0 ? n + 1 : n - 1;
-    if (tabCanGo) {
+    if (containerCanGo) {
       return go({
         ...state,
         browserHistory,
-        tabs: updateTabHistory(state, tab, f)
+        containers: updateContainerHistory(state, container, f)
       }, nextN);
     }
     else {
       return go({
         ...state,
         browserHistory,
-        currentContainer: browserHistory.current.tab
+        currentContainer: browserHistory.current.container
       }, nextN);
     }
   }
 }
 
-export const getHistoryShiftAmount = (oldState, newCurrentId) => {
+export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :number => {
   const oldHistory = oldState.browserHistory;
   if (!_.isEmpty(oldHistory.back)) {
     const i = _.findIndex(oldHistory.back, b => b.id === newCurrentId);
@@ -105,7 +105,7 @@ export const getHistoryShiftAmount = (oldState, newCurrentId) => {
  * @param newState {Object} The new historyStore state
  * @returns {[Object]} An array of steps to get from old state to new state
  */
-export const diffStateToSteps = (oldState, newState) => {
+export const diffStateToSteps = (oldState:State, newState:State) : Object[] => {
   const h1 = oldState.browserHistory;
   const h2 = newState.browserHistory;
   return _.flatten([
@@ -117,7 +117,7 @@ export const diffStateToSteps = (oldState, newState) => {
   ]);
 };
 
-export const constructNewHistory = (state, newCurrentId) => {
+export const constructNewHistory = (state:State, newCurrentId:number) => {
   const shiftAmount = getHistoryShiftAmount(state, newCurrentId);
   if (shiftAmount === 0) {
     console.error(state, newCurrentId);
@@ -128,65 +128,90 @@ export const constructNewHistory = (state, newCurrentId) => {
   }
 };
 
-export function reducer(state=defaultState, action) {
+export function reducer(state:?State, action:Object) : State {
   switch (action.type) {
-    case SET_TABS: {
-      const {tabs, currentUrl} = action;
-      const id = state.lastId + 1;
+    case SET_CONTAINERS: {
+      const containerConfigs : ContainerConfig[] = action.containers;
+      const currentUrl : String = action.currentUrl;
+      const id = (state ? state.lastId : 0) + 1;
+      const group = (state ? state.lastGroup : 0) + 1;
+      const defaultContainer = _.first(containerConfigs);
       const startState = {
-        ...state,
+        ...(state ? state : {}),
         browserHistory: {
-          ...state.browserHistory,
-          current: state.browserHistory.current || {url: initialTabUrls[0], tab: 0, id}
+          ...(state ? state.browserHistory : {}),
+          current: state ? state.browserHistory.current : {
+            url: defaultContainer.initialUrl,
+            container: defaultContainer, id
+          },
+          back: state ? state.browserHistory.back : [],
+          forward: state ? state.browserHistory.forward : []
         },
-        tabHistories: [...state.tabHistories, ...tabs.map((t, i) => ({
-          back: [],
-          current: {url: t.initialUrl, tab: t, id: id + i},
-          forward: []
+        containers: [...(state ? state.containers : []), ...containerConfigs.map((c, i) => ({
+          ...c,
+          history: {
+            back: [],
+            current: {url: c.initialUrl, container: c, id: id + i},
+            forward: []
+          },
+          isDefault: i === 0,
+          group
         }))],
-        currentContainer: state.currentContainer || 0,
-        lastId: state.lastId || tabs.length
+        currentContainer: state ? state.currentContainer : defaultContainer,
+        lastId: (state ? state.lastId : 0) + containerConfigs.length,
+        lastGroup: group
       };
-      const initialTab = _.find(tabs, t => pathsMatch(t.initialUrl, currentUrl));
-      if (initialTab) {
-        if (initialTab.isDefault) {
-          return state;
+      const containers = startState.containers;
+      const initialContainer = _.find(containers, c => pathsMatch(c.initialUrl, currentUrl));
+      if (initialContainer) {
+        if (initialContainer.isDefault) {
+          return startState;
         }
         else {
-          return switchToTab(startState, initialTab);
+
+          console.log("DOOO");
+
+          return switchToContainer(startState, initialContainer);
         }
       }
-      const matchingTab = _.find(tabs, t => _.some(t.urlPatterns, p => pathsMatch(p, currentUrl)));
-      if (matchingTab) {
-        if (matchingTab.isDefault) {
+      const matchingContainer = _.find(containers, c =>
+          _.some(c.urlPatterns, p => pathsMatch(p, currentUrl)));
+      if (matchingContainer) {
+        if (matchingContainer.isDefault) {
           return push(startState, currentUrl);
         }
         else {
-          return push(switchToTab(startState, matchingTab), currentUrl);
+          return push(switchToContainer(startState, matchingContainer), currentUrl);
         }
       }
-      return state;  // ignore, current URL doesn't match this container
     }
-    case SWITCH_TO_TAB: {
-      return switchToTab(state, action.tab);
-    }
-    case PUSH: { return push(state, action.url); }
-    case BACK: { return {...state, ...go(state, 0 - action.n || -1)}; }
-    case FORWARD:
-    case GO: { return {...state, ...go(state, action.n || 1)}; }
-    case POPSTATE: {
-      return {
-        ...state,
-        ...constructNewHistory(state, action.id)
+  }
+  if (!state) {
+    throw new Error("State not yet initialized");
+  }
+  else {
+    switch (action.type) {
+      case SWITCH_TO_CONTAINER: {
+        return switchToContainer(state, action.container);
+      }
+      case PUSH: { return push(state, action.url); }
+      case BACK: { return {...state, ...go(state, 0 - action.n || -1)}; }
+      case FORWARD:
+      case GO: { return {...state, ...go(state, action.n || 1)}; }
+      case POPSTATE: {
+        return {
+          ...state,
+          ...constructNewHistory(state, action.id)
+        }
       }
     }
   }
   return state;
 }
 
-export const deriveState = (actionHistory) => {
+export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
   const lastAction = _.last(actionHistory);
-  const previousState = _.initial(actionHistory).reduce((state, action) => reducer(state, action), defaultState);
+  const previousState = _.initial(actionHistory).reduce((state, action) => reducer(state, action), null);
   const finalState = reducer(previousState, lastAction);
   return {
     ...finalState,
@@ -195,20 +220,20 @@ export const deriveState = (actionHistory) => {
   }
 };
 
-export function getContainerStackOrder(actionHistory, patterns=['*']) {
-  const tabSwitchNumbers = [];
-  actionHistory.reduce((oldState, action) => {
+export function getContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) {
+  const containerSwitchNumbers = [];
+  actionHistory.reduce((oldState:?State, action:Object) : ?State => {
     const newState = reducer(oldState, action);
-    if (oldState.currentContainer !== newState.currentContainer) {
+    if (!oldState || oldState.currentContainer !== newState.currentContainer) {
       if (_.some(patterns, p => pathsMatch(p, newState.browserHistory.current.url))) {
-        tabSwitchNumbers.push(newState.currentContainer);
+        containerSwitchNumbers.push(newState.currentContainer);
       }
     }
     return newState;
-  }, defaultState);
-  return _.uniq(_.reverse(tabSwitchNumbers));
+  });
+  return _.uniq(_.reverse(containerSwitchNumbers));
 }
 
-export function getActiveContainer(actionHistory, patterns=['*']) {
+export function getActiveContainer(actionHistory:Object[], patterns:string[]=['*']) {
   return _.first(getContainerStackOrder(actionHistory, patterns));
 }

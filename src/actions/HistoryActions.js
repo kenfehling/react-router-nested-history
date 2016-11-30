@@ -1,17 +1,17 @@
 // @flow
 
-import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
-import type { Container, ContainerConfig } from '../model';
+import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
+import type { Container, ContainerConfig } from '../types';
 
-export const setTabs = (tabs: ContainerConfig, currentUrl: string) => ({
-  type: SET_TABS,
-  tabs,
+export const setContainers = (containers: Container[], currentUrl: string) => ({
+  type: SET_CONTAINERS,
+  containers,
   currentUrl
 });
 
-export const switchToTab = (tab: Container) => ({
-  type: SWITCH_TO_TAB,
-  tab
+export const switchToContainer = (container: Container) => ({
+  type: SWITCH_TO_CONTAINER,
+  container
 });
 
 export const push = (url: string) => ({

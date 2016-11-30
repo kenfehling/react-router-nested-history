@@ -1,5 +1,5 @@
-export const SET_TABS = 'set-tabs';
-export const SWITCH_TO_TAB = 'switch-to-tab';
+export const SET_CONTAINERS = 'set-containers';
+export const SWITCH_TO_CONTAINER = 'switch-to-container';
 export const PUSH = 'push';
 export const BACK = 'back';
 export const FORWARD = 'forward';
