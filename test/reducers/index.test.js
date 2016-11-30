@@ -8,25 +8,25 @@ import { deriveState } from '../../src/util/history';
 import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, POPSTATE } from "../../src/constants/ActionTypes";
 import type { ContainerConfig, State, StateSnapshot } from '../../src/types';
 
-const containerConfigs : ContainerConfig[] = [
-  {initialUrl: '/a', urlPatterns: ['/a/*']},
-  {initialUrl: '/b', urlPatterns: ['/b/*']},
-  {initialUrl: '/c', urlPatterns: ['/c/*']}
-];
-
-const state = [
-  {type: SET_CONTAINERS, containerConfigs, currentUrl: '/a'},
-  {type: PUSH, url: '/a/1'},
-  {type: SWITCH_TO_CONTAINER, container: 1}
-];
-
-const containers = deriveState(state).containers;
-
 describe('main', () => {
 
+  const containerConfigs : ContainerConfig[] = [
+    {initialUrl: '/a', urlPatterns: ['/a/*']},
+    {initialUrl: '/b', urlPatterns: ['/b/*']},
+    {initialUrl: '/c', urlPatterns: ['/c/*']}
+  ];
+
+  const tempState = deriveState(reducer([], {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}));
+  const containers = tempState.containers;
+
+  const state = [
+    {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+    {type: PUSH, url: '/a/1'},
+    {type: SWITCH_TO_CONTAINER, container: containers[1]}
+  ];
 
   it('loads correctly (default container)', () => {
-    const action = {type: SET_CONTAINERS, containerConfigs, currentUrl: '/a'};
+    const action = {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'};
     const result:StateSnapshot = deriveState(reducer([], action));
     expect(result.browserHistory.current.url).toBe('/a');
     expect(result.containers.length).toBe(3);
@@ -38,7 +38,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-default container)', () => {
-    const action = {type: SET_CONTAINERS, containerConfigs, currentUrl: '/b'};
+    const action = {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'};
     const result:StateSnapshot = deriveState(reducer([], action));
     expect(result.browserHistory.back.length).toBe(1);
     expect(result.browserHistory.back[0].url).toBe('/a');
@@ -47,7 +47,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-initial page on default container)', () => {
-    const action = {type: SET_CONTAINERS, containersConfigs, currentUrl: '/a/1'};
+    const action = {type: SET_CONTAINERS, containers: containersConfigs, currentUrl: '/a/1'};
     const result:StateSnapshot = deriveState(reducer([], action));
     expect(result.browserHistory.back.length).toBe(1);
     expect(result.browserHistory.current.url).toBe('/a/1');
@@ -58,7 +58,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-initial page on non-default container)', () => {
-    const action = {type: SET_CONTAINERS, containerConfigs, currentUrl: '/b/1'};
+    const action = {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b/1'};
     const result:StateSnapshot = deriveState(reducer([], action));
     expect(result.browserHistory.back.length).toBe(2);
     expect(result.browserHistory.back[0].url).toBe('/a');
@@ -71,45 +71,30 @@ describe('main', () => {
   });
 
   it.only('switches container', () => {
+    const action = {type: SWITCH_TO_CONTAINER, container: containers[0]};
+    const result:StateSnapshot = deriveState(reducer(state, action));
+
+    console.log(result.browserHistory);
+    //console.log(result.containers, c => state.history);
+
+    expect(result.browserHistory.back.length).toBe(1);
+    expect(result.browserHistory.back[0].url).toBe('/a');
+    expect(result.browserHistory.current.url).toBe('/a/1');
+    expect(result.browserHistory.current.id).toBe(4);
+    expect(result.currentContainer.initialUrl).toBe('/a');
+    expect(result.lastId).toBe(4);
+  });
+
+  it('switches container(2)', () => {
     const action = {type: SWITCH_TO_CONTAINER, container: containers[2]};
     const result:StateSnapshot = deriveState(reducer(state, action));
     expect(result.browserHistory.back.length).toBe(2);
     expect(result.browserHistory.back[0].url).toBe('/a');
     expect(result.browserHistory.back[1].url).toBe('/a/1');
     expect(result.browserHistory.current.url).toBe('/c');
-    expect(result.containers[1].history.forward.length).toBe(1);
-    expect(result.containers[1].history.forward[0].url).toBe('/b/1');
-    expect(result.containers[1].history.forward[0].id).toBe(5);
     expect(result.browserHistory.current.id).toBe(3);
     expect(result.currentContainer.initialUrl).toBe('/c');
-    expect(result.lastId).toBe(5);
-  });
-
-  it('switches container(2)', () => {
-    expect(deriveAndStripState(reducer(state, {type: SWITCH_TO_CONTAINER, container: 2}))).toEqual({
-      browserHistory: {
-        back: [{url: '/a', container: 0, id: 1}, {url: '/a/1', container: 0, id: 4}],
-        current: {url: '/c', container: 2, id: 3},
-        forward: []
-      },
-      currentContainer: 2,
-      lastId: 5,
-      containerHistories: [
-        {
-          back: [{url: '/a', container: 0, id: 1}],
-          current: {url: '/a/1', container: 0, id: 4},
-          forward: []
-        }, {
-          back: [],
-          current: {url: '/b', container: 1, id: 2},
-          forward: [{url: '/b/1', container: 1, id: 5}]
-        }, {
-          back: [],
-          current: {url: '/c', container: 2, id: 3},
-          forward: []
-        }
-      ]
-    });
+    expect(result.lastId).toBe(4);
   });
 
   it('pushes page', () => {

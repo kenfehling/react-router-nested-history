@@ -174,6 +174,9 @@ export function reducer(state:?State, action:Object) : State {
           return startState;
         }
         else {
+
+          console.log("AAA");
+
           return switchToContainer(startState, initialContainer);
         }
       }
@@ -185,6 +188,9 @@ export function reducer(state:?State, action:Object) : State {
           return push(startState, currentUrl);
         }
         else {
+
+          console.log("BBB");
+
           return push(switchToContainer(startState, matchingContainer), currentUrl);
         }
       }
@@ -196,9 +202,6 @@ export function reducer(state:?State, action:Object) : State {
   else {
     switch (action.type) {
       case SWITCH_TO_CONTAINER: {
-
-        console.log(state, action.container);
-
         return switchToContainer(state, action.container);
       }
       case PUSH: { return push(state, action.url); }
