@@ -32,7 +32,10 @@ export const forward = (historyStack:History) : History => ({
 });
 
 export const updateContainerHistory = (state:State, container:Container, fn:Function) : Container[] => {
-  const index = _.findIndex(state.containers, c => c.group === container.group && c.initialUrl === container.initialUrl);
+  const index:number = _.findIndex(state.containers, c => c.group === container.group && c.initialUrl === container.initialUrl);
+  if (index < 0) {
+    throw new Error('Index not found');
+  }
   return [
     ...state.containers.slice(0, index),
     {...state.containers[index], history: fn(state.containers[index])},
@@ -40,14 +43,13 @@ export const updateContainerHistory = (state:State, container:Container, fn:Func
   ];
 };
 
-export const push = (state:State, url:string) :State => {
+export const push = (state:State, url:string):State => {
   const container = state.currentContainer;
   const id = state.lastId + 1;
-  const page = {url: url, container, id};
   return {
     ...state,
-    browserHistory: pushToStack(state.browserHistory, page),
-    containers: updateContainerHistory(state, container, t => pushToStack(t, page)),
+    browserHistory: pushToStack(state.browserHistory, {url, container, id}),
+    containers: updateContainerHistory(state, container, c => pushToStack(c.history, {url, id})),
     lastId: id
   };
 };
@@ -131,12 +133,25 @@ export const constructNewHistory = (state:State, newCurrentId:number) : State =>
 export function reducer(state:?State, action:Object) : State {
   switch (action.type) {
     case SET_CONTAINERS: {
-      const containerConfigs : ContainerConfig[] = action.containers;
-      const currentUrl : string = action.currentUrl;
+      const containerConfigs:ContainerConfig[] = action.containers;
+      const currentUrl:string = action.currentUrl;
       const id = (state ? state.lastId : 0) + 1;
       const group = (state ? state.lastGroup : 0) + 1;
-      const defaultContainer = _.first(containerConfigs);
-      const startState = {
+      const containers:Container[] = [
+        ...(state ? state.containers : []),
+        ...containerConfigs.map((c, i) => ({
+          ...c,
+          history: {
+            back: [],
+            current: {url: c.initialUrl, id: id + i},
+            forward: []
+          },
+          isDefault: i === 0,
+          group
+        }))
+      ];
+      const defaultContainer:Container = containers[0];
+      const startState:State = {
         ...(state ? state : {}),
         browserHistory: {
           ...(state ? state.browserHistory : {}),
@@ -148,22 +163,12 @@ export function reducer(state:?State, action:Object) : State {
           back: state ? state.browserHistory.back : [],
           forward: state ? state.browserHistory.forward : []
         },
-        containers: [...(state ? state.containers : []), ...containerConfigs.map((c, i) => ({
-          ...c,
-          history: {
-            back: [],
-            current: {url: c.initialUrl, id: id + i},
-            forward: []
-          },
-          isDefault: i === 0,
-          group
-        }))],
+        containers,
         currentContainer: state ? state.currentContainer : defaultContainer,
         lastId: (state ? state.lastId : 0) + containerConfigs.length,
         lastGroup: group
       };
-      const containers = startState.containers;
-      const initialContainer = _.find(containers, c => pathsMatch(c.initialUrl, currentUrl));
+      const initialContainer:Container = _.find(containers, c => pathsMatch(c.initialUrl, currentUrl));
       if (initialContainer) {
         if (initialContainer.isDefault) {
           return startState;
@@ -172,8 +177,9 @@ export function reducer(state:?State, action:Object) : State {
           return switchToContainer(startState, initialContainer);
         }
       }
-      const matchingContainer = _.find(containers, c =>
-          _.some(c.urlPatterns, p => pathsMatch(p, currentUrl)));
+      const matchingContainer:Container = _.find(containers, c =>
+          _.some(c.urlPatterns, (p:string) => pathsMatch(p, currentUrl)));
+
       if (matchingContainer) {
         if (matchingContainer.isDefault) {
           return push(startState, currentUrl);
@@ -190,6 +196,9 @@ export function reducer(state:?State, action:Object) : State {
   else {
     switch (action.type) {
       case SWITCH_TO_CONTAINER: {
+
+        console.log(state, action.container);
+
         return switchToContainer(state, action.container);
       }
       case PUSH: { return push(state, action.url); }

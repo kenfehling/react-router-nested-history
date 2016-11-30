@@ -11,7 +11,7 @@ import type { State, Container, Page } from '../types';
  * @param {Container} container - The tab to switch to
  * @returns {Object} A new state object
  */
-export function switchToContainer(state: State, container: Container) : State {
+export function switchToContainer(state:State, container:Container) : State {
   const createNewState = (back:Page[]) : State => ({
     ...state,
     browserHistory: {
@@ -25,6 +25,9 @@ export function switchToContainer(state: State, container: Container) : State {
   }
   else {  // going to non-default tab
     const defaultTab:Container = _.find(state.containers, c => c.group === container.group && c.isDefault);
+    if (!defaultTab) {
+      throw new Error('Default tab not found with group: ' + container.group);
+    }
     return createNewState([...defaultTab.history.back, defaultTab.history.current, ...container.history.back]);
   }
 }
