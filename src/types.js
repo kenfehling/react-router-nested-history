@@ -1,38 +1,26 @@
 // @flow
 
-import * as _ from 'lodash';
-import store from './store';
-
 export interface Page {
   url: string;
   id: number;
+}
+
+export interface BrowserPage extends Page {
   container: Container;
-
-  /*
-  constructor(page: Page) {
-    this.url = page.url;
-    this.id = page.id;
-    this.container = defaultContainer;
-  }
-
-  get container() : Container {
-    const state = store.getState();
-    return _.find(state.containers, c => c.history.current === this);
-  }
-  */
 }
 
-export interface History {
-  back: Page[];
-  current: Page;
-  forward: Page[];
+export interface History<P:Page> {
+  back: P[];
+  current: P;
+  forward: P[];
 }
+
+export interface ContainerHistory extends History<Page> {}
+export interface BrowserHistory extends History<BrowserPage> {}
 
 export interface ContainerConfig {
   initialUrl: string;
   urlPatterns: string[];
-  isDefault: boolean;
-  group: number;
 }
 
 export interface Container {
@@ -40,11 +28,11 @@ export interface Container {
   urlPatterns: string[];
   isDefault: boolean;
   group: number;
-  history: History;
+  history: ContainerHistory;
 }
 
 export interface State {
-  browserHistory: History;
+  browserHistory: BrowserHistory;
   containers: Container[];
   currentContainer: Container;
   lastId: number;

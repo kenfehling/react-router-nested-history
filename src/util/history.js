@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { pathsMatch } from "../util/url";
 import * as browser from '../../src/browserFunctions';
 import * as behavior from '../behaviors/defaultBehavior';
-import type { History, State, StateSnapshot, Container, ContainerConfig, Page } from '../types';
+import type { History, ContainerHistory, BrowserHistory, State, StateSnapshot, Container, ContainerConfig, Page } from '../types';
 
 export const switchToContainer = (state:State, container: Container) => ({
   ...state,
@@ -52,7 +52,7 @@ export const push = (state:State, url:string) :State => {
   };
 };
 
-export function go(state:State, n:number) :State {
+export function go(state:State, n:number) : State {
   const container = state.currentContainer;
   if (n === 0) {
     return state;
@@ -117,7 +117,7 @@ export const diffStateToSteps = (oldState:State, newState:State) : Object[] => {
   ]);
 };
 
-export const constructNewHistory = (state:State, newCurrentId:number) => {
+export const constructNewHistory = (state:State, newCurrentId:number) : State => {
   const shiftAmount = getHistoryShiftAmount(state, newCurrentId);
   if (shiftAmount === 0) {
     console.error(state, newCurrentId);
@@ -132,7 +132,7 @@ export function reducer(state:?State, action:Object) : State {
   switch (action.type) {
     case SET_CONTAINERS: {
       const containerConfigs : ContainerConfig[] = action.containers;
-      const currentUrl : String = action.currentUrl;
+      const currentUrl : string = action.currentUrl;
       const id = (state ? state.lastId : 0) + 1;
       const group = (state ? state.lastGroup : 0) + 1;
       const defaultContainer = _.first(containerConfigs);
@@ -142,7 +142,8 @@ export function reducer(state:?State, action:Object) : State {
           ...(state ? state.browserHistory : {}),
           current: state ? state.browserHistory.current : {
             url: defaultContainer.initialUrl,
-            container: defaultContainer, id
+            container: defaultContainer,
+            id
           },
           back: state ? state.browserHistory.back : [],
           forward: state ? state.browserHistory.forward : []
@@ -151,7 +152,7 @@ export function reducer(state:?State, action:Object) : State {
           ...c,
           history: {
             back: [],
-            current: {url: c.initialUrl, container: c, id: id + i},
+            current: {url: c.initialUrl, id: id + i},
             forward: []
           },
           isDefault: i === 0,
@@ -168,9 +169,6 @@ export function reducer(state:?State, action:Object) : State {
           return startState;
         }
         else {
-
-          console.log("DOOO");
-
           return switchToContainer(startState, initialContainer);
         }
       }

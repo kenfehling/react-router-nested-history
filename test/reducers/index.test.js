@@ -21,7 +21,7 @@ describe('main', () => {
     {type: SWITCH_TO_CONTAINER, container: 1}
   ];
 
-  it.only('loads correctly (default container)', () => {
+  it('loads correctly (default container)', () => {
     const action = {type: SET_CONTAINERS, containers, currentUrl: '/a'};
     const result:StateSnapshot = deriveState(reducer([], action));
     expect(result.browserHistory.current.url).toBe('/a');
@@ -33,7 +33,7 @@ describe('main', () => {
     expect(result.lastId).toBe(3);
   });
 
-  it('loads correctly (non-default container)', () => {
+  it.only('loads correctly (non-default container)', () => {
     const action = {type: SET_CONTAINERS, containers, currentUrl: '/b'};
     const result:StateSnapshot = deriveState(reducer([], action));
     expect(result.browserHistory.back.length).toBe(1);
