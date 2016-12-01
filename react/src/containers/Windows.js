@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { setTabs } from '../../../../dist/tab-history-library';
+import { setContainers } from '../../../../dist/tab-history-library';
 import './Windows.css';
 
-const tabs = setTabs([
+const tabs = setContainers([
   {initialUrl: '/windows/1', urlPatterns: ['/windows/1', '/windows/1/*']},
   {initialUrl: '/windows/2', urlPatterns: ['/windows/2', '/windows/2/*']}
 ]);

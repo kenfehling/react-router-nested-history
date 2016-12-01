@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs';
-import { setTabs } from '../../../../dist/tab-history-library';
+import { setContainers } from '../../../../dist/tab-history-library';
 import { Match, Link } from 'react-router';
 import './Tabs.css';
 import TabMaster1 from "../components/TabMaster1";
@@ -8,7 +8,7 @@ import TabMaster2 from "../components/TabMaster2";
 import TabMaster3 from "../components/TabMaster3";
 import TabPage from "../components/TabPage";
 
-const tabs = setTabs([
+const tabs = setContainers([
   {initialUrl: '/tabs/1', urlPatterns: ['/tabs/1', '/tabs/1/*']},
   {initialUrl: '/tabs/2', urlPatterns: ['/tabs/2', '/tabs/2/*']},
   {initialUrl: '/tabs/3', urlPatterns: ['/tabs/3', '/tabs/3/*']}
