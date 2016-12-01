@@ -86,11 +86,9 @@ describe('main', () => {
     });
 
     it.only('switches container', () => {
-      const result = perform({type: SWITCH_TO_CONTAINER, container: containers[0]});
-
-      console.log(result.browserHistory);
-      console.log(result.containers.map(c => c.history));
-
+      const derivedState = deriveState(state);
+      const container = derivedState.containers[0];
+      const result = perform({type: SWITCH_TO_CONTAINER, container: container});
       expect(result.browserHistory.back.length).toBe(1);
       expect(result.browserHistory.back[0].url).toBe('/a');
       expect(result.browserHistory.current.url).toBe('/a/1');
