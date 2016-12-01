@@ -7,7 +7,7 @@ import { listen, listenPromise } from './historyListener';
 import { diffStateToSteps, deriveState, getActiveContainer, getContainerStackOrder } from './util/history';
 import store from './store';
 import * as _ from 'lodash';
-import type { Container, StateSnapshot } from './types';
+import type { Container, ContainerConfig, StateSnapshot } from './types';
 
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
@@ -32,26 +32,33 @@ const startListeningPromise = () => new Promise(resolve => {
 
 startListening();
 
-export const setContainers = (containers: Container[]) => {
+export const setContainers = (containers: ContainerConfig[]) => {
   const currentUrl = window.location.pathname;
   const patterns = _.flatMap(containers, container => container.urlPatterns);
   store.dispatch(actions.setContainers(containers, currentUrl));
+
+  console.log(containers);
+
   return {
-    switchToContainer: (index: number) => switchToContainer(containers[index]),
-    getActiveContainer: () => getActiveContainer(store.getState(), patterns),
-    getContainerStackOrder: () => getContainerStackOrder(store.getState(), patterns),
-    addChangeListener: (fn: Function) => store.subscribe(() => {
+
+    //TODO: Here `containers` is of type ContainerConfig[] but we need Container[]
+    switchTo: (index:number) => switchToContainer(containers[index]),
+
+    getActive: () => getActiveContainer(store.getState(), patterns),
+    getStackOrder: () => getContainerStackOrder(store.getState(), patterns),
+    addChangeListener: (fn:Function) => store.subscribe(() => {
       const state = store.getState();
       fn({
-        activeContainer: getActiveContainer(state, patterns),
-        containerStackOrder: getContainerStackOrder(state, patterns)
+        active: getActiveContainer(state, patterns),
+        stackOrder: getContainerStackOrder(state, patterns)
       });
     })
   };
 };
 
-export const switchToContainer = (container: Container) => store.dispatch(actions.switchToContainer(container));
-export const push = (url: string) => store.dispatch(actions.push(url));
+export const switchToContainer = (container:Container) =>
+    store.dispatch(actions.switchToContainer(container));
+export const push = (url:string) => store.dispatch(actions.push(url));
 export const go = (n:number=1) => store.dispatch(actions.go(n));
 export const back = (n:number=1) => store.dispatch(actions.back(n));
 export const forward = (n:number=1) => store.dispatch(actions.forward(n));

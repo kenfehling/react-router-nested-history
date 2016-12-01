@@ -28,6 +28,7 @@ export interface Container {
   urlPatterns: string[];
   isDefault: boolean;
   group: number;
+  index: number;
   history: ContainerHistory;
 }
 

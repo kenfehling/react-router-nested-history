@@ -149,32 +149,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return container.urlPatterns;
 	  });
 	  _store2.default.dispatch(actions.setContainers(containers, currentUrl));
+
+	  console.log(containers);
+
 	  return {
-	    switchToContainer: function switchToContainer(index) {
-	      return _switchToContainer(containers[index]);
+
+	    //TODO: Here `containers` is of type ContainerConfig[] but we need Container[]
+	    switchTo: function switchTo(index) {
+	      return switchToContainer(containers[index]);
 	    },
-	    getActiveContainer: function getActiveContainer() {
+
+	    getActive: function getActive() {
 	      return (0, _history.getActiveContainer)(_store2.default.getState(), patterns);
 	    },
-	    getContainerStackOrder: function getContainerStackOrder() {
+	    getStackOrder: function getStackOrder() {
 	      return (0, _history.getContainerStackOrder)(_store2.default.getState(), patterns);
 	    },
 	    addChangeListener: function addChangeListener(fn) {
 	      return _store2.default.subscribe(function () {
 	        var state = _store2.default.getState();
 	        fn({
-	          activeContainer: (0, _history.getActiveContainer)(state, patterns),
-	          containerStackOrder: (0, _history.getContainerStackOrder)(state, patterns)
+	          active: (0, _history.getActiveContainer)(state, patterns),
+	          stackOrder: (0, _history.getContainerStackOrder)(state, patterns)
 	        });
 	      });
 	    }
 	  };
 	};
 
-	var _switchToContainer = function _switchToContainer(container) {
+	var switchToContainer = exports.switchToContainer = function switchToContainer(container) {
 	  return _store2.default.dispatch(actions.switchToContainer(container));
 	};
-	exports.switchToContainer = _switchToContainer;
 	var push = exports.push = function push(url) {
 	  return _store2.default.dispatch(actions.push(url));
 	};
@@ -1421,7 +1426,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                forward: []
 	              },
 	              isDefault: i === 0,
-	              group: group
+	              group: group,
+	              index: i
 	            });
 	          })));
 	          var defaultContainer = containers[0];
@@ -18786,6 +18792,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Object} A new state object
 	 */
 	function switchToContainer(state, container) {
+
+	  console.log(container);
+
 	  var createNewState = function createNewState(back) {
 	    return _extends({}, state, {
 	      browserHistory: {

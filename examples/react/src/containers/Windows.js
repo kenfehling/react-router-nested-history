@@ -18,16 +18,16 @@ class Window extends Component {
 
   componentWillMount() {
     tabs.addChangeListener(state => {
-      const rank = state.containerStackOrder.indexOf(this.props.index);
+      const rank = state.stackOrder.indexOf(this.props.index);
       this.setState({
-        zIndex: state.containerStackOrder.length - rank + 1
+        zIndex: state.stackOrder.length - rank + 1
       });
     })
   }
 
   render() {
     const {className, index, children} = this.props;
-    return (<div className={`window ${className}`} onClick={() => tabs.switchToTab(index)}
+    return (<div className={`window ${className}`} onClick={() => tabs.switchTo(index)}
          style={{zIndex: this.state.zIndex}}>
       {children}
     </div>);

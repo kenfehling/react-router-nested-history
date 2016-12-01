@@ -8,11 +8,13 @@ import TabMaster2 from "../components/TabMaster2";
 import TabMaster3 from "../components/TabMaster3";
 import TabPage from "../components/TabPage";
 
-const tabs = setContainers([
+const tabsConfig = [
   {initialUrl: '/tabs/1', urlPatterns: ['/tabs/1', '/tabs/1/*']},
   {initialUrl: '/tabs/2', urlPatterns: ['/tabs/2', '/tabs/2/*']},
   {initialUrl: '/tabs/3', urlPatterns: ['/tabs/3', '/tabs/3/*']}
-]);
+];
+
+const tabs = setContainers(tabsConfig);
 
 export const Tab1 = () => (
   <div>
@@ -35,21 +37,6 @@ export const Tab3 = () => (
   </div>
 );
 
-/*
-const getActiveContainer = () => getLatestActiveMatchingContainer(path => path.startsWith('/tabs'));
-const isActiveTab = (containerPath) => containerPath === getActiveContainer();
-
-const getSelectedIndex = () => {
-  const containerPaths = getContainerPaths();
-  const activeContainer = getActiveContainer();
-  for (let i = 0; i < containerPaths.length; i++) {
-    if (containerPaths[i] === activeContainer) {
-      return i;
-    }
-  }
-};
-*/
-
 const onTabClick = (router, index) => {
   /*
   const containerPaths = getContainerPaths();
@@ -59,7 +46,7 @@ const onTabClick = (router, index) => {
   }
   else {
   */
-    tabs.switchToTab(index);
+    tabs.switchTo(index);
   //}
 };
 
@@ -68,7 +55,7 @@ class Tabs extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentTab: tabs.getActiveContainer()
+      currentTab: tabs.getActive()
     };
   }
 
@@ -87,7 +74,7 @@ class Tabs extends Component {
         <p>Each tab has its own individual history.</p>
         <p>Clicking on an already active tab goes to the top of its history stack.</p>
       </div>
-      <ReactTabs selectedIndex={this.state.currentTab}>
+      <ReactTabs selectedIndex={this.state.currentTab.index}>
         <TabList>
           <ReactTab onClick={() => onClick(0)}>One</ReactTab>
           <ReactTab onClick={() => onClick(1)}>Two</ReactTab>

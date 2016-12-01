@@ -150,7 +150,8 @@ export function reducer(state:?State, action:Object) : State {
             forward: []
           },
           isDefault: i === 0,
-          group
+          group,
+          index: i
         }))
       ];
       const defaultContainer:Container = containers[0];
