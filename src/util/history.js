@@ -9,8 +9,7 @@ import type { History, ContainerHistory, BrowserHistory, State, StateSnapshot, C
 
 export const switchToContainer = (state:State, container: Container) => ({
   ...state,
-  ...behavior.switchToContainer(state, container),
-  currentContainer: container
+  ...behavior.switchToContainer(state, container)
 });
 
 export const pushToStack = (historyStack:History, page:Page) : History => ({
@@ -44,7 +43,7 @@ export const updateContainerHistory = (state:State, container:Container, fn:Func
 };
 
 export const push = (state:State, url:string):State => {
-  const container = state.currentContainer;
+  const container = state.browserHistory.current.container;
   const id = state.lastId + 1;
   return {
     ...state,
@@ -55,7 +54,7 @@ export const push = (state:State, url:string):State => {
 };
 
 export function go(state:State, n:number) : State {
-  const container = state.currentContainer;
+  const container = state.browserHistory.current.container;
   if (n === 0) {
     return state;
   }
@@ -77,7 +76,6 @@ export function go(state:State, n:number) : State {
       return go({
         ...state,
         browserHistory,
-        currentContainer: browserHistory.current.container
       }, nextN);
     }
   }
@@ -164,7 +162,6 @@ export function reducer(state:?State, action:Object) : State {
           forward: state ? state.browserHistory.forward : []
         },
         containers,
-        currentContainer: state ? state.currentContainer : defaultContainer,
         lastId: (state ? state.lastId : 0) + containerConfigs.length,
         lastGroup: group
       };
@@ -230,20 +227,20 @@ export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
   }
 };
 
-export function getContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) {
-  const containerSwitchNumbers = [];
+export function getContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) : Container[] {
+  const containerSwitches:Container[] = [];
   actionHistory.reduce((oldState:?State, action:Object) : ?State => {
     const newState = reducer(oldState, action);
-    if (!oldState || oldState.currentContainer !== newState.currentContainer) {
+    if (!oldState || oldState.browserHistory.current.container.initialUrl !== newState.browserHistory.current.container.initialUrl) {
       if (_.some(patterns, p => pathsMatch(p, newState.browserHistory.current.url))) {
-        containerSwitchNumbers.push(newState.currentContainer);
+        containerSwitches.push(newState.browserHistory.current.container);
       }
     }
     return newState;
   });
-  return _.uniq(_.reverse(containerSwitchNumbers));
+  return _.uniq(_.reverse(containerSwitches));
 }
 
-export function getActiveContainer(actionHistory:Object[], patterns:string[]=['*']) {
+export function getActiveContainer(actionHistory:Object[], patterns:string[]=['*']) : Container {
   return _.first(getContainerStackOrder(actionHistory, patterns));
 }

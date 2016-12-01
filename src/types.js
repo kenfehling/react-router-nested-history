@@ -34,7 +34,6 @@ export interface Container {
 export interface State {
   browserHistory: BrowserHistory;
   containers: Container[];
-  currentContainer: Container;
   lastId: number;
   lastGroup: number;
 }
@@ -74,7 +73,6 @@ export const defaultPage : Page = new Page({
 export const defaultState : State = {
   browserHistory: defaultHistory,
   containers: [],
-  currentContainer: defaultContainer,
   lastId: 1
 };
 */

@@ -41,7 +41,7 @@ describe('main', () => {
   });
 
   it('loads correctly (non-initial page on default container)', () => {
-    const action = {type: SET_CONTAINERS, containers: containersConfigs, currentUrl: '/a/1'};
+    const action = {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a/1'};
     const result:StateSnapshot = deriveState(reducer([], action));
     expect(result.browserHistory.back.length).toBe(1);
     expect(result.browserHistory.current.url).toBe('/a/1');
@@ -67,46 +67,27 @@ describe('main', () => {
   const state = [
     {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
     {type: PUSH, url: '/a/1'},
-    {type: SWITCH_TO_CONTAINER, container: containers[1]}
+    //{type: SWITCH_TO_CONTAINER, container: containers[1]}
   ];
 
-  // TODO: Test this one next
-  it.only('pushes page', () => {
-    expect(deriveAndStripState(reducer(state, {type: PUSH, url: '/b/2'}))).toEqual({
-      browserHistory: {
-        back: [
-          {url: '/a', container: 0, id: 1},
-          {url: '/a/1', container: 0, id: 4},
-          {url: '/b', container: 1, id: 2}
-        ],
-        current: {url: '/b/2', container: 1, id: 6},
-        forward: []
-      },
-      currentContainer: 1,
-      lastId: 6,
-      containerHistories: [
-        {
-          back: [{url: '/a', container: 0, id: 1}],
-          current: {url: '/a/1', container: 0, id: 4},
-          forward: []
-        }, {
-          back: [{url: '/b', container: 1, id: 2}],
-          current: {url: '/b/2', container: 1, id: 6},
-          forward: []
-        }, {
-          back: [],
-          current: {url: '/c', container: 2, id: 3},
-          forward: []
-        }
-      ]
-    });
+  it('pushes page', () => {
+    const action = {type: PUSH, url: '/b/2'};
+    const result:StateSnapshot = deriveState(reducer(state, action));
+    expect(result.browserHistory.back.length).toBe(3);
+    expect(result.browserHistory.back[0].url).toBe('/a');
+    expect(result.browserHistory.back[1].url).toBe('/a/1');
+    expect(result.browserHistory.back[2].url).toBe('/b');
+    expect(result.browserHistory.current.url).toBe('/b/2');
+    expect(result.browserHistory.current.id).toBe(5);
+    expect(result.currentContainer.initialUrl).toBe('/b');
+    expect(result.lastId).toBe(5);
   });
 
-  it('switches container', () => {
+  it.only('switches container', () => {
     const action = {type: SWITCH_TO_CONTAINER, container: containers[0]};
     const result:StateSnapshot = deriveState(reducer(state, action));
 
-    //console.log(result.browserHistory);
+    console.log(result.browserHistory);
     console.log(result.containers.map(c => c.history));
 
     expect(result.browserHistory.back.length).toBe(1);
