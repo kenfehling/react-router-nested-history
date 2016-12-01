@@ -1,71 +1,61 @@
+// @flow
+/* globals describe, it, expect */
+declare var describe:any;
+declare var it:any;
+declare var expect:any;
 import * as util from '../../src/util/history';
 import { push, back, forward, go } from '../../src/browserFunctions';
+import { SET_CONTAINERS, PUSH, BACK, FORWARD } from "../../src/constants/ActionTypes";
+import type { ContainerConfig, State, StateSnapshot } from '../../src/types';
 
 describe('history utils', () => {
-  const a = {url: '/a', tab: 0, id: 1};
-  const b = {url: '/b', tab: 1, id: 2};
-  const a1 = {url: '/a/1', tab: 0, id: 3};
+  const containerConfigs : ContainerConfig[] = [
+    {initialUrl: '/a', urlPatterns: ['/a/*']},
+    {initialUrl: '/b', urlPatterns: ['/b/*']},
+    {initialUrl: '/c', urlPatterns: ['/c/*']}
+  ];
+
+  const originalState = util.reducer(null, {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
+  const containers = originalState.containers;
+
+  const a = {url: '/a', id: 1, container: containers[0]};
+  const b = {url: '/b', id: 2, container: containers[1]};
+  const a1 = {url: '/a/1', id: 3, container: containers[0]};
+
+  const perform = (action) : State => util.reducer(originalState, action);
+  const performAll = (actions) : State => actions.reduce((state, action) => util.reducer(state, action), originalState);
 
   it('diffs old state and new state for push', () => {
-    const oldState = {browserHistory: {back: [], current: a, forward: []}};
-    const newState = {browserHistory: {back: [a], current: b, forward: []}};
-    const steps = util.diffStateToSteps(oldState, newState);
+    const newState = perform({type: PUSH, url: '/a/1'});
+    const steps = util.diffStateToSteps(originalState, newState);
     expect(steps).toEqual([
-      {fn: push, args: [a]},
-      {fn: push, args: [b]}
+      {fn: back, args: [1]},
+      {fn: push, args: [newState.browserHistory.back[0].url]},
+      {fn: push, args: [newState.browserHistory.current.url]}
     ]);
   });
 
   it('diffs old state and new state for back', () => {
-    const oldState = {browserHistory: {back: [a], current: b, forward: []}};
-    const newState = {browserHistory: {back: [], current: a, forward: [b]}};
-    const steps = util.diffStateToSteps(oldState, newState);
+    const newState = performAll([{type: PUSH, url: '/a/1'}, {type: BACK}]);
+    const steps = util.diffStateToSteps(originalState, newState);
     expect(steps).toEqual([
       {fn: back, args: [1]},
-      {fn: push, args: [a]},
-      {fn: push, args: [b]},
+      {fn: push, args: [newState.browserHistory.current.url]},
+      {fn: push, args: [newState.browserHistory.forward[0].url]},
       {fn: back, args: [1]}
     ]);
   });
 
-  it('diffs old state and new state for forward', () => {
-    const oldState = {browserHistory: {back: [], current: a, forward: [b]}};
-    const newState = {browserHistory: {back: [a], current: b, forward: []}};
-    const steps = util.diffStateToSteps(oldState, newState);
-    expect(steps).toEqual([
-      {fn: push, args: [a]},
-      {fn: push, args: [b]}
-    ]);
-  });
-
-  it('diffs old state and new state for back(n)', () => {
-    const oldState = {browserHistory: {back: [a, a1], current: b, forward: []}};
-    const newState = {browserHistory: {back: [], current: a, forward: [a1, b]}};
-    const steps = util.diffStateToSteps(oldState, newState);
-    expect(steps).toEqual([
-      {fn: back, args: [2]},
-      {fn: push, args: [a]},
-      {fn: push, args: [a1]},
-      {fn: push, args: [b]},
-      {fn: back, args: [2]}
-    ]);
-  });
-
-  it('diffs old state and new state for forward(n)', () => {
-    const oldState = {browserHistory: {back: [], current: a, forward: [a1, b]}};
-    const newState = {browserHistory: {back: [a, a1], current: b, forward: []}};
-    const steps = util.diffStateToSteps(oldState, newState);
-    expect(steps).toEqual([
-      {fn: push, args: [a]},
-      {fn: push, args: [a1]},
-      {fn: push, args: [b]}
-    ]);
-  });
-
   it('gets history shift amount', () => {
-    const oldState = {browserHistory: {back: [a, a1], current: b, forward: []}};
-    expect(util.getHistoryShiftAmount(oldState, 3)).toEqual(-1);
-    expect(util.getHistoryShiftAmount(oldState, 1)).toEqual(-2);
+    const newState = perform({type: PUSH, url: '/a/1'});
+    expect(util.getHistoryShiftAmount(newState, 1)).toEqual(-1);
+  });
+
+  it('gets container stack order', () => {
+    const actions = [
+      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
+    ];
+    expect(util.getContainerStackOrder(actions)).toEqual(containers);
   });
 
 });

@@ -1,1 +1,1 @@
-export { setTabs, push } from './main';
+export { setContainers, push } from './main';

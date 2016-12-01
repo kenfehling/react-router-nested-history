@@ -2,7 +2,7 @@
 
 import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as _ from 'lodash';
-import { pathsMatch } from "../util/url";
+import { patternsMatch , pathsMatch} from "../util/url";
 import * as browser from '../../src/browserFunctions';
 import * as behavior from '../behaviors/defaultBehavior';
 import type { History, ContainerHistory, BrowserHistory, State, StateSnapshot, Container, ContainerConfig, Page } from '../types';
@@ -109,10 +109,10 @@ export const diffStateToSteps = (oldState:State, newState:State) : Object[] => {
   const h1 = oldState.browserHistory;
   const h2 = newState.browserHistory;
   return _.flatten([
-    _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
-    _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
-    {fn: browser.push, args: [h2.current]},
-    _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
+    [{fn: browser.back, args: [h1.back.length + 1]}],
+    _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b.url]})),
+    {fn: browser.push, args: [h2.current.url]},
+    _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f.url]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ]);
 };
@@ -129,6 +129,11 @@ export const constructNewHistory = (state:State, newCurrentId:number) : State =>
 };
 
 export function reducer(state:?State, action:Object) : State {
+
+  if (state && !state.browserHistory) {
+    throw new Error("WHY");
+  }
+
   switch (action.type) {
     case SET_CONTAINERS: {
       const containerConfigs:ContainerConfig[] = action.containers;
@@ -165,29 +170,23 @@ export function reducer(state:?State, action:Object) : State {
         lastId: (state ? state.lastId : 0) + containerConfigs.length,
         lastGroup: group
       };
-      const initialContainer:Container = _.find(containers, c => pathsMatch(c.initialUrl, currentUrl));
+      const initialContainer:Container =
+          _.find(containers, c => pathsMatch(c.initialUrl, currentUrl));
       if (initialContainer) {
         if (initialContainer.isDefault) {
           return startState;
         }
         else {
-
-          console.log("AAA");
-
           return switchToContainer(startState, initialContainer);
         }
       }
-      const matchingContainer:Container = _.find(containers, c =>
-          _.some(c.urlPatterns, (p:string) => pathsMatch(p, currentUrl)));
-
+      const matchingContainer:Container =
+          _.find(containers, c => patternsMatch(c.urlPatterns, currentUrl));
       if (matchingContainer) {
         if (matchingContainer.isDefault) {
           return push(startState, currentUrl);
         }
         else {
-
-          console.log("BBB");
-
           return push(switchToContainer(startState, matchingContainer), currentUrl);
         }
       }
@@ -228,16 +227,28 @@ export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
 };
 
 export function getContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) : Container[] {
+  if (actionHistory.length === 0) {
+    throw new Error("No actions in history");
+  }
   const containerSwitches:Container[] = [];
-  actionHistory.reduce((oldState:?State, action:Object) : ?State => {
+  const matches = (path:string) => patternsMatch(patterns, path);
+
+  actionHistory.reduce((oldState:?State, action:Object) : State => {
     const newState = reducer(oldState, action);
-    if (!oldState || oldState.browserHistory.current.container.initialUrl !== newState.browserHistory.current.container.initialUrl) {
-      if (_.some(patterns, p => pathsMatch(p, newState.browserHistory.current.url))) {
+    if (action.type === SET_CONTAINERS) {
+      if (matches(newState.containers[0].initialUrl)) {  // if one matches, they all match
+        _.each(_.reverse(newState.containers), c => containerSwitches.push(c));
+      }
+    }
+    else {
+      const oldCurrent = oldState ? oldState.browserHistory.current.container.initialUrl : null;
+      const newCurrent = newState.browserHistory.current.container.initialUrl;
+      if ((!oldState || oldCurrent !== newCurrent) && matches(newCurrent)) {
         containerSwitches.push(newState.browserHistory.current.container);
       }
     }
     return newState;
-  });
+  }, null);
   return _.uniq(_.reverse(containerSwitches));
 }
 
