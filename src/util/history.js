@@ -225,6 +225,11 @@ export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
   }
 };
 
+export function getInsertedContainers(state:State, numContainers:number) {
+  const total = state.containers.length;
+  return state.containers.slice(total - numContainers, total);
+}
+
 export function getContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) : Container[] {
   if (actionHistory.length === 0) {
     throw new Error("No actions in history");
@@ -236,11 +241,7 @@ export function getContainerStackOrder(actionHistory:Object[], patterns:string[]
     const newState = reducer(oldState, action);
     if (action.type === SET_CONTAINERS) {
       if (matches(action.containers[0].initialUrl)) {  // if one matches, they all match
-
-        // TODO: This might not be robust enough to prevent multiple containers with the same initialUrl
-        const containers = _.filter(newState.containers, c1 =>
-            _.some(action.containers, c2 => c1.initialUrl === c2.initialUrl));
-
+        const containers = getInsertedContainers(newState, action.containers.length);
         _.each(_.reverse(containers), c => containerSwitches.push(c));
       }
     }

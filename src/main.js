@@ -4,7 +4,7 @@ import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE 
 import * as actions from './actions/HistoryActions';
 import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
-import { diffStateToSteps, deriveState, getActiveContainer, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
+import { diffStateToSteps, deriveState, getInsertedContainers, getActiveContainer, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
 import store from './store';
 import * as _ from 'lodash';
 import type { Container, ContainerConfig, StateSnapshot } from './types';
@@ -37,9 +37,7 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
   const patterns = _.flatMap(containerConfigs, container => container.urlPatterns);
   store.dispatch(actions.setContainers(containerConfigs, currentUrl));
   const state = getDerivedState();
-  const total = state.containers.length;
-  const n = containerConfigs.length;
-  const containers = state.containers.slice(total - n, total);
+  const containers = getInsertedContainers(state, containerConfigs.length);
   return {
     switchTo: (index:number) => switchToContainer(containers[index]),
     getActive: () => getActiveContainer(store.getState(), patterns),

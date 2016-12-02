@@ -150,9 +150,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	  _store2.default.dispatch(actions.setContainers(containerConfigs, currentUrl));
 	  var state = getDerivedState();
-	  var total = state.containers.length;
-	  var n = containerConfigs.length;
-	  var containers = state.containers.slice(total - n, total);
+	  var containers = (0, _history.getInsertedContainers)(state, containerConfigs.length);
 	  return {
 	    switchTo: function switchTo(index) {
 	      return switchToContainer(containers[index]);
@@ -1260,6 +1258,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.go = go;
 	exports.reducer = reducer;
+	exports.getInsertedContainers = getInsertedContainers;
 	exports.getContainerStackOrder = getContainerStackOrder;
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	exports.getActiveContainer = getActiveContainer;
@@ -1520,6 +1519,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	};
 
+	function getInsertedContainers(state, numContainers) {
+	  var total = state.containers.length;
+	  return state.containers.slice(total - numContainers, total);
+	}
+
 	function getContainerStackOrder(actionHistory) {
 	  var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ['*'];
 
@@ -1536,11 +1540,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (action.type === _ActionTypes.SET_CONTAINERS) {
 	      if (matches(action.containers[0].initialUrl)) {
 	        // if one matches, they all match
-	        var containers = _.filter(newState.containers, function (c1) {
-	          return _.some(action.containers, function (c2) {
-	            return c1.initialUrl === c2.initialUrl;
-	          });
-	        });
+	        var containers = getInsertedContainers(newState, action.containers.length);
 	        _.each(_.reverse(containers), function (c) {
 	          return containerSwitches.push(c);
 	        });
