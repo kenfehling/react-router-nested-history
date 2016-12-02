@@ -18,9 +18,9 @@ class Window extends Component {
 
   componentWillMount() {
     tabs.addChangeListener(state => {
-      const rank = state.stackOrder.indexOf(tabs[this.props.index]);
+      const rank = state.indexedStackOrder[this.props.index];
       this.setState({
-        zIndex: state.stackOrder.length - rank + 1
+        zIndex: state.indexedStackOrder.length - rank + 1
       });
     })
   }

@@ -235,8 +235,13 @@ export function getContainerStackOrder(actionHistory:Object[], patterns:string[]
   actionHistory.reduce((oldState:?State, action:Object) : State => {
     const newState = reducer(oldState, action);
     if (action.type === SET_CONTAINERS) {
-      if (matches(newState.containers[0].initialUrl)) {  // if one matches, they all match
-        _.each(_.reverse(newState.containers), c => containerSwitches.push(c));
+      if (matches(action.containers[0].initialUrl)) {  // if one matches, they all match
+
+        // TODO: This might not be robust enough to prevent multiple containers with the same initialUrl
+        const containers = _.filter(newState.containers, c1 =>
+            _.some(action.containers, c2 => c1.initialUrl === c2.initialUrl));
+
+        _.each(_.reverse(containers), c => containerSwitches.push(c));
       }
     }
     else {
@@ -248,7 +253,16 @@ export function getContainerStackOrder(actionHistory:Object[], patterns:string[]
     }
     return newState;
   }, null);
-  return _.uniq(_.reverse(containerSwitches));
+  return _.uniqBy(_.reverse(containerSwitches), c => c.index);
+}
+
+/**
+ * Gets the stack order values as numbers, in container order instead of stack order
+ */
+export function getIndexedContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) : number[] {
+  const stackOrder = getContainerStackOrder(actionHistory, patterns);
+  const values = _.map(stackOrder, (s, i) => ({index: s.index, i}));
+  return _.map(_.sortBy(values, s => s.index), s => s.i);
 }
 
 export function getActiveContainer(actionHistory:Object[], patterns:string[]=['*']) : Container {

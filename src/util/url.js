@@ -47,8 +47,9 @@ export const pathsMatch = (path1, path2, wildcards=['*']) => {
   return true;
 };
 
-export const patternsMatch = (patterns, path, wildcards=['*']) =>
-  _.some(patterns, p => pathsMatch(p, path));
+export const patternsMatch = (patterns, path, wildcards=['*']) => {
+  return _.some(patterns, p => pathsMatch(p, path, wildcards));
+};
 
 export const isParentPath = (parentPath, childPath) => {
   const parentPathParts = getPathParts(parentPath);

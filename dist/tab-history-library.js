@@ -163,12 +163,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    getStackOrder: function getStackOrder() {
 	      return (0, _history.getContainerStackOrder)(_store2.default.getState(), patterns);
 	    },
+	    getIndexedStackOrder: function getIndexedStackOrder() {
+	      return (0, _history.getIndexedContainerStackOrder)(_store2.default.getState(), patterns);
+	    },
 	    addChangeListener: function addChangeListener(fn) {
 	      return _store2.default.subscribe(function () {
 	        var actions = _store2.default.getState();
 	        var active = (0, _history.getActiveContainer)(actions, patterns);
 	        var stackOrder = (0, _history.getContainerStackOrder)(actions, patterns);
-	        fn({ active: active, stackOrder: stackOrder });
+	        var indexedStackOrder = (0, _history.getIndexedContainerStackOrder)(actions, patterns);
+	        fn({ active: active, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder });
 	      });
 	    }
 	  };
@@ -1257,6 +1261,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.go = go;
 	exports.reducer = reducer;
 	exports.getContainerStackOrder = getContainerStackOrder;
+	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	exports.getActiveContainer = getActiveContainer;
 
 	var _ActionTypes = __webpack_require__(2);
@@ -1529,9 +1534,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  actionHistory.reduce(function (oldState, action) {
 	    var newState = reducer(oldState, action);
 	    if (action.type === _ActionTypes.SET_CONTAINERS) {
-	      if (matches(newState.containers[0].initialUrl)) {
+	      if (matches(action.containers[0].initialUrl)) {
 	        // if one matches, they all match
-	        _.each(_.reverse(newState.containers), function (c) {
+	        var containers = _.filter(newState.containers, function (c1) {
+	          return _.some(action.containers, function (c2) {
+	            return c1.initialUrl === c2.initialUrl;
+	          });
+	        });
+	        _.each(_.reverse(containers), function (c) {
 	          return containerSwitches.push(c);
 	        });
 	      }
@@ -1544,7 +1554,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return newState;
 	  }, null);
-	  return _.uniq(_.reverse(containerSwitches));
+	  return _.uniqBy(_.reverse(containerSwitches), function (c) {
+	    return c.index;
+	  });
+	}
+
+	/**
+	 * Gets the stack order values as numbers, in container order instead of stack order
+	 */
+	function getIndexedContainerStackOrder(actionHistory) {
+	  var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ['*'];
+
+	  var stackOrder = getContainerStackOrder(actionHistory, patterns);
+	  var values = _.map(stackOrder, function (s, i) {
+	    return { index: s.index, i: i };
+	  });
+	  return _.map(_.sortBy(values, function (s) {
+	    return s.index;
+	  }), function (s) {
+	    return s.i;
+	  });
 	}
 
 	function getActiveContainer(actionHistory) {
@@ -18727,8 +18756,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var patternsMatch = exports.patternsMatch = function patternsMatch(patterns, path) {
 	  var wildcards = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['*'];
+
 	  return _lodash2.default.some(patterns, function (p) {
-	    return pathsMatch(p, path);
+	    return pathsMatch(p, path, wildcards);
 	  });
 	};
 
