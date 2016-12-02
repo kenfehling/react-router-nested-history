@@ -85,6 +85,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.setContainers = undefined;
+	exports.createSteps = createSteps;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -195,49 +196,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.dispatch(actions.forward(n));
 	};
 
-	_store2.default.subscribe(function () {
-	  var state = getDerivedState();
+	function runSteps(steps) {
+	  if (steps.length === 1) {
+	    var _steps$;
+
+	    (_steps$ = steps[0]).fn.apply(_steps$, _toConsumableArray(steps[0].args));
+	  } else if (steps.length > 1) {
+	    var promisedSteps = steps.map(function (s) {
+	      return function () {
+	        s.fn.apply(s, _toConsumableArray(s.args));
+	        return _.includes(needsPop, s.fn) ? (0, _historyListener.listenPromise)() : Promise.resolve();
+	      };
+	    });
+	    [unlistenPromise].concat(_toConsumableArray(promisedSteps), [startListeningPromise]).reduce(function (p, step) {
+	      return p.then(step);
+	    }, Promise.resolve());
+	  }
+	}
+
+	function createSteps(state) {
 	  switch (state.lastAction.type) {
 	    case _ActionTypes.SET_CONTAINERS:
-	      {
-	        browser.replace(state.browserHistory.current);
-	        break;
-	      }
+	      return [{ fn: browser.replace, args: [state.browserHistory.current] }];
 	    case _ActionTypes.SWITCH_TO_CONTAINER:
-	      {
-	        var steps = (0, _history.diffStateToSteps)(state.previousState, state).map(function (s) {
-	          return function () {
-	            s.fn.apply(s, _toConsumableArray(s.args));
-	            return _.includes(needsPop, s.fn) ? (0, _historyListener.listenPromise)() : Promise.resolve();
-	          };
-	        });
-	        [unlistenPromise].concat(_toConsumableArray(steps), [startListeningPromise]).reduce(function (p, step) {
-	          return p.then(step);
-	        }, Promise.resolve());
-	        break;
-	      }
+	      return (0, _history.diffStateToSteps)(state.previousState, state);
 	    case _ActionTypes.PUSH:
-	      {
-	        browser.push(state.browserHistory.current);
-	        break;
-	      }
+	      return [{ fn: browser.push, args: [state.browserHistory.current] }];
 	    case _ActionTypes.BACK:
-	      {
-	        break;
-	      }
 	    case _ActionTypes.FORWARD:
-	      {
-	        break;
-	      }
 	    case _ActionTypes.GO:
-	      {
-	        break;
-	      }
 	    case _ActionTypes.POPSTATE:
-	      {
-	        break;
-	      }
+	    default:
+	      return [];
 	  }
+	}
+
+	_store2.default.subscribe(function () {
+	  return runSteps(createSteps(getDerivedState()));
 	});
 
 /***/ },
@@ -1386,9 +1381,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {[Object]} An array of steps to get from old state to new state
 	 */
 	var diffStateToSteps = exports.diffStateToSteps = function diffStateToSteps(oldState, newState) {
-	  var h1 = oldState.browserHistory;
+	  var h1 = oldState ? oldState.browserHistory : null;
 	  var h2 = newState.browserHistory;
-	  return _.flatten([_.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
+	  return _.flatten([!h1 || _.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
 	    return { fn: browser.push, args: [b.url] };
 	  }), { fn: browser.push, args: [h2.current.url] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
 	    return { fn: browser.push, args: [f.url] };

@@ -105,11 +105,11 @@ export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :numb
  * @param newState {Object} The new historyStore state
  * @returns {[Object]} An array of steps to get from old state to new state
  */
-export const diffStateToSteps = (oldState:State, newState:State) : Object[] => {
-  const h1 = oldState.browserHistory;
+export const diffStateToSteps = (oldState:?State, newState:State) : Object[] => {
+  const h1 = oldState ? oldState.browserHistory : null;
   const h2 = newState.browserHistory;
   return _.flatten([
-    _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
+    !h1 || _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b.url]})),
     {fn: browser.push, args: [h2.current.url]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f.url]})),

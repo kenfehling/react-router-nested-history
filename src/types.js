@@ -44,6 +44,11 @@ export interface StateSnapshot extends State {
   lastAction: Object
 }
 
+export interface Step {
+  fn: Function,
+  args: any[]
+}
+
 /*
 export interface Behavior {
   switchToContainer(state: State, tab: Container) : State

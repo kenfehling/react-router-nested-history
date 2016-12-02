@@ -7,7 +7,7 @@ import { listen, listenPromise } from './historyListener';
 import { diffStateToSteps, deriveState, getInsertedContainers, getActiveContainer, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
 import store from './store';
 import * as _ from 'lodash';
-import type { Container, ContainerConfig, StateSnapshot } from './types';
+import type { Container, ContainerConfig, StateSnapshot, Step } from './types';
 
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
@@ -60,39 +60,33 @@ export const go = (n:number=1) => store.dispatch(actions.go(n));
 export const back = (n:number=1) => store.dispatch(actions.back(n));
 export const forward = (n:number=1) => store.dispatch(actions.forward(n));
 
-store.subscribe(() => {
-  const state = getDerivedState();
-  switch(state.lastAction.type) {
-    case SET_CONTAINERS: {
-      browser.replace(state.browserHistory.current);
-      break;
-    }
-    case SWITCH_TO_CONTAINER: {
-      const steps = diffStateToSteps(state.previousState, state).map(s => () => {
-        s.fn(...s.args);
-        return _.includes(needsPop, s.fn) ? listenPromise() : Promise.resolve();
-      });
-      [unlistenPromise, ...steps, startListeningPromise].reduce(
+function runSteps(steps:Step[]) {
+  if (steps.length === 1) {
+    steps[0].fn(...steps[0].args);
+  }
+  else if (steps.length > 1) {
+    const promisedSteps = steps.map(s => () => {
+      s.fn(...s.args);
+      return _.includes(needsPop, s.fn) ? listenPromise() : Promise.resolve();
+    });
+    [unlistenPromise, ...promisedSteps, startListeningPromise].reduce(
         (p, step) => p.then(step),
         Promise.resolve()
-      );
-      break;
-    }
-    case PUSH: {
-      browser.push(state.browserHistory.current);
-      break;
-    }
-    case BACK: {
-      break;
-    }
-    case FORWARD: {
-      break;
-    }
-    case GO: {
-      break;
-    }
-    case POPSTATE: {
-      break;
-    }
+    );
   }
-});
+}
+
+export function createSteps(state:StateSnapshot) : Step[] {
+  switch(state.lastAction.type) {
+    case SET_CONTAINERS: return [{fn: browser.replace, args: [state.browserHistory.current]}];
+    case SWITCH_TO_CONTAINER: return diffStateToSteps(state.previousState, state);
+    case PUSH: return [{fn: browser.push, args: [state.browserHistory.current]}];
+    case BACK:
+    case FORWARD:
+    case GO:
+    case POPSTATE:
+    default: return [];
+  }
+}
+
+store.subscribe(() => runSteps(createSteps(getDerivedState())));

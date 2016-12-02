@@ -8,8 +8,7 @@ import { deriveState } from '../../src/util/history';
 import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, POPSTATE } from "../../src/constants/ActionTypes";
 import type { ContainerConfig, State, StateSnapshot } from '../../src/types';
 
-describe('main', () => {
-
+describe('reducer', () => {
   const containerConfigs : ContainerConfig[] = [
     {initialUrl: '/a', urlPatterns: ['/a/*']},
     {initialUrl: '/b', urlPatterns: ['/b/*']},
