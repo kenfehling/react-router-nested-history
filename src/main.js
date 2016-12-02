@@ -1,15 +1,18 @@
-import { SET_TABS, SWITCH_TO_TAB, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes";
+// @flow
+
+import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes";
 import * as actions from './actions/HistoryActions';
 import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
-import { diffStateToSteps, deriveState, getActiveContainer, getContainerStackOrder } from './util/history';
+import { diffStateToSteps, deriveState, getInsertedContainers, getActiveContainer, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
 import store from './store';
 import * as _ from 'lodash';
+import type { Container, ContainerConfig, StateSnapshot } from './types';
 
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
 
-const getDerivedState = () => deriveState(store.getState());
+const getDerivedState = () : StateSnapshot => deriveState(store.getState());
 
 const startListening = () => {
   unlisten = listen(location => {
@@ -29,39 +32,42 @@ const startListeningPromise = () => new Promise(resolve => {
 
 startListening();
 
-export const setTabs = (tabs) => {
+export const setContainers = (containerConfigs: ContainerConfig[]) => {
   const currentUrl = window.location.pathname;
-  const tabsWithIndexes = tabs.map((tab, index) => ({...tab, index}));
-  const patterns = _.flatMap(tabs, tab => tab.urlPatterns);
-  store.dispatch(actions.setTabs(tabsWithIndexes, currentUrl));
+  const patterns = _.flatMap(containerConfigs, container => container.urlPatterns);
+  store.dispatch(actions.setContainers(containerConfigs, currentUrl));
+  const state = getDerivedState();
+  const containers = getInsertedContainers(state, containerConfigs.length);
   return {
-    switchToTab: index => switchToTab(tabsWithIndexes[index]),
-    getActiveContainer: () => getActiveContainer(store.getState(), patterns),
-    getContainerStackOrder: () => getContainerStackOrder(store.getState(), patterns),
-    addChangeListener: fn => store.subscribe(() => {
-      const state = store.getState();
-      fn({
-        activeContainer: getActiveContainer(state, patterns),
-        containerStackOrder: getContainerStackOrder(state, patterns)
-      });
+    switchTo: (index:number) => switchToContainer(containers[index]),
+    getActive: () => getActiveContainer(store.getState(), patterns),
+    getStackOrder: () => getContainerStackOrder(store.getState(), patterns),
+    getIndexedStackOrder: () => getIndexedContainerStackOrder(store.getState(), patterns),
+    addChangeListener: (fn:Function) => store.subscribe(() => {
+      const actions = store.getState();
+      const active = getActiveContainer(actions, patterns);
+      const stackOrder = getContainerStackOrder(actions, patterns);
+      const indexedStackOrder = getIndexedContainerStackOrder(actions, patterns);
+      fn({active, stackOrder, indexedStackOrder});
     })
   };
 };
 
-export const switchToTab = (tab) => store.dispatch(actions.switchToTab(tab));
-export const push = (url) => store.dispatch(actions.push(url));
-export const go = (n=1) => store.dispatch(actions.go(n));
-export const back = (n=1) => store.dispatch(actions.back(n));
-export const forward = (n=1) => store.dispatch(actions.forward(n));
+export const switchToContainer = (container:Container) =>
+    store.dispatch(actions.switchToContainer(container));
+export const push = (url:string) => store.dispatch(actions.push(url));
+export const go = (n:number=1) => store.dispatch(actions.go(n));
+export const back = (n:number=1) => store.dispatch(actions.back(n));
+export const forward = (n:number=1) => store.dispatch(actions.forward(n));
 
 store.subscribe(() => {
   const state = getDerivedState();
   switch(state.lastAction.type) {
-    case SET_TABS: {
+    case SET_CONTAINERS: {
       browser.replace(state.browserHistory.current);
       break;
     }
-    case SWITCH_TO_TAB: {
+    case SWITCH_TO_CONTAINER: {
       const steps = diffStateToSteps(state.previousState, state).map(s => () => {
         s.fn(...s.args);
         return _.includes(needsPop, s.fn) ? listenPromise() : Promise.resolve();

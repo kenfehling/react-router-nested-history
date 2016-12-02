@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { setTabs } from '../../../../dist/tab-history-library';
+import { setContainers } from '../../../../dist/tab-history-library';
 import './Windows.css';
 
-const tabs = setTabs([
+const tabs = setContainers([
   {initialUrl: '/windows/1', urlPatterns: ['/windows/1', '/windows/1/*']},
   {initialUrl: '/windows/2', urlPatterns: ['/windows/2', '/windows/2/*']}
 ]);
@@ -18,16 +18,16 @@ class Window extends Component {
 
   componentWillMount() {
     tabs.addChangeListener(state => {
-      const rank = state.containerStackOrder.indexOf(this.props.index);
+      const rank = state.indexedStackOrder[this.props.index];
       this.setState({
-        zIndex: state.containerStackOrder.length - rank + 1
+        zIndex: state.indexedStackOrder.length - rank + 1
       });
     })
   }
 
   render() {
     const {className, index, children} = this.props;
-    return (<div className={`window ${className}`} onClick={() => tabs.switchToTab(index)}
+    return (<div className={`window ${className}`} onClick={() => tabs.switchTo(index)}
          style={{zIndex: this.state.zIndex}}>
       {children}
     </div>);

@@ -62,10 +62,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _main = __webpack_require__(1);
 
-	Object.defineProperty(exports, 'setTabs', {
+	Object.defineProperty(exports, 'setContainers', {
 	  enumerable: true,
 	  get: function get() {
-	    return _main.setTabs;
+	    return _main.setContainers;
 	  }
 	});
 	Object.defineProperty(exports, 'push', {
@@ -84,9 +84,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.forward = exports.back = exports.go = exports.push = exports.switchToTab = exports.setTabs = undefined;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.setContainers = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -145,41 +143,42 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	startListening();
 
-	var setTabs = exports.setTabs = function setTabs(tabs) {
+	var setContainers = exports.setContainers = function setContainers(containerConfigs) {
 	  var currentUrl = window.location.pathname;
-	  var tabsWithIndexes = tabs.map(function (tab, index) {
-	    return _extends({}, tab, { index: index });
+	  var patterns = _.flatMap(containerConfigs, function (container) {
+	    return container.urlPatterns;
 	  });
-	  var patterns = _.flatMap(tabs, function (tab) {
-	    return tab.urlPatterns;
-	  });
-	  _store2.default.dispatch(actions.setTabs(tabsWithIndexes, currentUrl));
+	  _store2.default.dispatch(actions.setContainers(containerConfigs, currentUrl));
+	  var state = getDerivedState();
+	  var containers = (0, _history.getInsertedContainers)(state, containerConfigs.length);
 	  return {
-	    switchToTab: function switchToTab(index) {
-	      return _switchToTab(tabsWithIndexes[index]);
+	    switchTo: function switchTo(index) {
+	      return switchToContainer(containers[index]);
 	    },
-	    getActiveContainer: function getActiveContainer() {
+	    getActive: function getActive() {
 	      return (0, _history.getActiveContainer)(_store2.default.getState(), patterns);
 	    },
-	    getContainerStackOrder: function getContainerStackOrder() {
+	    getStackOrder: function getStackOrder() {
 	      return (0, _history.getContainerStackOrder)(_store2.default.getState(), patterns);
+	    },
+	    getIndexedStackOrder: function getIndexedStackOrder() {
+	      return (0, _history.getIndexedContainerStackOrder)(_store2.default.getState(), patterns);
 	    },
 	    addChangeListener: function addChangeListener(fn) {
 	      return _store2.default.subscribe(function () {
-	        var state = _store2.default.getState();
-	        fn({
-	          activeContainer: (0, _history.getActiveContainer)(state, patterns),
-	          containerStackOrder: (0, _history.getContainerStackOrder)(state, patterns)
-	        });
+	        var actions = _store2.default.getState();
+	        var active = (0, _history.getActiveContainer)(actions, patterns);
+	        var stackOrder = (0, _history.getContainerStackOrder)(actions, patterns);
+	        var indexedStackOrder = (0, _history.getIndexedContainerStackOrder)(actions, patterns);
+	        fn({ active: active, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder });
 	      });
 	    }
 	  };
 	};
 
-	var _switchToTab = function _switchToTab(tab) {
-	  return _store2.default.dispatch(actions.switchToTab(tab));
+	var switchToContainer = exports.switchToContainer = function switchToContainer(container) {
+	  return _store2.default.dispatch(actions.switchToContainer(container));
 	};
-	exports.switchToTab = _switchToTab;
 	var push = exports.push = function push(url) {
 	  return _store2.default.dispatch(actions.push(url));
 	};
@@ -199,12 +198,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	_store2.default.subscribe(function () {
 	  var state = getDerivedState();
 	  switch (state.lastAction.type) {
-	    case _ActionTypes.SET_TABS:
+	    case _ActionTypes.SET_CONTAINERS:
 	      {
 	        browser.replace(state.browserHistory.current);
 	        break;
 	      }
-	    case _ActionTypes.SWITCH_TO_TAB:
+	    case _ActionTypes.SWITCH_TO_CONTAINER:
 	      {
 	        var steps = (0, _history.diffStateToSteps)(state.previousState, state).map(function (s) {
 	          return function () {
@@ -250,8 +249,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var SET_TABS = exports.SET_TABS = 'set-tabs';
-	var SWITCH_TO_TAB = exports.SWITCH_TO_TAB = 'switch-to-tab';
+	var SET_CONTAINERS = exports.SET_CONTAINERS = 'set-containers';
+	var SWITCH_TO_CONTAINER = exports.SWITCH_TO_CONTAINER = 'switch-to-container';
 	var PUSH = exports.PUSH = 'push';
 	var BACK = exports.BACK = 'back';
 	var FORWARD = exports.FORWARD = 'forward';
@@ -267,22 +266,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToTab = exports.setTabs = undefined;
+	exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToContainer = exports.setContainers = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
-	var setTabs = exports.setTabs = function setTabs(tabs, currentUrl) {
+	var setContainers = exports.setContainers = function setContainers(containers, currentUrl) {
 	  return {
-	    type: _ActionTypes.SET_TABS,
-	    tabs: tabs,
+	    type: _ActionTypes.SET_CONTAINERS,
+	    containers: containers,
 	    currentUrl: currentUrl
 	  };
 	};
 
-	var switchToTab = exports.switchToTab = function switchToTab(tab) {
+	var switchToContainer = exports.switchToContainer = function switchToContainer(container) {
 	  return {
-	    type: _ActionTypes.SWITCH_TO_TAB,
-	    tab: tab
+	    type: _ActionTypes.SWITCH_TO_CONTAINER,
+	    container: container
 	  };
 	};
 
@@ -1251,7 +1250,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.deriveState = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.updateTab = exports.forward = exports.back = exports.push = exports.pushToStack = exports.switchToTab = undefined;
+	exports.deriveState = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.push = exports.updateContainerHistory = exports.forward = exports.back = exports.pushToStack = exports.switchToContainer = undefined;
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -1259,7 +1258,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.go = go;
 	exports.reducer = reducer;
+	exports.getInsertedContainers = getInsertedContainers;
 	exports.getContainerStackOrder = getContainerStackOrder;
+	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	exports.getActiveContainer = getActiveContainer;
 
 	var _ActionTypes = __webpack_require__(2);
@@ -1274,29 +1275,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var browser = _interopRequireWildcard(_browserFunctions);
 
-	var _defaultTabBehavior = __webpack_require__(20);
+	var _defaultBehavior = __webpack_require__(20);
 
-	var behavior = _interopRequireWildcard(_defaultTabBehavior);
+	var behavior = _interopRequireWildcard(_defaultBehavior);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	var initialState = {
-	  browserHistory: {
-	    back: [],
-	    current: null,
-	    forward: []
-	  },
-	  tabHistories: [],
-	  currentTab: 0,
-	  lastId: 0
-	};
-
-	var switchToTab = exports.switchToTab = function switchToTab(state, tab) {
-	  return _extends({}, state, behavior.switchToTab({ historyState: state, tab: tab }), {
-	    currentTab: tab.index
-	  });
+	var switchToContainer = exports.switchToContainer = function switchToContainer(state, container) {
+	  return _extends({}, state, behavior.switchToContainer(state, container));
 	};
 
 	var pushToStack = exports.pushToStack = function pushToStack(historyStack, page) {
@@ -1305,19 +1293,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    current: page,
 	    forward: []
 	  };
-	};
-
-	var push = exports.push = function push(state, url) {
-	  var tab = state.currentTab;
-	  var id = state.lastId + 1;
-	  var page = { url: url, tab: tab, id: id };
-	  return _extends({}, state, {
-	    browserHistory: pushToStack(state.browserHistory, page),
-	    tabHistories: updateTab(state, tab, function (t) {
-	      return pushToStack(t, page);
-	    }),
-	    lastId: id
-	  });
 	};
 
 	var back = exports.back = function back(historyStack) {
@@ -1336,30 +1311,47 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 
-	var updateTab = exports.updateTab = function updateTab(state, tab, fn) {
-	  return [].concat(_toConsumableArray(state.tabHistories.slice(0, tab)), [fn(state.tabHistories[tab])], _toConsumableArray(state.tabHistories.slice(tab + 1)));
+	var updateContainerHistory = exports.updateContainerHistory = function updateContainerHistory(state, container, fn) {
+	  var index = _.findIndex(state.containers, function (c) {
+	    return c.group === container.group && c.initialUrl === container.initialUrl;
+	  });
+	  if (index < 0) {
+	    throw new Error('Index not found');
+	  }
+	  return [].concat(_toConsumableArray(state.containers.slice(0, index)), [_extends({}, state.containers[index], { history: fn(state.containers[index]) })], _toConsumableArray(state.containers.slice(index + 1)));
+	};
+
+	var push = exports.push = function push(state, url) {
+	  var container = state.browserHistory.current.container;
+	  var id = state.lastId + 1;
+	  return _extends({}, state, {
+	    browserHistory: pushToStack(state.browserHistory, { url: url, container: container, id: id }),
+	    containers: updateContainerHistory(state, container, function (c) {
+	      return pushToStack(c.history, { url: url, id: id });
+	    }),
+	    lastId: id
+	  });
 	};
 
 	function go(state, n) {
-	  var tab = state.currentTab;
+	  var container = state.browserHistory.current.container;
 	  if (n === 0) {
 	    return state;
 	  } else {
 	    var f = n < 0 ? back : forward;
 	    var browserHistory = f(state.browserHistory);
-	    var tabHistory = state.tabHistories[tab];
-	    var stack = n < 0 ? tabHistory.back : tabHistory.forward;
-	    var tabCanGo = stack.length > 0;
+	    var containerHistory = container.history;
+	    var stack = n < 0 ? containerHistory.back : containerHistory.forward;
+	    var containerCanGo = stack.length > 0;
 	    var nextN = n < 0 ? n + 1 : n - 1;
-	    if (tabCanGo) {
+	    if (containerCanGo) {
 	      return go(_extends({}, state, {
 	        browserHistory: browserHistory,
-	        tabHistories: updateTab(state, tab, f)
+	        containers: updateContainerHistory(state, container, f)
 	      }), nextN);
 	    } else {
 	      return go(_extends({}, state, {
-	        browserHistory: browserHistory,
-	        currentTab: browserHistory.current.tab
+	        browserHistory: browserHistory
 	      }), nextN);
 	    }
 	  }
@@ -1397,9 +1389,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var h1 = oldState.browserHistory;
 	  var h2 = newState.browserHistory;
 	  return _.flatten([_.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
-	    return { fn: browser.push, args: [b] };
-	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
-	    return { fn: browser.push, args: [f] };
+	    return { fn: browser.push, args: [b.url] };
+	  }), { fn: browser.push, args: [h2.current.url] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
+	    return { fn: browser.push, args: [f.url] };
 	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
 	};
 
@@ -1413,90 +1405,104 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	};
 
-	function reducer() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-	  var action = arguments[1];
-
+	function reducer(state, action) {
+	  if (state && !state.browserHistory) {
+	    throw new Error("WHY");
+	  }
 	  switch (action.type) {
-	    case _ActionTypes.SET_TABS:
+	    case _ActionTypes.SET_CONTAINERS:
 	      {
 	        var _ret = function () {
-	          var tabs = action.tabs,
-	              currentUrl = action.currentUrl;
-
-	          var tabUrlPatterns = tabs.map(function (tab) {
-	            return tab.urlPatterns;
-	          });
-	          var initialTabUrls = tabs.map(function (tab) {
-	            return tab.initialUrl;
-	          });
-	          var id = state.lastId + 1;
-	          var startState = _extends({}, state, {
-	            browserHistory: _extends({}, state.browserHistory, {
-	              current: state.browserHistory.current || { url: initialTabUrls[0], tab: 0, id: id }
-	            }),
-	            tabHistories: [].concat(_toConsumableArray(state.tabHistories), _toConsumableArray(initialTabUrls.map(function (url, i) {
-	              return {
+	          var containerConfigs = action.containers;
+	          var currentUrl = action.currentUrl;
+	          var id = (state ? state.lastId : 0) + 1;
+	          var group = (state ? state.lastGroup : 0) + 1;
+	          var containers = [].concat(_toConsumableArray(state ? state.containers : []), _toConsumableArray(containerConfigs.map(function (c, i) {
+	            return _extends({}, c, {
+	              history: {
 	                back: [],
-	                current: { url: url, tab: i, id: id + i },
+	                current: { url: c.initialUrl, id: id + i },
 	                forward: []
-	              };
-	            }))),
-	            currentTab: state.currentTab || 0,
-	            lastId: state.lastId || initialTabUrls.length
+	              },
+	              isDefault: i === 0,
+	              group: group,
+	              index: i
+	            });
+	          })));
+	          var defaultContainer = containers[0];
+	          var startState = _extends({}, state ? state : {}, {
+	            browserHistory: _extends({}, state ? state.browserHistory : {}, {
+	              current: state ? state.browserHistory.current : {
+	                url: defaultContainer.initialUrl,
+	                container: defaultContainer,
+	                id: id
+	              },
+	              back: state ? state.browserHistory.back : [],
+	              forward: state ? state.browserHistory.forward : []
+	            }),
+	            containers: containers,
+	            lastId: (state ? state.lastId : 0) + containerConfigs.length,
+	            lastGroup: group
 	          });
-	          if (currentUrl === initialTabUrls[0]) {
-	            return {
-	              v: startState
-	            };
-	          } else {
-	            var tabIndex = initialTabUrls.indexOf(currentUrl);
-	            if (tabIndex >= 0) {
+	          var initialContainer = _.find(containers, function (c) {
+	            return (0, _url.pathsMatch)(c.initialUrl, currentUrl);
+	          });
+	          if (initialContainer) {
+	            if (initialContainer.isDefault) {
 	              return {
-	                v: switchToTab(startState, tabs[tabIndex])
+	                v: startState
 	              };
 	            } else {
-	              var tab = _.findIndex(tabUrlPatterns, function (patterns) {
-	                return _.some(patterns, function (pattern) {
-	                  return (0, _url.pathsMatch)(pattern, currentUrl);
-	                });
-	              });
-	              if (tab >= 0) {
-	                return {
-	                  v: push(switchToTab(startState, tab), currentUrl)
-	                };
-	              } else {
-	                return {
-	                  v: state
-	                }; // ignore because this doesn't match this container
-	              }
+	              return {
+	                v: switchToContainer(startState, initialContainer)
+	              };
+	            }
+	          }
+	          var matchingContainer = _.find(containers, function (c) {
+	            return (0, _url.patternsMatch)(c.urlPatterns, currentUrl);
+	          });
+	          if (matchingContainer) {
+	            if (matchingContainer.isDefault) {
+	              return {
+	                v: push(startState, currentUrl)
+	              };
+	            } else {
+	              return {
+	                v: push(switchToContainer(startState, matchingContainer), currentUrl)
+	              };
 	            }
 	          }
 	        }();
 
 	        if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
 	      }
-	    case _ActionTypes.SWITCH_TO_TAB:
-	      {
-	        return switchToTab(state, action.tab);
-	      }
-	    case _ActionTypes.PUSH:
-	      {
-	        return push(state, action.url);
-	      }
-	    case _ActionTypes.BACK:
-	      {
-	        return _extends({}, state, go(state, 0 - action.n || -1));
-	      }
-	    case _ActionTypes.FORWARD:
-	    case _ActionTypes.GO:
-	      {
-	        return _extends({}, state, go(state, action.n || 1));
-	      }
-	    case _ActionTypes.POPSTATE:
-	      {
-	        return _extends({}, state, constructNewHistory(state, action.id));
-	      }
+	  }
+	  if (!state) {
+	    throw new Error("State not yet initialized");
+	  } else {
+	    switch (action.type) {
+	      case _ActionTypes.SWITCH_TO_CONTAINER:
+	        {
+	          return switchToContainer(state, action.container);
+	        }
+	      case _ActionTypes.PUSH:
+	        {
+	          return push(state, action.url);
+	        }
+	      case _ActionTypes.BACK:
+	        {
+	          return _extends({}, state, go(state, 0 - action.n || -1));
+	        }
+	      case _ActionTypes.FORWARD:
+	      case _ActionTypes.GO:
+	        {
+	          return _extends({}, state, go(state, action.n || 1));
+	        }
+	      case _ActionTypes.POPSTATE:
+	        {
+	          return _extends({}, state, constructNewHistory(state, action.id));
+	        }
+	    }
 	  }
 	  return state;
 	}
@@ -1505,7 +1511,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var lastAction = _.last(actionHistory);
 	  var previousState = _.initial(actionHistory).reduce(function (state, action) {
 	    return reducer(state, action);
-	  }, initialState);
+	  }, null);
 	  var finalState = reducer(previousState, lastAction);
 	  return _extends({}, finalState, {
 	    previousState: previousState,
@@ -1513,22 +1519,59 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	};
 
+	function getInsertedContainers(state, numContainers) {
+	  var total = state.containers.length;
+	  return state.containers.slice(total - numContainers, total);
+	}
+
 	function getContainerStackOrder(actionHistory) {
 	  var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ['*'];
 
-	  var tabSwitchNumbers = [];
+	  if (actionHistory.length === 0) {
+	    throw new Error("No actions in history");
+	  }
+	  var containerSwitches = [];
+	  var matches = function matches(path) {
+	    return (0, _url.patternsMatch)(patterns, path);
+	  };
 	  actionHistory.reduce(function (oldState, action) {
 	    var newState = reducer(oldState, action);
-	    if (oldState.currentTab !== newState.currentTab) {
-	      if (_.some(patterns, function (p) {
-	        return (0, _url.pathsMatch)(p, newState.browserHistory.current.url);
-	      })) {
-	        tabSwitchNumbers.push(newState.currentTab);
+	    if (action.type === _ActionTypes.SET_CONTAINERS) {
+	      if (matches(action.containers[0].initialUrl)) {
+	        // if one matches, they all match
+	        var containers = getInsertedContainers(newState, action.containers.length);
+	        _.each(_.reverse(containers), function (c) {
+	          return containerSwitches.push(c);
+	        });
 	      }
 	    }
+	    var oldCurrent = oldState ? oldState.browserHistory.current.container.initialUrl : null;
+	    var newCurrent = newState.browserHistory.current.container.initialUrl;
+	    if ((!oldState || oldCurrent !== newCurrent) && matches(newCurrent)) {
+	      containerSwitches.push(newState.browserHistory.current.container);
+	    }
 	    return newState;
-	  }, initialState);
-	  return _.uniq(_.reverse(tabSwitchNumbers));
+	  }, null);
+	  return _.uniqBy(_.reverse(containerSwitches), function (c) {
+	    return c.index;
+	  });
+	}
+
+	/**
+	 * Gets the stack order values as numbers, in container order instead of stack order
+	 */
+	function getIndexedContainerStackOrder(actionHistory) {
+	  var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ['*'];
+
+	  var stackOrder = getContainerStackOrder(actionHistory, patterns);
+	  var values = _.map(stackOrder, function (s, i) {
+	    return { index: s.index, i: i };
+	  });
+	  return _.map(_.sortBy(values, function (s) {
+	    return s.index;
+	  }), function (s) {
+	    return s.i;
+	  });
 	}
 
 	function getActiveContainer(actionHistory) {
@@ -18634,7 +18677,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.isParentOrEqualPath = exports.isParentPath = exports.pathsMatch = exports.doPathPartsMatch = exports.getParentPaths = exports.getParentPath = exports.appendToPath = exports.getPathParts = exports.stripTrailingSlash = exports.stripLeadingSlash = exports.addTrailingSlash = exports.addLeadingSlash = undefined;
+	exports.isParentOrEqualPath = exports.isParentPath = exports.patternsMatch = exports.pathsMatch = exports.doPathPartsMatch = exports.getParentPaths = exports.getParentPath = exports.appendToPath = exports.getPathParts = exports.stripTrailingSlash = exports.stripLeadingSlash = exports.addTrailingSlash = exports.addLeadingSlash = undefined;
 
 	var _lodash = __webpack_require__(17);
 
@@ -18709,6 +18752,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return true;
 	};
 
+	var patternsMatch = exports.patternsMatch = function patternsMatch(patterns, path) {
+	  var wildcards = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['*'];
+
+	  return _lodash2.default.some(patterns, function (p) {
+	    return pathsMatch(p, path, wildcards);
+	  });
+	};
+
 	var isParentPath = exports.isParentPath = function isParentPath(parentPath, childPath) {
 	  var parentPathParts = getPathParts(parentPath);
 	  var childPathParts = getPathParts(childPath);
@@ -18729,50 +18780,76 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 20 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	exports.switchToTab = switchToTab;
+	exports.switchToContainer = switchToContainer;
+
+	var _lodash = __webpack_require__(17);
+
+	var _ = _interopRequireWildcard(_lodash);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	function createBrowserPage(page, container) {
+	  return _extends({}, page, { container: container });
+	}
 
 	/**
 	 * Switch tab using mobile-app like behavior (with a default tab: index == 0)
 	 * Structure of a history object:
 	 *    { back: [String], current: String, forward: [String] }
-	 * @param {Array} tabHistories - The stored histories of each individual tab
-	 * @param {Object} tab - The index of the new tab
-	 * @returns {Object} A new historyState object
+	 * @param {State} state - Current state
+	 * @param {Container} container - The tab to switch to
+	 * @returns {Object} A new state object
 	 */
-	function switchToTab(_ref) {
-	  var tabHistories = _ref.historyState.tabHistories,
-	      index = _ref.tab.index;
-
-	  var defaultTab = tabHistories[0];
-	  var toTab = tabHistories[index];
-	  var createNewHistoryState = function createNewHistoryState(browserHistory) {
-	    return {
-	      tabHistories: tabHistories,
-	      browserHistory: browserHistory
-	    };
+	function switchToContainer(state, container) {
+	  var createNewState = function createNewState(back) {
+	    return _extends({}, state, {
+	      browserHistory: {
+	        back: back,
+	        current: createBrowserPage(container.history.current, container),
+	        forward: container.history.forward.map(function (p) {
+	          return createBrowserPage(p, container);
+	        })
+	      }
+	    });
 	  };
-	  if (index === 0) {
+	  if (container.isDefault) {
 	    // going to default tab
-	    return createNewHistoryState(_extends({}, toTab, {
-	      back: [].concat(_toConsumableArray(toTab.back))
-	    }));
+	    return createNewState([].concat(_toConsumableArray(container.history.back.map(function (p) {
+	      return createBrowserPage(p, container);
+	    }))));
 	  } else {
-	    // going to non-default tab
-	    return createNewHistoryState(_extends({}, toTab, {
-	      back: [].concat(_toConsumableArray(defaultTab.back), [defaultTab.current], _toConsumableArray(toTab.back))
-	    }));
+	    var _ret = function () {
+	      // going to non-default tab
+	      var defaultTab = _.find(state.containers, function (c) {
+	        return c.group === container.group && c.isDefault;
+	      });
+	      if (!defaultTab) {
+	        throw new Error('Default tab not found with group: ' + container.group);
+	      }
+	      return {
+	        v: createNewState([].concat(_toConsumableArray(defaultTab.history.back.map(function (p) {
+	          return createBrowserPage(p, defaultTab);
+	        })), [createBrowserPage(defaultTab.history.current, defaultTab)], _toConsumableArray(container.history.back.map(function (p) {
+	          return createBrowserPage(p, container);
+	        }))))
+	      };
+	    }();
+
+	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 	  }
 	}
 

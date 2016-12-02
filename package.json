@@ -12,6 +12,7 @@
     "lint": "eslint src tests",
     "test": "jest",
     "test:watch": "jest --watch",
+    "flow": "flow",
     "build:umd": "webpack src/index.js dist/tab-history-library.js --config webpack.config.development.js",
     "build:umd:min": "webpack src/index.js dist/tab-history-library.min.js --config webpack.config.production.js",
     "build": "npm run build:umd && npm run build:umd:min"
@@ -31,9 +32,11 @@
     "babel-core": "^6.3.26",
     "babel-jest": "^16.0.0",
     "babel-loader": "^6.2.0",
+    "babel-plugin-transform-flow-strip-types": "^6.18.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-stage-1": "^6.3.13",
     "eslint": "^3.7.1",
+    "flow-bin": "^0.36.0",
     "jest-cli": "^16.0.2",
     "webpack": "^1.11.0"
   }
