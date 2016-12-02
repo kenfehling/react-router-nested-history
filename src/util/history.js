@@ -115,6 +115,7 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Object[] => 
 
   return _.flatten([
     !h1 || _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
+    h1 ? {fn: browser.back, args: [1]} : [],
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
     {fn: browser.push, args: [h2.current]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
@@ -123,9 +124,6 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Object[] => 
 };
 
 export const constructNewHistory = (state:State, newCurrentId:number) : State => {
-
-  console.log(state, newCurrentId);
-
   const shiftAmount = getHistoryShiftAmount(state, newCurrentId);
   if (shiftAmount === 0) {
     console.error(state, newCurrentId);
@@ -273,4 +271,8 @@ export function getIndexedContainerStackOrder(actionHistory:Object[], patterns:s
 
 export function getActiveContainer(actionHistory:Object[], patterns:string[]=['*']) : Container {
   return _.first(getContainerStackOrder(actionHistory, patterns));
+}
+
+export function getContainer(state:State, group:number, index:number):Container {
+  return _.find(state.containers, c => c.group === group && c.index === index);
 }

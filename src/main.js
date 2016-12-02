@@ -4,7 +4,7 @@ import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE 
 import * as actions from './actions/HistoryActions';
 import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
-import { diffStateToSteps, deriveState, getInsertedContainers, getActiveContainer, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
+import { diffStateToSteps, deriveState, getContainer, getInsertedContainers, getActiveContainer, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
 import store from './store';
 import * as _ from 'lodash';
 import type { Container, ContainerConfig, StateSnapshot, Step } from './types';
@@ -16,9 +16,6 @@ const getDerivedState = () : StateSnapshot => deriveState(store.getState());
 
 const startListening = () => {
   unlisten = listen(location => {
-
-    console.log(location);
-
     store.dispatch(actions.popstate(location.state.id));
   });
 };
@@ -41,8 +38,9 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
   store.dispatch(actions.setContainers(containerConfigs, currentUrl));
   const state = getDerivedState();
   const containers = getInsertedContainers(state, containerConfigs.length);
+  const group = containers[0].group;
   return {
-    switchTo: (index:number) => switchToContainer(containers[index]),
+    switchTo: (index:number) => switchToContainer(getContainer(getDerivedState(), group, index)),
     getActive: () => getActiveContainer(store.getState(), patterns),
     getStackOrder: () => getContainerStackOrder(store.getState(), patterns),
     getIndexedStackOrder: () => getIndexedContainerStackOrder(store.getState(), patterns),

@@ -124,9 +124,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var startListening = function startListening() {
 	  unlisten = (0, _historyListener.listen)(function (location) {
-
-	    console.log(location);
-
 	    _store2.default.dispatch(actions.popstate(location.state.id));
 	  });
 	};
@@ -155,9 +152,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _store2.default.dispatch(actions.setContainers(containerConfigs, currentUrl));
 	  var state = getDerivedState();
 	  var containers = (0, _history.getInsertedContainers)(state, containerConfigs.length);
+	  var group = containers[0].group;
 	  return {
 	    switchTo: function switchTo(index) {
-	      return switchToContainer(containers[index]);
+	      return switchToContainer((0, _history.getContainer)(getDerivedState(), group, index));
 	    },
 	    getActive: function getActive() {
 	      return (0, _history.getActiveContainer)(_store2.default.getState(), patterns);
@@ -328,8 +326,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.forward = exports.back = exports.go = exports.replace = undefined;
-	exports.push = push;
+	exports.forward = exports.back = exports.go = exports.replace = exports.push = undefined;
 
 	var _createBrowserHistory = __webpack_require__(5);
 
@@ -338,13 +335,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var history = (0, _createBrowserHistory2.default)();
-	function push(page) {
-
-	  console.log(page);
-
-	  history.push(page.url, { id: page.id });
-	}
-
+	var push = exports.push = function push(page) {
+	  return history.push(page.url, { id: page.id });
+	};
 	var replace = exports.replace = function replace(page) {
 	  return history.replace(page.url, { id: page.id });
 	};
@@ -1255,6 +1248,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.getContainerStackOrder = getContainerStackOrder;
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	exports.getActiveContainer = getActiveContainer;
+	exports.getContainer = getContainer;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -1386,7 +1380,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return [];
 	  }
 
-	  return _.flatten([!h1 || _.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
+	  return _.flatten([!h1 || _.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, h1 ? { fn: browser.back, args: [1] } : [], _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
 	    return { fn: browser.push, args: [b] };
 	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
 	    return { fn: browser.push, args: [f] };
@@ -1394,9 +1388,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var constructNewHistory = exports.constructNewHistory = function constructNewHistory(state, newCurrentId) {
-
-	  console.log(state, newCurrentId);
-
 	  var shiftAmount = getHistoryShiftAmount(state, newCurrentId);
 	  if (shiftAmount === 0) {
 	    console.error(state, newCurrentId);
@@ -1579,6 +1570,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ['*'];
 
 	  return _.first(getContainerStackOrder(actionHistory, patterns));
+	}
+
+	function getContainer(state, group, index) {
+
+	  console.log(state.containers, group, index);
+
+	  return _.find(state.containers, function (c) {
+	    return c.group === group && c.index === index;
+	  });
 	}
 
 /***/ },
