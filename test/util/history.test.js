@@ -51,11 +51,25 @@ describe('history utils', () => {
     expect(util.getHistoryShiftAmount(newState, 1)).toEqual(-1);
   });
 
-  it('gets container stack order', () => {
+  it('gets container stack order (default)', () => {
     const actions = [
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
     ];
     expect(util.getContainerStackOrder(actions)).toEqual(containers);
+  });
+
+  it('gets indexed container stack order (default)', () => {
+    const actions = [
+      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
+    ];
+    expect(util.getIndexedContainerStackOrder(actions)).toEqual([0, 1, 2]);
+  });
+
+  it('gets indexed container stack order (non-default)', () => {
+    const actions = [
+      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'}
+    ];
+    expect(util.getIndexedContainerStackOrder(actions)).toEqual([1, 0, 2]);
   });
 
 });

@@ -1534,7 +1534,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var matches = function matches(path) {
 	    return (0, _url.patternsMatch)(patterns, path);
 	  };
-
 	  actionHistory.reduce(function (oldState, action) {
 	    var newState = reducer(oldState, action);
 	    if (action.type === _ActionTypes.SET_CONTAINERS) {
@@ -1545,12 +1544,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	          return containerSwitches.push(c);
 	        });
 	      }
-	    } else {
-	      var oldCurrent = oldState ? oldState.browserHistory.current.container.initialUrl : null;
-	      var newCurrent = newState.browserHistory.current.container.initialUrl;
-	      if ((!oldState || oldCurrent !== newCurrent) && matches(newCurrent)) {
-	        containerSwitches.push(newState.browserHistory.current.container);
-	      }
+	    }
+	    var oldCurrent = oldState ? oldState.browserHistory.current.container.initialUrl : null;
+	    var newCurrent = newState.browserHistory.current.container.initialUrl;
+	    if ((!oldState || oldCurrent !== newCurrent) && matches(newCurrent)) {
+	      containerSwitches.push(newState.browserHistory.current.container);
 	    }
 	    return newState;
 	  }, null);

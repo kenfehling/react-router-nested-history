@@ -236,7 +236,6 @@ export function getContainerStackOrder(actionHistory:Object[], patterns:string[]
   }
   const containerSwitches:Container[] = [];
   const matches = (path:string) => patternsMatch(patterns, path);
-
   actionHistory.reduce((oldState:?State, action:Object) : State => {
     const newState = reducer(oldState, action);
     if (action.type === SET_CONTAINERS) {
@@ -245,12 +244,10 @@ export function getContainerStackOrder(actionHistory:Object[], patterns:string[]
         _.each(_.reverse(containers), c => containerSwitches.push(c));
       }
     }
-    else {
-      const oldCurrent = oldState ? oldState.browserHistory.current.container.initialUrl : null;
-      const newCurrent = newState.browserHistory.current.container.initialUrl;
-      if ((!oldState || oldCurrent !== newCurrent) && matches(newCurrent)) {
-        containerSwitches.push(newState.browserHistory.current.container);
-      }
+    const oldCurrent = oldState ? oldState.browserHistory.current.container.initialUrl : null;
+    const newCurrent = newState.browserHistory.current.container.initialUrl;
+    if ((!oldState || oldCurrent !== newCurrent) && matches(newCurrent)) {
+      containerSwitches.push(newState.browserHistory.current.container);
     }
     return newState;
   }, null);

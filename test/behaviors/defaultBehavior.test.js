@@ -49,7 +49,8 @@ describe('default container behavior', () => {
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
       isDefault: true,
-      group: 1
+      group: 1,
+      index: 0
     }, {
       history: {
         back: [],
@@ -59,7 +60,8 @@ describe('default container behavior', () => {
       initialUrl: '/b',
       urlPatterns: ['/b', '/b/*'],
       isDefault: false,
-      group: 1
+      group: 1,
+      index: 1
     }];
     expect(switchToContainer({
           browserHistory: {
@@ -91,7 +93,8 @@ describe('default container behavior', () => {
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
       isDefault: true,
-      group: 1
+      group: 1,
+      index: 0
     }, {
       history: {
         back: [],
@@ -101,7 +104,8 @@ describe('default container behavior', () => {
       initialUrl: '/b',
       urlPatterns: ['/b', '/b/*'],
       isDefault: false,
-      group: 1
+      group: 1,
+      index: 1
     }];
     expect(switchToContainer({
       browserHistory: {
@@ -130,7 +134,8 @@ describe('default container behavior', () => {
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
       isDefault: true,
-      group: 1
+      group: 1,
+      index: 0
     }, {
       history: {
         back: [],
@@ -140,7 +145,8 @@ describe('default container behavior', () => {
       initialUrl: '/b',
       urlPatterns: ['/b', '/b/*'],
       isDefault: false,
-      group: 1
+      group: 1,
+      index: 1
     }, {
       history: {
         back: [],
@@ -150,7 +156,8 @@ describe('default container behavior', () => {
       initialUrl: '/c',
       urlPatterns: ['/c', '/c/*'],
       isDefault: false,
-      group: 1
+      group: 1,
+      index: 2
     }];
     expect(switchToContainer({
       browserHistory: {
@@ -179,7 +186,8 @@ describe('default container behavior', () => {
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
       isDefault: true,
-      group: 1
+      group: 1,
+      index: 0
     }, {
       history: {
         back: [],
@@ -189,7 +197,8 @@ describe('default container behavior', () => {
       initialUrl: '/b',
       urlPatterns: ['/b', '/b/*'],
       isDefault: false,
-      group: 1
+      group: 1,
+      index: 1
     }, {
       history: {
         back: [],
@@ -199,7 +208,8 @@ describe('default container behavior', () => {
       initialUrl: '/c',
       urlPatterns: ['/c', '/c/*'],
       isDefault: false,
-      group: 1
+      group: 1,
+      index: 2
     }];
     expect(switchToContainer({
       browserHistory: {
