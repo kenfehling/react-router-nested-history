@@ -169,10 +169,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    addChangeListener: function addChangeListener(fn) {
 	      return _store2.default.subscribe(function () {
 	        var actions = _store2.default.getState();
-	        var active = (0, _history.getActiveContainer)(actions, patterns);
+	        var state = (0, _history.deriveState)(actions);
+	        var currentUrl = state.browserHistory.current.url;
+	        var active = state.browserHistory.current.container;
 	        var stackOrder = (0, _history.getContainerStackOrder)(actions, patterns);
 	        var indexedStackOrder = (0, _history.getIndexedContainerStackOrder)(actions, patterns);
-	        fn({ active: active, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder });
+	        fn({ active: active, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder });
 	      });
 	    }
 	  };
@@ -1309,13 +1311,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var push = exports.push = function push(state, url) {
-	  var container = state.browserHistory.current.container;
 	  var id = state.lastId + 1;
+	  var oldContainer = state.browserHistory.current.container;
+	  var containers = updateContainerHistory(state, oldContainer, function (c) {
+	    return pushToStack(c.history, { url: url, id: id });
+	  });
+	  var group = oldContainer.group,
+	      index = oldContainer.index;
+
+	  var container = getContainer(_extends({}, state, { containers: containers }), group, index);
 	  return _extends({}, state, {
 	    browserHistory: pushToStack(state.browserHistory, { url: url, container: container, id: id }),
-	    containers: updateContainerHistory(state, container, function (c) {
-	      return pushToStack(c.history, { url: url, id: id });
-	    }),
+	    containers: containers,
 	    lastId: id
 	  });
 	};
@@ -1573,9 +1580,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	function getContainer(state, group, index) {
-
-	  console.log(state.containers, group, index);
-
 	  return _.find(state.containers, function (c) {
 	    return c.group === group && c.index === index;
 	  });

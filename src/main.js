@@ -46,10 +46,12 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
     getIndexedStackOrder: () => getIndexedContainerStackOrder(store.getState(), patterns),
     addChangeListener: (fn:Function) => store.subscribe(() => {
       const actions = store.getState();
-      const active = getActiveContainer(actions, patterns);
+      const state = deriveState(actions);
+      const currentUrl = state.browserHistory.current.url;
+      const active = state.browserHistory.current.container;
       const stackOrder = getContainerStackOrder(actions, patterns);
       const indexedStackOrder = getIndexedContainerStackOrder(actions, patterns);
-      fn({active, stackOrder, indexedStackOrder});
+      fn({active, currentUrl, stackOrder, indexedStackOrder});
     })
   };
 };

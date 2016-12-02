@@ -43,12 +43,15 @@ export const updateContainerHistory = (state:State, container:Container, fn:Func
 };
 
 export const push = (state:State, url:string):State => {
-  const container = state.browserHistory.current.container;
   const id = state.lastId + 1;
+  const oldContainer = state.browserHistory.current.container;
+  const containers = updateContainerHistory(state, oldContainer, c => pushToStack(c.history, {url, id}));
+  const {group, index} = oldContainer;
+  const container = getContainer({...state, containers}, group, index);
   return {
     ...state,
     browserHistory: pushToStack(state.browserHistory, {url, container, id}),
-    containers: updateContainerHistory(state, container, c => pushToStack(c.history, {url, id})),
+    containers: containers,
     lastId: id
   };
 };
