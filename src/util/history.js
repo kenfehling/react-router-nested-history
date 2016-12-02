@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { patternsMatch , pathsMatch} from "../util/url";
 import * as browser from '../../src/browserFunctions';
 import * as behavior from '../behaviors/defaultBehavior';
-import type { History, ContainerHistory, BrowserHistory, State, StateSnapshot, Container, ContainerConfig, Page } from '../types';
+import type { History, State, StateSnapshot, Container, ContainerConfig, Page } from '../types';
 
 export const switchToContainer = (state:State, container: Container) => ({
   ...state,
@@ -108,16 +108,24 @@ export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :numb
 export const diffStateToSteps = (oldState:?State, newState:State) : Object[] => {
   const h1 = oldState ? oldState.browserHistory : null;
   const h2 = newState.browserHistory;
+
+  if (_.isEqual(h1, h2)) {
+    return [];
+  }
+
   return _.flatten([
     !h1 || _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
-    _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b.url]})),
-    {fn: browser.push, args: [h2.current.url]},
-    _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f.url]})),
+    _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
+    {fn: browser.push, args: [h2.current]},
+    _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ]);
 };
 
 export const constructNewHistory = (state:State, newCurrentId:number) : State => {
+
+  console.log(state, newCurrentId);
+
   const shiftAmount = getHistoryShiftAmount(state, newCurrentId);
   if (shiftAmount === 0) {
     console.error(state, newCurrentId);

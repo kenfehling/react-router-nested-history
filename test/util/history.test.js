@@ -30,8 +30,8 @@ describe('history utils', () => {
     const steps = util.diffStateToSteps(originalState, newState);
     expect(steps).toEqual([
       {fn: back, args: [1]},
-      {fn: push, args: [newState.browserHistory.back[0].url]},
-      {fn: push, args: [newState.browserHistory.current.url]}
+      {fn: push, args: [newState.browserHistory.back[0]]},
+      {fn: push, args: [newState.browserHistory.current]}
     ]);
   });
 
@@ -40,8 +40,8 @@ describe('history utils', () => {
     const steps = util.diffStateToSteps(originalState, newState);
     expect(steps).toEqual([
       {fn: back, args: [1]},
-      {fn: push, args: [newState.browserHistory.current.url]},
-      {fn: push, args: [newState.browserHistory.forward[0].url]},
+      {fn: push, args: [newState.browserHistory.current]},
+      {fn: push, args: [newState.browserHistory.forward[0]]},
       {fn: back, args: [1]}
     ]);
   });

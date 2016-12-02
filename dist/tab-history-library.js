@@ -124,6 +124,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var startListening = function startListening() {
 	  unlisten = (0, _historyListener.listen)(function (location) {
+
+	    console.log(location);
+
 	    _store2.default.dispatch(actions.popstate(location.state.id));
 	  });
 	};
@@ -216,8 +219,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function createSteps(state) {
 	  switch (state.lastAction.type) {
-	    case _ActionTypes.SET_CONTAINERS:
-	      return [{ fn: browser.replace, args: [state.browserHistory.current] }];
+	    case _ActionTypes.SET_CONTAINERS: /* return [
+	                                      {fn: browser.replace, args: [state.browserHistory.current]}
+	                                      ]; */
 	    case _ActionTypes.SWITCH_TO_CONTAINER:
 	      return (0, _history.diffStateToSteps)(state.previousState, state);
 	    case _ActionTypes.PUSH:
@@ -324,9 +328,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.forward = exports.back = exports.go = undefined;
+	exports.forward = exports.back = exports.go = exports.replace = undefined;
 	exports.push = push;
-	exports.replace = replace;
 
 	var _createBrowserHistory = __webpack_require__(5);
 
@@ -335,21 +338,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var history = (0, _createBrowserHistory2.default)();
+	function push(page) {
 
-	function push(_ref) {
-	  var url = _ref.url,
-	      id = _ref.id;
+	  console.log(page);
 
-	  history.push(url, { id: id });
+	  history.push(page.url, { id: page.id });
 	}
 
-	function replace(_ref2) {
-	  var url = _ref2.url,
-	      id = _ref2.id;
-
-	  history.replace(url, { id: id });
-	}
-
+	var replace = exports.replace = function replace(page) {
+	  return history.replace(page.url, { id: page.id });
+	};
 	var go = exports.go = function go(n) {
 	  return history.go(n);
 	};
@@ -1383,14 +1381,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	var diffStateToSteps = exports.diffStateToSteps = function diffStateToSteps(oldState, newState) {
 	  var h1 = oldState ? oldState.browserHistory : null;
 	  var h2 = newState.browserHistory;
+
+	  if (_.isEqual(h1, h2)) {
+	    return [];
+	  }
+
 	  return _.flatten([!h1 || _.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
-	    return { fn: browser.push, args: [b.url] };
-	  }), { fn: browser.push, args: [h2.current.url] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
-	    return { fn: browser.push, args: [f.url] };
+	    return { fn: browser.push, args: [b] };
+	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
+	    return { fn: browser.push, args: [f] };
 	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
 	};
 
 	var constructNewHistory = exports.constructNewHistory = function constructNewHistory(state, newCurrentId) {
+
+	  console.log(state, newCurrentId);
+
 	  var shiftAmount = getHistoryShiftAmount(state, newCurrentId);
 	  if (shiftAmount === 0) {
 	    console.error(state, newCurrentId);

@@ -8,7 +8,7 @@ import { deriveState } from '../src/util/history';
 import { createSteps } from '../src/main';
 import { push, back, forward, go, replace } from '../src/browserFunctions';
 import { SET_CONTAINERS, PUSH, BACK, FORWARD } from "../src/constants/ActionTypes";
-import type { ContainerConfig, State, StateSnapshot } from '../src/types';
+import type { ContainerConfig, StateSnapshot } from '../src/types';
 
 describe('main', () => {
   const containerConfigs : ContainerConfig[] = [
@@ -22,8 +22,22 @@ describe('main', () => {
 
   const perform = (action) : StateSnapshot => deriveState(reducer([], action));
 
-  it('creates steps from derived state', () => {
+  it('creates steps for set containers (default)', () => {
     const state = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
+    expect(createSteps(state)).toEqual([
+      {fn: replace, args: [state.browserHistory.current]}
+    ])
+  });
+
+  it.only('creates steps for set containers (non-default)', () => {
+    const state = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'});
+    expect(createSteps(state)).toEqual([
+      {fn: replace, args: [state.browserHistory.current]}
+    ])
+  });
+
+  it('creates steps for set containers (non-default) 2', () => {
+    const state = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b/1'});
     expect(createSteps(state)).toEqual([
       {fn: replace, args: [state.browserHistory.current]}
     ])

@@ -16,6 +16,9 @@ const getDerivedState = () : StateSnapshot => deriveState(store.getState());
 
 const startListening = () => {
   unlisten = listen(location => {
+
+    console.log(location);
+
     store.dispatch(actions.popstate(location.state.id));
   });
 };
@@ -78,7 +81,10 @@ function runSteps(steps:Step[]) {
 
 export function createSteps(state:StateSnapshot) : Step[] {
   switch(state.lastAction.type) {
-    case SET_CONTAINERS: return [{fn: browser.replace, args: [state.browserHistory.current]}];
+    case SET_CONTAINERS: /* return [
+
+      {fn: browser.replace, args: [state.browserHistory.current]}
+    ]; */
     case SWITCH_TO_CONTAINER: return diffStateToSteps(state.previousState, state);
     case PUSH: return [{fn: browser.push, args: [state.browserHistory.current]}];
     case BACK:
