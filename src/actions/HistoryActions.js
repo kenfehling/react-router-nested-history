@@ -3,7 +3,7 @@
 import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import type { Container, ContainerConfig } from '../types';
 
-export const setContainers = (containers: Container[], currentUrl: string) => ({
+export const setContainers = (containers: ContainerConfig[], currentUrl: string) => ({
   type: SET_CONTAINERS,
   containers,
   currentUrl

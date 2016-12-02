@@ -32,26 +32,23 @@ const startListeningPromise = () => new Promise(resolve => {
 
 startListening();
 
-export const setContainers = (containers: ContainerConfig[]) => {
+export const setContainers = (containerConfigs: ContainerConfig[]) => {
   const currentUrl = window.location.pathname;
-  const patterns = _.flatMap(containers, container => container.urlPatterns);
-  store.dispatch(actions.setContainers(containers, currentUrl));
-
-  console.log(containers);
-
+  const patterns = _.flatMap(containerConfigs, container => container.urlPatterns);
+  store.dispatch(actions.setContainers(containerConfigs, currentUrl));
+  const state = getDerivedState();
+  const total = state.containers.length;
+  const n = containerConfigs.length;
+  const containers = state.containers.slice(total - n, total);
   return {
-
-    //TODO: Here `containers` is of type ContainerConfig[] but we need Container[]
     switchTo: (index:number) => switchToContainer(containers[index]),
-
     getActive: () => getActiveContainer(store.getState(), patterns),
     getStackOrder: () => getContainerStackOrder(store.getState(), patterns),
     addChangeListener: (fn:Function) => store.subscribe(() => {
-      const state = store.getState();
-      fn({
-        active: getActiveContainer(state, patterns),
-        stackOrder: getContainerStackOrder(state, patterns)
-      });
+      const actions = store.getState();
+      const active = getActiveContainer(actions, patterns);
+      const stackOrder = getContainerStackOrder(actions, patterns);
+      fn({active, stackOrder});
     })
   };
 };

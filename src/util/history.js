@@ -109,7 +109,7 @@ export const diffStateToSteps = (oldState:State, newState:State) : Object[] => {
   const h1 = oldState.browserHistory;
   const h2 = newState.browserHistory;
   return _.flatten([
-    [{fn: browser.back, args: [h1.back.length + 1]}],
+    _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b.url]})),
     {fn: browser.push, args: [h2.current.url]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f.url]})),
@@ -129,11 +129,9 @@ export const constructNewHistory = (state:State, newCurrentId:number) : State =>
 };
 
 export function reducer(state:?State, action:Object) : State {
-
   if (state && !state.browserHistory) {
     throw new Error("WHY");
   }
-
   switch (action.type) {
     case SET_CONTAINERS: {
       const containerConfigs:ContainerConfig[] = action.containers;

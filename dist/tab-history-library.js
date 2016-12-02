@@ -143,22 +143,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	startListening();
 
-	var setContainers = exports.setContainers = function setContainers(containers) {
+	var setContainers = exports.setContainers = function setContainers(containerConfigs) {
 	  var currentUrl = window.location.pathname;
-	  var patterns = _.flatMap(containers, function (container) {
+	  var patterns = _.flatMap(containerConfigs, function (container) {
 	    return container.urlPatterns;
 	  });
-	  _store2.default.dispatch(actions.setContainers(containers, currentUrl));
-
-	  console.log(containers);
-
+	  _store2.default.dispatch(actions.setContainers(containerConfigs, currentUrl));
+	  var state = getDerivedState();
+	  var total = state.containers.length;
+	  var n = containerConfigs.length;
+	  var containers = state.containers.slice(total - n, total);
 	  return {
-
-	    //TODO: Here `containers` is of type ContainerConfig[] but we need Container[]
 	    switchTo: function switchTo(index) {
 	      return switchToContainer(containers[index]);
 	    },
-
 	    getActive: function getActive() {
 	      return (0, _history.getActiveContainer)(_store2.default.getState(), patterns);
 	    },
@@ -167,11 +165,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	    addChangeListener: function addChangeListener(fn) {
 	      return _store2.default.subscribe(function () {
-	        var state = _store2.default.getState();
-	        fn({
-	          active: (0, _history.getActiveContainer)(state, patterns),
-	          stackOrder: (0, _history.getContainerStackOrder)(state, patterns)
-	        });
+	        var actions = _store2.default.getState();
+	        var active = (0, _history.getActiveContainer)(actions, patterns);
+	        var stackOrder = (0, _history.getContainerStackOrder)(actions, patterns);
+	        fn({ active: active, stackOrder: stackOrder });
 	      });
 	    }
 	  };
@@ -1387,7 +1384,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var diffStateToSteps = exports.diffStateToSteps = function diffStateToSteps(oldState, newState) {
 	  var h1 = oldState.browserHistory;
 	  var h2 = newState.browserHistory;
-	  return _.flatten([[{ fn: browser.back, args: [h1.back.length + 1] }], _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
+	  return _.flatten([_.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
 	    return { fn: browser.push, args: [b.url] };
 	  }), { fn: browser.push, args: [h2.current.url] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
 	    return { fn: browser.push, args: [f.url] };
@@ -1405,11 +1402,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	function reducer(state, action) {
-
 	  if (state && !state.browserHistory) {
 	    throw new Error("WHY");
 	  }
-
 	  switch (action.type) {
 	    case _ActionTypes.SET_CONTAINERS:
 	      {
@@ -18792,9 +18787,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Object} A new state object
 	 */
 	function switchToContainer(state, container) {
-
-	  console.log(container);
-
 	  var createNewState = function createNewState(back) {
 	    return _extends({}, state, {
 	      browserHistory: {
