@@ -3,12 +3,12 @@
 declare var describe:any;
 declare var it:any;
 declare var expect:any;
-import reducer from '../src/reducers/index';
-import { deriveState } from '../src/util/history';
+//import reducer from '../src/reducers/index';
+import { deriveState, reducer, reduceAll } from '../src/util/history';
 import { createSteps } from '../src/main';
 import { push, back, forward, go, replace } from '../src/browserFunctions';
-import { SET_CONTAINERS, PUSH, BACK, FORWARD } from "../src/constants/ActionTypes";
-import type { ContainerConfig, StateSnapshot } from '../src/types';
+import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD } from "../src/constants/ActionTypes";
+import type { State, ContainerConfig, StateSnapshot } from '../src/types';
 
 describe('main', () => {
   const containerConfigs : ContainerConfig[] = [
@@ -17,29 +17,57 @@ describe('main', () => {
     {initialUrl: '/c', urlPatterns: ['/c/*']}
   ];
 
-  //const tempState = deriveState(reducer([], {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}));
-  //const containers = tempState.containers;
+  const tempState = reducer(null,
+      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
+  const originalContainers = tempState.containers;
 
-  const perform = (action) : StateSnapshot => deriveState(reducer([], action));
+  const perform = (action) : State => reducer(null, action);
+  const performAll = (actions) : State => reduceAll(null, actions);
 
   it('creates steps for set containers (default)', () => {
     const state = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
-    expect(createSteps(state)).toEqual([
+    const steps = createSteps(state);
+    expect(state.browserHistory.back.length).toBe(0);
+    expect(steps.length).toBe(1);
+    expect(steps).toEqual([
       {fn: replace, args: [state.browserHistory.current]}
     ])
   });
 
-  it.only('creates steps for set containers (non-default)', () => {
+  it('creates steps for set containers (non-default)', () => {
     const state = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'});
-    expect(createSteps(state)).toEqual([
-      {fn: replace, args: [state.browserHistory.current]}
+    const steps = createSteps(state);
+    expect(state.browserHistory.back.length).toBe(1);
+    expect(steps.length).toBe(2);
+    expect(steps).toEqual([
+      {fn: replace, args: [state.browserHistory.back[0]]},
+      {fn: push, args: [state.browserHistory.current]}
     ])
   });
 
   it('creates steps for set containers (non-default) 2', () => {
     const state = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b/1'});
-    expect(createSteps(state)).toEqual([
-      {fn: replace, args: [state.browserHistory.current]}
+    const steps = createSteps(state);
+    expect(state.browserHistory.back.length).toBe(2);
+    expect(steps.length).toBe(3);
+    expect(steps).toEqual([
+      {fn: replace, args: [state.browserHistory.back[0]]},
+      {fn: push, args: [state.browserHistory.back[1]]},
+      {fn: push, args: [state.browserHistory.current]}
+    ])
+  });
+
+  it.only('creates steps for switching a tab', () => {
+    const state = deriveState([
+      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+      {type: SWITCH_TO_CONTAINER, container: originalContainers[1]}
+    ]);
+    const steps = createSteps(state);
+    expect(state.browserHistory.back.length).toBe(1);
+    expect(steps.length).toBe(2);
+    expect(steps).toEqual([
+      {fn: replace, args: [state.browserHistory.back[0]]},
+      {fn: push, args: [state.browserHistory.current]}
     ])
   });
 });

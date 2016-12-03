@@ -461,7 +461,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  var handlePopState = function handlePopState(event) {
-	    if (event.state === undefined) return; // Ignore extraneous popstate events in WebKit.
+	    // Ignore extraneous popstate events in WebKit.
+	    if ((0, _DOMUtils.isExtraneousPopstateEvent)(event)) return;
 
 	    handlePop(getDOMLocation(event.state));
 	  };
@@ -1181,6 +1182,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return window.navigator.userAgent.indexOf('Firefox') === -1;
 	};
 
+	/**
+	 * Returns true if a given popstate event is an extraneous WebKit event.
+	 * Accounts for the fact that Chrome on iOS fires real popstate events
+	 * containing undefined state when pressing the back button.
+	 */
+	var isExtraneousPopstateEvent = exports.isExtraneousPopstateEvent = function isExtraneousPopstateEvent(event) {
+	  return event.state === undefined && navigator.userAgent.indexOf('CriOS') === -1;
+	};
+
 /***/ },
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
@@ -1372,6 +1382,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return 0;
 	};
 
+	var replacePushWithReplace = function replacePushWithReplace(step) {
+	  return step.fn === browser.push ? _extends({}, step, { fn: browser.replace }) : step;
+	};
+
+	var replaceFirstPushWithReplace = function replaceFirstPushWithReplace(steps) {
+	  return _.isEmpty(steps) ? [] : [replacePushWithReplace(_.first(steps))].concat(_toConsumableArray(_.tail(steps)));
+	};
+
 	/**
 	 * Get the difference between oldState and newState and return a list of
 	 * browser functions to transform the browser history from oldState to newState
@@ -1387,11 +1405,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return [];
 	  }
 
-	  return _.flatten([!h1 || _.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, h1 ? { fn: browser.back, args: [1] } : [], _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
+	  var steps = _.flatten([!h1 || _.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, h1 ? { fn: browser.back, args: [1] } : [], _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
 	    return { fn: browser.push, args: [b] };
 	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
 	    return { fn: browser.push, args: [f] };
 	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
+
+	  return replaceFirstPushWithReplace(steps);
 	};
 
 	var constructNewHistory = exports.constructNewHistory = function constructNewHistory(state, newCurrentId) {

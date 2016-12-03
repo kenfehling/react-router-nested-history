@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { patternsMatch , pathsMatch} from "../util/url";
 import * as browser from '../../src/browserFunctions';
 import * as behavior from '../behaviors/defaultBehavior';
-import type { History, State, StateSnapshot, Container, ContainerConfig, Page } from '../types';
+import type { History, State, StateSnapshot, Container, ContainerConfig, Page, Step } from '../types';
 
 export const switchToContainer = (state:State, container: Container) => ({
   ...state,
@@ -101,6 +101,12 @@ export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :numb
   return 0;
 };
 
+const replacePushWithReplace = (step:Step) : Step =>
+  step.fn === browser.push ? {...step, fn: browser.replace} : step;
+
+const replaceFirstPushWithReplace = (steps:Step[]) : Step[] =>
+    _.isEmpty(steps) ? [] : [replacePushWithReplace(_.first(steps)), ..._.tail(steps)];
+
 /**
  * Get the difference between oldState and newState and return a list of
  * browser functions to transform the browser history from oldState to newState
@@ -108,7 +114,7 @@ export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :numb
  * @param newState {Object} The new historyStore state
  * @returns {[Object]} An array of steps to get from old state to new state
  */
-export const diffStateToSteps = (oldState:?State, newState:State) : Object[] => {
+export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
   const h1 = oldState ? oldState.browserHistory : null;
   const h2 = newState.browserHistory;
 
@@ -116,7 +122,7 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Object[] => 
     return [];
   }
 
-  return _.flatten([
+  const steps = _.flatten([
     !h1 || _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
     h1 ? {fn: browser.back, args: [1]} : [],
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
@@ -124,6 +130,8 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Object[] => 
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ]);
+
+  return replaceFirstPushWithReplace(steps);
 };
 
 export const constructNewHistory = (state:State, newCurrentId:number) : State => {
@@ -223,9 +231,13 @@ export function reducer(state:?State, action:Object) : State {
   return state;
 }
 
+export const reduceAll = (state:State, actions:Object[]) : State =>
+    actions.reduce(reducer, state);
+
 export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
   const lastAction = _.last(actionHistory);
-  const previousState = _.initial(actionHistory).reduce((state, action) => reducer(state, action), null);
+  const previousState = _.initial(actionHistory).reduce((state, action) =>
+      reducer(state, action), null);
   const finalState = reducer(previousState, lastAction);
   return {
     ...finalState,
