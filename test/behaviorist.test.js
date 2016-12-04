@@ -3,16 +3,15 @@
 declare var describe:any;
 declare var it:any;
 declare var expect:any;
-import { deriveState } from '../../src/util/history';
-import reducer from '../../src/reducers/index';
-import { switchToContainer } from '../../src/behaviors/defaultBehavior';
-import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH } from "../../src/constants/ActionTypes";
-import type { State, Container, ContainerConfig } from '../../src/types';
+import { deriveState } from '../src/util/history';
+import reducer from '../src/reducers/index';
+import { switchToContainer} from '../src/behaviorist';
+import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH } from "../src/constants/ActionTypes";
+import type { State, Container, ContainerConfig } from '../src/types';
 
-describe('default container behavior', () => {
+describe('behaviorist', () => {
 
-
-  it('does a simple switch', () => {
+  it.only('does a simple switch', () => {
     const containerConfigs : ContainerConfig[] = [
       {initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
       {initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
@@ -22,17 +21,7 @@ describe('default container behavior', () => {
     const tempState:State = deriveState(reducer([], {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}));
     const containers:Container[] = tempState.containers;
 
-    expect(switchToContainer({
-      browserHistory: {
-        back: [],
-        current: {url: '/a', id: 1, container: containers[0]},
-        forward: []
-      },
-      containers: containers,
-      lastGroup: 1,
-      lastId: 3
-    },
-    containers[1]).browserHistory).toEqual({
+    expect(switchToContainer(containers[0], containers[1], containers)).toEqual({
       back: [{url: '/a', id: 1, container: containers[0]}],
       current: {url: '/b', id: 2, container: containers[1]},
       forward: []
@@ -63,17 +52,7 @@ describe('default container behavior', () => {
       group: 1,
       index: 1
     }];
-    expect(switchToContainer({
-          browserHistory: {
-            back: [{url: '/a', id: 1, container: containers[0]}],
-            current: {url: '/a/1', id: 4, container: containers[0]},
-            forward: [{url: '/a/2', id: 5, container: containers[0]}]
-          },
-          containers: containers,
-          lastGroup: 1,
-          lastId: 6
-        },
-        containers[1]).browserHistory).toEqual({
+    expect(switchToContainer(containers[0], containers[1], containers)).toEqual({
       back: [
         {url: '/a', id: 1, container: containers[0]},
         {url: '/a/1', id: 4, container: containers[0]}
@@ -107,17 +86,7 @@ describe('default container behavior', () => {
       group: 1,
       index: 1
     }];
-    expect(switchToContainer({
-      browserHistory: {
-        back: [],
-        current: {url: '/b', id: 2, container: containers[1]},
-        forward: []
-      },
-      containers: containers,
-      lastGroup: 1,
-      lastId: 5
-    },
-    containers[0]).browserHistory).toEqual({
+    expect(switchToContainer(containers[1], containers[0], containers)).toEqual({
       back: [{url: '/a', id: 1, container: containers[0]}],
       current: {url: '/a/1', id: 4, container: containers[0]},
       forward: [{url: '/a/2', id: 5, container: containers[0]}]
@@ -159,17 +128,7 @@ describe('default container behavior', () => {
       group: 1,
       index: 2
     }];
-    expect(switchToContainer({
-      browserHistory: {
-        back: [{url: '/a', id: 1, container: containers[0]}],
-        current: {url: '/b', id: 2, container: containers[1]},
-        forward: []
-      },
-      containers: containers,
-      lastGroup: 1,
-      lastId: 3
-    },
-    containers[2]).browserHistory).toEqual({
+    expect(switchToContainer(containers[0], containers[2], containers)).toEqual({
       back: [{url: '/a', id: 1, container: containers[0]}],
       current: {url: '/c', id: 3, container: containers[2]},
       forward: []
@@ -211,20 +170,7 @@ describe('default container behavior', () => {
       group: 1,
       index: 2
     }];
-    expect(switchToContainer({
-      browserHistory: {
-        back: [
-          {url: '/a', id: 1, container: containers[0]},
-          {url: '/a/1', id: 4, container: containers[0]}
-        ],
-        current: {url: '/b', id: 2, container: containers[1]},
-        forward: []
-      },
-      containers: containers,
-      lastGroup: 1,
-      lastId: 5
-    },
-    containers[2]).browserHistory).toEqual({
+    expect(switchToContainer(containers[0], containers[2], containers)).toEqual({
       back: [
         {url: '/a', id: 1, container: containers[0]},
         {url: '/a/1', id: 4, container: containers[0]}
