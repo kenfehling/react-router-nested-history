@@ -101,11 +101,19 @@ export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :numb
   return 0;
 };
 
-const replacePushWithReplace = (step:Step) : Step =>
-  step.fn === browser.push ? {...step, fn: browser.replace} : step;
-
-const replaceFirstPushWithReplace = (steps:Step[]) : Step[] =>
-    _.isEmpty(steps) ? [] : [replacePushWithReplace(_.first(steps)), ..._.tail(steps)];
+const replaceFirstPushWithReplace = (steps:Step[]) : Step[] => {
+  const i = _.findIndex(steps, s => s.fn === browser.push);
+  if (i >= 0) {
+    return [
+      ...steps.slice(0, i),
+      {...steps[i], fn: browser.replace},
+      ...steps.slice(i + 1)
+    ];
+  }
+  else {
+    return steps;
+  }
+};
 
 /**
  * Get the difference between oldState and newState and return a list of
@@ -117,20 +125,17 @@ const replaceFirstPushWithReplace = (steps:Step[]) : Step[] =>
 export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
   const h1 = oldState ? oldState.browserHistory : null;
   const h2 = newState.browserHistory;
-
   if (_.isEqual(h1, h2)) {
     return [];
   }
-
   const steps = _.flatten([
     !h1 || _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
-    h1 ? {fn: browser.back, args: [1]} : [],
+    //h1 ? {fn: browser.back, args: [1]} : [],
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
     {fn: browser.push, args: [h2.current]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ]);
-
   return replaceFirstPushWithReplace(steps);
 };
 
@@ -205,6 +210,9 @@ export function reducer(state:?State, action:Object) : State {
         else {
           return push(switchToContainer(startState, matchingContainer), currentUrl);
         }
+      }
+      else {
+        return startState;
       }
     }
   }

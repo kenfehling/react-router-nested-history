@@ -12,9 +12,9 @@ import type { State, ContainerConfig, StateSnapshot } from '../src/types';
 
 describe('main', () => {
   const containerConfigs : ContainerConfig[] = [
-    {initialUrl: '/a', urlPatterns: ['/a/*']},
-    {initialUrl: '/b', urlPatterns: ['/b/*']},
-    {initialUrl: '/c', urlPatterns: ['/c/*']}
+    {initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
+    {initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
+    {initialUrl: '/c', urlPatterns: ['/c',' /c/*']}
   ];
 
   const tempState = reducer(null,
@@ -64,8 +64,22 @@ describe('main', () => {
     ]);
     const steps = createSteps(state);
     expect(state.browserHistory.back.length).toBe(1);
-    expect(steps.length).toBe(2);
     expect(steps).toEqual([
+      {fn: replace, args: [state.browserHistory.back[0]]},
+      {fn: push, args: [state.browserHistory.current]}
+    ])
+  });
+
+  it.only('creates steps for switching a tab (2)', () => {
+    const state = deriveState([
+      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+      {type: SWITCH_TO_CONTAINER, container: originalContainers[1]},
+      {type: SWITCH_TO_CONTAINER, container: originalContainers[2]}
+    ]);
+    const steps = createSteps(state);
+    expect(state.browserHistory.back.length).toBe(1);
+    expect(steps).toEqual([
+      {fn: back, args: [1]},
       {fn: replace, args: [state.browserHistory.back[0]]},
       {fn: push, args: [state.browserHistory.current]}
     ])

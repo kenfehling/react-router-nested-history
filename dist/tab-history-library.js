@@ -1248,7 +1248,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.deriveState = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.push = exports.updateContainerHistory = exports.forward = exports.back = exports.pushToStack = exports.switchToContainer = undefined;
+	exports.deriveState = exports.reduceAll = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.push = exports.updateContainerHistory = exports.forward = exports.back = exports.pushToStack = exports.switchToContainer = undefined;
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -1382,12 +1382,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return 0;
 	};
 
-	var replacePushWithReplace = function replacePushWithReplace(step) {
-	  return step.fn === browser.push ? _extends({}, step, { fn: browser.replace }) : step;
-	};
-
 	var replaceFirstPushWithReplace = function replaceFirstPushWithReplace(steps) {
-	  return _.isEmpty(steps) ? [] : [replacePushWithReplace(_.first(steps))].concat(_toConsumableArray(_.tail(steps)));
+	  var i = _.findIndex(steps, function (s) {
+	    return s.fn === browser.push;
+	  });
+	  if (i >= 0) {
+	    return [].concat(_toConsumableArray(steps.slice(0, i)), [_extends({}, steps[i], { fn: browser.replace })], _toConsumableArray(steps.slice(i + 1)));
+	  } else {
+	    return steps;
+	  }
 	};
 
 	/**
@@ -1400,17 +1403,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	var diffStateToSteps = exports.diffStateToSteps = function diffStateToSteps(oldState, newState) {
 	  var h1 = oldState ? oldState.browserHistory : null;
 	  var h2 = newState.browserHistory;
-
 	  if (_.isEqual(h1, h2)) {
 	    return [];
 	  }
-
-	  var steps = _.flatten([!h1 || _.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] }, h1 ? { fn: browser.back, args: [1] } : [], _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
+	  var steps = _.flatten([!h1 || _.isEmpty(h1.back) ? [] : { fn: browser.back, args: [h1.back.length] },
+	  //h1 ? {fn: browser.back, args: [1]} : [],
+	  _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
 	    return { fn: browser.push, args: [b] };
 	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
 	    return { fn: browser.push, args: [f] };
 	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
-
 	  return replaceFirstPushWithReplace(steps);
 	};
 
@@ -1525,6 +1527,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	  return state;
 	}
+
+	var reduceAll = exports.reduceAll = function reduceAll(state, actions) {
+	  return actions.reduce(reducer, state);
+	};
 
 	var deriveState = exports.deriveState = function deriveState(actionHistory) {
 	  var lastAction = _.last(actionHistory);
