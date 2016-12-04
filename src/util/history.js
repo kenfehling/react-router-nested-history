@@ -4,13 +4,8 @@ import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE 
 import * as _ from 'lodash';
 import { patternsMatch , pathsMatch} from "../util/url";
 import * as browser from '../../src/browserFunctions';
-import * as behavior from '../behaviors/defaultBehavior';
+import { switchContainer } from '../behaviorist';
 import type { History, State, StateSnapshot, Container, ContainerConfig, Page, Step } from '../types';
-
-export const switchToContainer = (state:State, container: Container) => ({
-  ...state,
-  ...behavior.switchToContainer(state, container)
-});
 
 export const pushToStack = (historyStack:History, page:Page) : History => ({
   back: [...historyStack.back, historyStack.current],
@@ -191,29 +186,7 @@ export function reducer(state:?State, action:Object) : State {
         lastId: (state ? state.lastId : 0) + containerConfigs.length,
         lastGroup: group
       };
-      const initialContainer:Container =
-          _.find(containers, c => pathsMatch(c.initialUrl, currentUrl));
-      if (initialContainer) {
-        if (initialContainer.isDefault) {
-          return startState;
-        }
-        else {
-          return switchToContainer(startState, initialContainer);
-        }
-      }
-      const matchingContainer:Container =
-          _.find(containers, c => patternsMatch(c.urlPatterns, currentUrl));
-      if (matchingContainer) {
-        if (matchingContainer.isDefault) {
-          return push(startState, currentUrl);
-        }
-        else {
-          return push(switchToContainer(startState, matchingContainer), currentUrl);
-        }
-      }
-      else {
-        return startState;
-      }
+
     }
   }
   if (!state) {
@@ -222,7 +195,7 @@ export function reducer(state:?State, action:Object) : State {
   else {
     switch (action.type) {
       case SWITCH_TO_CONTAINER: {
-        return switchToContainer(state, action.container);
+        return switchContainer(state.browserHistory.current.container, action.container, state.containers);
       }
       case PUSH: { return push(state, action.url); }
       case BACK: { return {...state, ...go(state, 0 - action.n || -1)}; }

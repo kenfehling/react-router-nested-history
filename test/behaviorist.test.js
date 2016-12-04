@@ -5,7 +5,7 @@ declare var it:any;
 declare var expect:any;
 import { deriveState } from '../src/util/history';
 import reducer from '../src/reducers/index';
-import { switchToContainer} from '../src/behaviorist';
+import { switchContainer} from '../src/behaviorist';
 import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH } from "../src/constants/ActionTypes";
 import type { State, Container, ContainerConfig } from '../src/types';
 
@@ -21,7 +21,7 @@ describe('behaviorist', () => {
     const tempState:State = deriveState(reducer([], {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}));
     const containers:Container[] = tempState.containers;
 
-    expect(switchToContainer(containers[0], containers[1], containers)).toEqual({
+    expect(switchContainer(containers[0], containers[1], containers)).toEqual({
       back: [{url: '/a', id: 1, container: containers[0]}],
       current: {url: '/b', id: 2, container: containers[1]},
       forward: []
@@ -52,7 +52,7 @@ describe('behaviorist', () => {
       group: 1,
       index: 1
     }];
-    expect(switchToContainer(containers[0], containers[1], containers)).toEqual({
+    expect(switchContainer(containers[0], containers[1], containers)).toEqual({
       back: [
         {url: '/a', id: 1, container: containers[0]},
         {url: '/a/1', id: 4, container: containers[0]}
@@ -86,7 +86,7 @@ describe('behaviorist', () => {
       group: 1,
       index: 1
     }];
-    expect(switchToContainer(containers[1], containers[0], containers)).toEqual({
+    expect(switchContainer(containers[1], containers[0], containers)).toEqual({
       back: [{url: '/a', id: 1, container: containers[0]}],
       current: {url: '/a/1', id: 4, container: containers[0]},
       forward: [{url: '/a/2', id: 5, container: containers[0]}]
@@ -128,7 +128,7 @@ describe('behaviorist', () => {
       group: 1,
       index: 2
     }];
-    expect(switchToContainer(containers[0], containers[2], containers)).toEqual({
+    expect(switchContainer(containers[0], containers[2], containers)).toEqual({
       back: [{url: '/a', id: 1, container: containers[0]}],
       current: {url: '/c', id: 3, container: containers[2]},
       forward: []
@@ -170,7 +170,7 @@ describe('behaviorist', () => {
       group: 1,
       index: 2
     }];
-    expect(switchToContainer(containers[0], containers[2], containers)).toEqual({
+    expect(switchContainer(containers[0], containers[2], containers)).toEqual({
       back: [
         {url: '/a', id: 1, container: containers[0]},
         {url: '/a/1', id: 4, container: containers[0]}
