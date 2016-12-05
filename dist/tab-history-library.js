@@ -1321,7 +1321,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var push = exports.push = function push(state, url) {
-	  var id = state.lastId + 1;
+	  var id = state.lastPageId + 1;
 	  var oldContainer = state.browserHistory.current.container;
 	  var containers = updateContainerHistory(state, oldContainer, function (c) {
 	    return pushToStack(c.history, { url: url, id: id });
@@ -1436,7 +1436,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var _ret = function () {
 	          var containerConfigs = action.containers;
 	          var currentUrl = action.currentUrl;
-	          var id = (state ? state.lastId : 0) + 1;
+	          var id = (state ? state.lastPageId : 0) + 1;
 	          var group = (state ? state.lastGroup : 0) + 1;
 	          var containers = [].concat(_toConsumableArray(state ? state.containers : []), _toConsumableArray(containerConfigs.map(function (c, i) {
 	            return _extends({}, c, {
@@ -1462,7 +1462,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	              forward: state ? state.browserHistory.forward : []
 	            }),
 	            containers: containers,
-	            lastId: (state ? state.lastId : 0) + containerConfigs.length,
+	            lastId: (state ? state.lastPageId : 0) + containerConfigs.length,
 	            lastGroup: group
 	          });
 	          var initialContainer = _.find(containers, function (c) {

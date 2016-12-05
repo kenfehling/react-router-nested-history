@@ -1,11 +1,8 @@
 // @flow
 
-export interface IncomingPage {
+export interface Page {
   url: string;
   id: number;
-}
-
-export interface Page extends IncomingPage {
   containerIndex: number;
 }
 
@@ -38,7 +35,7 @@ export interface Group {
 export interface State {
   groups: Group[];
   activeGroupIndex: number;
-  lastId: number;
+  lastPageId: number;
 }
 
 export interface StateSnapshot extends State {

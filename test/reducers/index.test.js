@@ -20,9 +20,10 @@ describe('reducer', () => {
   const containers = group.containers;
 
   describe('with no initial state', () => {
-    const perform = (action) : StateSnapshot => deriveState(reducer([], action));
+    const perform = (action) : StateSnapshot => deriveState([action]);
+    const performAll = (actions) : StateSnapshot => deriveState(actions);
 
-    it('loads correctly (default container)', () => {
+    it('loads with default container', () => {
       const result = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
       expect(result.groups[0].history.current.url).toBe('/a');
       expect(result.groups[0].containers.length).toBe(3);
@@ -30,10 +31,10 @@ describe('reducer', () => {
       expect(result.groups[0].containers[1].history.current.url).toBe('/b');
       expect(result.groups[0].containers[2].history.current.url).toBe('/c');
       expect(result.groups[0].history.current.containerIndex).toBe(0);
-      expect(result.lastId).toBe(3);
+      expect(result.lastPageId).toBe(3);
     });
 
-    it('loads correctly (non-default container)', () => {
+    it('loads with non-default container', () => {
       const result = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'});
       expect(result.groups[0].history.back.length).toBe(1);
       expect(result.groups[0].history.back[0].url).toBe('/a');
@@ -41,17 +42,17 @@ describe('reducer', () => {
       expect(result.groups[0].history.current.containerIndex).toBe(1);
     });
 
-    it('loads correctly (non-initial page on default container)', () => {
+    it('loads with non-initial page on default container', () => {
       const result = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a/1'});
       expect(result.groups[0].history.back.length).toBe(1);
       expect(result.groups[0].history.current.url).toBe('/a/1');
       expect(result.groups[0].history.current.id).toBe(4);
       expect(result.groups[0].containers[0].history.current.url).toBe('/a/1');
       expect(result.groups[0].history.current.containerIndex).toBe(0);
-      expect(result.lastId).toBe(4);
+      expect(result.lastPageId).toBe(4);
     });
 
-    it('loads correctly (non-initial page on non-default container)', () => {
+    it('loads with non-initial page on non-default container', () => {
       const result = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b/1'});
       expect(result.groups[0].history.back.length).toBe(2);
       expect(result.groups[0].history.back[0].url).toBe('/a');
@@ -60,7 +61,7 @@ describe('reducer', () => {
       expect(result.groups[0].containers[1].history.current.url).toBe('/b/1');
       expect(result.groups[0].history.current.id).toBe(4);
       expect(result.groups[0].history.current.containerIndex).toBe(1);
-      expect(result.lastId).toBe(4);
+      expect(result.lastPageId).toBe(4);
     });
   });
 
@@ -72,6 +73,7 @@ describe('reducer', () => {
     ];
 
     const perform = (action) : StateSnapshot => deriveState(reducer(state, action));
+    const performAll = (actions) : StateSnapshot => deriveState(actions.reduce(reducer, state));
 
     it('pushes page', () => {
       const result = perform({type: PUSH, url: '/b/2'});
@@ -82,7 +84,7 @@ describe('reducer', () => {
       expect(result.groups[0].history.current.url).toBe('/b/2');
       expect(result.groups[0].history.current.id).toBe(5);
       expect(result.groups[0].history.current.containerIndex).toBe(1);
-      expect(result.lastId).toBe(5);
+      expect(result.lastPageId).toBe(5);
     });
 
     it('switches container', () => {
@@ -94,7 +96,7 @@ describe('reducer', () => {
       expect(result.groups[0].history.current.url).toBe('/a/1');
       expect(result.groups[0].history.current.id).toBe(4);
       expect(result.groups[0].history.current.containerIndex).toBe(0);
-      expect(result.lastId).toBe(4);
+      expect(result.lastPageId).toBe(4);
     });
 
     it('switches container(2)', () => {
@@ -105,24 +107,31 @@ describe('reducer', () => {
       expect(result.groups[0].history.current.url).toBe('/c');
       expect(result.groups[0].history.current.id).toBe(3);
       expect(result.groups[0].history.current.containerIndex).toBe(2);
-      expect(result.lastId).toBe(4);
+      expect(result.lastPageId).toBe(4);
     });
 
     it('goes back in history', () => {
-      const result = perform({type: BACK});
+      const result = performAll([
+        {type: PUSH, url: '/b/1'},
+        {type: BACK, n: 2}
+      ]);
       expect(result.groups[0].history.back.length).toBe(1);
       expect(result.groups[0].history.back[0].url).toBe('/a');
       expect(result.groups[0].history.current.url).toBe('/a/1');
-      expect(result.groups[0].history.current.id).toBe(1);
+      expect(result.groups[0].history.current.id).toBe(4);
       expect(result.groups[0].history.forward.length).toBe(2);
       expect(result.groups[0].history.forward[0].url).toBe('/b');
       expect(result.groups[0].history.forward[1].url).toBe('/b/1');
       expect(result.groups[0].history.current.containerIndex).toBe(0);
-      expect(result.lastId).toBe(5);
+      expect(result.lastPageId).toBe(5);
     });
 
     it('goes forward in history', () => {
-      const result = perform({type: FORWARD});
+      const result = performAll([
+        {type: PUSH, url: '/b/1'},
+        {type: BACK, n: 2},
+        {type: FORWARD, n: 2}
+      ]);
       expect(result.groups[0].history.back.length).toBe(3);
       expect(result.groups[0].history.back[0].url).toBe('/a');
       expect(result.groups[0].history.back[1].url).toBe('/a/1');
@@ -131,7 +140,7 @@ describe('reducer', () => {
       expect(result.groups[0].history.current.id).toBe(5);
       expect(result.groups[0].history.forward.length).toBe(0);
       expect(result.groups[0].history.current.containerIndex).toBe(1);
-      expect(result.lastId).toBe(5);
+      expect(result.lastPageId).toBe(5);
     });
 
     it('goes back N pages in history', () => {
@@ -143,7 +152,11 @@ describe('reducer', () => {
     });
 
     it('correctly updates history from popstate', () => {
-      const result = perform({type: POPSTATE, id: 5})
+      const result = performAll([
+        {type: PUSH, url: '/b/1'},
+        {type: BACK, n: 2},
+        {type: POPSTATE, id: 5}
+      ]);
       expect(result.groups[0].history.back.length).toBe(3);
       expect(result.groups[0].history.back[0].url).toBe('/a');
       expect(result.groups[0].history.back[1].url).toBe('/a/1');
@@ -152,12 +165,12 @@ describe('reducer', () => {
       expect(result.groups[0].history.current.id).toBe(5);
       expect(result.groups[0].history.forward.length).toBe(0);
       expect(result.groups[0].history.current.containerIndex).toBe(1);
-      expect(result.lastId).toBe(5);
+      expect(result.lastPageId).toBe(5);
     });
   });
 
   it('switches container, goes back, switches container back', () => {
-    const state = [
+    const actions = [
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
       {type: PUSH, url: '/a/1'},
       {type: SWITCH_TO_CONTAINER, container: containers[1]},
@@ -166,7 +179,7 @@ describe('reducer', () => {
       {type: SWITCH_TO_CONTAINER, container: containers[1]},
       {type: SWITCH_TO_CONTAINER, container: containers[0]}
     ];
-    const result = deriveState(state);
+    const result = deriveState(actions);
     expect(result.groups[0].history.back.length).toBe(0);
     expect(result.groups[0].history.current.url).toBe('/a');
     expect(result.groups[0].history.current.id).toBe(1);
@@ -174,6 +187,6 @@ describe('reducer', () => {
     expect(result.groups[0].history.forward[0].url).toBe('/a/1');
     expect(result.groups[0].history.forward[0].id).toBe(4);
     expect(result.groups[0].history.current.containerIndex).toBe(0);
-    expect(result.lastId).toBe(5);
+    expect(result.lastPageId).toBe(5);
   });
 });
