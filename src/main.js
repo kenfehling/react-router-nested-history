@@ -40,7 +40,7 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
   const group = _.last(state.groups);
   const groupIndex = group.index;
   return {
-    switchTo: (index:number) => switchToContainer(getContainer(getDerivedState(), groupIndex, index)),
+    switchTo: (index:number) => switchToContainer(groupIndex, index),
     getActive: () => getActiveContainer(store.getState(), patterns),
     getStackOrder: () => getContainerStackOrder(store.getState(), patterns),
     getIndexedStackOrder: () => getIndexedContainerStackOrder(store.getState(), patterns),
@@ -59,8 +59,8 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
   };
 };
 
-export const switchToContainer = (container:Container) =>
-    store.dispatch(actions.switchToContainer(container));
+export const switchToContainer = (groupIndex:number, containerIndex:number) =>
+    store.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 export const push = (url:string) => store.dispatch(actions.push(url));
 export const go = (n:number=1) => store.dispatch(actions.go(n));
 export const back = (n:number=1) => store.dispatch(actions.back(n));

@@ -27,7 +27,7 @@ export function switchContainer(from:Container, to:Container, defaulT:Container)
   }
 }
 
-function push(state:State, container:Container, url:String) : Page {
+function push(state:State, container:Container, url:string) : Page {
   const id:number = state.lastPageId + 1;
   const page:Page = {url, id, containerIndex: container.index};
   container.history = pushToStack(container.history, page);

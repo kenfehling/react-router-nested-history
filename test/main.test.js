@@ -58,10 +58,10 @@ describe('main', () => {
     ])
   });
 
-  it.only('creates steps for switching a tab', () => {
+  it('creates steps for switching a tab', () => {
     const state = deriveState([
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
-      {type: SWITCH_TO_CONTAINER, container: originalContainers[1]}
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1}
     ]);
     const steps = createSteps(state);
     expect(state.groups[0].history.back.length).toBe(1);
@@ -71,11 +71,11 @@ describe('main', () => {
     ])
   });
 
-  it.only('creates steps for switching a tab (2)', () => {
+  it('creates steps for switching a tab (2)', () => {
     const state = deriveState([
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
-      {type: SWITCH_TO_CONTAINER, container: originalContainers[1]},
-      {type: SWITCH_TO_CONTAINER, container: originalContainers[2]}
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2}
     ]);
     const steps = createSteps(state);
     expect(state.groups[0].history.back.length).toBe(1);

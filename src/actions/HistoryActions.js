@@ -9,9 +9,10 @@ export const setContainers = (containers: ContainerConfig[], currentUrl: string)
   currentUrl
 });
 
-export const switchToContainer = (container: Container) => ({
+export const switchToContainer = (groupIndex:number, containerIndex:number) => ({
   type: SWITCH_TO_CONTAINER,
-  container
+  groupIndex,
+  containerIndex
 });
 
 export const push = (url: string) => ({

@@ -69,11 +69,12 @@ describe('reducer', () => {
     const state = [
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
       {type: PUSH, url: '/a/1'},
-      {type: SWITCH_TO_CONTAINER, container: containers[1]}
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1}
     ];
 
-    const perform = (action) : StateSnapshot => deriveState(reducer(state, action));
-    const performAll = (actions) : StateSnapshot => deriveState(actions.reduce(reducer, state));
+    const perform = (action:Object) : StateSnapshot => deriveState(reducer(state, action));
+    const performAll = (actions:Array<Object>) : StateSnapshot =>
+        deriveState(actions.reduce(reducer, state));
 
     it('pushes page', () => {
       const result = perform({type: PUSH, url: '/b/2'});
@@ -89,8 +90,7 @@ describe('reducer', () => {
 
     it('switches container', () => {
       const derivedState = deriveState(state);
-      const container = derivedState.groups[0].containers[0];
-      const result = perform({type: SWITCH_TO_CONTAINER, container: container});
+      const result = perform({type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 0});
       expect(result.groups[0].history.back.length).toBe(1);
       expect(result.groups[0].history.back[0].url).toBe('/a');
       expect(result.groups[0].history.current.url).toBe('/a/1');
@@ -100,7 +100,7 @@ describe('reducer', () => {
     });
 
     it('switches container(2)', () => {
-      const result = perform({type: SWITCH_TO_CONTAINER, container: containers[2]});
+      const result = perform({type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2});
       expect(result.groups[0].history.back.length).toBe(2);
       expect(result.groups[0].history.back[0].url).toBe('/a');
       expect(result.groups[0].history.back[1].url).toBe('/a/1');
@@ -173,11 +173,11 @@ describe('reducer', () => {
     const actions = [
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
       {type: PUSH, url: '/a/1'},
-      {type: SWITCH_TO_CONTAINER, container: containers[1]},
-      {type: SWITCH_TO_CONTAINER, container: containers[0]},
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 0},
       {type: BACK},
-      {type: SWITCH_TO_CONTAINER, container: containers[1]},
-      {type: SWITCH_TO_CONTAINER, container: containers[0]}
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 0}
     ];
     const result = deriveState(actions);
     expect(result.groups[0].history.back.length).toBe(0);
@@ -187,6 +187,6 @@ describe('reducer', () => {
     expect(result.groups[0].history.forward[0].url).toBe('/a/1');
     expect(result.groups[0].history.forward[0].id).toBe(4);
     expect(result.groups[0].history.current.containerIndex).toBe(0);
-    expect(result.lastPageId).toBe(5);
+    expect(result.lastPageId).toBe(4);
   });
 });

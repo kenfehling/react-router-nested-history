@@ -144,9 +144,10 @@ export function reducer(state:?State, action:Object) : State {
     switch (action.type) {
       case SWITCH_TO_CONTAINER: {
         const newState:State = _.cloneDeep(state);
-        const group:Group = newState.groups[newState.activeGroupIndex];
-        const currentContainer = group.containers[group.history.current.containerIndex];
-        group.history = switchContainer(currentContainer, action.container, group.containers[0]);
+        const group:Group = newState.groups[action.groupIndex];
+        const fromContainer:Container = group.containers[group.history.current.containerIndex];
+        const toContainer:Container = getContainer(newState, action.groupIndex, action.containerIndex);
+        group.history = switchContainer(fromContainer, toContainer, group.containers[0]);
         return newState;
       }
       case PUSH: { return push(state, action.url); }
