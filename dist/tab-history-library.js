@@ -101,7 +101,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _history = __webpack_require__(16);
 
-	var _store = __webpack_require__(21);
+	var _store = __webpack_require__(23);
 
 	var _store2 = _interopRequireDefault(_store);
 
@@ -151,11 +151,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	  _store2.default.dispatch(actions.setContainers(containerConfigs, currentUrl));
 	  var state = getDerivedState();
-	  var containers = (0, _history.getInsertedContainers)(state, containerConfigs.length);
-	  var group = containers[0].group;
+	  var group = _.last(state.groups);
+	  var groupIndex = group.index;
 	  return {
 	    switchTo: function switchTo(index) {
-	      return switchToContainer((0, _history.getContainer)(getDerivedState(), group, index));
+	      return switchToContainer(groupIndex, index);
 	    },
 	    getActive: function getActive() {
 	      return (0, _history.getActiveContainer)(_store2.default.getState(), patterns);
@@ -170,18 +170,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return _store2.default.subscribe(function () {
 	        var actions = _store2.default.getState();
 	        var state = (0, _history.deriveState)(actions);
-	        var currentUrl = state.browserHistory.current.url;
-	        var active = state.browserHistory.current.container;
+	        var group = (0, _history.getActiveGroup)(state);
+	        var currentUrl = group.history.current.url;
+	        var active = group.containers[group.history.current.containerIndex];
 	        var stackOrder = (0, _history.getContainerStackOrder)(actions, patterns);
 	        var indexedStackOrder = (0, _history.getIndexedContainerStackOrder)(actions, patterns);
+
+	        // TODO: Do we need to send back the active group?
 	        fn({ active: active, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder });
 	      });
 	    }
 	  };
 	};
 
-	var switchToContainer = exports.switchToContainer = function switchToContainer(container) {
-	  return _store2.default.dispatch(actions.switchToContainer(container));
+	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
+	  return _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	};
 	var push = exports.push = function push(url) {
 	  return _store2.default.dispatch(actions.push(url));
@@ -225,7 +228,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    case _ActionTypes.SWITCH_TO_CONTAINER:
 	      return (0, _history.diffStateToSteps)(state.previousState, state);
 	    case _ActionTypes.PUSH:
-	      return [{ fn: browser.push, args: [state.browserHistory.current] }];
+	      return [{ fn: browser.push, args: [(0, _history.getActiveGroup)(state).history.current] }];
 	    case _ActionTypes.BACK:
 	    case _ActionTypes.FORWARD:
 	    case _ActionTypes.GO:
@@ -277,10 +280,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 
-	var switchToContainer = exports.switchToContainer = function switchToContainer(container) {
+	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
 	  return {
 	    type: _ActionTypes.SWITCH_TO_CONTAINER,
-	    container: container
+	    groupIndex: groupIndex,
+	    containerIndex: containerIndex
 	  };
 	};
 
@@ -1248,7 +1252,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.deriveState = exports.reduceAll = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.push = exports.updateContainerHistory = exports.forward = exports.back = exports.pushToStack = exports.switchToContainer = undefined;
+	exports.deriveState = exports.reduceAll = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.push = undefined;
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -1256,11 +1260,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.go = go;
 	exports.reducer = reducer;
-	exports.getInsertedContainers = getInsertedContainers;
 	exports.getContainerStackOrder = getContainerStackOrder;
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	exports.getActiveContainer = getActiveContainer;
 	exports.getContainer = getContainer;
+	exports.getActiveGroup = getActiveGroup;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -1270,99 +1274,51 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _url = __webpack_require__(19);
 
+	var _core = __webpack_require__(20);
+
 	var _browserFunctions = __webpack_require__(4);
 
 	var browser = _interopRequireWildcard(_browserFunctions);
 
-	var _defaultBehavior = __webpack_require__(20);
-
-	var behavior = _interopRequireWildcard(_defaultBehavior);
+	var _behaviorist = __webpack_require__(21);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	var switchToContainer = exports.switchToContainer = function switchToContainer(state, container) {
-	  return _extends({}, state, behavior.switchToContainer(state, container));
-	};
-
-	var pushToStack = exports.pushToStack = function pushToStack(historyStack, page) {
-	  return {
-	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
-	    current: page,
-	    forward: []
-	  };
-	};
-
-	var back = exports.back = function back(historyStack) {
-	  return {
-	    back: _.initial(historyStack.back),
-	    current: _.last(historyStack.back),
-	    forward: [historyStack.current].concat(_toConsumableArray(historyStack.forward))
-	  };
-	};
-
-	var forward = exports.forward = function forward(historyStack) {
-	  return {
-	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
-	    current: _.head(historyStack.forward),
-	    forward: _.tail(historyStack.forward)
-	  };
-	};
-
-	var updateContainerHistory = exports.updateContainerHistory = function updateContainerHistory(state, container, fn) {
-	  var index = _.findIndex(state.containers, function (c) {
-	    return c.group === container.group && c.initialUrl === container.initialUrl;
-	  });
-	  if (index < 0) {
-	    throw new Error('Index not found');
-	  }
-	  return [].concat(_toConsumableArray(state.containers.slice(0, index)), [_extends({}, state.containers[index], { history: fn(state.containers[index]) })], _toConsumableArray(state.containers.slice(index + 1)));
-	};
-
-	var push = exports.push = function push(state, url) {
+	var push = exports.push = function push(oldState, url) {
+	  var state = _.cloneDeep(oldState);
+	  var group = state.groups[state.activeGroupIndex];
+	  var container = group.containers[group.history.current.containerIndex];
 	  var id = state.lastPageId + 1;
-	  var oldContainer = state.browserHistory.current.container;
-	  var containers = updateContainerHistory(state, oldContainer, function (c) {
-	    return pushToStack(c.history, { url: url, id: id });
-	  });
-	  var group = oldContainer.group,
-	      index = oldContainer.index;
-
-	  var container = getContainer(_extends({}, state, { containers: containers }), group, index);
-	  return _extends({}, state, {
-	    browserHistory: pushToStack(state.browserHistory, { url: url, container: container, id: id }),
-	    containers: containers,
-	    lastId: id
-	  });
+	  var page = { url: url, id: id, containerIndex: container.index };
+	  container.history = (0, _core.pushToStack)(container.history, page);
+	  group.history = (0, _core.pushToStack)(group.history, page);
+	  state.lastPageId = id;
+	  return state;
 	};
 
-	function go(state, n) {
-	  var container = state.browserHistory.current.container;
+	function go(oldState, n) {
 	  if (n === 0) {
-	    return state;
-	  } else {
-	    var f = n < 0 ? back : forward;
-	    var browserHistory = f(state.browserHistory);
-	    var containerHistory = container.history;
-	    var stack = n < 0 ? containerHistory.back : containerHistory.forward;
-	    var containerCanGo = stack.length > 0;
-	    var nextN = n < 0 ? n + 1 : n - 1;
-	    if (containerCanGo) {
-	      return go(_extends({}, state, {
-	        browserHistory: browserHistory,
-	        containers: updateContainerHistory(state, container, f)
-	      }), nextN);
-	    } else {
-	      return go(_extends({}, state, {
-	        browserHistory: browserHistory
-	      }), nextN);
-	    }
+	    return oldState;
 	  }
+	  var state = _.cloneDeep(oldState);
+	  var group = state.groups[state.activeGroupIndex];
+	  var container = group.containers[group.history.current.containerIndex];
+	  var f = n < 0 ? _core.back : _core.forward;
+	  group.history = f(group.history);
+	  var stack = n < 0 ? container.history.back : container.history.forward;
+	  var containerCanGo = stack.length > 0;
+	  var nextN = n < 0 ? n + 1 : n - 1;
+	  if (containerCanGo) {
+	    container.history = f(container.history);
+	  }
+	  return go(state, nextN);
 	}
 
 	var getHistoryShiftAmount = exports.getHistoryShiftAmount = function getHistoryShiftAmount(oldState, newCurrentId) {
-	  var oldHistory = oldState.browserHistory;
+	  var group = oldState.groups[oldState.activeGroupIndex];
+	  var oldHistory = group.history;
 	  if (!_.isEmpty(oldHistory.back)) {
 	    var i = _.findIndex(oldHistory.back, function (b) {
 	      return b.id === newCurrentId;
@@ -1401,8 +1357,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {[Object]} An array of steps to get from old state to new state
 	 */
 	var diffStateToSteps = exports.diffStateToSteps = function diffStateToSteps(oldState, newState) {
-	  var h1 = oldState ? oldState.browserHistory : null;
-	  var h2 = newState.browserHistory;
+	  var group1 = oldState ? oldState.groups[oldState.activeGroupIndex] : null;
+	  var group2 = newState.groups[newState.activeGroupIndex];
+	  var h1 = group1 ? group1.history : null;
+	  var h2 = group2.history;
 	  if (_.isEqual(h1, h2)) {
 	    return [];
 	  }
@@ -1427,72 +1385,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	function reducer(state, action) {
-	  if (state && !state.browserHistory) {
-	    throw new Error("WHY");
-	  }
 	  switch (action.type) {
 	    case _ActionTypes.SET_CONTAINERS:
 	      {
 	        var _ret = function () {
-	          var containerConfigs = action.containers;
-	          var currentUrl = action.currentUrl;
 	          var id = (state ? state.lastPageId : 0) + 1;
-	          var group = (state ? state.lastGroup : 0) + 1;
-	          var containers = [].concat(_toConsumableArray(state ? state.containers : []), _toConsumableArray(containerConfigs.map(function (c, i) {
-	            return _extends({}, c, {
-	              history: {
-	                back: [],
-	                current: { url: c.initialUrl, id: id + i },
-	                forward: []
-	              },
-	              isDefault: i === 0,
-	              group: group,
-	              index: i
-	            });
-	          })));
-	          var defaultContainer = containers[0];
-	          var startState = _extends({}, state ? state : {}, {
-	            browserHistory: _extends({}, state ? state.browserHistory : {}, {
-	              current: state ? state.browserHistory.current : {
-	                url: defaultContainer.initialUrl,
-	                container: defaultContainer,
-	                id: id
-	              },
-	              back: state ? state.browserHistory.back : [],
-	              forward: state ? state.browserHistory.forward : []
-	            }),
-	            containers: containers,
-	            lastId: (state ? state.lastPageId : 0) + containerConfigs.length,
-	            lastGroup: group
+	          var groupIndex = state ? state.groups.length : 0;
+	          var histories = action.containers.map(function (c, i) {
+	            return {
+	              back: [],
+	              current: { url: c.initialUrl, id: id + i, containerIndex: i },
+	              forward: []
+	            };
 	          });
-	          var initialContainer = _.find(containers, function (c) {
-	            return (0, _url.pathsMatch)(c.initialUrl, currentUrl);
+	          var group = {
+	            index: groupIndex,
+	            history: histories[0],
+	            containers: action.containers.map(function (c, i) {
+	              return _extends({}, c, {
+	                history: histories[i],
+	                isDefault: i === 0,
+	                groupIndex: groupIndex,
+	                index: i
+	              });
+	            })
+	          };
+	          var newState = _extends({}, state ? state : {}, {
+	            groups: [].concat(_toConsumableArray(state ? state.groups : []), [group]),
+	            activeGroupIndex: state ? state.activeGroupIndex : 0,
+	            lastPageId: (state ? state.lastPageId : 0) + action.containers.length
 	          });
-	          if (initialContainer) {
-	            if (initialContainer.isDefault) {
-	              return {
-	                v: startState
-	              };
-	            } else {
-	              return {
-	                v: switchToContainer(startState, initialContainer)
-	              };
-	            }
-	          }
-	          var matchingContainer = _.find(containers, function (c) {
-	            return (0, _url.patternsMatch)(c.urlPatterns, currentUrl);
-	          });
-	          if (matchingContainer) {
-	            if (matchingContainer.isDefault) {
-	              return {
-	                v: push(startState, currentUrl)
-	              };
-	            } else {
-	              return {
-	                v: push(switchToContainer(startState, matchingContainer), currentUrl)
-	              };
-	            }
-	          }
+	          return {
+	            v: (0, _behaviorist.loadGroupFromUrl)(newState, group.index, action.currentUrl)
+	          };
 	        }();
 
 	        if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
@@ -1504,7 +1429,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    switch (action.type) {
 	      case _ActionTypes.SWITCH_TO_CONTAINER:
 	        {
-	          return switchToContainer(state, action.container);
+	          var _newState = _.cloneDeep(state);
+	          var _group = _newState.groups[action.groupIndex];
+	          var fromContainer = _group.containers[_group.history.current.containerIndex];
+	          var toContainer = getContainer(_newState, action.groupIndex, action.containerIndex);
+	          _group.history = (0, _behaviorist.switchContainer)(fromContainer, toContainer, _group.containers[0]);
+	          return _newState;
 	        }
 	      case _ActionTypes.PUSH:
 	        {
@@ -1544,11 +1474,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	};
 
-	function getInsertedContainers(state, numContainers) {
-	  var total = state.containers.length;
-	  return state.containers.slice(total - numContainers, total);
-	}
-
+	// TODO: Replace patterns with groupIndex?
 	function getContainerStackOrder(actionHistory) {
 	  var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ['*'];
 
@@ -1562,18 +1488,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	  actionHistory.reduce(function (oldState, action) {
 	    var newState = reducer(oldState, action);
 	    if (action.type === _ActionTypes.SET_CONTAINERS) {
-	      if (matches(action.containers[0].initialUrl)) {
+	      var containers = action.containers;
+	      if (matches(containers[0].initialUrl)) {
 	        // if one matches, they all match
-	        var containers = getInsertedContainers(newState, action.containers.length);
-	        _.each(_.reverse(containers), function (c) {
+	        var group = _.last(newState.groups);
+	        group.containers.forEach(function (c) {
 	          return containerSwitches.push(c);
 	        });
 	      }
 	    }
-	    var oldCurrent = oldState ? oldState.browserHistory.current.container.initialUrl : null;
-	    var newCurrent = newState.browserHistory.current.container.initialUrl;
+	    var oldGroup = oldState ? getActiveGroup(oldState) : null;
+	    var newGroup = getActiveGroup(newState);
+	    var oldCurrent = oldGroup ? oldGroup.history.current.url : null;
+	    var newCurrent = newGroup.history.current.url;
 	    if ((!oldState || oldCurrent !== newCurrent) && matches(newCurrent)) {
-	      containerSwitches.push(newState.browserHistory.current.container);
+	      var container = newGroup.containers[newGroup.history.current.containerIndex];
+	      containerSwitches.push(container);
 	    }
 	    return newState;
 	  }, null);
@@ -1585,6 +1515,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Gets the stack order values as numbers, in container order instead of stack order
 	 */
+	// TODO: Replace patterns with groupIndex?
 	function getIndexedContainerStackOrder(actionHistory) {
 	  var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ['*'];
 
@@ -1605,10 +1536,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _.first(getContainerStackOrder(actionHistory, patterns));
 	}
 
-	function getContainer(state, group, index) {
-	  return _.find(state.containers, function (c) {
-	    return c.group === group && c.index === index;
-	  });
+	function getContainer(state, groupIndex, index) {
+	  return state.groups[groupIndex].containers[index];
+	}
+
+	function getActiveGroup(state) {
+	  return state.groups[state.activeGroupIndex];
 	}
 
 /***/ },
@@ -18818,12 +18751,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	exports.switchToContainer = switchToContainer;
+	exports.forward = exports.back = exports.pushToStack = undefined;
 
 	var _lodash = __webpack_require__(17);
 
@@ -18833,56 +18761,29 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	function createBrowserPage(page, container) {
-	  return _extends({}, page, { container: container });
-	}
-
-	/**
-	 * Switch tab using mobile-app like behavior (with a default tab: index == 0)
-	 * Structure of a history object:
-	 *    { back: [String], current: String, forward: [String] }
-	 * @param {State} state - Current state
-	 * @param {Container} container - The tab to switch to
-	 * @returns {Object} A new state object
-	 */
-	function switchToContainer(state, container) {
-	  var createNewState = function createNewState(back) {
-	    return _extends({}, state, {
-	      browserHistory: {
-	        back: back,
-	        current: createBrowserPage(container.history.current, container),
-	        forward: container.history.forward.map(function (p) {
-	          return createBrowserPage(p, container);
-	        })
-	      }
-	    });
+	var pushToStack = exports.pushToStack = function pushToStack(historyStack, page) {
+	  return {
+	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
+	    current: page,
+	    forward: []
 	  };
-	  if (container.isDefault) {
-	    // going to default tab
-	    return createNewState([].concat(_toConsumableArray(container.history.back.map(function (p) {
-	      return createBrowserPage(p, container);
-	    }))));
-	  } else {
-	    var _ret = function () {
-	      // going to non-default tab
-	      var defaultTab = _.find(state.containers, function (c) {
-	        return c.group === container.group && c.isDefault;
-	      });
-	      if (!defaultTab) {
-	        throw new Error('Default tab not found with group: ' + container.group);
-	      }
-	      return {
-	        v: createNewState([].concat(_toConsumableArray(defaultTab.history.back.map(function (p) {
-	          return createBrowserPage(p, defaultTab);
-	        })), [createBrowserPage(defaultTab.history.current, defaultTab)], _toConsumableArray(container.history.back.map(function (p) {
-	          return createBrowserPage(p, container);
-	        }))))
-	      };
-	    }();
+	};
 
-	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
-	  }
-	}
+	var back = exports.back = function back(historyStack) {
+	  return {
+	    back: _.initial(historyStack.back),
+	    current: _.last(historyStack.back),
+	    forward: [historyStack.current].concat(_toConsumableArray(historyStack.forward))
+	  };
+	};
+
+	var forward = exports.forward = function forward(historyStack) {
+	  return {
+	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
+	    current: _.head(historyStack.forward),
+	    forward: _.tail(historyStack.forward)
+	  };
+	};
 
 /***/ },
 /* 21 */
@@ -18894,9 +18795,246 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _redux = __webpack_require__(22);
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-	var _reducers = __webpack_require__(42);
+	// TODO: Pass this in dynamically
+
+
+	exports.switchContainer = switchContainer;
+	exports.loadGroupFromUrl = loadGroupFromUrl;
+
+	var _lodash = __webpack_require__(17);
+
+	var _ = _interopRequireWildcard(_lodash);
+
+	var _url = __webpack_require__(19);
+
+	var _core = __webpack_require__(20);
+
+	var _defaultBehavior = __webpack_require__(22);
+
+	var behavior = _interopRequireWildcard(_defaultBehavior);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	var toArray = function toArray(h) {
+	  return [h.back, h.current, h.forward];
+	};
+	var fromArray = function fromArray(_ref) {
+	  var _ref2 = _slicedToArray(_ref, 3),
+	      back = _ref2[0],
+	      current = _ref2[1],
+	      forward = _ref2[2];
+
+	  return { back: back, current: current, forward: forward };
+	};
+
+	function switchContainer(from, to, defaulT) {
+	  var defaultHistory = toArray(defaulT.history);
+	  var fromHistory = toArray(from.history);
+	  var toHistory = toArray(to.history);
+	  if (from.isDefault) {
+	    return fromArray(behavior.A_to_B(fromHistory, toHistory, []));
+	  } else {
+	    if (to.isDefault) {
+	      return fromArray(behavior.B_to_A(toHistory, fromHistory, []));
+	    } else {
+	      return fromArray(behavior.B_to_C(defaultHistory, fromHistory, toHistory));
+	    }
+	  }
+	}
+
+	function push(state, container, url) {
+	  var id = state.lastPageId + 1;
+	  var page = { url: url, id: id, containerIndex: container.index };
+	  container.history = (0, _core.pushToStack)(container.history, page);
+	  state.lastPageId = id;
+	  return page;
+	}
+
+	function loadGroupFromUrl(oldState, groupIndex, url) {
+	  var state = _.cloneDeep(oldState);
+	  var group = state.groups[groupIndex];
+	  var containers = group.containers;
+	  var defaultContainer = _.find(containers, function (c) {
+	    return c.isDefault;
+	  });
+	  var A = defaultContainer.history.current;
+	  var initialContainer = _.find(containers, function (c) {
+	    return (0, _url.pathsMatch)(c.initialUrl, url);
+	  });
+	  if (initialContainer) {
+	    if (initialContainer.isDefault) {
+	      group.history = fromArray(behavior.load_A([A], []));
+	    } else {
+	      var B = initialContainer.history.current;
+	      group.history = fromArray(behavior.load_B([A], [B]));
+	    }
+	  } else {
+	    var matchingContainer = _.find(containers, function (c) {
+	      return (0, _url.patternsMatch)(c.urlPatterns, url);
+	    });
+	    if (matchingContainer) {
+	      var P = push(state, matchingContainer, url);
+	      if (matchingContainer.isDefault) {
+	        group.history = fromArray(behavior.load_A1([A, P], []));
+	      } else {
+	        var _B = matchingContainer.history.back[0];
+	        group.history = fromArray(behavior.load_B1([A], [_B, P]));
+	      }
+	    }
+	  }
+	  return state;
+	}
+
+/***/ },
+/* 22 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	/**
+	 * Switch tab using mobile-app like behavior (with a default tab: A)
+	 * @param Ab {Page[]} back pages (default tab)
+	 * @param A {Page} current page (default tab)
+	 * @param Af {Page[]} forward pages (default tab)
+	 * @param Bb {Page[]} back pages
+	 * @param B {Page} current page
+	 * @param Bf {Array} forward pages
+	 * @param Cb {Page[]} back pages
+	 * @param C {Page} current page
+	 * @param Cf {Page[]} forward pages
+	 * @return {Array} - [Page[], Page, Page[]] representing browser history
+	 */
+	var A_to_B = exports.A_to_B = function A_to_B(_ref, _ref2, _ref3) {
+	  var _ref6 = _slicedToArray(_ref, 3),
+	      Ab = _ref6[0],
+	      A = _ref6[1],
+	      Af = _ref6[2];
+
+	  var _ref5 = _slicedToArray(_ref2, 3),
+	      Bb = _ref5[0],
+	      B = _ref5[1],
+	      Bf = _ref5[2];
+
+	  var _ref4 = _slicedToArray(_ref3, 3),
+	      Cb = _ref4[0],
+	      C = _ref4[1],
+	      Cf = _ref4[2];
+
+	  return [[].concat(_toConsumableArray(Ab), [A], _toConsumableArray(Bb)), B, Bf];
+	};
+	var B_to_C = exports.B_to_C = function B_to_C(_ref7, _ref8, _ref9) {
+	  var _ref12 = _slicedToArray(_ref7, 3),
+	      Ab = _ref12[0],
+	      A = _ref12[1],
+	      Af = _ref12[2];
+
+	  var _ref11 = _slicedToArray(_ref8, 3),
+	      Bb = _ref11[0],
+	      B = _ref11[1],
+	      Bf = _ref11[2];
+
+	  var _ref10 = _slicedToArray(_ref9, 3),
+	      Cb = _ref10[0],
+	      C = _ref10[1],
+	      Cf = _ref10[2];
+
+	  return [[].concat(_toConsumableArray(Ab), [A], _toConsumableArray(Cb)), C, Cf];
+	};
+	var B_to_A = exports.B_to_A = function B_to_A(_ref13, _ref14, _ref15) {
+	  var _ref18 = _slicedToArray(_ref13, 3),
+	      Ab = _ref18[0],
+	      A = _ref18[1],
+	      Af = _ref18[2];
+
+	  var _ref17 = _slicedToArray(_ref14, 3),
+	      Bb = _ref17[0],
+	      B = _ref17[1],
+	      Bf = _ref17[2];
+
+	  var _ref16 = _slicedToArray(_ref15, 3),
+	      Cb = _ref16[0],
+	      C = _ref16[1],
+	      Cf = _ref16[2];
+
+	  return [Ab, A, Af];
+	};
+
+	/**
+	 * Load from a URL
+	 * @param A {Page} initial page (default tab)
+	 * @param A1 {Page} any other matching page (default tab)
+	 * @param B {Page} initial page
+	 * @param B1 {Page} any other matching page
+	 * @return {Array} - [Page[], Page, Page[]] representing browser history
+	 */
+	var load_A = exports.load_A = function load_A(_ref19, _ref20) {
+	  var _ref22 = _slicedToArray(_ref19, 2),
+	      A = _ref22[0],
+	      A1 = _ref22[1];
+
+	  var _ref21 = _slicedToArray(_ref20, 2),
+	      B = _ref21[0],
+	      B1 = _ref21[1];
+
+	  return [[], A, []];
+	};
+	var load_A1 = exports.load_A1 = function load_A1(_ref23, _ref24) {
+	  var _ref26 = _slicedToArray(_ref23, 2),
+	      A = _ref26[0],
+	      A1 = _ref26[1];
+
+	  var _ref25 = _slicedToArray(_ref24, 2),
+	      B = _ref25[0],
+	      B1 = _ref25[1];
+
+	  return [[A], A1, []];
+	};
+	var load_B = exports.load_B = function load_B(_ref27, _ref28) {
+	  var _ref30 = _slicedToArray(_ref27, 2),
+	      A = _ref30[0],
+	      A1 = _ref30[1];
+
+	  var _ref29 = _slicedToArray(_ref28, 2),
+	      B = _ref29[0],
+	      B1 = _ref29[1];
+
+	  return [[A], B, []];
+	};
+	var load_B1 = exports.load_B1 = function load_B1(_ref31, _ref32) {
+	  var _ref34 = _slicedToArray(_ref31, 2),
+	      A = _ref34[0],
+	      A1 = _ref34[1];
+
+	  var _ref33 = _slicedToArray(_ref32, 2),
+	      B = _ref33[0],
+	      B1 = _ref33[1];
+
+	  return [[A, B], B1, []];
+	};
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _redux = __webpack_require__(24);
+
+	var _reducers = __webpack_require__(44);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -18907,7 +19045,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = store;
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18915,27 +19053,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
 
-	var _createStore = __webpack_require__(23);
+	var _createStore = __webpack_require__(25);
 
 	var _createStore2 = _interopRequireDefault(_createStore);
 
-	var _combineReducers = __webpack_require__(37);
+	var _combineReducers = __webpack_require__(39);
 
 	var _combineReducers2 = _interopRequireDefault(_combineReducers);
 
-	var _bindActionCreators = __webpack_require__(39);
+	var _bindActionCreators = __webpack_require__(41);
 
 	var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
 
-	var _applyMiddleware = __webpack_require__(40);
+	var _applyMiddleware = __webpack_require__(42);
 
 	var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
 
-	var _compose = __webpack_require__(41);
+	var _compose = __webpack_require__(43);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
-	var _warning = __webpack_require__(38);
+	var _warning = __webpack_require__(40);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -18958,7 +19096,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.compose = _compose2['default'];
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18967,11 +19105,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.ActionTypes = undefined;
 	exports['default'] = createStore;
 
-	var _isPlainObject = __webpack_require__(24);
+	var _isPlainObject = __webpack_require__(26);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _symbolObservable = __webpack_require__(34);
+	var _symbolObservable = __webpack_require__(36);
 
 	var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
 
@@ -19224,12 +19362,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(25),
-	    getPrototype = __webpack_require__(31),
-	    isObjectLike = __webpack_require__(33);
+	var baseGetTag = __webpack_require__(27),
+	    getPrototype = __webpack_require__(33),
+	    isObjectLike = __webpack_require__(35);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -19292,12 +19430,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 25 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(26),
-	    getRawTag = __webpack_require__(29),
-	    objectToString = __webpack_require__(30);
+	var Symbol = __webpack_require__(28),
+	    getRawTag = __webpack_require__(31),
+	    objectToString = __webpack_require__(32);
 
 	/** `Object#toString` result references. */
 	var nullTag = '[object Null]',
@@ -19327,10 +19465,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(27);
+	var root = __webpack_require__(29);
 
 	/** Built-in value references. */
 	var Symbol = root.Symbol;
@@ -19339,10 +19477,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 27 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var freeGlobal = __webpack_require__(28);
+	var freeGlobal = __webpack_require__(30);
 
 	/** Detect free variable `self`. */
 	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -19354,7 +19492,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 28 */
+/* 30 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
@@ -19365,10 +19503,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 29 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(26);
+	var Symbol = __webpack_require__(28);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -19417,7 +19555,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 30 */
+/* 32 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -19445,10 +19583,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 31 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var overArg = __webpack_require__(32);
+	var overArg = __webpack_require__(34);
 
 	/** Built-in value references. */
 	var getPrototype = overArg(Object.getPrototypeOf, Object);
@@ -19457,7 +19595,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 32 */
+/* 34 */
 /***/ function(module, exports) {
 
 	/**
@@ -19478,7 +19616,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 33 */
+/* 35 */
 /***/ function(module, exports) {
 
 	/**
@@ -19513,14 +19651,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 34 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(35);
+	module.exports = __webpack_require__(37);
 
 
 /***/ },
-/* 35 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, module) {'use strict';
@@ -19529,7 +19667,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _ponyfill = __webpack_require__(36);
+	var _ponyfill = __webpack_require__(38);
 
 	var _ponyfill2 = _interopRequireDefault(_ponyfill);
 
@@ -19555,7 +19693,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(18)(module)))
 
 /***/ },
-/* 36 */
+/* 38 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19583,7 +19721,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 37 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19591,13 +19729,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports['default'] = combineReducers;
 
-	var _createStore = __webpack_require__(23);
+	var _createStore = __webpack_require__(25);
 
-	var _isPlainObject = __webpack_require__(24);
+	var _isPlainObject = __webpack_require__(26);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _warning = __webpack_require__(38);
+	var _warning = __webpack_require__(40);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -19730,7 +19868,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 38 */
+/* 40 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19760,7 +19898,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 39 */
+/* 41 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19816,7 +19954,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 40 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19827,7 +19965,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports['default'] = applyMiddleware;
 
-	var _compose = __webpack_require__(41);
+	var _compose = __webpack_require__(43);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
@@ -19879,7 +20017,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 41 */
+/* 43 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -19922,7 +20060,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 42 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";

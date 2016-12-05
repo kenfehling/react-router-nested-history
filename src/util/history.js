@@ -6,7 +6,7 @@ import { patternsMatch } from "./url";
 import { pushToStack, back, forward } from './core';
 import * as browser from '../browserFunctions';
 import { switchContainer, loadGroupFromUrl } from '../behaviorist';
-import type { History, State, StateSnapshot, Container, Page, Group, Step } from '../types';
+import type { History, State, StateSnapshot, Container, ContainerConfig, Page, Group, Step } from '../types';
 
 export const push = (oldState:State, url:string):State => {
   const state = _.cloneDeep(oldState);
@@ -189,9 +189,10 @@ export function getContainerStackOrder(actionHistory:Object[], patterns:string[]
   actionHistory.reduce((oldState:?State, action:Object) : State => {
     const newState = reducer(oldState, action);
     if (action.type === SET_CONTAINERS) {
-      if (matches(action.containers[0].initialUrl)) {  // if one matches, they all match
-        const group = newState.groups[action.containers[0].groupIndex];
-        _.each(_.reverse(group.containers), c => containerSwitches.push(c));
+      const containers:ContainerConfig[] = action.containers;
+      if (matches(containers[0].initialUrl)) {  // if one matches, they all match
+        const group = _.last(newState.groups);
+        group.containers.forEach(c => containerSwitches.push(c));
       }
     }
     const oldGroup = oldState ? getActiveGroup(oldState) : null;
