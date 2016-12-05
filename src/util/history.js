@@ -2,10 +2,10 @@
 
 import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as _ from 'lodash';
-import { patternsMatch , pathsMatch} from "../util/url";
+import { patternsMatch} from "../util/url";
 import * as browser from '../../src/browserFunctions';
-import { switchContainer } from '../behaviorist';
-import type { History, State, StateSnapshot, Container, ContainerConfig, Page, Step } from '../types';
+import { switchContainer, loadGroupHistoryFromUrl } from '../behaviorist';
+import type { History, State, StateSnapshot, Container, Page, IncomingPage, Group, Step } from '../types';
 
 export const pushToStack = (historyStack:History, page:Page) : History => ({
   back: [...historyStack.back, historyStack.current],
@@ -25,62 +25,39 @@ export const forward = (historyStack:History) : History => ({
   forward: _.tail(historyStack.forward)
 });
 
-export const updateContainerHistory = (state:State, container:Container, fn:Function) : Container[] => {
-  const index:number = _.findIndex(state.containers, c => c.group === container.group && c.initialUrl === container.initialUrl);
-  if (index < 0) {
-    throw new Error('Index not found');
-  }
-  return [
-    ...state.containers.slice(0, index),
-    {...state.containers[index], history: fn(state.containers[index])},
-    ...state.containers.slice(index + 1)
-  ];
-};
-
-export const push = (state:State, url:string):State => {
+export const push = (oldState:State, url:string):State => {
+  const state = _.cloneDeep(oldState);
+  const group = state.groups[state.activeGroupIndex];
+  const container = group.containers[group.history.current.containerIndex];
   const id = state.lastId + 1;
-  const oldContainer = state.browserHistory.current.container;
-  const containers = updateContainerHistory(state, oldContainer, c => pushToStack(c.history, {url, id}));
-  const {group, index} = oldContainer;
-  const container = getContainer({...state, containers}, group, index);
-  return {
-    ...state,
-    browserHistory: pushToStack(state.browserHistory, {url, container, id}),
-    containers: containers,
-    lastId: id
-  };
+  const page = {url, id, containerIndex: container.index};
+  container.history = pushToStack(container.history, page);
+  group.history = pushToStack(group.history, page);
+  state.lastId = id;
+  return state;
 };
 
-export function go(state:State, n:number) : State {
-  const container = state.browserHistory.current.container;
+export function go(oldState:State, n:number) : State {
   if (n === 0) {
-    return state;
+    return oldState;
   }
-  else {
-    const f = n < 0 ? back : forward;
-    const browserHistory = f(state.browserHistory);
-    const containerHistory = container.history;
-    const stack = n < 0 ? containerHistory.back : containerHistory.forward;
-    const containerCanGo = stack.length > 0;
-    const nextN = n < 0 ? n + 1 : n - 1;
-    if (containerCanGo) {
-      return go({
-        ...state,
-        browserHistory,
-        containers: updateContainerHistory(state, container, f)
-      }, nextN);
-    }
-    else {
-      return go({
-        ...state,
-        browserHistory,
-      }, nextN);
-    }
+  const state = _.cloneDeep(oldState);
+  const group = state.groups[state.activeGroupIndex];
+  const container = group.containers[group.history.current.containerIndex];
+  const f = n < 0 ? back : forward;
+  group.history = f(group.history);
+  const stack = n < 0 ? container.history.back : container.history.forward;
+  const containerCanGo = stack.length > 0;
+  const nextN = n < 0 ? n + 1 : n - 1;
+  if (containerCanGo) {
+    container.history = f(container.history);
   }
+  return go(state, nextN);
 }
 
 export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :number => {
-  const oldHistory = oldState.browserHistory;
+  const group = oldState.groups[oldState.activeGroupIndex];
+  const oldHistory = group.history;
   if (!_.isEmpty(oldHistory.back)) {
     const i = _.findIndex(oldHistory.back, b => b.id === newCurrentId);
     if (i !== -1) {
@@ -118,8 +95,10 @@ const replaceFirstPushWithReplace = (steps:Step[]) : Step[] => {
  * @returns {[Object]} An array of steps to get from old state to new state
  */
 export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
-  const h1 = oldState ? oldState.browserHistory : null;
-  const h2 = newState.browserHistory;
+  const group1 = oldState ? oldState.groups[oldState.activeGroupIndex] : null;
+  const group2 = newState.groups[newState.activeGroupIndex];
+  const h1 = group1 ? group1.history : null;
+  const h2 = group2.history;
   if (_.isEqual(h1, h2)) {
     return [];
   }
@@ -146,47 +125,34 @@ export const constructNewHistory = (state:State, newCurrentId:number) : State =>
 };
 
 export function reducer(state:?State, action:Object) : State {
-  if (state && !state.browserHistory) {
-    throw new Error("WHY");
-  }
   switch (action.type) {
     case SET_CONTAINERS: {
-      const containerConfigs:ContainerConfig[] = action.containers;
-      const currentUrl:string = action.currentUrl;
       const id = (state ? state.lastId : 0) + 1;
-      const group = (state ? state.lastGroup : 0) + 1;
-      const containers:Container[] = [
-        ...(state ? state.containers : []),
-        ...containerConfigs.map((c, i) => ({
+      const currentPage:IncomingPage = {url: action.currentUrl, id};
+      const groupIndex = (state ? state.groups.length : 0) + 1;
+      const histories = action.containers.map((c, i) => ({
+        back: [],
+        current: {url: c.initialUrl, id: id + i, containerIndex: i},
+        forward: []
+      }));
+      const group = {
+        index: groupIndex,
+        history: histories[0],
+        containers: action.containers.map((c, i) => ({
           ...c,
-          history: {
-            back: [],
-            current: {url: c.initialUrl, id: id + i},
-            forward: []
-          },
+          history: histories[i],
           isDefault: i === 0,
-          group,
+          groupIndex,
           index: i
         }))
-      ];
-      const defaultContainer:Container = containers[0];
-      const startState:State = {
-        ...(state ? state : {}),
-        browserHistory: {
-          ...(state ? state.browserHistory : {}),
-          current: state ? state.browserHistory.current : {
-            url: defaultContainer.initialUrl,
-            container: defaultContainer,
-            id
-          },
-          back: state ? state.browserHistory.back : [],
-          forward: state ? state.browserHistory.forward : []
-        },
-        containers,
-        lastId: (state ? state.lastId : 0) + containerConfigs.length,
-        lastGroup: group
       };
-
+      group.history = loadGroupHistoryFromUrl(group, currentPage);
+      return {
+        ...(state ? state : {}),
+        groups: [...(state ? state.groups : []), group],
+        activeGroupIndex: state ? state.activeGroupIndex : 0,
+        lastId: (state ? state.lastId : 0) + action.containers.length
+      };
     }
   }
   if (!state) {
@@ -195,7 +161,11 @@ export function reducer(state:?State, action:Object) : State {
   else {
     switch (action.type) {
       case SWITCH_TO_CONTAINER: {
-        return switchContainer(state.browserHistory.current.container, action.container, state.containers);
+        const newState:State = _.cloneDeep(state);
+        const group:Group = newState.groups[newState.activeGroupIndex];
+        const currentContainer = group.containers[group.history.current.containerIndex];
+        group.history = switchContainer(currentContainer, action.container, group.containers[0]);
+        return newState;
       }
       case PUSH: { return push(state, action.url); }
       case BACK: { return {...state, ...go(state, 0 - action.n || -1)}; }
@@ -212,8 +182,7 @@ export function reducer(state:?State, action:Object) : State {
   return state;
 }
 
-export const reduceAll = (state:State, actions:Object[]) : State =>
-    actions.reduce(reducer, state);
+export const reduceAll = (state:?State, actions:Object[]) : State => actions.reduce(reducer, state);
 
 export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
   const lastAction = _.last(actionHistory);
@@ -227,11 +196,7 @@ export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
   }
 };
 
-export function getInsertedContainers(state:State, numContainers:number) {
-  const total = state.containers.length;
-  return state.containers.slice(total - numContainers, total);
-}
-
+// TODO: Replace patterns with groupIndex?
 export function getContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) : Container[] {
   if (actionHistory.length === 0) {
     throw new Error("No actions in history");
@@ -242,14 +207,17 @@ export function getContainerStackOrder(actionHistory:Object[], patterns:string[]
     const newState = reducer(oldState, action);
     if (action.type === SET_CONTAINERS) {
       if (matches(action.containers[0].initialUrl)) {  // if one matches, they all match
-        const containers = getInsertedContainers(newState, action.containers.length);
-        _.each(_.reverse(containers), c => containerSwitches.push(c));
+        const group = newState.groups[action.containers[0].groupIndex];
+        _.each(_.reverse(group.containers), c => containerSwitches.push(c));
       }
     }
-    const oldCurrent = oldState ? oldState.browserHistory.current.container.initialUrl : null;
-    const newCurrent = newState.browserHistory.current.container.initialUrl;
+    const oldGroup = oldState ? getActiveGroup(oldState) : null;
+    const newGroup = getActiveGroup(newState);
+    const oldCurrent = oldGroup? oldGroup.history.current.url : null;
+    const newCurrent = newGroup.history.current.url;
     if ((!oldState || oldCurrent !== newCurrent) && matches(newCurrent)) {
-      containerSwitches.push(newState.browserHistory.current.container);
+      const container = newGroup.containers[newGroup.history.current.containerIndex];
+      containerSwitches.push(container);
     }
     return newState;
   }, null);
@@ -259,6 +227,7 @@ export function getContainerStackOrder(actionHistory:Object[], patterns:string[]
 /**
  * Gets the stack order values as numbers, in container order instead of stack order
  */
+// TODO: Replace patterns with groupIndex?
 export function getIndexedContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) : number[] {
   const stackOrder = getContainerStackOrder(actionHistory, patterns);
   const values = _.map(stackOrder, (s, i) => ({index: s.index, i}));
@@ -269,6 +238,10 @@ export function getActiveContainer(actionHistory:Object[], patterns:string[]=['*
   return _.first(getContainerStackOrder(actionHistory, patterns));
 }
 
-export function getContainer(state:State, group:number, index:number):Container {
-  return _.find(state.containers, c => c.group === group && c.index === index);
+export function getContainer(state:State, groupIndex:number, index:number):Container {
+  return state.groups[groupIndex].containers[index];
+}
+
+export function getActiveGroup(state:State):Group {
+  return state.groups[state.activeGroupIndex];
 }

@@ -19,41 +19,42 @@ describe('main', () => {
 
   const tempState = reducer(null,
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
-  const originalContainers = tempState.containers;
+  const group = tempState.groups[0];
+  const originalContainers = group.containers;
 
-  const perform = (action) : State => reducer(null, action);
-  const performAll = (actions) : State => reduceAll(null, actions);
+  const perform = (action) : StateSnapshot => deriveState([action]);
+  const performAll = (actions) : StateSnapshot => deriveState(actions);
 
   it('creates steps for set containers (default)', () => {
     const state = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
     const steps = createSteps(state);
-    expect(state.browserHistory.back.length).toBe(0);
+    expect(state.groups[0].history.back.length).toBe(0);
     expect(steps.length).toBe(1);
     expect(steps).toEqual([
-      {fn: replace, args: [state.browserHistory.current]}
+      {fn: replace, args: [state.groups[0].history.current]}
     ])
   });
 
   it('creates steps for set containers (non-default)', () => {
     const state = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'});
     const steps = createSteps(state);
-    expect(state.browserHistory.back.length).toBe(1);
+    expect(state.groups[0].history.back.length).toBe(1);
     expect(steps.length).toBe(2);
     expect(steps).toEqual([
-      {fn: replace, args: [state.browserHistory.back[0]]},
-      {fn: push, args: [state.browserHistory.current]}
+      {fn: replace, args: [state.groups[0].history.back[0]]},
+      {fn: push, args: [state.groups[0].history.current]}
     ])
   });
 
   it('creates steps for set containers (non-default) 2', () => {
     const state = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b/1'});
     const steps = createSteps(state);
-    expect(state.browserHistory.back.length).toBe(2);
+    expect(state.groups[0].history.back.length).toBe(2);
     expect(steps.length).toBe(3);
     expect(steps).toEqual([
-      {fn: replace, args: [state.browserHistory.back[0]]},
-      {fn: push, args: [state.browserHistory.back[1]]},
-      {fn: push, args: [state.browserHistory.current]}
+      {fn: replace, args: [state.groups[0].history.back[0]]},
+      {fn: push, args: [state.groups[0].history.back[1]]},
+      {fn: push, args: [state.groups[0].history.current]}
     ])
   });
 
@@ -63,10 +64,10 @@ describe('main', () => {
       {type: SWITCH_TO_CONTAINER, container: originalContainers[1]}
     ]);
     const steps = createSteps(state);
-    expect(state.browserHistory.back.length).toBe(1);
+    expect(state.groups[0].history.back.length).toBe(1);
     expect(steps).toEqual([
-      {fn: replace, args: [state.browserHistory.back[0]]},
-      {fn: push, args: [state.browserHistory.current]}
+      {fn: replace, args: [state.groups[0].history.back[0]]},
+      {fn: push, args: [state.groups[0].history.current]}
     ])
   });
 
@@ -77,11 +78,11 @@ describe('main', () => {
       {type: SWITCH_TO_CONTAINER, container: originalContainers[2]}
     ]);
     const steps = createSteps(state);
-    expect(state.browserHistory.back.length).toBe(1);
+    expect(state.groups[0].history.back.length).toBe(1);
     expect(steps).toEqual([
       {fn: back, args: [1]},
-      {fn: replace, args: [state.browserHistory.back[0]]},
-      {fn: push, args: [state.browserHistory.current]}
+      {fn: replace, args: [state.groups[0].history.back[0]]},
+      {fn: push, args: [state.groups[0].history.current]}
     ])
   });
 });

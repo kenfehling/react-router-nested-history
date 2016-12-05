@@ -1,17 +1,17 @@
-import type { BrowserPage } from '../types';
+import type { Page } from '../types';
 
 /**
  * Switch tab using mobile-app like behavior (with a default tab: A)
- * @param Ab {BrowserPage[]} back pages (default tab)
- * @param A {BrowserPage} current page (default tab)
- * @param Af {BrowserPage[]} forward pages (default tab)
- * @param Bb {BrowserPage[]} back pages
- * @param B {BrowserPage} current page
+ * @param Ab {Page[]} back pages (default tab)
+ * @param A {Page} current page (default tab)
+ * @param Af {Page[]} forward pages (default tab)
+ * @param Bb {Page[]} back pages
+ * @param B {Page} current page
  * @param Bf {Array} forward pages
- * @param Cb {BrowserPage[]} back pages
- * @param C {BrowserPage} current page
- * @param Cf {BrowserPage[]} forward pages
- * @return {Array} - [BrowserPage[], BrowserPage, BrowserPage[]] representing browser history
+ * @param Cb {Page[]} back pages
+ * @param C {Page} current page
+ * @param Cf {Page[]} forward pages
+ * @return {Array} - [Page[], Page, Page[]] representing browser history
  */
 export const A_to_B = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [[...Ab, A, ...Bb], B, Bf];
 export const B_to_C = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [[...Ab, A, ...Cb], C, Cf];
@@ -19,11 +19,11 @@ export const B_to_A = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [Ab, A, Af];
 
 /**
  * Load from a URL
- * @param A {BrowserPage} initial page (default tab)
- * @param A1 {BrowserPage} any other matching page (default tab)
- * @param B {BrowserPage} initial page
- * @param B1 {BrowserPage} any other matching page
- * @return {Array} - [BrowserPage[], BrowserPage, BrowserPage[]] representing browser history
+ * @param A {Page} initial page (default tab)
+ * @param A1 {Page} any other matching page (default tab)
+ * @param B {Page} initial page
+ * @param B1 {Page} any other matching page
+ * @return {Array} - [Page[], Page, Page[]] representing browser history
  */
 export const load_A = ([A, A1], [B, B1]) => [[], A, []];
 export const load_A1 = ([A, A1], [B, B1]) => [[A], A1, []];

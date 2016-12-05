@@ -17,7 +17,8 @@ describe('history utils', () => {
 
   const originalState = util.reducer(null,
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
-  const containers = originalState.containers;
+  const group = originalState.groups[0];
+  const containers = group.containers;
 
   const a = {url: '/a', id: 1, container: containers[0]};
   const b = {url: '/b', id: 2, container: containers[1]};
@@ -32,9 +33,9 @@ describe('history utils', () => {
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
       {type: PUSH, url: '/a/1'}
     ]);
-    expect(newState.browserHistory.current.url).toEqual('/a/1');
-    expect(newState.browserHistory.back.length).toEqual(1);
-    expect(newState.browserHistory.back[0].url).toEqual('/a');
+    expect(newState.groups[0].history.current.url).toEqual('/a/1');
+    expect(newState.groups[0].history.back.length).toEqual(1);
+    expect(newState.groups[0].history.back[0].url).toEqual('/a');
   });
 
   it('handles existing state', () => {
@@ -46,8 +47,8 @@ describe('history utils', () => {
       const steps = util.diffStateToSteps(originalState, newState);
       expect(steps).toEqual([
         {fn: back, args: [1]},
-        {fn: push, args: [newState.browserHistory.back[0]]},
-        {fn: push, args: [newState.browserHistory.current]}
+        {fn: push, args: [newState.groups[0].history.back[0]]},
+        {fn: push, args: [newState.groups[0].history.current]}
       ]);
     });
 
@@ -56,8 +57,8 @@ describe('history utils', () => {
       const steps = util.diffStateToSteps(originalState, newState);
       expect(steps).toEqual([
         {fn: back, args: [1]},
-        {fn: push, args: [newState.browserHistory.current]},
-        {fn: push, args: [newState.browserHistory.forward[0]]},
+        {fn: push, args: [newState.groups[0].history.current]},
+        {fn: push, args: [newState.groups[0].history.forward[0]]},
         {fn: back, args: [1]}
       ]);
     });

@@ -1,22 +1,19 @@
 // @flow
 
-export interface Page {
+export interface IncomingPage {
   url: string;
   id: number;
 }
 
-export interface BrowserPage extends Page {
-  container: Container;
+export interface Page extends IncomingPage {
+  containerIndex: number;
 }
 
-export interface History<P:Page> {
-  back: P[];
-  current: P;
-  forward: P[];
+export interface History {
+  back: Page[];
+  current: Page;
+  forward: Page[];
 }
-
-export interface ContainerHistory extends History<Page> {}
-export interface BrowserHistory extends History<BrowserPage> {}
 
 export interface ContainerConfig {
   initialUrl: string;
@@ -24,19 +21,24 @@ export interface ContainerConfig {
 }
 
 export interface Container {
+  index: number;
   initialUrl: string;
   urlPatterns: string[];
   isDefault: boolean;
-  group: number;
-  index: number;
-  history: ContainerHistory;
+  history: History;
+  groupIndex: number;
+}
+
+export interface Group {
+  index: number,
+  containers: Container[],
+  history: History
 }
 
 export interface State {
-  browserHistory: BrowserHistory;
-  containers: Container[];
+  groups: Group[];
+  activeGroupIndex: number;
   lastId: number;
-  lastGroup: number;
 }
 
 export interface StateSnapshot extends State {
