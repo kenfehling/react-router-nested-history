@@ -16,7 +16,10 @@ const getDerivedState = () : StateSnapshot => deriveState(store.getState());
 
 const startListening = () => {
   unlisten = listen(location => {
-    store.dispatch(actions.popstate(location.state.id));
+    const state = location.state;
+    if (state) {
+      store.dispatch(actions.popstate(location.state.id));
+    }
   });
 };
 
@@ -48,15 +51,11 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
       const state:State = deriveState(actions);
       const group:Group = state.groups[groupIndex];
       const currentUrl:string = group.history.current.url;
-
-      console.log(group.containers, group.history);
-
       const activeContainer:Container = group.containers[group.history.current.containerIndex];
+      const activeGroup:Group = state.groups[state.activeGroupIndex];
       const stackOrder:Container[] = getContainerStackOrder(actions, groupIndex);
       const indexedStackOrder:number[] = getIndexedContainerStackOrder(actions, groupIndex);
-
-      // TODO: Do we need to send back the active group?
-      fn({activeContainer, currentUrl, stackOrder, indexedStackOrder});
+      fn({activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder});
     })
   };
 };

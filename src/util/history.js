@@ -172,11 +172,12 @@ export function getContainerStackOrder(actionHistory:Object[], groupIndex:number
   const containerSwitches:Container[] = [];
   actionHistory.reduce((oldState:?State, action:Object) : State => {
     const newState:State = reducer(oldState, action);
-    const newGroup:Group = newState.groups[groupIndex];
+    if (action.type === SET_CONTAINERS) {
+      const group:Group = _.last(newState.groups);
+      fp.reverse(group.containers).forEach(c => containerSwitches.push(c));
+    }
     if (newState.activeGroupIndex === groupIndex) {
-      if (action.type === SET_CONTAINERS) {
-        fp.reverse(newGroup.containers).forEach(c => containerSwitches.push(c));
-      }
+      const newGroup:Group = newState.groups[groupIndex];
       const oldGroup:?Group = oldState ? getActiveGroup(oldState) : null;
       const oldContainerIndex:?number = oldGroup? oldGroup.history.current.containerIndex : null;
       const newContainerIndex:number = newGroup.history.current.containerIndex;

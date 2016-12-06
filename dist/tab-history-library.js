@@ -124,7 +124,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var startListening = function startListening() {
 	  unlisten = (0, _historyListener.listen)(function (location) {
-	    _store2.default.dispatch(actions.popstate(location.state.id));
+	    var state = location.state;
+	    if (state) {
+	      _store2.default.dispatch(actions.popstate(location.state.id));
+	    }
 	  });
 	};
 
@@ -169,15 +172,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var state = (0, _history.deriveState)(actions);
 	        var group = state.groups[groupIndex];
 	        var currentUrl = group.history.current.url;
-
-	        console.log(group.containers, group.history);
-
 	        var activeContainer = group.containers[group.history.current.containerIndex];
+	        var activeGroup = state.groups[state.activeGroupIndex];
 	        var stackOrder = (0, _history.getContainerStackOrder)(actions, groupIndex);
 	        var indexedStackOrder = (0, _history.getIndexedContainerStackOrder)(actions, groupIndex);
-
-	        // TODO: Do we need to send back the active group?
-	        fn({ activeContainer: activeContainer, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder });
+	        fn({ activeContainer: activeContainer, activeGroup: activeGroup, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder });
 	      });
 	    }
 	  };
@@ -342,8 +341,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var history = (0, _createBrowserHistory2.default)();
 	var push = exports.push = function push(page) {
-	  return history.push(page.url, { id: page.id });
+	  var state = { id: page.id };
+	  history.push(page.url, state);
+	  var popStateEvent = new PopStateEvent('popstate', { state: state });
+	  dispatchEvent(popStateEvent);
 	};
+
 	var replace = exports.replace = function replace(page) {
 	  return history.replace(page.url, { id: page.id });
 	};
@@ -1473,13 +1476,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var containerSwitches = [];
 	  actionHistory.reduce(function (oldState, action) {
 	    var newState = reducer(oldState, action);
-	    var newGroup = newState.groups[groupIndex];
+	    if (action.type === _ActionTypes.SET_CONTAINERS) {
+	      var group = _.last(newState.groups);
+	      _fp2.default.reverse(group.containers).forEach(function (c) {
+	        return containerSwitches.push(c);
+	      });
+	    }
 	    if (newState.activeGroupIndex === groupIndex) {
-	      if (action.type === _ActionTypes.SET_CONTAINERS) {
-	        _fp2.default.reverse(newGroup.containers).forEach(function (c) {
-	          return containerSwitches.push(c);
-	        });
-	      }
+	      var newGroup = newState.groups[groupIndex];
 	      var oldGroup = oldState ? getActiveGroup(oldState) : null;
 	      var oldContainerIndex = oldGroup ? oldGroup.history.current.containerIndex : null;
 	      var newContainerIndex = newGroup.history.current.containerIndex;
