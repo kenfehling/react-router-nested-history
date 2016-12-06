@@ -31,7 +31,7 @@ describe('main', () => {
     expect(state.groups[0].history.back.length).toBe(0);
     expect(steps.length).toBe(1);
     expect(steps).toEqual([
-      {fn: replace, args: [state.groups[0].history.current]}
+      {fn: push, args: [state.groups[0].history.current]}
     ])
   });
 
@@ -41,7 +41,7 @@ describe('main', () => {
     expect(state.groups[0].history.back.length).toBe(1);
     expect(steps.length).toBe(2);
     expect(steps).toEqual([
-      {fn: replace, args: [state.groups[0].history.back[0]]},
+      {fn: push, args: [state.groups[0].history.back[0]]},
       {fn: push, args: [state.groups[0].history.current]}
     ])
   });
@@ -52,7 +52,7 @@ describe('main', () => {
     expect(state.groups[0].history.back.length).toBe(2);
     expect(steps.length).toBe(3);
     expect(steps).toEqual([
-      {fn: replace, args: [state.groups[0].history.back[0]]},
+      {fn: push, args: [state.groups[0].history.back[0]]},
       {fn: push, args: [state.groups[0].history.back[1]]},
       {fn: push, args: [state.groups[0].history.current]}
     ])
@@ -66,22 +66,8 @@ describe('main', () => {
     const steps = createSteps(state);
     expect(state.groups[0].history.back.length).toBe(1);
     expect(steps).toEqual([
-      {fn: replace, args: [state.groups[0].history.back[0]]},
-      {fn: push, args: [state.groups[0].history.current]}
-    ])
-  });
-
-  it('creates steps for switching a tab (2)', () => {
-    const state = deriveState([
-      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
-      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
-      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2}
-    ]);
-    const steps = createSteps(state);
-    expect(state.groups[0].history.back.length).toBe(1);
-    expect(steps).toEqual([
       {fn: back, args: [1]},
-      {fn: replace, args: [state.groups[0].history.back[0]]},
+      {fn: push, args: [state.groups[0].history.back[0]]},
       {fn: push, args: [state.groups[0].history.current]}
     ])
   });

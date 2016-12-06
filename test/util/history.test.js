@@ -5,8 +5,10 @@ declare var it:any;
 declare var expect:any;
 import * as util from '../../src/util/history';
 import { push, back, forward, go } from '../../src/browserFunctions';
-import { SET_CONTAINERS, PUSH, BACK, FORWARD } from "../../src/constants/ActionTypes";
+import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD } from "../../src/constants/ActionTypes";
 import type { ContainerConfig, State, StateSnapshot } from '../../src/types';
+import * as _ from "lodash";
+import fp from 'lodash/fp';
 
 describe('history utils', () => {
   const containerConfigs : ContainerConfig[] = [
@@ -38,7 +40,7 @@ describe('history utils', () => {
     expect(newState.groups[0].history.back[0].url).toEqual('/a');
   });
 
-  it('handles existing state', () => {
+  describe('handles existing state', () => {
     const perform = (action): State => util.reducer(originalState, action);
     const performAll = (actions): State => util.reduceAll(originalState, actions);
 
@@ -72,21 +74,30 @@ describe('history utils', () => {
       const actions = [
         {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
       ];
-      expect(util.getContainerStackOrder(actions)).toEqual(containers);
+      expect(util.getContainerStackOrder(actions, 0)).toEqual(containers);
+    });
+
+    it('gets container stack order (default) 2', () => {
+      const actions = [
+        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2},
+      ];
+      expect(util.getContainerStackOrder(actions, 0)).toEqual(fp.reverse(containers));
     });
 
     it('gets indexed container stack order (default)', () => {
       const actions = [
         {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
       ];
-      expect(util.getIndexedContainerStackOrder(actions)).toEqual([0, 1, 2]);
+      expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([0, 1, 2]);
     });
 
     it('gets indexed container stack order (non-default)', () => {
       const actions = [
         {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'}
       ];
-      expect(util.getIndexedContainerStackOrder(actions)).toEqual([1, 0, 2]);
+      expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([1, 0, 2]);
     });
   });
 });

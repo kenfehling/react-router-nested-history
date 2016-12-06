@@ -4,10 +4,10 @@ import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE 
 import * as actions from './actions/HistoryActions';
 import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
-import { diffStateToSteps, deriveState, getContainer, getActiveContainer, getActiveGroup, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
+import { diffStateToSteps, deriveState, getActiveContainer, getActiveGroup, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
 import store from './store';
 import * as _ from 'lodash';
-import type { Container, ContainerConfig, StateSnapshot, Step } from './types';
+import type { State, Group, Container, ContainerConfig, StateSnapshot, Step } from './types';
 
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
@@ -33,28 +33,27 @@ const startListeningPromise = () => new Promise(resolve => {
 startListening();
 
 export const setContainers = (containerConfigs: ContainerConfig[]) => {
-  const currentUrl = window.location.pathname;
-  const patterns = _.flatMap(containerConfigs, container => container.urlPatterns);
+  const currentUrl:string = window.location.pathname;
   store.dispatch(actions.setContainers(containerConfigs, currentUrl));
-  const state = getDerivedState();
-  const group = _.last(state.groups);
-  const groupIndex = group.index;
+  const state:State = getDerivedState();
+  const group:Group = _.last(state.groups);
+  const groupIndex:number = group.index;
   return {
     switchTo: (index:number) => switchToContainer(groupIndex, index),
-    getActive: () => getActiveContainer(store.getState(), patterns),
-    getStackOrder: () => getContainerStackOrder(store.getState(), patterns),
-    getIndexedStackOrder: () => getIndexedContainerStackOrder(store.getState(), patterns),
+    getActive: () => getActiveContainer(store.getState(), groupIndex),
+    getStackOrder: () => getContainerStackOrder(store.getState(), groupIndex),
+    getIndexedStackOrder: () => getIndexedContainerStackOrder(store.getState(), groupIndex),
     addChangeListener: (fn:Function) => store.subscribe(() => {
-      const actions = store.getState();
-      const state = deriveState(actions);
-      const group = getActiveGroup(state);
-      const currentUrl = group.history.current.url;
-      const active = group.containers[group.history.current.containerIndex];
-      const stackOrder = getContainerStackOrder(actions, patterns);
-      const indexedStackOrder = getIndexedContainerStackOrder(actions, patterns);
+      const actions:Array<Object> = store.getState();
+      const state:State = deriveState(actions);
+      const group:Group = state.groups[groupIndex];
+      const currentUrl:string = group.history.current.url;
+      const activeContainer:Container = group.containers[group.history.current.containerIndex];
+      const stackOrder:Container[] = getContainerStackOrder(actions, groupIndex);
+      const indexedStackOrder:number[] = getIndexedContainerStackOrder(actions, groupIndex);
 
       // TODO: Do we need to send back the active group?
-      fn({active, currentUrl, stackOrder, indexedStackOrder});
+      fn({activeContainer, currentUrl, stackOrder, indexedStackOrder});
     })
   };
 };

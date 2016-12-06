@@ -10,9 +10,14 @@ import type { ContainerConfig, State, StateSnapshot } from '../../src/types';
 
 describe('reducer', () => {
   const containerConfigs : ContainerConfig[] = [
-    {initialUrl: '/a', urlPatterns: ['/a/*']},
-    {initialUrl: '/b', urlPatterns: ['/b/*']},
-    {initialUrl: '/c', urlPatterns: ['/c/*']}
+    {initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
+    {initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
+    {initialUrl: '/c', urlPatterns: ['/c', '/c/*']}
+  ];
+
+  const containerConfigs2 : ContainerConfig[] = [
+    {initialUrl: '/e', urlPatterns: ['/e', '/e/*']},
+    {initialUrl: '/f', urlPatterns: ['/f', '/f/*']},
   ];
 
   const tempState = deriveState(reducer([], {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}));
@@ -188,5 +193,18 @@ describe('reducer', () => {
     expect(result.groups[0].history.forward[0].id).toBe(4);
     expect(result.groups[0].history.current.containerIndex).toBe(0);
     expect(result.lastPageId).toBe(4);
+  });
+
+  it('switches group without affecting other group', () => {
+    const actions = [
+      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+      {type: SET_CONTAINERS, containers: containerConfigs2, currentUrl: '/e'},
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2},
+      {type: SWITCH_TO_CONTAINER, groupIndex: 1, containerIndex: 1}
+    ];
+    const result = deriveState(actions);
+    expect(result.activeGroupIndex).toBe(1);
+    expect(result.groups[0].history.current.containerIndex).toBe(2);
+    expect(result.groups[1].history.current.containerIndex).toBe(1);
   });
 });

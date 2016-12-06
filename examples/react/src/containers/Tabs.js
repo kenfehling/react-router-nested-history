@@ -61,7 +61,7 @@ class Tabs extends Component {
 
   componentWillMount() {
     tabs.addChangeListener(state => {
-      this.setState({currentTab: state.active});
+      this.setState({currentTab: state.activeContainer});
     })
   }
 

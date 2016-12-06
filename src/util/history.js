@@ -2,6 +2,7 @@
 
 import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as _ from 'lodash';
+import fp from 'lodash/fp';
 import { patternsMatch } from "./url";
 import { pushToStack, back, forward } from './core';
 import * as browser from '../browserFunctions';
@@ -56,20 +57,6 @@ export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :numb
   return 0;
 };
 
-const replaceFirstPushWithReplace = (steps:Step[]) : Step[] => {
-  const i = _.findIndex(steps, s => s.fn === browser.push);
-  if (i >= 0) {
-    return [
-      ...steps.slice(0, i),
-      {...steps[i], fn: browser.replace},
-      ...steps.slice(i + 1)
-    ];
-  }
-  else {
-    return steps;
-  }
-};
-
 /**
  * Get the difference between oldState and newState and return a list of
  * browser functions to transform the browser history from oldState to newState
@@ -78,22 +65,20 @@ const replaceFirstPushWithReplace = (steps:Step[]) : Step[] => {
  * @returns {[Object]} An array of steps to get from old state to new state
  */
 export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
-  const group1 = oldState ? oldState.groups[oldState.activeGroupIndex] : null;
-  const group2 = newState.groups[newState.activeGroupIndex];
-  const h1 = group1 ? group1.history : null;
-  const h2 = group2.history;
+  const group1:?Group = oldState ? oldState.groups[oldState.activeGroupIndex] : null;
+  const group2:Group = newState.groups[newState.activeGroupIndex];
+  const h1:?History = group1 ? group1.history : null;
+  const h2:History = group2.history;
   if (_.isEqual(h1, h2)) {
     return [];
   }
-  const steps = _.flatten([
-    !h1 || _.isEmpty(h1.back) ? [] : {fn: browser.back, args: [h1.back.length]},
-    //h1 ? {fn: browser.back, args: [1]} : [],
+  return _.flatten([
+    h1 ? {fn: browser.back, args: [h1.back.length + 1]} : [],
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
     {fn: browser.push, args: [h2.current]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ]);
-  return replaceFirstPushWithReplace(steps);
 };
 
 export const constructNewHistory = (state:State, newCurrentId:number) : State => {
@@ -148,6 +133,7 @@ export function reducer(state:?State, action:Object) : State {
         const fromContainer:Container = group.containers[group.history.current.containerIndex];
         const toContainer:Container = getContainer(newState, action.groupIndex, action.containerIndex);
         group.history = switchContainer(fromContainer, toContainer, group.containers[0]);
+        newState.activeGroupIndex = group.index;
         return newState;
       }
       case PUSH: { return push(state, action.url); }
@@ -179,47 +165,42 @@ export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
   }
 };
 
-// TODO: Replace patterns with groupIndex?
-export function getContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) : Container[] {
+export function getContainerStackOrder(actionHistory:Object[], groupIndex:number) : Container[] {
   if (actionHistory.length === 0) {
     throw new Error("No actions in history");
   }
   const containerSwitches:Container[] = [];
-  const matches = (path:string) => patternsMatch(patterns, path);
   actionHistory.reduce((oldState:?State, action:Object) : State => {
-    const newState = reducer(oldState, action);
-    if (action.type === SET_CONTAINERS) {
-      const containers:ContainerConfig[] = action.containers;
-      if (matches(containers[0].initialUrl)) {  // if one matches, they all match
-        const group = _.last(newState.groups);
-        group.containers.forEach(c => containerSwitches.push(c));
+    const newState:State = reducer(oldState, action);
+    const newGroup:Group = newState.groups[groupIndex];
+    if (newState.activeGroupIndex === groupIndex) {
+      if (action.type === SET_CONTAINERS) {
+        fp.reverse(newGroup.containers).forEach(c => containerSwitches.push(c));
       }
-    }
-    const oldGroup = oldState ? getActiveGroup(oldState) : null;
-    const newGroup = getActiveGroup(newState);
-    const oldCurrent = oldGroup? oldGroup.history.current.url : null;
-    const newCurrent = newGroup.history.current.url;
-    if ((!oldState || oldCurrent !== newCurrent) && matches(newCurrent)) {
-      const container = newGroup.containers[newGroup.history.current.containerIndex];
-      containerSwitches.push(container);
+      const oldGroup:?Group = oldState ? getActiveGroup(oldState) : null;
+      const oldContainerIndex:?number = oldGroup? oldGroup.history.current.containerIndex : null;
+      const newContainerIndex:number = newGroup.history.current.containerIndex;
+      if (!oldGroup || oldGroup.index !== newGroup.index || oldContainerIndex !== newContainerIndex) {
+        const container = newGroup.containers[newContainerIndex];
+        containerSwitches.push(container);
+      }
     }
     return newState;
   }, null);
-  return _.uniqBy(_.reverse(containerSwitches), c => c.index);
+  return _.uniqBy(fp.reverse(containerSwitches), c => c.index);
 }
 
 /**
  * Gets the stack order values as numbers, in container order instead of stack order
  */
-// TODO: Replace patterns with groupIndex?
-export function getIndexedContainerStackOrder(actionHistory:Object[], patterns:string[]=['*']) : number[] {
-  const stackOrder = getContainerStackOrder(actionHistory, patterns);
+export function getIndexedContainerStackOrder(actionHistory:Object[], groupIndex:number) : number[] {
+  const stackOrder = getContainerStackOrder(actionHistory, groupIndex);
   const values = _.map(stackOrder, (s, i) => ({index: s.index, i}));
   return _.map(_.sortBy(values, s => s.index), s => s.i);
 }
 
-export function getActiveContainer(actionHistory:Object[], patterns:string[]=['*']) : Container {
-  return _.first(getContainerStackOrder(actionHistory, patterns));
+export function getActiveContainer(actionHistory:Object[], groupIndex:number) : Container {
+  return _.first(getContainerStackOrder(actionHistory, groupIndex));
 }
 
 export function getContainer(state:State, groupIndex:number, index:number):Container {
