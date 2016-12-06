@@ -16,13 +16,18 @@ class Window extends Component {
     }
   }
 
+  setZIndex(indexedStackOrder) {
+    const {index} = this.props;
+    this.setState({
+      zIndex: indexedStackOrder.length - indexedStackOrder[index] + 1
+    });
+  }
+
   componentWillMount() {
     tabs.addChangeListener(state => {
-      const rank = state.indexedStackOrder[this.props.index];
-      this.setState({
-        zIndex: state.indexedStackOrder.length - rank + 1
-      });
-    })
+      this.setZIndex(state.indexedStackOrder);
+    });
+    this.setZIndex(tabs.getIndexedStackOrder());
   }
 
   render() {
