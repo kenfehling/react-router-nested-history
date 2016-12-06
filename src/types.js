@@ -3,20 +3,14 @@
 export interface Page {
   url: string;
   id: number;
+  containerIndex: number;
 }
 
-export interface BrowserPage extends Page {
-  container: Container;
+export interface History {
+  back: Page[];
+  current: Page;
+  forward: Page[];
 }
-
-export interface History<P:Page> {
-  back: P[];
-  current: P;
-  forward: P[];
-}
-
-export interface ContainerHistory extends History<Page> {}
-export interface BrowserHistory extends History<BrowserPage> {}
 
 export interface ContainerConfig {
   initialUrl: string;
@@ -24,19 +18,24 @@ export interface ContainerConfig {
 }
 
 export interface Container {
+  index: number;
   initialUrl: string;
   urlPatterns: string[];
   isDefault: boolean;
-  group: number;
-  index: number;
-  history: ContainerHistory;
+  history: History;
+  groupIndex: number;
+}
+
+export interface Group {
+  index: number,
+  containers: Container[],
+  history: History
 }
 
 export interface State {
-  browserHistory: BrowserHistory;
-  containers: Container[];
-  lastId: number;
-  lastGroup: number;
+  groups: Group[];
+  activeGroupIndex: number;
+  lastPageId: number;
 }
 
 export interface StateSnapshot extends State {

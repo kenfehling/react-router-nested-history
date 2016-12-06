@@ -5,8 +5,10 @@ declare var it:any;
 declare var expect:any;
 import * as util from '../../src/util/history';
 import { push, back, forward, go } from '../../src/browserFunctions';
-import { SET_CONTAINERS, PUSH, BACK, FORWARD } from "../../src/constants/ActionTypes";
+import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD } from "../../src/constants/ActionTypes";
 import type { ContainerConfig, State, StateSnapshot } from '../../src/types';
+import * as _ from "lodash";
+import fp from 'lodash/fp';
 
 describe('history utils', () => {
   const containerConfigs : ContainerConfig[] = [
@@ -17,7 +19,8 @@ describe('history utils', () => {
 
   const originalState = util.reducer(null,
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
-  const containers = originalState.containers;
+  const group = originalState.groups[0];
+  const containers = group.containers;
 
   const a = {url: '/a', id: 1, container: containers[0]};
   const b = {url: '/b', id: 2, container: containers[1]};
@@ -32,12 +35,12 @@ describe('history utils', () => {
       {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
       {type: PUSH, url: '/a/1'}
     ]);
-    expect(newState.browserHistory.current.url).toEqual('/a/1');
-    expect(newState.browserHistory.back.length).toEqual(1);
-    expect(newState.browserHistory.back[0].url).toEqual('/a');
+    expect(newState.groups[0].history.current.url).toEqual('/a/1');
+    expect(newState.groups[0].history.back.length).toEqual(1);
+    expect(newState.groups[0].history.back[0].url).toEqual('/a');
   });
 
-  it('handles existing state', () => {
+  describe('handles existing state', () => {
     const perform = (action): State => util.reducer(originalState, action);
     const performAll = (actions): State => util.reduceAll(originalState, actions);
 
@@ -46,8 +49,8 @@ describe('history utils', () => {
       const steps = util.diffStateToSteps(originalState, newState);
       expect(steps).toEqual([
         {fn: back, args: [1]},
-        {fn: push, args: [newState.browserHistory.back[0]]},
-        {fn: push, args: [newState.browserHistory.current]}
+        {fn: push, args: [newState.groups[0].history.back[0]]},
+        {fn: push, args: [newState.groups[0].history.current]}
       ]);
     });
 
@@ -56,8 +59,8 @@ describe('history utils', () => {
       const steps = util.diffStateToSteps(originalState, newState);
       expect(steps).toEqual([
         {fn: back, args: [1]},
-        {fn: push, args: [newState.browserHistory.current]},
-        {fn: push, args: [newState.browserHistory.forward[0]]},
+        {fn: push, args: [newState.groups[0].history.current]},
+        {fn: push, args: [newState.groups[0].history.forward[0]]},
         {fn: back, args: [1]}
       ]);
     });
@@ -71,21 +74,41 @@ describe('history utils', () => {
       const actions = [
         {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
       ];
-      expect(util.getContainerStackOrder(actions)).toEqual(containers);
+      expect(util.getContainerStackOrder(actions, 0)).toEqual(containers);
+    });
+
+    it('gets container stack order (default) 2', () => {
+      const actions = [
+        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2},
+      ];
+      expect(util.getContainerStackOrder(actions, 0)).toEqual(fp.reverse(containers));
+    });
+
+    it('gets container stack order (default) b', () => {
+      const actions = [
+        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'},
+      ];
+      expect(util.getContainerStackOrder(actions, 0)).toEqual([
+          containers[1],
+          containers[0],
+          containers[2]
+      ]);
     });
 
     it('gets indexed container stack order (default)', () => {
       const actions = [
         {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
       ];
-      expect(util.getIndexedContainerStackOrder(actions)).toEqual([0, 1, 2]);
+      expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([0, 1, 2]);
     });
 
     it('gets indexed container stack order (non-default)', () => {
       const actions = [
         {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'}
       ];
-      expect(util.getIndexedContainerStackOrder(actions)).toEqual([1, 0, 2]);
+      expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([1, 0, 2]);
     });
   });
 });
