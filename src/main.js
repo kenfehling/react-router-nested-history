@@ -4,7 +4,7 @@ import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE 
 import * as actions from './actions/HistoryActions';
 import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
-import { diffStateToSteps, deriveState, getActiveContainer, getActiveGroup, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
+import { diffStateToSteps, deriveState, getActiveGroup, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
 import store from './store';
 import * as _ from 'lodash';
 import type { State, Group, Container, ContainerConfig, StateSnapshot, Step } from './types';
@@ -40,7 +40,7 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
   const groupIndex:number = group.index;
   return {
     switchTo: (index:number) => switchToContainer(groupIndex, index),
-    getActive: () => getActiveContainer(store.getState(), groupIndex),
+    getActive: () => group.containers[group.history.current.containerIndex],
     getStackOrder: () => getContainerStackOrder(store.getState(), groupIndex),
     getIndexedStackOrder: () => getIndexedContainerStackOrder(store.getState(), groupIndex),
     addChangeListener: (fn:Function) => store.subscribe(() => {
@@ -48,6 +48,9 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
       const state:State = deriveState(actions);
       const group:Group = state.groups[groupIndex];
       const currentUrl:string = group.history.current.url;
+
+      console.log(group.containers, group.history);
+
       const activeContainer:Container = group.containers[group.history.current.containerIndex];
       const stackOrder:Container[] = getContainerStackOrder(actions, groupIndex);
       const indexedStackOrder:number[] = getIndexedContainerStackOrder(actions, groupIndex);

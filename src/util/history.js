@@ -199,10 +199,6 @@ export function getIndexedContainerStackOrder(actionHistory:Object[], groupIndex
   return _.map(_.sortBy(values, s => s.index), s => s.i);
 }
 
-export function getActiveContainer(actionHistory:Object[], groupIndex:number) : Container {
-  return _.first(getContainerStackOrder(actionHistory, groupIndex));
-}
-
 export function getContainer(state:State, groupIndex:number, index:number):Container {
   return state.groups[groupIndex].containers[index];
 }

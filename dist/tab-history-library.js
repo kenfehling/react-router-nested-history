@@ -155,7 +155,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return switchToContainer(groupIndex, index);
 	    },
 	    getActive: function getActive() {
-	      return (0, _history.getActiveContainer)(_store2.default.getState(), groupIndex);
+	      return group.containers[group.history.current.containerIndex];
 	    },
 	    getStackOrder: function getStackOrder() {
 	      return (0, _history.getContainerStackOrder)(_store2.default.getState(), groupIndex);
@@ -169,6 +169,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var state = (0, _history.deriveState)(actions);
 	        var group = state.groups[groupIndex];
 	        var currentUrl = group.history.current.url;
+
+	        console.log(group.containers, group.history);
+
 	        var activeContainer = group.containers[group.history.current.containerIndex];
 	        var stackOrder = (0, _history.getContainerStackOrder)(actions, groupIndex);
 	        var indexedStackOrder = (0, _history.getIndexedContainerStackOrder)(actions, groupIndex);
@@ -1259,7 +1262,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.reducer = reducer;
 	exports.getContainerStackOrder = getContainerStackOrder;
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
-	exports.getActiveContainer = getActiveContainer;
 	exports.getContainer = getContainer;
 	exports.getActiveGroup = getActiveGroup;
 
@@ -1506,10 +1508,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }), function (s) {
 	    return s.i;
 	  });
-	}
-
-	function getActiveContainer(actionHistory, groupIndex) {
-	  return _.first(getContainerStackOrder(actionHistory, groupIndex));
 	}
 
 	function getContainer(state, groupIndex, index) {

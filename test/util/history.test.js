@@ -86,6 +86,17 @@ describe('history utils', () => {
       expect(util.getContainerStackOrder(actions, 0)).toEqual(fp.reverse(containers));
     });
 
+    it('gets container stack order (default) b', () => {
+      const actions = [
+        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'},
+      ];
+      expect(util.getContainerStackOrder(actions, 0)).toEqual([
+          containers[1],
+          containers[0],
+          containers[2]
+      ]);
+    });
+
     it('gets indexed container stack order (default)', () => {
       const actions = [
         {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
