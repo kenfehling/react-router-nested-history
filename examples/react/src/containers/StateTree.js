@@ -1,46 +1,35 @@
 import React, { Component } from 'react';
 import { addChangeListener } from '../../../../dist/tab-history-library';
-import TreeView from 'react-treeview';
 import './StateTree.css';
 
 const HistoryTree = ({history, className}) => (
-  <TreeView nodeLabel={'History'}>
-    {history.back.map((page, i) =>
-        <div key={i}>
-          <TreeView
-              key={i}
-              nodeLabel={page.url}>
-
-          </TreeView>
-        </div>)}
-    <div><span className={`${className} current-page`}>{history.current.url}</span></div>
-    {history.forward.map((page, i) =>
-        <div key={i}>
-          <TreeView
-              key={i}
-              nodeLabel={page.url}>
-
-          </TreeView>
-        </div>)}
-  </TreeView>
+  <div>
+    <div>
+      {history.back.map((page, i) => <div key={i}>{page.url}</div>)}
+    </div>
+    <div>
+      <span className={`${className} current-page`}>{history.current.url}</span>
+    </div>
+    <div>
+      {history.forward.map((page, i) => <div key={i}>{page.url}</div>)}
+    </div>
+  </div>
 );
 
 const StateTree = ({state}) => (
   <div className="history-tree">
       {state.groups ? state.groups.map(group =>
           <div key={group.index}>
-            <TreeView key={group.index} nodeLabel={'Group ' + group.index}>
+            <div>{'Group ' + group.index}</div>
               <HistoryTree history={group.history} className="group" />
-              {group.containers.map(container =>
-                <div key={container.index}>
-                  <TreeView
-                    key={container.index}
-                    nodeLabel={'Container ' + container.index}>
+              <div>
+                {group.containers.map(container =>
+                  <div key={container.index}>
+                    <div>{'Container ' + container.index}</div>
                     <HistoryTree history={container.history} className="container" />
-                    </TreeView>
-                </div>
-              )}
-            </TreeView>
+                  </div>
+                )}
+              </div>
           </div>) : ''}
   </div>
 );
