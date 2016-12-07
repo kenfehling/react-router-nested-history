@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs';
-import { setContainers } from '../../../../dist/tab-history-library';
-import { Match, Link } from 'react-router';
+import { setContainers, Match } from '../../../../dist/tab-history-library';
+import { Link } from 'react-router';
 import './Tabs.css';
 import TabMaster1 from "../components/TabMaster1";
 import TabMaster2 from "../components/TabMaster2";

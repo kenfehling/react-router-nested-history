@@ -75,7 +75,7 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
   return _.flatten([
     h1 ? {fn: browser.back, args: [h1.back.length + 1]} : [],
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
-    {fn: browser.push, args: [h2.current]},
+    {fn: browser.push, args: [h2.current, true]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ]);
@@ -84,8 +84,9 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
 export const constructNewHistory = (state:State, newCurrentId:number) : State => {
   const shiftAmount = getHistoryShiftAmount(state, newCurrentId);
   if (shiftAmount === 0) {
-    console.error(state, newCurrentId);
-    throw new Error("This should be used for back and forward");
+    return state;
+    //console.error(state, newCurrentId);
+    //throw new Error("This should be used for back and forward");
   }
   else {
     return go(state, shiftAmount);
