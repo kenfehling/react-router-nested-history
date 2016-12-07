@@ -73,7 +73,7 @@ export const push = (groupIndex:number, containerIndex:number, url:string) => {
   if (activeGroup.index !== groupIndex || activeContainer.index !== containerIndex) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex));
   }
-  store.dispatch(actions.push(groupIndex, url));
+  store.dispatch(actions.push(url));
 };
 
 export const go = (n:number=1) => store.dispatch(actions.go(n));

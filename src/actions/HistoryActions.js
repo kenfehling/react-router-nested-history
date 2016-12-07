@@ -15,9 +15,8 @@ export const switchToContainer = (groupIndex:number, containerIndex:number) => (
   containerIndex
 });
 
-export const push = (groupIndex:number, url: string) => ({
+export const push = (url: string) => ({
   type: PUSH,
-  groupIndex,
   url
 });
 

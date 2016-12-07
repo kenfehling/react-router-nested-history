@@ -225,7 +225,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (activeGroup.index !== groupIndex || activeContainer.index !== containerIndex) {
 	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	  }
-	  _store2.default.dispatch(actions.push(groupIndex, url));
+	  _store2.default.dispatch(actions.push(url));
 	};
 
 	exports.push = _push;
@@ -332,10 +332,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 
-	var push = exports.push = function push(groupIndex, url) {
+	var push = exports.push = function push(url) {
 	  return {
 	    type: _ActionTypes.PUSH,
-	    groupIndex: groupIndex,
 	    url: url
 	  };
 	};
@@ -21413,7 +21412,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            location = _this3.oldLocation;
 	          }
 
-	          //console.log(match, this.oldMatch, reallyMatches(location), location);
+	          console.log(match, _this3.oldMatch, reallyMatches(location), location);
 
 	          var props = _extends({}, match, { location: location, pattern: pattern });
 	          return _react2.default.createElement(
