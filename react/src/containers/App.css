@@ -25,9 +25,9 @@ a {
 }
 
 .state-tree-container {
+  margin-top: 12px;
+  padding-right: 12px;
   width: 160px;
-  height: 100%;
-  overflow: auto;
 }
 
 .description {
