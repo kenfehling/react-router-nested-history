@@ -208,3 +208,7 @@ export function getContainer(state:State, groupIndex:number, index:number):Conta
 export function getActiveGroup(state:State):Group {
   return state.groups[state.activeGroupIndex];
 }
+
+export function isActivePage(state:State, id:number):boolean {
+  return getActiveGroup(state).history.current.id === id;
+}

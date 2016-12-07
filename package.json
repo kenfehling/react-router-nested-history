@@ -9,6 +9,7 @@
     "test": "test"
   },
   "scripts": {
+    "clean": "rimraf dist",
     "lint": "eslint src tests",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -42,6 +43,7 @@
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-router": "^4.0.0-alpha.6",
+    "rimraf": "^2.5.4",
     "webpack": "^1.11.0"
   },
   "peerDependencies": {

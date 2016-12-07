@@ -4,7 +4,7 @@ import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE 
 import * as actions from './actions/HistoryActions';
 import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
-import { diffStateToSteps, deriveState, getActiveGroup, getContainerStackOrder, getIndexedContainerStackOrder } from './util/history';
+import * as util from './util/history';
 import store from './store';
 import * as _ from 'lodash';
 import type { State, Group, Container, ContainerConfig, StateSnapshot, Step } from './types';
@@ -12,7 +12,7 @@ import type { State, Group, Container, ContainerConfig, StateSnapshot, Step } fr
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
 
-const getDerivedState = () : StateSnapshot => deriveState(store.getState());
+const getDerivedState = () : StateSnapshot => util.deriveState(store.getState());
 
 const startListening = () => {
   unlisten = listen(location => {
@@ -44,17 +44,17 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
   return {
     switchTo: (index:number) => switchToContainer(groupIndex, index),
     getActive: () => group.containers[group.history.current.containerIndex],
-    getStackOrder: () => getContainerStackOrder(store.getState(), groupIndex),
-    getIndexedStackOrder: () => getIndexedContainerStackOrder(store.getState(), groupIndex),
+    getStackOrder: () => util.getContainerStackOrder(store.getState(), groupIndex),
+    getIndexedStackOrder: () => util.getIndexedContainerStackOrder(store.getState(), groupIndex),
     addChangeListener: (fn:Function) => store.subscribe(() => {
       const actions:Array<Object> = store.getState();
-      const state:State = deriveState(actions);
+      const state:State = util.deriveState(actions);
       const group:Group = state.groups[groupIndex];
       const currentUrl:string = group.history.current.url;
       const activeContainer:Container = group.containers[group.history.current.containerIndex];
       const activeGroup:Group = state.groups[state.activeGroupIndex];
-      const stackOrder:Container[] = getContainerStackOrder(actions, groupIndex);
-      const indexedStackOrder:number[] = getIndexedContainerStackOrder(actions, groupIndex);
+      const stackOrder:Container[] = util.getContainerStackOrder(actions, groupIndex);
+      const indexedStackOrder:number[] = util.getIndexedContainerStackOrder(actions, groupIndex);
       fn({activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder});
     })
   };
@@ -66,6 +66,8 @@ export const push = (url:string) => store.dispatch(actions.push(url));
 export const go = (n:number=1) => store.dispatch(actions.go(n));
 export const back = (n:number=1) => store.dispatch(actions.back(n));
 export const forward = (n:number=1) => store.dispatch(actions.forward(n));
+
+export const isActivePage = (id:number) => util.isActivePage(getDerivedState(), id);
 
 function runSteps(steps:Step[]) {
   if (steps.length === 1) {
@@ -89,8 +91,8 @@ export function createSteps(state:StateSnapshot) : Step[] {
 
       {fn: browser.replace, args: [state.browserHistory.current]}
     ]; */
-    case SWITCH_TO_CONTAINER: return diffStateToSteps(state.previousState, state);
-    case PUSH: return [{fn: browser.push, args: [getActiveGroup(state).history.current]}];
+    case SWITCH_TO_CONTAINER: return util.diffStateToSteps(state.previousState, state);
+    case PUSH: return [{fn: browser.push, args: [util.getActiveGroup(state).history.current]}];
     case BACK:
     case FORWARD:
     case GO:

@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Match = exports.push = exports.setContainers = undefined;
+	exports.Match = exports.isActivePage = exports.push = exports.setContainers = undefined;
 
 	var _main = __webpack_require__(1);
 
@@ -73,6 +73,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  enumerable: true,
 	  get: function get() {
 	    return _main.push;
+	  }
+	});
+	Object.defineProperty(exports, 'isActivePage', {
+	  enumerable: true,
+	  get: function get() {
+	    return _main.isActivePage;
 	  }
 	});
 
@@ -93,7 +99,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.setContainers = undefined;
+	exports.isActivePage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.setContainers = undefined;
 	exports.createSteps = createSteps;
 
 	var _ActionTypes = __webpack_require__(2);
@@ -109,6 +115,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _historyListener = __webpack_require__(15);
 
 	var _history = __webpack_require__(16);
+
+	var util = _interopRequireWildcard(_history);
 
 	var _store = __webpack_require__(28);
 
@@ -128,7 +136,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var unlisten = void 0;
 
 	var getDerivedState = function getDerivedState() {
-	  return (0, _history.deriveState)(_store2.default.getState());
+	  return util.deriveState(_store2.default.getState());
 	};
 
 	var startListening = function startListening() {
@@ -170,21 +178,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return group.containers[group.history.current.containerIndex];
 	    },
 	    getStackOrder: function getStackOrder() {
-	      return (0, _history.getContainerStackOrder)(_store2.default.getState(), groupIndex);
+	      return util.getContainerStackOrder(_store2.default.getState(), groupIndex);
 	    },
 	    getIndexedStackOrder: function getIndexedStackOrder() {
-	      return (0, _history.getIndexedContainerStackOrder)(_store2.default.getState(), groupIndex);
+	      return util.getIndexedContainerStackOrder(_store2.default.getState(), groupIndex);
 	    },
 	    addChangeListener: function addChangeListener(fn) {
 	      return _store2.default.subscribe(function () {
 	        var actions = _store2.default.getState();
-	        var state = (0, _history.deriveState)(actions);
+	        var state = util.deriveState(actions);
 	        var group = state.groups[groupIndex];
 	        var currentUrl = group.history.current.url;
 	        var activeContainer = group.containers[group.history.current.containerIndex];
 	        var activeGroup = state.groups[state.activeGroupIndex];
-	        var stackOrder = (0, _history.getContainerStackOrder)(actions, groupIndex);
-	        var indexedStackOrder = (0, _history.getIndexedContainerStackOrder)(actions, groupIndex);
+	        var stackOrder = util.getContainerStackOrder(actions, groupIndex);
+	        var indexedStackOrder = util.getIndexedContainerStackOrder(actions, groupIndex);
 	        fn({ activeContainer: activeContainer, activeGroup: activeGroup, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder });
 	      });
 	    }
@@ -208,6 +216,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var forward = exports.forward = function forward() {
 	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 	  return _store2.default.dispatch(actions.forward(n));
+	};
+
+	var isActivePage = exports.isActivePage = function isActivePage(id) {
+	  return util.isActivePage(getDerivedState(), id);
 	};
 
 	function runSteps(steps) {
@@ -234,9 +246,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                      {fn: browser.replace, args: [state.browserHistory.current]}
 	                                      ]; */
 	    case _ActionTypes.SWITCH_TO_CONTAINER:
-	      return (0, _history.diffStateToSteps)(state.previousState, state);
+	      return util.diffStateToSteps(state.previousState, state);
 	    case _ActionTypes.PUSH:
-	      return [{ fn: browser.push, args: [(0, _history.getActiveGroup)(state).history.current] }];
+	      return [{ fn: browser.push, args: [util.getActiveGroup(state).history.current] }];
 	    case _ActionTypes.BACK:
 	    case _ActionTypes.FORWARD:
 	    case _ActionTypes.GO:
@@ -1280,6 +1292,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	exports.getContainer = getContainer;
 	exports.getActiveGroup = getActiveGroup;
+	exports.isActivePage = isActivePage;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -1534,6 +1547,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function getActiveGroup(state) {
 	  return state.groups[state.activeGroupIndex];
+	}
+
+	function isActivePage(state, id) {
+	  return getActiveGroup(state).history.current.id === id;
 	}
 
 /***/ },
@@ -21225,6 +21242,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _Broadcasts = __webpack_require__(84);
 
+	var _main = __webpack_require__(1);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -21300,10 +21319,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return RegisterMatch;
 	}(_react2.default.Component);
 
+	// Added by Ken Fehling to support multiple groups of nested tabs/windows
+
+
 	RegisterMatch.contextTypes = {
 	  match: _react.PropTypes.object,
 	  serverRouter: _react.PropTypes.object
 	};
+	function reallyMatches(location) {
+	  return (0, _main.isActivePage)(location.state.id);
+	}
 
 	var _class = function (_reactRouter$Match) {
 	  _inherits(_class, _reactRouter$Match);
@@ -21334,18 +21359,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	          var parent = matchContext && matchContext.parent;
 	          var newMatch = (0, _matchPattern2.default)(pattern, location, exactly, parent);
 
+	          // Added by Ken Fehling to support multiple groups of nested tabs/windows
 	          var groupMatch = (0, _matchPattern2.default)('/tabs', location, false, parent);
-
-	          console.log(groupMatch, location);
-
 	          var match = void 0;
 	          if (!!groupMatch) {
+	            // the change was inside this tab group
 	            if (!!newMatch && location.state.real) {
+	              // if this was a change to this tab
 	              _this3.oldMatch = newMatch;
 	            }
-	            match = newMatch;
+	            match = newMatch; // proceed normally
 	          } else {
-	            match = _this3.oldMatch;
+	            // the change was outside this tab group
+	            match = _this3.oldMatch; // keep showing the page you were on
 	          }
 
 	          var props = _extends({}, match, { location: location, pattern: pattern });
@@ -21355,7 +21381,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _react2.default.createElement(
 	              _MatchProvider2.default,
 	              { match: match },
-	              children ? children(_extends({ matched: !!match }, props)) : match ? render ? render(props) : _react2.default.createElement(Component, props) : null
+	              children ? children(_extends({ matched: !!match && reallyMatches(location) }, props)) : match ? render ? render(props) : _react2.default.createElement(Component, props) : null
 	            )
 	          );
 	        }

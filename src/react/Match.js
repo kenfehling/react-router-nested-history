@@ -3,6 +3,7 @@ import * as reactRouter from 'react-router';
 import MatchProvider from 'react-router/MatchProvider';
 import matchPattern from 'react-router/matchPattern';
 import { LocationSubscriber } from 'react-router/Broadcasts';
+import { isActivePage } from '../main';
 
 class RegisterMatch extends React.Component {
   static contextTypes = {
@@ -54,6 +55,11 @@ class RegisterMatch extends React.Component {
   }
 }
 
+// Added by Ken Fehling to support multiple groups of nested tabs/windows
+function reallyMatches(location) {
+  return isActivePage(location.state.id);
+}
+
 export default class extends reactRouter.Match {
 
   render() {
@@ -72,7 +78,7 @@ export default class extends reactRouter.Match {
           const parent = matchContext && matchContext.parent;
           const newMatch = matchPattern(pattern, location, exactly, parent);
 
-          // Added code by Ken Fehling to support multiple groups of nested tabs/windows
+          // Added by Ken Fehling to support multiple groups of nested tabs/windows
           const groupMatch = matchPattern('/tabs', location, false, parent);
           let match;
           if (!!groupMatch) {  // the change was inside this tab group
@@ -90,7 +96,7 @@ export default class extends reactRouter.Match {
               <RegisterMatch match={match}>
                 <MatchProvider match={match}>
                   {children ? (
-                      children({ matched: !!match, ...props })
+                      children({ matched: !!match && reallyMatches(location), ...props })
                   ) : match ? (
                       render ? (
                           render(props)
