@@ -2,6 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs';
 import { setContainers, Match } from '../../../../dist/tab-history-library';
 import { Link } from 'react-router';
+import { TransitionMotion, spring } from 'react-motion';
 import './Tabs.css';
 import TabMaster1 from "../components/TabMaster1";
 import TabMaster2 from "../components/TabMaster2";
@@ -16,10 +17,41 @@ const tabsConfig = [
 
 const tabs = setContainers(tabsConfig);
 
+
+const MatchWithFade = ({ component:Component, ...rest }) => {
+  const willLeave = () => ({ zIndex: 1, opacity: spring(0) });
+
+  return (
+      <Match {...rest} children={({ matched, ...props }) => (
+      <TransitionMotion
+        willLeave={willLeave}
+        styles={matched ? [ {
+          key: props.location.pathname,
+          style: { opacity: 1 },
+          data: props
+        } ] : []}
+      >
+        {interpolatedStyles => (
+          <div>
+            {interpolatedStyles.map(config => (
+              <div
+                key={config.key}
+                style={config.style}
+              >
+                <Component {...config.data}/>
+              </div>
+            ))}
+          </div>
+        )}
+      </TransitionMotion>
+    )}/>
+  )
+};
+
 export const Tab1 = () => (
   <div>
-    <Match exactly pattern="/tabs/1" component={TabMaster1} />
-    <Match exactly pattern="/tabs/1/:page" component={TabPage} />
+    <MatchWithFade exactly pattern="/tabs/1" component={TabMaster1} />
+    <MatchWithFade exactly pattern="/tabs/1/:page" component={TabPage} />
   </div>
 );
 
