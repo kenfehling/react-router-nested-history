@@ -43,6 +43,7 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
   const groupIndex:number = group.index;
   return {
     switchTo: (index:number) => switchToContainer(groupIndex, index),
+    push: (containerIndex:number, url:string) => push(groupIndex, containerIndex, url),
     getActive: () => group.containers[group.history.current.containerIndex],
     getStackOrder: () => util.getContainerStackOrder(store.getState(), groupIndex),
     getIndexedStackOrder: () => util.getIndexedContainerStackOrder(store.getState(), groupIndex),
@@ -64,7 +65,17 @@ export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDe
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) =>
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex));
-export const push = (url:string) => store.dispatch(actions.push(url));
+
+export const push = (groupIndex:number, containerIndex:number, url:string) => {
+  const state = getDerivedState();
+  const activeGroup = util.getActiveGroup(state);
+  const activeContainer = util.getActiveContainer(activeGroup);
+  if (activeGroup.index !== groupIndex || activeContainer.index !== containerIndex) {
+    store.dispatch(actions.switchToContainer(groupIndex, containerIndex));
+  }
+  store.dispatch(actions.push(groupIndex, url));
+};
+
 export const go = (n:number=1) => store.dispatch(actions.go(n));
 export const back = (n:number=1) => store.dispatch(actions.back(n));
 export const forward = (n:number=1) => store.dispatch(actions.forward(n));

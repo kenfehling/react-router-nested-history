@@ -180,6 +180,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    switchTo: function switchTo(index) {
 	      return switchToContainer(groupIndex, index);
 	    },
+	    push: function push(containerIndex, url) {
+	      return _push(groupIndex, containerIndex, url);
+	    },
 	    getActive: function getActive() {
 	      return group.containers[group.history.current.containerIndex];
 	    },
@@ -214,9 +217,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
 	  return _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	};
-	var push = exports.push = function push(url) {
-	  return _store2.default.dispatch(actions.push(url));
+
+	var _push = function _push(groupIndex, containerIndex, url) {
+	  var state = getDerivedState();
+	  var activeGroup = util.getActiveGroup(state);
+	  var activeContainer = util.getActiveContainer(activeGroup);
+	  if (activeGroup.index !== groupIndex || activeContainer.index !== containerIndex) {
+	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
+	  }
+	  _store2.default.dispatch(actions.push(groupIndex, url));
 	};
+
+	exports.push = _push;
 	var go = exports.go = function go() {
 	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 	  return _store2.default.dispatch(actions.go(n));
@@ -320,9 +332,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 
-	var push = exports.push = function push(url) {
+	var push = exports.push = function push(groupIndex, url) {
 	  return {
 	    type: _ActionTypes.PUSH,
+	    groupIndex: groupIndex,
 	    url: url
 	  };
 	};
@@ -1304,6 +1317,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	exports.getContainer = getContainer;
 	exports.getActiveGroup = getActiveGroup;
+	exports.getActiveContainer = getActiveContainer;
 	exports.isPageActive = isPageActive;
 
 	var _ActionTypes = __webpack_require__(2);
@@ -1559,6 +1573,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function getActiveGroup(state) {
 	  return state.groups[state.activeGroupIndex];
+	}
+
+	function getActiveContainer(group) {
+	  return group.containers[group.history.current.containerIndex];
 	}
 
 	/**

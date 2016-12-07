@@ -4,7 +4,7 @@ import type { Page } from './types';
 
 let history = createBrowserHistory();
 
-export const push = (page:Page, real=false) => {
+export const push = (page:Page, real:boolean=false) => {
   const state = {id: page.id, real};
   history.push(page.url, state);
 

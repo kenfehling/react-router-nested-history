@@ -137,7 +137,9 @@ export function reducer(state:?State, action:Object) : State {
         newState.activeGroupIndex = group.index;
         return newState;
       }
-      case PUSH: { return push(state, action.url); }
+      case PUSH: {
+        return push(state, action.url);
+      }
       case BACK: { return {...state, ...go(state, 0 - action.n || -1)}; }
       case FORWARD:
       case GO: { return {...state, ...go(state, action.n || 1)}; }
@@ -207,6 +209,10 @@ export function getContainer(state:State, groupIndex:number, index:number):Conta
 
 export function getActiveGroup(state:State):Group {
   return state.groups[state.activeGroupIndex];
+}
+
+export function getActiveContainer(group:Group):Container {
+  return group.containers[group.history.current.containerIndex];
 }
 
 /**
