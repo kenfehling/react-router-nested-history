@@ -11,7 +11,7 @@ a {
   margin-top: 20px;
 }
 
-.tabs-container, .windows-container {
+.tabs-container, .windows-container, .state-tree-container {
   margin: 0 auto;
 }
 
@@ -20,8 +20,14 @@ a {
 }
 
 .windows-container {
-  width: 440px;
+  width: 400px;
   height: 440px;
+}
+
+.state-tree-container {
+  width: 160px;
+  height: 100%;
+  overflow: auto;
 }
 
 .description {

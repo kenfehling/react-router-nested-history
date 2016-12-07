@@ -1,0 +1,20 @@
+.history-tree {
+
+}
+
+.history-tree div {
+  margin-left: 4px;
+}
+
+.history-tree .current-page {
+  padding: 0 8px;
+}
+
+.history-tree .current-page.group {
+  background-color: #a1ff9d;
+}
+
+.history-tree .current-page.container {
+  background-color: #FE9;
+}
+

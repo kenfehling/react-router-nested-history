@@ -1,2 +1,2 @@
-export { setContainers, push, isPageActive } from './main';
+export { setContainers, push, isPageActive, addChangeListener } from './main';
 export Match from './react/Match';

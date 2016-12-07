@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Match = exports.isPageActive = exports.push = exports.setContainers = undefined;
+	exports.Match = exports.addChangeListener = exports.isPageActive = exports.push = exports.setContainers = undefined;
 
 	var _main = __webpack_require__(1);
 
@@ -81,6 +81,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return _main.isPageActive;
 	  }
 	});
+	Object.defineProperty(exports, 'addChangeListener', {
+	  enumerable: true,
+	  get: function get() {
+	    return _main.addChangeListener;
+	  }
+	});
 
 	var _Match2 = __webpack_require__(50);
 
@@ -99,7 +105,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.isPageActive = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.setContainers = undefined;
+	exports.isPageActive = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.addChangeListener = exports.setContainers = undefined;
 	exports.createSteps = createSteps;
 
 	var _ActionTypes = __webpack_require__(2);
@@ -197,6 +203,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      });
 	    }
 	  };
+	};
+
+	var addChangeListener = exports.addChangeListener = function addChangeListener(fn) {
+	  return _store2.default.subscribe(function () {
+	    return fn(getDerivedState());
+	  });
 	};
 
 	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
@@ -21373,8 +21385,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (!!newMatch && newLocation.state.real) {
 	              // if this was a change to this tab
 	              _this3.oldMatch = newMatch;
+	              _this3.oldLocation = newLocation;
 	            }
-	            _this3.oldLocation = newLocation;
 	            match = newMatch; // proceed normally
 	            location = newLocation;
 	          } else {
@@ -21383,7 +21395,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            location = _this3.oldLocation;
 	          }
 
-	          console.log(location);
+	          //console.log(match, this.oldMatch, reallyMatches(location), location);
 
 	          var props = _extends({}, match, { location: location, pattern: pattern });
 	          return _react2.default.createElement(

@@ -17,13 +17,14 @@ const tabsConfig = [
 
 const tabs = setContainers(tabsConfig);
 
-
 const MatchWithFade = ({ component:Component, ...rest }) => {
-  const willLeave = () => ({ zIndex: 1, opacity: spring(0) });
+  const willEnter = () => ({ opacity: spring(1) });
+  const willLeave = () => ({ opacity: spring(0) });
 
   return (
       <Match {...rest} children={({ matched, ...props }) => (
       <TransitionMotion
+        willEnter={willEnter}
         willLeave={willLeave}
         styles={matched ? [ {
           key: props.location.pathname,

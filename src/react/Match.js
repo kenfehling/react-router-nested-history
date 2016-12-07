@@ -84,8 +84,8 @@ export default class extends reactRouter.Match {
           if (!!groupMatch) {  // the change was inside this tab group
             if (!!newMatch && newLocation.state.real) {  // if this was a change to this tab
               this.oldMatch = newMatch;
+              this.oldLocation = newLocation;
             }
-            this.oldLocation = newLocation;
             match = newMatch;  // proceed normally
             location = newLocation;
           }
@@ -94,7 +94,7 @@ export default class extends reactRouter.Match {
             location = this.oldLocation;
           }
 
-          console.log(location);
+          //console.log(match, this.oldMatch, reallyMatches(location), location);
 
           const props = { ...match, location, pattern };
           return (
