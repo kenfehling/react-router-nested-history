@@ -3,7 +3,7 @@ import * as reactRouter from 'react-router';
 import MatchProvider from 'react-router/MatchProvider';
 import matchPattern from 'react-router/matchPattern';
 import { LocationSubscriber } from 'react-router/Broadcasts';
-import { isActivePage } from '../main';
+import { isPageActive } from '../main';
 
 class RegisterMatch extends React.Component {
   static contextTypes = {
@@ -57,7 +57,7 @@ class RegisterMatch extends React.Component {
 
 // Added by Ken Fehling to support multiple groups of nested tabs/windows
 function reallyMatches(location) {
-  return isActivePage(location.state.id);
+  return isPageActive(location.state.id);
 }
 
 export default class extends reactRouter.Match {
@@ -65,7 +65,7 @@ export default class extends reactRouter.Match {
   render() {
     return (
       <LocationSubscriber>
-        {(location) => {
+        {(newLocation) => {
           const {
               children,
               render,
@@ -76,20 +76,25 @@ export default class extends reactRouter.Match {
 
           const { match:matchContext } = this.context;
           const parent = matchContext && matchContext.parent;
-          const newMatch = matchPattern(pattern, location, exactly, parent);
+          const newMatch = matchPattern(pattern, newLocation, exactly, parent);
 
           // Added by Ken Fehling to support multiple groups of nested tabs/windows
-          const groupMatch = matchPattern('/tabs', location, false, parent);
-          let match;
+          const groupMatch = matchPattern('/tabs', newLocation, false, parent);
+          let match, location;
           if (!!groupMatch) {  // the change was inside this tab group
-            if (!!newMatch && location.state.real) {  // if this was a change to this tab
+            if (!!newMatch && newLocation.state.real) {  // if this was a change to this tab
               this.oldMatch = newMatch;
             }
+            this.oldLocation = newLocation;
             match = newMatch;  // proceed normally
+            location = newLocation;
           }
           else {  // the change was outside this tab group
             match = this.oldMatch;  // keep showing the page you were on
+            location = this.oldLocation;
           }
+
+          console.log(location);
 
           const props = { ...match, location, pattern };
           return (
@@ -111,30 +116,4 @@ export default class extends reactRouter.Match {
       </LocationSubscriber>
     )
   }
-
-  /*
-  componentWillReceiveProps(props) {
-    console.log("CWRP", props);
-  }
-
-  shouldComponentUpdate(props) {
-    console.log('CSU', props);
-    return true;
-  }
-
-  render() {
-    const {component} = this.props;
-
-    const r = (props) => {
-
-      console.log(props);
-
-      return component(props);
-    };
-
-    console.log("RENDER", this.props);
-
-    return <reactRouter.Match {...this.props} render={r} />
-  }
-  */
 };

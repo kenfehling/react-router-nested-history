@@ -209,6 +209,9 @@ export function getActiveGroup(state:State):Group {
   return state.groups[state.activeGroupIndex];
 }
 
-export function isActivePage(state:State, id:number):boolean {
-  return getActiveGroup(state).history.current.id === id;
+/**
+ * @returns {boolean} true if page is active in any group
+ */
+export function isPageActive(state:State, id:number):boolean {
+  return _.some(state.groups, group => group.history.current.id === id);
 }

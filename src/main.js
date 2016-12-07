@@ -67,7 +67,7 @@ export const go = (n:number=1) => store.dispatch(actions.go(n));
 export const back = (n:number=1) => store.dispatch(actions.back(n));
 export const forward = (n:number=1) => store.dispatch(actions.forward(n));
 
-export const isActivePage = (id:number) => util.isActivePage(getDerivedState(), id);
+export const isPageActive = (id:number) => util.isPageActive(getDerivedState(), id);
 
 function runSteps(steps:Step[]) {
   if (steps.length === 1) {

@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Match = exports.isActivePage = exports.push = exports.setContainers = undefined;
+	exports.Match = exports.isPageActive = exports.push = exports.setContainers = undefined;
 
 	var _main = __webpack_require__(1);
 
@@ -75,10 +75,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return _main.push;
 	  }
 	});
-	Object.defineProperty(exports, 'isActivePage', {
+	Object.defineProperty(exports, 'isPageActive', {
 	  enumerable: true,
 	  get: function get() {
-	    return _main.isActivePage;
+	    return _main.isPageActive;
 	  }
 	});
 
@@ -99,7 +99,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.isActivePage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.setContainers = undefined;
+	exports.isPageActive = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.setContainers = undefined;
 	exports.createSteps = createSteps;
 
 	var _ActionTypes = __webpack_require__(2);
@@ -218,8 +218,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.dispatch(actions.forward(n));
 	};
 
-	var isActivePage = exports.isActivePage = function isActivePage(id) {
-	  return util.isActivePage(getDerivedState(), id);
+	var isPageActive = exports.isPageActive = function isPageActive(id) {
+	  return util.isPageActive(getDerivedState(), id);
 	};
 
 	function runSteps(steps) {
@@ -1292,7 +1292,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	exports.getContainer = getContainer;
 	exports.getActiveGroup = getActiveGroup;
-	exports.isActivePage = isActivePage;
+	exports.isPageActive = isPageActive;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -1549,8 +1549,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return state.groups[state.activeGroupIndex];
 	}
 
-	function isActivePage(state, id) {
-	  return getActiveGroup(state).history.current.id === id;
+	/**
+	 * @returns {boolean} true if page is active in any group
+	 */
+	function isPageActive(state, id) {
+	  return _.some(state.groups, function (group) {
+	    return group.history.current.id === id;
+	  });
 	}
 
 /***/ },
@@ -21327,7 +21332,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  serverRouter: _react.PropTypes.object
 	};
 	function reallyMatches(location) {
-	  return (0, _main.isActivePage)(location.state.id);
+	  return (0, _main.isPageActive)(location.state.id);
 	}
 
 	var _class = function (_reactRouter$Match) {
@@ -21347,7 +21352,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return _react2.default.createElement(
 	        _Broadcasts.LocationSubscriber,
 	        null,
-	        function (location) {
+	        function (newLocation) {
 	          var _props = _this3.props,
 	              children = _props.children,
 	              render = _props.render,
@@ -21357,22 +21362,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	          var matchContext = _this3.context.match;
 
 	          var parent = matchContext && matchContext.parent;
-	          var newMatch = (0, _matchPattern2.default)(pattern, location, exactly, parent);
+	          var newMatch = (0, _matchPattern2.default)(pattern, newLocation, exactly, parent);
 
 	          // Added by Ken Fehling to support multiple groups of nested tabs/windows
-	          var groupMatch = (0, _matchPattern2.default)('/tabs', location, false, parent);
-	          var match = void 0;
+	          var groupMatch = (0, _matchPattern2.default)('/tabs', newLocation, false, parent);
+	          var match = void 0,
+	              location = void 0;
 	          if (!!groupMatch) {
 	            // the change was inside this tab group
-	            if (!!newMatch && location.state.real) {
+	            if (!!newMatch && newLocation.state.real) {
 	              // if this was a change to this tab
 	              _this3.oldMatch = newMatch;
 	            }
+	            _this3.oldLocation = newLocation;
 	            match = newMatch; // proceed normally
+	            location = newLocation;
 	          } else {
 	            // the change was outside this tab group
 	            match = _this3.oldMatch; // keep showing the page you were on
+	            location = _this3.oldLocation;
 	          }
+
+	          console.log(location);
 
 	          var props = _extends({}, match, { location: location, pattern: pattern });
 	          return _react2.default.createElement(
@@ -21387,26 +21398,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      );
 	    }
-
-	    /*
-	    componentWillReceiveProps(props) {
-	      console.log("CWRP", props);
-	    }
-	     shouldComponentUpdate(props) {
-	      console.log('CSU', props);
-	      return true;
-	    }
-	     render() {
-	      const {component} = this.props;
-	       const r = (props) => {
-	         console.log(props);
-	         return component(props);
-	      };
-	       console.log("RENDER", this.props);
-	       return <reactRouter.Match {...this.props} render={r} />
-	    }
-	    */
-
 	  }]);
 
 	  return _class;
