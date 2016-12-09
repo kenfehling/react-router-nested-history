@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Match = exports.addChangeListener = exports.isPageActive = exports.push = exports.setContainers = undefined;
+	exports.HistoryLink = exports.HistoryMatch = exports.addChangeListener = exports.isPageActive = exports.push = exports.setContainers = undefined;
 
 	var _main = __webpack_require__(1);
 
@@ -88,13 +88,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	});
 
-	var _Match2 = __webpack_require__(50);
+	var _HistoryMatch2 = __webpack_require__(50);
 
-	var _Match3 = _interopRequireDefault(_Match2);
+	var _HistoryMatch3 = _interopRequireDefault(_HistoryMatch2);
+
+	var _HistoryLink2 = __webpack_require__(110);
+
+	var _HistoryLink3 = _interopRequireDefault(_HistoryLink2);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	exports.Match = _Match3.default;
+	exports.HistoryMatch = _HistoryMatch3.default;
+	exports.HistoryLink = _HistoryLink3.default;
 
 /***/ },
 /* 1 */
@@ -21412,7 +21417,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            location = _this3.oldLocation;
 	          }
 
-	          console.log(match, _this3.oldMatch, reallyMatches(location), location);
+	          //console.log(match, this.oldMatch, reallyMatches(location), location);
 
 	          var props = _extends({}, match, { location: location, pattern: pattern });
 	          return _react2.default.createElement(
@@ -28497,6 +28502,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	exports.default = createServerRenderContext;
+
+/***/ },
+/* 110 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(51);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _main = __webpack_require__(1);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = function (_ref) {
+	  var to = _ref.to,
+	      children = _ref.children;
+	  return _react2.default.createElement(
+	    'a',
+	    { onClick: function onClick() {
+	        return (0, _main.push)(0, 0, to);
+	      } },
+	    children
+	  );
+	};
 
 /***/ }
 /******/ ])

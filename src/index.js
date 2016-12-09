@@ -1,2 +1,3 @@
 export { setContainers, push, isPageActive, addChangeListener } from './main';
-export Match from './react/Match';
+export HistoryMatch from './react/HistoryMatch';
+export HistoryLink from './react/HistoryLink';
