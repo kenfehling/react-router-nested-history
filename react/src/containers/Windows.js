@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { setContainers } from '../../../../dist/tab-history-library';
+import { setContainers, HistoryMatch } from '../../../../dist/tab-history-library';
 import './Windows.css';
 
 const tabs = setContainers([
