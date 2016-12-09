@@ -214,6 +214,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var addChangeListener = exports.addChangeListener = function addChangeListener(fn) {
+	  fn(getDerivedState());
 	  return _store2.default.subscribe(function () {
 	    return fn(getDerivedState());
 	  });

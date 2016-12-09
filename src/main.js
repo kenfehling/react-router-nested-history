@@ -61,7 +61,10 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
   };
 };
 
-export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()));
+export const addChangeListener = (fn:Function) => {
+  fn(getDerivedState());
+  return store.subscribe(() => fn(getDerivedState()));
+};
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) =>
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex));
