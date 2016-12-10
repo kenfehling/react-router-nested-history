@@ -1,5 +1,7 @@
 import React, { Component, PropTypes } from 'react';
-import { getNextGroupIndex, initGroup } from '../main';
+import { getNextGroupIndex, initGroup, getGroupFunctions} from '../../main';
+import { connect } from 'react-redux';
+import store from '../store';
 
 export default (WrappedComponent) => {
   const groupIndex = getNextGroupIndex();
@@ -22,7 +24,10 @@ export default (WrappedComponent) => {
     }
   }
 
-  return Group;
-};
+  const ConnectedGroup = connect(
+    state => getGroupFunctions(state, groupIndex),
+    {}
+  )(Group);
 
-// TODO: Use Redux to provide the `containers` to WrappedComponent
+  return () => <ConnectedGroup store={store} />;
+};

@@ -141,6 +141,9 @@ export function reducer(state:?State, action:Object) : State {
         return loadGroupFromUrl(state, action.groupIndex, action.currentUrl);
       }
       case SWITCH_TO_CONTAINER: {
+
+        console.log(state);
+
         const newState:State = _.cloneDeep(state);
         const group:Group = newState.groups[action.groupIndex];
         const fromContainer:Container = group.containers[group.history.current.containerIndex];
@@ -168,15 +171,20 @@ export function reducer(state:?State, action:Object) : State {
 
 export const reduceAll = (state:?State, actions:Object[]) : State => actions.reduce(reducer, state);
 
-export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
-  const lastAction = _.last(actionHistory);
-  const previousState = _.initial(actionHistory).reduce((state, action) =>
-      reducer(state, action), null);
-  const finalState = reducer(previousState, lastAction);
-  return {
-    ...finalState,
-    previousState,
-    lastAction
+export const deriveState = (actionHistory:Object[]) : ?StateSnapshot => {
+  if (actionHistory.length === 0) {
+    return null;
+  }
+  else {
+    const lastAction = _.last(actionHistory);
+    const previousState = _.initial(actionHistory).reduce((state, action) =>
+        reducer(state, action), null);
+    const finalState = reducer(previousState, lastAction);
+    return {
+      ...finalState,
+      previousState,
+      lastAction
+    }
   }
 };
 

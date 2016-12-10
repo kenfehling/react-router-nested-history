@@ -7,7 +7,7 @@ import { listen, listenPromise } from './historyListener';
 import * as util from './util/history';
 import store from './store';
 import * as _ from 'lodash';
-import type { StateSnapshot, Step } from './types';
+import type { StateSnapshot, Step, State, Group, Container } from './types';
 
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
@@ -37,11 +37,18 @@ startListening();
 
 export const getNextGroupIndex = () => {
   const state = getDerivedState();
-  return state.groups.length;
+  if (state) {
+    return state.groups.length;
+  }
+  else {
+    return 0;
+  }
 };
 
 export const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]) => {
   store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns));
+  const state = getDerivedState();
+  return _.last(state.groups[groupIndex].containers);
 };
 
 export const initGroup = (groupIndex:number) => {
@@ -49,18 +56,22 @@ export const initGroup = (groupIndex:number) => {
   store.dispatch(actions.initGroup(groupIndex, currentUrl));
 };
 
-/*
-export const setContainers = (containerConfigs: ContainerConfig[]) => {
-  //store.dispatch(actions.createContainer(...
-  const state:State = getDerivedState();
-  const group:Group = _.last(state.groups);
-  const groupIndex:number = group.index;
+export const getGroupFunctions = (state:?State, groupIndex:number) : Object => {
   return {
-    switchTo: (index:number) => switchToContainer(groupIndex, index),
+    switchToContainer: (index:number) => switchToContainer(groupIndex, index),
     push: (containerIndex:number, url:string) => push(groupIndex, containerIndex, url),
-    getActive: () => group.containers[group.history.current.containerIndex],
-    getStackOrder: () => util.getContainerStackOrder(store.getState(), groupIndex),
+    getActiveContainer: () : ?Container => {
+      if (state) {
+        const group = state.groups[groupIndex];
+        return group.containers[group.history.current.containerIndex];
+      }
+      else {
+        return null;
+      }
+    },
+    getContainerStackOrder: () => util.getContainerStackOrder(store.getState(), groupIndex),
     getIndexedStackOrder: () => util.getIndexedContainerStackOrder(store.getState(), groupIndex),
+    /*
     addChangeListener: (fn:Function) => store.subscribe(() => {
       const actions:Array<Object> = store.getState();
       const state:State = util.deriveState(actions);
@@ -72,9 +83,9 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
       const indexedStackOrder:number[] = util.getIndexedContainerStackOrder(actions, groupIndex);
       fn({activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder});
     })
+    */
   };
 };
-*/
 
 export const addChangeListener = (fn:Function) => {
   fn(getDerivedState());

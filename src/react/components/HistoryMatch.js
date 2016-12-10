@@ -3,7 +3,7 @@ import * as reactRouter from 'react-router';
 import MatchProvider from 'react-router/MatchProvider';
 import matchPattern from 'react-router/matchPattern';
 import { LocationSubscriber } from 'react-router/Broadcasts';
-import { isPageActive } from '../main';
+import { isPageActive } from '../../main';
 
 class RegisterMatch extends React.Component {
   static contextTypes = {

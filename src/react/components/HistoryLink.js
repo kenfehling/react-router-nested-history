@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { push } from '../main';
+import { push } from '../../main';
 
 export default class extends Component {
   static propTypes = {
