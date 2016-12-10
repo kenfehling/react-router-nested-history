@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs';
-import { HistoryMatch, ContainerGroup, Container } from '../../../../dist/tab-history-library';
+import { HistoryMatch, Container, createGroup } from '../../../../dist/tab-history-library';
 import { TransitionMotion, spring } from 'react-motion';
 import './Tabs.css';
 import TabMaster1 from "../components/TabMaster1";
@@ -71,39 +71,41 @@ class Tabs extends Component {
 
   constructor(props) {
     super(props);
-    const {containers} = props;
     this.state = {
-      currentTab: containers.getActive()
+      currentTabIndex: 0
     };
   }
 
+  /*
   componentWillMount() {
-    const {containers} = this.props;
-    containers.addChangeListener(state => {
+    const {addChangeListener} = this.props;
+    addChangeListener(state => {
       this.setState({currentTab: state.activeContainer});
     })
   }
+  */
 
   render() {
-    const {containers} = this.props;
+
+    console.log(this.props);
+
+    const {switchToContainer} = this.props;
     return (<div>
       <h2>Tabs example</h2>
       <div className="description">
         <p>Each tab has its own individual history.</p>
         <p>Clicking on an already active tab goes to the top of its history stack.</p>
       </div>
-      <ContainerGroup>
-        <ReactTabs selectedIndex={this.state.currentTab.index}>
-          <TabList>
-            <ReactTab onClick={() => containers.switchTo(0)}>One</ReactTab>
-            <ReactTab onClick={() => containers.switchTo(1)}>Two</ReactTab>
-            <ReactTab onClick={() => containers.switchTo(2)}>Three</ReactTab>
-          </TabList>
-          <TabPanel><div className="tab-content"><Tab1 /></div></TabPanel>
-          <TabPanel><div className="tab-content"><Tab2 /></div></TabPanel>
-          <TabPanel><div className="tab-content"><Tab3 /></div></TabPanel>
-        </ReactTabs>
-      </ContainerGroup>
+      <ReactTabs selectedIndex={this.state.currentTabIndex}>
+        <TabList>
+          <ReactTab onClick={() => switchToContainer(0)}>One</ReactTab>
+          <ReactTab onClick={() => switchToContainer(1)}>Two</ReactTab>
+          <ReactTab onClick={() => switchToContainer(2)}>Three</ReactTab>
+        </TabList>
+        <TabPanel><div className="tab-content"><Tab1 /></div></TabPanel>
+        <TabPanel><div className="tab-content"><Tab2 /></div></TabPanel>
+        <TabPanel><div className="tab-content"><Tab3 /></div></TabPanel>
+      </ReactTabs>
     </div>);
   }
 }
