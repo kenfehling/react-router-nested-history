@@ -61,7 +61,6 @@ function reallyMatches(location) {
 }
 
 export default class extends reactRouter.Match {
-
   render() {
     return (
       <LocationSubscriber>

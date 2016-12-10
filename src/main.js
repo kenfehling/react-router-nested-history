@@ -1,13 +1,13 @@
 // @flow
 
-import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes";
+import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes";
 import * as actions from './actions/HistoryActions';
 import * as browser from './browserFunctions';
 import { listen, listenPromise } from './historyListener';
 import * as util from './util/history';
 import store from './store';
 import * as _ from 'lodash';
-import type { State, Group, Container, ContainerConfig, StateSnapshot, Step } from './types';
+import type { StateSnapshot, Step } from './types';
 
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
@@ -35,9 +35,23 @@ const startListeningPromise = () => new Promise(resolve => {
 
 startListening();
 
-export const setContainers = (containerConfigs: ContainerConfig[]) => {
+export const getNextGroupIndex = () => {
+  const state = getDerivedState();
+  return state.groups.length;
+};
+
+export const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]) => {
+  store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns));
+};
+
+export const initGroup = (groupIndex:number) => {
   const currentUrl:string = window.location.pathname;
-  store.dispatch(actions.setContainers(containerConfigs, currentUrl));
+  store.dispatch(actions.initGroup(groupIndex, currentUrl));
+};
+
+/*
+export const setContainers = (containerConfigs: ContainerConfig[]) => {
+  //store.dispatch(actions.createContainer(...
   const state:State = getDerivedState();
   const group:Group = _.last(state.groups);
   const groupIndex:number = group.index;
@@ -60,6 +74,7 @@ export const setContainers = (containerConfigs: ContainerConfig[]) => {
     })
   };
 };
+*/
 
 export const addChangeListener = (fn:Function) => {
   fn(getDerivedState());
@@ -102,11 +117,12 @@ function runSteps(steps:Step[]) {
 }
 
 export function createSteps(state:StateSnapshot) : Step[] {
-  switch(state.lastAction.type) {
-    case SET_CONTAINERS: /* return [
 
-      {fn: browser.replace, args: [state.browserHistory.current]}
-    ]; */
+  console.log(state);
+
+  switch(state.lastAction.type) {
+    case CREATE_CONTAINER:
+    case INIT_GROUP:
     case SWITCH_TO_CONTAINER: return util.diffStateToSteps(state.previousState, state);
     case PUSH: return [{fn: browser.push, args: [util.getActiveGroup(state).history.current]}];
     case BACK:

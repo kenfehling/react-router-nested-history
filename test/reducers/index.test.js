@@ -5,22 +5,24 @@ declare var it:any;
 declare var expect:any;
 import reducer from '../../src/reducers/index';
 import { deriveState } from '../../src/util/history';
-import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, POPSTATE } from "../../src/constants/ActionTypes";
-import type { ContainerConfig, State, StateSnapshot } from '../../src/types';
+import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, POPSTATE } from "../../src/constants/ActionTypes";
+import type { State, StateSnapshot } from '../../src/types';
+
+const createContainers = (currentUrl='/a') => [
+  {type: CREATE_CONTAINER, initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/c', urlPatterns: ['/c', '/c/*']},
+  {type: INIT_GROUP, groupIndex: 0, currentUrl}
+];
+
+const createContainers2 = (currentUrl='/e') => [
+  {type: CREATE_CONTAINER, initialUrl: '/e', urlPatterns: ['/e', '/e/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/f', urlPatterns: ['/f', '/f/*']},
+  {type: INIT_GROUP, groupIndex: 1, currentUrl}
+];
 
 describe('reducer', () => {
-  const containerConfigs : ContainerConfig[] = [
-    {initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
-    {initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
-    {initialUrl: '/c', urlPatterns: ['/c', '/c/*']}
-  ];
-
-  const containerConfigs2 : ContainerConfig[] = [
-    {initialUrl: '/e', urlPatterns: ['/e', '/e/*']},
-    {initialUrl: '/f', urlPatterns: ['/f', '/f/*']},
-  ];
-
-  const tempState = deriveState(reducer([], {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}));
+  const tempState = deriveState(createContainers());
   const group = tempState.groups[0];
   const containers = group.containers;
 
@@ -29,7 +31,7 @@ describe('reducer', () => {
     const performAll = (actions) : StateSnapshot => deriveState(actions);
 
     it('loads with default container', () => {
-      const result = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
+      const result = performAll(createContainers());
       expect(result.groups[0].history.current.url).toBe('/a');
       expect(result.groups[0].containers.length).toBe(3);
       expect(result.groups[0].containers[0].history.current.url).toBe('/a');
@@ -40,15 +42,18 @@ describe('reducer', () => {
     });
 
     it('loads with non-default container', () => {
-      const result = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'});
+      const result = performAll(createContainers('/b'));
       expect(result.groups[0].history.back.length).toBe(1);
       expect(result.groups[0].history.back[0].url).toBe('/a');
       expect(result.groups[0].history.current.url).toBe('/b');
       expect(result.groups[0].history.current.containerIndex).toBe(1);
     });
 
-    it('loads with non-initial page on default container', () => {
-      const result = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a/1'});
+    it.only('loads with non-initial page on default container', () => {
+      const result = performAll(createContainers('/a/1'));
+
+      console.log(result.groups[0].history);
+
       expect(result.groups[0].history.back.length).toBe(1);
       expect(result.groups[0].history.current.url).toBe('/a/1');
       expect(result.groups[0].history.current.id).toBe(4);
@@ -58,7 +63,7 @@ describe('reducer', () => {
     });
 
     it('loads with non-initial page on non-default container', () => {
-      const result = perform({type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b/1'});
+      const result = performAll(createContainers('/b/1'));
       expect(result.groups[0].history.back.length).toBe(2);
       expect(result.groups[0].history.back[0].url).toBe('/a');
       expect(result.groups[0].history.back[1].url).toBe('/b');
@@ -72,7 +77,7 @@ describe('reducer', () => {
 
   describe('with initial state', () => {
     const state = [
-      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+      ...createContainers(),
       {type: PUSH, url: '/a/1'},
       {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1}
     ];
@@ -176,7 +181,7 @@ describe('reducer', () => {
 
   it('switches container, goes back, switches container back', () => {
     const actions = [
-      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+      ...createContainers(),
       {type: PUSH, url: '/a/1'},
       {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
       {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 0},
@@ -197,8 +202,8 @@ describe('reducer', () => {
 
   it('switches group without affecting other group', () => {
     const actions = [
-      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
-      {type: SET_CONTAINERS, containers: containerConfigs2, currentUrl: '/e'},
+      ...createContainers(),
+      ...createContainers2(),
       {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2},
       {type: SWITCH_TO_CONTAINER, groupIndex: 1, containerIndex: 1}
     ];

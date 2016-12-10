@@ -59,14 +59,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.HistoryLink = exports.HistoryMatch = exports.addChangeListener = exports.isPageActive = exports.push = exports.setContainers = undefined;
+	exports.Container = exports.createGroup = exports.HistoryLink = exports.HistoryMatch = exports.addChangeListener = exports.isPageActive = exports.push = exports.getNextGroupIndex = exports.createContainer = undefined;
 
 	var _main = __webpack_require__(1);
 
-	Object.defineProperty(exports, 'setContainers', {
+	Object.defineProperty(exports, 'createContainer', {
 	  enumerable: true,
 	  get: function get() {
-	    return _main.setContainers;
+	    return _main.createContainer;
+	  }
+	});
+	Object.defineProperty(exports, 'getNextGroupIndex', {
+	  enumerable: true,
+	  get: function get() {
+	    return _main.getNextGroupIndex;
 	  }
 	});
 	Object.defineProperty(exports, 'push', {
@@ -96,10 +102,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _HistoryLink3 = _interopRequireDefault(_HistoryLink2);
 
+	var _createGroup2 = __webpack_require__(111);
+
+	var _createGroup3 = _interopRequireDefault(_createGroup2);
+
+	var _Container2 = __webpack_require__(112);
+
+	var _Container3 = _interopRequireDefault(_Container2);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	exports.HistoryMatch = _HistoryMatch3.default;
 	exports.HistoryLink = _HistoryLink3.default;
+	exports.createGroup = _createGroup3.default;
+	exports.Container = _Container3.default;
 
 /***/ },
 /* 1 */
@@ -110,7 +126,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.isPageActive = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.addChangeListener = exports.setContainers = undefined;
+	exports.isPageActive = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.addChangeListener = exports.initGroup = exports.createContainer = exports.getNextGroupIndex = undefined;
 	exports.createSteps = createSteps;
 
 	var _ActionTypes = __webpack_require__(2);
@@ -175,43 +191,46 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	startListening();
 
-	var setContainers = exports.setContainers = function setContainers(containerConfigs) {
-	  var currentUrl = window.location.pathname;
-	  _store2.default.dispatch(actions.setContainers(containerConfigs, currentUrl));
+	var getNextGroupIndex = exports.getNextGroupIndex = function getNextGroupIndex() {
 	  var state = getDerivedState();
-	  var group = _.last(state.groups);
-	  var groupIndex = group.index;
+	  return state.groups.length;
+	};
+
+	var createContainer = exports.createContainer = function createContainer(groupIndex, initialUrl, patterns) {
+	  _store2.default.dispatch(actions.createContainer(groupIndex, initialUrl, patterns));
+	};
+
+	var initGroup = exports.initGroup = function initGroup(groupIndex) {
+	  var currentUrl = window.location.pathname;
+	  _store2.default.dispatch(actions.initGroup(groupIndex, currentUrl));
+	};
+
+	/*
+	export const setContainers = (containerConfigs: ContainerConfig[]) => {
+	  //store.dispatch(actions.createContainer(...
+	  const state:State = getDerivedState();
+	  const group:Group = _.last(state.groups);
+	  const groupIndex:number = group.index;
 	  return {
-	    switchTo: function switchTo(index) {
-	      return switchToContainer(groupIndex, index);
-	    },
-	    push: function push(containerIndex, url) {
-	      return _push(groupIndex, containerIndex, url);
-	    },
-	    getActive: function getActive() {
-	      return group.containers[group.history.current.containerIndex];
-	    },
-	    getStackOrder: function getStackOrder() {
-	      return util.getContainerStackOrder(_store2.default.getState(), groupIndex);
-	    },
-	    getIndexedStackOrder: function getIndexedStackOrder() {
-	      return util.getIndexedContainerStackOrder(_store2.default.getState(), groupIndex);
-	    },
-	    addChangeListener: function addChangeListener(fn) {
-	      return _store2.default.subscribe(function () {
-	        var actions = _store2.default.getState();
-	        var state = util.deriveState(actions);
-	        var group = state.groups[groupIndex];
-	        var currentUrl = group.history.current.url;
-	        var activeContainer = group.containers[group.history.current.containerIndex];
-	        var activeGroup = state.groups[state.activeGroupIndex];
-	        var stackOrder = util.getContainerStackOrder(actions, groupIndex);
-	        var indexedStackOrder = util.getIndexedContainerStackOrder(actions, groupIndex);
-	        fn({ activeContainer: activeContainer, activeGroup: activeGroup, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder });
-	      });
-	    }
+	    switchTo: (index:number) => switchToContainer(groupIndex, index),
+	    push: (containerIndex:number, url:string) => push(groupIndex, containerIndex, url),
+	    getActive: () => group.containers[group.history.current.containerIndex],
+	    getStackOrder: () => util.getContainerStackOrder(store.getState(), groupIndex),
+	    getIndexedStackOrder: () => util.getIndexedContainerStackOrder(store.getState(), groupIndex),
+	    addChangeListener: (fn:Function) => store.subscribe(() => {
+	      const actions:Array<Object> = store.getState();
+	      const state:State = util.deriveState(actions);
+	      const group:Group = state.groups[groupIndex];
+	      const currentUrl:string = group.history.current.url;
+	      const activeContainer:Container = group.containers[group.history.current.containerIndex];
+	      const activeGroup:Group = state.groups[state.activeGroupIndex];
+	      const stackOrder:Container[] = util.getContainerStackOrder(actions, groupIndex);
+	      const indexedStackOrder:number[] = util.getIndexedContainerStackOrder(actions, groupIndex);
+	      fn({activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder});
+	    })
 	  };
 	};
+	*/
 
 	var addChangeListener = exports.addChangeListener = function addChangeListener(fn) {
 	  fn(getDerivedState());
@@ -224,7 +243,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	};
 
-	var _push = function _push(groupIndex, containerIndex, url) {
+	var push = exports.push = function push(groupIndex, containerIndex, url) {
 	  var state = getDerivedState();
 	  var activeGroup = util.getActiveGroup(state);
 	  var activeContainer = util.getActiveContainer(activeGroup);
@@ -234,7 +253,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _store2.default.dispatch(actions.push(url));
 	};
 
-	exports.push = _push;
 	var go = exports.go = function go() {
 	  var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 	  return _store2.default.dispatch(actions.go(n));
@@ -271,10 +289,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	function createSteps(state) {
+
+	  console.log(state);
+
 	  switch (state.lastAction.type) {
-	    case _ActionTypes.SET_CONTAINERS: /* return [
-	                                      {fn: browser.replace, args: [state.browserHistory.current]}
-	                                      ]; */
+	    case _ActionTypes.CREATE_CONTAINER:
+	    case _ActionTypes.INIT_GROUP:
 	    case _ActionTypes.SWITCH_TO_CONTAINER:
 	      return util.diffStateToSteps(state.previousState, state);
 	    case _ActionTypes.PUSH:
@@ -301,7 +321,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var SET_CONTAINERS = exports.SET_CONTAINERS = 'set-containers';
+	var CREATE_CONTAINER = exports.CREATE_CONTAINER = 'set-containers';
+	var INIT_GROUP = exports.INIT_GROUP = 'init-group';
 	var SWITCH_TO_CONTAINER = exports.SWITCH_TO_CONTAINER = 'switch-to-container';
 	var PUSH = exports.PUSH = 'push';
 	var BACK = exports.BACK = 'back';
@@ -318,14 +339,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToContainer = exports.setContainers = undefined;
+	exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToContainer = exports.initGroup = exports.createContainer = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
-	var setContainers = exports.setContainers = function setContainers(containers, currentUrl) {
+	var createContainer = exports.createContainer = function createContainer(groupIndex, initialUrl, urlPatterns) {
 	  return {
-	    type: _ActionTypes.SET_CONTAINERS,
-	    containers: containers,
+	    type: _ActionTypes.CREATE_CONTAINER,
+	    groupIndex: groupIndex,
+	    initialUrl: initialUrl,
+	    urlPatterns: urlPatterns
+	  };
+	};
+
+	var initGroup = exports.initGroup = function initGroup(groupIndex, currentUrl) {
+	  return {
+	    type: _ActionTypes.INIT_GROUP,
+	    groupIndex: groupIndex,
 	    currentUrl: currentUrl
 	  };
 	};
@@ -391,6 +421,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var history = (0, _createBrowserHistory2.default)();
+	/* globals PopStateEvent, dispatchEvent */
 	var push = exports.push = function push(page) {
 	  var real = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -1312,8 +1343,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.deriveState = exports.reduceAll = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.push = undefined;
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	exports.go = go;
@@ -1335,15 +1364,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _fp2 = _interopRequireDefault(_fp);
 
-	var _url = __webpack_require__(24);
-
-	var _core = __webpack_require__(25);
+	var _core = __webpack_require__(24);
 
 	var _browserFunctions = __webpack_require__(4);
 
 	var browser = _interopRequireWildcard(_browserFunctions);
 
-	var _behaviorist = __webpack_require__(26);
+	var _behaviorist = __webpack_require__(25);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1438,56 +1465,64 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function reducer(state, action) {
 	  switch (action.type) {
-	    case _ActionTypes.SET_CONTAINERS:
+	    case _ActionTypes.CREATE_CONTAINER:
 	      {
-	        var _ret = function () {
-	          var id = (state ? state.lastPageId : 0) + 1;
-	          var groupIndex = state ? state.groups.length : 0;
-	          var histories = action.containers.map(function (c, i) {
-	            return {
-	              back: [],
-	              current: { url: c.initialUrl, id: id + i, containerIndex: i },
-	              forward: []
-	            };
-	          });
-	          var group = {
-	            index: groupIndex,
-	            history: histories[0],
-	            containers: action.containers.map(function (c, i) {
-	              return _extends({}, c, {
-	                history: histories[i],
-	                isDefault: i === 0,
-	                groupIndex: groupIndex,
-	                index: i
-	              });
-	            })
-	          };
-	          var newState = _extends({}, state ? state : {}, {
-	            groups: [].concat(_toConsumableArray(state ? state.groups : []), [group]),
-	            activeGroupIndex: state ? state.activeGroupIndex : 0,
-	            lastPageId: (state ? state.lastPageId : 0) + action.containers.length
-	          });
-	          return {
-	            v: (0, _behaviorist.loadGroupFromUrl)(newState, group.index, action.currentUrl)
-	          };
-	        }();
+	        var _action$groupIndex = action.groupIndex,
+	            groupIndex = _action$groupIndex === undefined ? 0 : _action$groupIndex,
+	            initialUrl = action.initialUrl,
+	            urlPatterns = action.urlPatterns;
 
-	        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	        var id = (state ? state.lastPageId : 0) + 1;
+	        var existingGroup = state ? state.groups[groupIndex] : null;
+	        var containerIndex = existingGroup ? existingGroup.containers.length : 0;
+
+	        var history = {
+	          back: [],
+	          current: { url: initialUrl, id: id, containerIndex: containerIndex },
+	          forward: []
+	        };
+
+	        var container = {
+	          initialUrl: initialUrl,
+	          urlPatterns: urlPatterns,
+	          history: history,
+	          groupIndex: groupIndex,
+	          index: containerIndex,
+	          isDefault: containerIndex === 0 // TODO: Add option to not have a default
+	        };
+
+	        var group = existingGroup ? _extends({}, existingGroup, {
+	          containers: [].concat(_toConsumableArray(existingGroup.containers), [container])
+	        }) : {
+	          index: groupIndex,
+	          history: history,
+	          containers: [container]
+	        };
+
+	        return _extends({}, state ? state : {}, {
+	          groups: state ? [].concat(_toConsumableArray(state.groups.slice(0, groupIndex)), [group], _toConsumableArray(state.groups.slice(groupIndex + 1))) : [group],
+	          activeGroupIndex: state ? state.activeGroupIndex : 0,
+	          lastPageId: id
+	        });
 	      }
 	  }
 	  if (!state) {
 	    throw new Error("State not yet initialized");
 	  } else {
 	    switch (action.type) {
+	      case _ActionTypes.INIT_GROUP:
+	        {
+	          return (0, _behaviorist.loadGroupFromUrl)(state, action.groupIndex, action.currentUrl);
+	        }
 	      case _ActionTypes.SWITCH_TO_CONTAINER:
 	        {
-	          var _newState = _.cloneDeep(state);
-	          var _group = _newState.groups[action.groupIndex];
+	          var newState = _.cloneDeep(state);
+	          var _group = newState.groups[action.groupIndex];
 	          var fromContainer = _group.containers[_group.history.current.containerIndex];
-	          var toContainer = getContainer(_newState, action.groupIndex, action.containerIndex);
+	          var toContainer = getContainer(newState, action.groupIndex, action.containerIndex);
 	          _group.history = (0, _behaviorist.switchContainer)(fromContainer, toContainer, _group.containers[0]);
-	          _newState.activeGroupIndex = _group.index;
-	          return _newState;
+	          newState.activeGroupIndex = _group.index;
+	          return newState;
 	        }
 	      case _ActionTypes.PUSH:
 	        {
@@ -1534,7 +1569,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var containerSwitches = [];
 	  actionHistory.reduce(function (oldState, action) {
 	    var newState = reducer(oldState, action);
-	    if (action.type === _ActionTypes.SET_CONTAINERS) {
+	    if (action.type === _ActionTypes.CREATE_CONTAINER) {
 	      var group = _.last(newState.groups);
 	      _fp2.default.reverse(group.containers).forEach(function (c) {
 	        return containerSwitches.push(c);
@@ -19798,6 +19833,151 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.forward = exports.back = exports.pushToStack = undefined;
+
+	var _lodash = __webpack_require__(17);
+
+	var _ = _interopRequireWildcard(_lodash);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	var pushToStack = exports.pushToStack = function pushToStack(historyStack, page) {
+	  return {
+	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
+	    current: page,
+	    forward: []
+	  };
+	};
+
+	var back = exports.back = function back(historyStack) {
+	  return {
+	    back: _.initial(historyStack.back),
+	    current: _.last(historyStack.back),
+	    forward: [historyStack.current].concat(_toConsumableArray(historyStack.forward))
+	  };
+	};
+
+	var forward = exports.forward = function forward(historyStack) {
+	  return {
+	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
+	    current: _.head(historyStack.forward),
+	    forward: _.tail(historyStack.forward)
+	  };
+	};
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+	// TODO: Pass this in dynamically
+
+
+	exports.switchContainer = switchContainer;
+	exports.loadGroupFromUrl = loadGroupFromUrl;
+
+	var _lodash = __webpack_require__(17);
+
+	var _ = _interopRequireWildcard(_lodash);
+
+	var _url = __webpack_require__(26);
+
+	var _core = __webpack_require__(24);
+
+	var _defaultBehavior = __webpack_require__(27);
+
+	var behavior = _interopRequireWildcard(_defaultBehavior);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	var toArray = function toArray(h) {
+	  return [h.back, h.current, h.forward];
+	};
+	var fromArray = function fromArray(_ref) {
+	  var _ref2 = _slicedToArray(_ref, 3),
+	      back = _ref2[0],
+	      current = _ref2[1],
+	      forward = _ref2[2];
+
+	  return { back: back, current: current, forward: forward };
+	};
+
+	function switchContainer(from, to, defaulT) {
+	  var defaultHistory = toArray(defaulT.history);
+	  var fromHistory = toArray(from.history);
+	  var toHistory = toArray(to.history);
+	  if (from.isDefault) {
+	    return fromArray(behavior.A_to_B(fromHistory, toHistory, []));
+	  } else {
+	    if (to.isDefault) {
+	      return fromArray(behavior.B_to_A(toHistory, fromHistory, []));
+	    } else {
+	      return fromArray(behavior.B_to_C(defaultHistory, fromHistory, toHistory));
+	    }
+	  }
+	}
+
+	function push(state, container, url) {
+	  var id = state.lastPageId + 1;
+	  var page = { url: url, id: id, containerIndex: container.index };
+	  container.history = (0, _core.pushToStack)(container.history, page);
+	  state.lastPageId = id;
+	  return page;
+	}
+
+	function loadGroupFromUrl(oldState, groupIndex, url) {
+	  var state = _.cloneDeep(oldState);
+	  var group = state.groups[groupIndex];
+	  var containers = group.containers;
+	  var defaultContainer = _.find(containers, function (c) {
+	    return c.isDefault;
+	  });
+	  var A = defaultContainer.history.current;
+	  var initialContainer = _.find(containers, function (c) {
+	    return (0, _url.pathsMatch)(c.initialUrl, url);
+	  });
+	  if (initialContainer) {
+	    if (initialContainer.isDefault) {
+	      group.history = fromArray(behavior.load_A([A], []));
+	    } else {
+	      var B = initialContainer.history.current;
+	      group.history = fromArray(behavior.load_B([A], [B]));
+	    }
+	  } else {
+	    var matchingContainer = _.find(containers, function (c) {
+	      return (0, _url.patternsMatch)(c.urlPatterns, url);
+	    });
+	    if (matchingContainer) {
+	      var P = push(state, matchingContainer, url);
+	      if (matchingContainer.isDefault) {
+	        group.history = fromArray(behavior.load_A1([A, P], []));
+	      } else {
+	        var _B = matchingContainer.history.back[0];
+	        group.history = fromArray(behavior.load_B1([A], [_B, P]));
+	      }
+	    }
+	  }
+	  return state;
+	}
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.isParentOrEqualPath = exports.isParentPath = exports.patternsMatch = exports.pathsMatch = exports.doPathPartsMatch = exports.getParentPaths = exports.getParentPath = exports.appendToPath = exports.getPathParts = exports.stripTrailingSlash = exports.stripLeadingSlash = exports.addTrailingSlash = exports.addLeadingSlash = undefined;
 
 	var _lodash = __webpack_require__(17);
@@ -19898,151 +20078,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var isParentOrEqualPath = exports.isParentOrEqualPath = function isParentOrEqualPath(parentPath, childPath) {
 	  return pathsMatch(parentPath, childPath) || isParentPath(parentPath, childPath);
 	};
-
-/***/ },
-/* 25 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.forward = exports.back = exports.pushToStack = undefined;
-
-	var _lodash = __webpack_require__(17);
-
-	var _ = _interopRequireWildcard(_lodash);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-	var pushToStack = exports.pushToStack = function pushToStack(historyStack, page) {
-	  return {
-	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
-	    current: page,
-	    forward: []
-	  };
-	};
-
-	var back = exports.back = function back(historyStack) {
-	  return {
-	    back: _.initial(historyStack.back),
-	    current: _.last(historyStack.back),
-	    forward: [historyStack.current].concat(_toConsumableArray(historyStack.forward))
-	  };
-	};
-
-	var forward = exports.forward = function forward(historyStack) {
-	  return {
-	    back: [].concat(_toConsumableArray(historyStack.back), [historyStack.current]),
-	    current: _.head(historyStack.forward),
-	    forward: _.tail(historyStack.forward)
-	  };
-	};
-
-/***/ },
-/* 26 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-	// TODO: Pass this in dynamically
-
-
-	exports.switchContainer = switchContainer;
-	exports.loadGroupFromUrl = loadGroupFromUrl;
-
-	var _lodash = __webpack_require__(17);
-
-	var _ = _interopRequireWildcard(_lodash);
-
-	var _url = __webpack_require__(24);
-
-	var _core = __webpack_require__(25);
-
-	var _defaultBehavior = __webpack_require__(27);
-
-	var behavior = _interopRequireWildcard(_defaultBehavior);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	var toArray = function toArray(h) {
-	  return [h.back, h.current, h.forward];
-	};
-	var fromArray = function fromArray(_ref) {
-	  var _ref2 = _slicedToArray(_ref, 3),
-	      back = _ref2[0],
-	      current = _ref2[1],
-	      forward = _ref2[2];
-
-	  return { back: back, current: current, forward: forward };
-	};
-
-	function switchContainer(from, to, defaulT) {
-	  var defaultHistory = toArray(defaulT.history);
-	  var fromHistory = toArray(from.history);
-	  var toHistory = toArray(to.history);
-	  if (from.isDefault) {
-	    return fromArray(behavior.A_to_B(fromHistory, toHistory, []));
-	  } else {
-	    if (to.isDefault) {
-	      return fromArray(behavior.B_to_A(toHistory, fromHistory, []));
-	    } else {
-	      return fromArray(behavior.B_to_C(defaultHistory, fromHistory, toHistory));
-	    }
-	  }
-	}
-
-	function push(state, container, url) {
-	  var id = state.lastPageId + 1;
-	  var page = { url: url, id: id, containerIndex: container.index };
-	  container.history = (0, _core.pushToStack)(container.history, page);
-	  state.lastPageId = id;
-	  return page;
-	}
-
-	function loadGroupFromUrl(oldState, groupIndex, url) {
-	  var state = _.cloneDeep(oldState);
-	  var group = state.groups[groupIndex];
-	  var containers = group.containers;
-	  var defaultContainer = _.find(containers, function (c) {
-	    return c.isDefault;
-	  });
-	  var A = defaultContainer.history.current;
-	  var initialContainer = _.find(containers, function (c) {
-	    return (0, _url.pathsMatch)(c.initialUrl, url);
-	  });
-	  if (initialContainer) {
-	    if (initialContainer.isDefault) {
-	      group.history = fromArray(behavior.load_A([A], []));
-	    } else {
-	      var B = initialContainer.history.current;
-	      group.history = fromArray(behavior.load_B([A], [B]));
-	    }
-	  } else {
-	    var matchingContainer = _.find(containers, function (c) {
-	      return (0, _url.patternsMatch)(c.urlPatterns, url);
-	    });
-	    if (matchingContainer) {
-	      var P = push(state, matchingContainer, url);
-	      if (matchingContainer.isDefault) {
-	        group.history = fromArray(behavior.load_A1([A, P], []));
-	      } else {
-	        var _B = matchingContainer.history.back[0];
-	        group.history = fromArray(behavior.load_B1([A], [_B, P]));
-	      }
-	    }
-	  }
-	  return state;
-	}
 
 /***/ },
 /* 27 */
@@ -28514,6 +28549,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 	var _react = __webpack_require__(51);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -28522,17 +28559,190 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	exports.default = function (_ref) {
-	  var to = _ref.to,
-	      children = _ref.children;
-	  return _react2.default.createElement(
-	    'a',
-	    { onClick: function onClick() {
-	        return (0, _main.push)(0, 0, to);
-	      } },
-	    children
-	  );
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _class = function (_Component) {
+	  _inherits(_class, _Component);
+
+	  function _class() {
+	    _classCallCheck(this, _class);
+
+	    return _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).apply(this, arguments));
+	  }
+
+	  _createClass(_class, [{
+	    key: 'render',
+	    value: function render() {
+	      var _props = this.props,
+	          to = _props.to,
+	          children = _props.children;
+	      var _context = this.context,
+	          containerIndex = _context.containerIndex,
+	          groupIndex = _context.groupIndex;
+
+	      return _react2.default.createElement(
+	        'a',
+	        { onClick: function onClick() {
+	            return (0, _main.push)(groupIndex, containerIndex, to);
+	          } },
+	        children
+	      );
+	    }
+	  }]);
+
+	  return _class;
+	}(_react.Component);
+
+	_class.propTypes = {
+	  to: _react.PropTypes.string.isRequired
 	};
+	_class.contextTypes = {
+	  groupIndex: _react.PropTypes.number.isRequired,
+	  containerIndex: _react.PropTypes.number.isRequired
+	};
+	exports.default = _class;
+
+/***/ },
+/* 111 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(51);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _main = __webpack_require__(1);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	exports.default = function (WrappedComponent) {
+	  var groupIndex = (0, _main.getNextGroupIndex)();
+
+	  var Group = function (_Component) {
+	    _inherits(Group, _Component);
+
+	    function Group() {
+	      _classCallCheck(this, Group);
+
+	      return _possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).apply(this, arguments));
+	    }
+
+	    _createClass(Group, [{
+	      key: 'getChildContext',
+	      value: function getChildContext() {
+	        return { groupIndex: groupIndex };
+	      }
+	    }, {
+	      key: 'componentDidMount',
+	      value: function componentDidMount() {
+	        (0, _main.initGroup)(groupIndex);
+	      }
+	    }, {
+	      key: 'render',
+	      value: function render() {
+	        return _react2.default.createElement(WrappedComponent, this.props);
+	      }
+	    }]);
+
+	    return Group;
+	  }(_react.Component);
+
+	  Group.childContextTypes = {
+	    groupIndex: _react.PropTypes.number.isRequired
+	  };
+
+
+	  return Group;
+	};
+
+/***/ },
+/* 112 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(51);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _main = __webpack_require__(1);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _class = function (_Component) {
+	  _inherits(_class, _Component);
+
+	  function _class(props) {
+	    _classCallCheck(this, _class);
+
+	    var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
+
+	    var groupIndex = _this.context.groupIndex;
+	    var initialUrl = props.initialUrl,
+	        _props$pattern = props.pattern,
+	        pattern = _props$pattern === undefined ? [] : _props$pattern,
+	        _props$patterns = props.patterns,
+	        patterns = _props$patterns === undefined ? [] : _props$patterns;
+
+	    (0, _main.createContainer)(groupIndex, initialUrl, [].concat(_toConsumableArray(patterns), _toConsumableArray([pattern] || [])));
+	    return _this;
+	  }
+
+	  _createClass(_class, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        this.props.children
+	      );
+	    }
+	  }]);
+
+	  return _class;
+	}(_react.Component);
+
+	_class.contextTypes = {
+	  groupIndex: _react.PropTypes.number.isRequired
+	};
+	_class.propTypes = {
+	  children: _react.PropTypes.object.isRequired,
+	  initialUrl: _react.PropTypes.string.isRequired,
+	  pattern: _react.PropTypes.string,
+	  patterns: _react.PropTypes.arrayOf(_react.PropTypes.string)
+	};
+	exports.default = _class;
 
 /***/ }
 /******/ ])

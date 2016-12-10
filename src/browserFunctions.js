@@ -1,4 +1,8 @@
 // @flow
+/* globals PopStateEvent, dispatchEvent */
+declare var PopStateEvent:any;
+declare var dispatchEvent:Function;
+
 import createBrowserHistory from 'history/createBrowserHistory';
 import type { Page } from './types';
 
