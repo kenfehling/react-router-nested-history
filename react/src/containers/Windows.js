@@ -1,11 +1,6 @@
 import React, { Component } from 'react';
-import { setContainers, HistoryMatch } from '../../../../dist/tab-history-library';
+import { HistoryMatch, Container, createGroup } from '../../../../dist/tab-history-library';
 import './Windows.css';
-
-const tabs = setContainers([
-  {initialUrl: '/windows/1', urlPatterns: ['/windows/1', '/windows/1/*']},
-  {initialUrl: '/windows/2', urlPatterns: ['/windows/2', '/windows/2/*']}
-]);
 
 class Window extends Component {
 
@@ -24,25 +19,28 @@ class Window extends Component {
   }
 
   componentWillMount() {
-    tabs.addChangeListener(state => {
+    const {containers} = this.props;
+    containers.addChangeListener(state => {
       this.setZIndex(state.indexedStackOrder);
     });
-    this.setZIndex(tabs.getIndexedStackOrder());
+    this.setZIndex(containers.getIndexedStackOrder());
   }
 
   render() {
-    const {className, index, children} = this.props;
-    return (<div className={`window ${className}`} onClick={() => tabs.switchTo(index)}
-         style={{zIndex: this.state.zIndex}}>
-      {children}
-    </div>);
+    const {className, index, children, containers} = this.props;
+    return (<Container>
+      <div className={`window ${className}`} onClick={() => containers.switchTo(index)}
+           style={{zIndex: this.state.zIndex}}>
+        {children}
+      </div>
+    </Container>);
   }
 }
 
 export const Window1 = props => <Window className="window1" index={0} {...props} />;
 export const Window2 = props => <Window className="window2" index={1} {...props} />;
 
-export default () => (
+const Windows = () => (
   <div className="windows">
     <h2>Windows example</h2>
     <div className="description">
@@ -53,3 +51,5 @@ export default () => (
     <Window2 />
   </div>
 );
+
+export default createGroup(Windows);
