@@ -45,8 +45,8 @@ const MatchWithFade = ({ component:Component, ...rest }) => {
 
 const Tab = ({initialUrl, patterns, masterComponent}) => (
   <Container initialUrl={initialUrl} patterns={patterns}>
-    <MatchWithFade exactly pattern="/tabs/1" component={masterComponent} />
-    <MatchWithFade exactly pattern="/tabs/1/:page" component={TabPage} />
+    <MatchWithFade exactly pattern={patterns[0]} component={masterComponent} />
+    <MatchWithFade exactly pattern={patterns[1]} component={TabPage} />
   </Container>
 );
 
