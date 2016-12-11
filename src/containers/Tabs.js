@@ -43,26 +43,24 @@ const MatchWithFade = ({ component:Component, ...rest }) => {
   )
 };
 
-export const Tab1 = () => (
-  <Container initialUrl="/tabs/1" patterns={['/tabs/1', '/tabs/1/*']}>
-    <MatchWithFade exactly pattern="/tabs/1" component={TabMaster1} />
+const Tab = ({initialUrl, patterns, masterComponent}) => (
+  <Container initialUrl={initialUrl} patterns={patterns}>
+    <MatchWithFade exactly pattern="/tabs/1" component={masterComponent} />
     <MatchWithFade exactly pattern="/tabs/1/:page" component={TabPage} />
   </Container>
 );
 
-export const Tab2 = () => (
-  <Container initialUrl="/tabs/2" patterns={['/tabs/2', '/tabs/2/*']}>
-    <MatchWithFade exactly pattern="/tabs/2" component={TabMaster2} />
-    <MatchWithFade exactly pattern="/tabs/2/:page" component={TabPage} />
-  </Container>
-);
+const Tab1 = () => <Tab initialUrl="/tabs/1"
+                        patterns={['/tabs/1', '/tabs/1/*']}
+                        masterComponent={TabMaster1} />;
 
-export const Tab3 = () => (
-  <Container initialUrl="/tabs/3" patterns={['/tabs/3', '/tabs/3/*']}>
-    <MatchWithFade exactly pattern="/tabs/3" component={TabMaster3} />
-    <MatchWithFade exactly pattern="/tabs/3/:page" component={TabPage} />
-  </Container>
-);
+const Tab2 = () => <Tab initialUrl="/tabs/2"
+                        patterns={['/tabs/2', '/tabs/2/*']}
+                        masterComponent={TabMaster2} />;
+
+const Tab3 = () => <Tab initialUrl="/tabs/3"
+                        patterns={['/tabs/3', '/tabs/3/*']}
+                        masterComponent={TabMaster3} />;
 
 class Tabs extends Component {
 
@@ -72,15 +70,6 @@ class Tabs extends Component {
       currentTabIndex: 0
     };
   }
-
-  /*
-  componentWillMount() {
-    const {addChangeListener} = this.props;
-    addChangeListener(state => {
-      this.setState({currentTab: state.activeContainer});
-    })
-  }
-  */
 
   render() {
     return (<div>
@@ -112,12 +101,5 @@ class Tabs extends Component {
     </div>);
   }
 }
-
-/*
-Tabs.contextTypes = {
-  router: PropTypes.any.isRequired,
-  match: PropTypes.any.isRequired
-};
-*/
 
 export default Tabs;
