@@ -89,8 +89,11 @@ class Tabs extends Component {
         <p>Each tab has its own individual history.</p>
         <p>Clicking on an already active tab goes to the top of its history stack.</p>
       </div>
-      <ContainerGroup currentContainerIndex={this.state.currentTabIndex}>
-        <ReactTabs activeKey={'' + this.state.currentTabIndex}
+      <ContainerGroup
+          currentContainerIndex={this.state.currentTabIndex}
+          onContainerSwitch={currentTabIndex => this.setState({currentTabIndex})}
+      >
+        <ReactTabs activeKey={String(this.state.currentTabIndex)}
                    renderTabBar={()=><ScrollableInkTabBar />}
                    renderTabContent={()=><TabContent />}
                    onChange={key => this.setState({currentTabIndex: parseInt(key)})}
