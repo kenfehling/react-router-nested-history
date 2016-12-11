@@ -107,14 +107,21 @@ export const addChangeListener = (fn:Function) => {
   return store.subscribe(() => fn(getDerivedState()));
 };
 
-export const switchToContainer = (groupIndex:number, containerIndex:number) =>
-    store.dispatch(actions.switchToContainer(groupIndex, containerIndex));
-
-export const push = (groupIndex:number, containerIndex:number, url:string) => {
+function isAciveContainer(groupIndex:number, containerIndex:number) {
   const state = getDerivedState();
   const activeGroup = util.getActiveGroup(state);
   const activeContainer = util.getActiveContainer(activeGroup);
-  if (activeGroup.index !== groupIndex || activeContainer.index !== containerIndex) {
+  return activeGroup.index === groupIndex && activeContainer.index === containerIndex;
+}
+
+export const switchToContainer = (groupIndex:number, containerIndex:number) => {
+  if (!isAciveContainer(groupIndex, containerIndex)) {
+    store.dispatch(actions.switchToContainer(groupIndex, containerIndex));
+  }
+};
+
+export const push = (groupIndex:number, containerIndex:number, url:string) => {
+  if (!isAciveContainer()) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex));
   }
   store.dispatch(actions.push(url));
@@ -143,11 +150,8 @@ function runSteps(steps:Step[]) {
 }
 
 export function createSteps(state:StateSnapshot) : Step[] {
-
-  console.log(state);
-
   switch(state.lastAction.type) {
-    case CREATE_CONTAINER:
+    //case CREATE_CONTAINER:
     case INIT_GROUP:
     case SWITCH_TO_CONTAINER: return util.diffStateToSteps(state.previousState, state);
     case PUSH: return [{fn: browser.push, args: [util.getActiveGroup(state).history.current]}];

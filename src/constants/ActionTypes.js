@@ -1,4 +1,4 @@
-export const CREATE_CONTAINER = 'set-containers';
+export const CREATE_CONTAINER = 'create-container';
 export const INIT_GROUP = 'init-group';
 export const SWITCH_TO_CONTAINER = 'switch-to-container';
 export const PUSH = 'push';

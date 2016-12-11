@@ -1,9 +1,9 @@
 import React, { Component, PropTypes, Children, cloneElement } from 'react';
-import { getNextGroupIndex, initGroup, switchToContainer } from '../../main';
+import { render } from 'react-dom';
+import { getNextGroupIndex, initGroup, switchToContainer, addChangeListener } from '../../main';
 import { connect } from 'react-redux';
 import store from '../store';
 import * as _ from "lodash";
-import {mount} from 'react-mounter';
 
 export default class extends Component {
   static childContextTypes = {
@@ -11,7 +11,8 @@ export default class extends Component {
   };
 
   static propTypes = {
-    currentContainerIndex: PropTypes.number.isRequired
+    currentContainerIndex: PropTypes.number.isRequired,
+    onContainerSwitch: PropTypes.func
   };
 
   getChildContext() {
@@ -43,12 +44,23 @@ export default class extends Component {
     const css = _.flatten(cs.map(cc => Children.map(cc.props.children, c => c)));
     const csss = _.flatten(css.map(cc => Children.map(cc.props.children, c => c)));
     const cssss = _.flatten(csss.map(cc => Children.map(cc.props.children, c => c)));
-
-    cssss.forEach(c => mount(() => <G><c.type /></G>));
+    const div = document.createElement('div');
+    cssss.forEach(c => render(<G><c.type /></G>, div));
+    initGroup(this.groupIndex);
   }
 
   componentDidMount() {
-    initGroup(this.groupIndex);
+    addChangeListener(state => {
+
+      console.log('Change', state);
+
+      const {currentContainerIndex, onContainerSwitch} = this.props;
+      const group = state.groups[this.groupIndex];
+      const newContainerIndex = group.history.current.containerIndex;
+      if (newContainerIndex !== currentContainerIndex) {
+        onContainerSwitch(newContainerIndex);
+      }
+    });
   }
 
   componentWillReceiveProps(newProps) {
