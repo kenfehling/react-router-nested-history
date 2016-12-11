@@ -28741,27 +28741,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 
-	    var children = props.children;
-	    var cs = _react.Children.map(children, function (c) {
-	      return c;
-	    });
-	    var css = _.flatten(cs.map(function (cc) {
-	      return _react.Children.map(cc.props.children, function (c) {
-	        return c;
-	      });
-	    }));
-	    var csss = _.flatten(css.map(function (cc) {
-	      return _react.Children.map(cc.props.children, function (c) {
-	        return c;
-	      });
-	    }));
-	    var cssss = _.flatten(csss.map(function (cc) {
-	      return _react.Children.map(cc.props.children, function (c) {
-	        return c;
-	      });
-	    }));
+	    function getChildren(component) {
+	      if (component.props.children) {
+	        var _children = _react.Children.map(component.props.children, function (c) {
+	          return c;
+	        });
+	        return _.flatten(_children.map(getChildren));
+	      } else {
+	        return [component];
+	      }
+	    }
+
+	    var children = getChildren(_this);
+
+	    console.log(children);
+
 	    var div = document.createElement('div');
-	    cssss.forEach(function (c) {
+	    children.forEach(function (c) {
 	      return (0, _reactDom.render)(_react2.default.createElement(
 	        G,
 	        null,

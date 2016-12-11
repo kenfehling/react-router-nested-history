@@ -39,22 +39,25 @@ export default class extends Component {
       }
     }
 
-    // TODO: Put in a loop (stop when no more children or you reach Container)
-    const children = props.children;
-    const cs = Children.map(children, c => c);
-    const css = _.flatten(cs.map(cc => Children.map(cc.props.children, c => c)));
-    const csss = _.flatten(css.map(cc => Children.map(cc.props.children, c => c)));
-    const cssss = _.flatten(csss.map(cc => Children.map(cc.props.children, c => c)));
+    // TODO: Stop if you reach Component
+    function getChildren(component) {
+      if (component.props.children) {
+        const children = Children.map(component.props.children, c => c);
+        return _.flatten(children.map(getChildren));
+      }
+      else {
+        return [component];
+      }
+    }
+
+    const children = getChildren(this);
     const div = document.createElement('div');
-    cssss.forEach(c => render(<G><c.type /></G>, div));
+    children.forEach(c => render(<G><c.type /></G>, div));
     initGroup(this.groupIndex);
   }
 
   componentDidMount() {
     addChangeListener(state => {
-
-      console.log('Change', state);
-
       const {currentContainerIndex, onContainerSwitch} = this.props;
       const group = state.groups[this.groupIndex];
       const newContainerIndex = group.history.current.containerIndex;
