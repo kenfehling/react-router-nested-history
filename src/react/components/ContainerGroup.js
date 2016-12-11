@@ -4,6 +4,7 @@ import { getNextGroupIndex, initGroup, switchToContainer, addChangeListener } fr
 import { connect } from 'react-redux';
 import store from '../store';
 import * as _ from "lodash";
+import Container from "./Container";
 
 export default class extends Component {
   static childContextTypes = {
@@ -39,9 +40,11 @@ export default class extends Component {
       }
     }
 
-    // TODO: Stop if you reach Component
     function getChildren(component) {
-      if (component.props.children) {
+      if (component.type === Container) {
+        return [component];
+      }
+      else if (component.props.children) {
         const children = Children.map(component.props.children, c => c);
         return _.flatten(children.map(getChildren));
       }

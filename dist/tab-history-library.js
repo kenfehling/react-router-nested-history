@@ -28680,6 +28680,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ = _interopRequireWildcard(_lodash);
 
+	var _Container = __webpack_require__(269);
+
+	var _Container2 = _interopRequireDefault(_Container);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -28742,7 +28746,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    function getChildren(component) {
-	      if (component.props.children) {
+	      if (component.type === _Container2.default) {
+	        return [component];
+	      } else if (component.props.children) {
 	        var _children = _react.Children.map(component.props.children, function (c) {
 	          return c;
 	        });
@@ -28753,9 +28759,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    var children = getChildren(_this);
-
-	    console.log(children);
-
 	    var div = document.createElement('div');
 	    children.forEach(function (c) {
 	      return (0, _reactDom.render)(_react2.default.createElement(
@@ -28774,9 +28777,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var _this3 = this;
 
 	      (0, _main.addChangeListener)(function (state) {
-
-	        console.log('Change', state);
-
 	        var _props = _this3.props,
 	            currentContainerIndex = _props.currentContainerIndex,
 	            onContainerSwitch = _props.onContainerSwitch;
