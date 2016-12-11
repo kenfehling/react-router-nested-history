@@ -45,10 +45,24 @@ export const getNextGroupIndex = () => {
   }
 };
 
-export const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]) => {
+const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]) : Container => {
   store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns));
-  const state = getDerivedState();
+  const state:StateSnapshot = getDerivedState();
   return _.last(state.groups[groupIndex].containers);
+};
+
+export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[]) : Container => {
+  const create = () : Container => createContainer(groupIndex, initialUrl, patterns);
+  const state:StateSnapshot = getDerivedState();
+  if (!state) {
+    return create();
+  }
+  const group = state.groups[groupIndex];
+  if (!group) {
+    return create();
+  }
+  const existingContainer = _.find(group.containers, c => c.initialUrl === initialUrl);
+  return existingContainer || create();
 };
 
 export const initGroup = (groupIndex:number) => {

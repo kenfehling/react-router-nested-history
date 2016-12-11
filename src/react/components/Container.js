@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { createContainer } from '../../main';
+import { getOrCreateContainer } from '../../main';
 
 export default class extends Component {
   static contextTypes = {
@@ -17,18 +17,17 @@ export default class extends Component {
     patterns: PropTypes.arrayOf(PropTypes.string)
   };
 
-  getChildContext() {
-    return {containerIndex: this.containerIndex};
+  constructor(props, context) {
+    super(props);
+    const {groupIndex} = context;
+    const {initialUrl, pattern, patterns=[]} = this.props;
+    const p = [...patterns, ...(pattern ? [pattern] : [])];
+    const container = getOrCreateContainer(groupIndex, initialUrl, p);
+    this.containerIndex = container.index;
   }
 
-  componentWillMount() {
-    const {groupIndex} = this.context;
-    const {initialUrl, pattern=[], patterns=[]} = this.props;
-    const container = createContainer(groupIndex, initialUrl, [...patterns, ...([pattern] || [])]);
-
-    console.log(container);
-
-    this.containerIndex = container.index;
+  getChildContext() {
+    return {containerIndex: this.containerIndex};
   }
 
   render() {

@@ -141,9 +141,6 @@ export function reducer(state:?State, action:Object) : State {
         return loadGroupFromUrl(state, action.groupIndex, action.currentUrl);
       }
       case SWITCH_TO_CONTAINER: {
-
-        console.log(state);
-
         const newState:State = _.cloneDeep(state);
         const group:Group = newState.groups[action.groupIndex];
         const fromContainer:Container = group.containers[group.history.current.containerIndex];
