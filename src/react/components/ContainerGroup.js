@@ -39,6 +39,7 @@ export default class extends Component {
       }
     }
 
+    // TODO: Put in a loop (stop when no more children or you reach Container)
     const children = props.children;
     const cs = Children.map(children, c => c);
     const css = _.flatten(cs.map(cc => Children.map(cc.props.children, c => c)));

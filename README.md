@@ -1,13 +1,16 @@
 ### react-router
+<br>
 
-##### HistoryMatch
+#### HistoryMatch
 Use this component in place of `Match` to enable history.
+<br>
 
 #### HistoryLink
-Use this component in place of `Link` to enable history tracking for a link.
+Use this in place of react-router's `Link` component to enable history tracking for a link.
+<br>
 
 #### Container
-Use this component to wrap one or more HistoryMatch components to enable history for a container (a nested tab or window).
+Use this component to wrap one or more `HistoryMatch` components to enable history for a container (a nested tab or window).
 
 ##### props
 <table class="table table-bordered table-striped">
@@ -40,3 +43,34 @@ Use this component to wrap one or more HistoryMatch components to enable history
         </tr>
     </tbody>   
 </table>
+<br>
+
+#### ContainerGroup
+Wraps one or more `Container` components that act as a group (a group of tabs, etc.)
+
+##### props
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>required</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>currentContainerIndex</td>
+          <td>number</td>
+          <td align="center"></td>
+          <td>Allows you to set the index of the active container</td>
+        </tr>
+        <tr>
+          <td>onContainerSwitch</td>
+          <td>Function</td>
+          <td></td>
+          <td>Runs when a container is switched (typically useful when loading from a URL (deep link/bookmark)</td>
+        </tr>
+    </tbody>   
+</table>
+
