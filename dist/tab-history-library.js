@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Container = exports.ContainerGroup = exports.HistoryLink = exports.HistoryMatch = exports.addChangeListener = exports.isPageActive = exports.push = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
+	exports.Container = exports.ContainerGroup = exports.HistoryLink = exports.HistoryMatch = exports.addChangeListener = exports.isPageActive = exports.push = exports.switchToContainer = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
 
 	var _main = __webpack_require__(1);
 
@@ -73,6 +73,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  enumerable: true,
 	  get: function get() {
 	    return _main.getNextGroupIndex;
+	  }
+	});
+	Object.defineProperty(exports, 'switchToContainer', {
+	  enumerable: true,
+	  get: function get() {
+	    return _main.switchToContainer;
 	  }
 	});
 	Object.defineProperty(exports, 'push', {
@@ -229,7 +235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _store2.default.dispatch(actions.initGroup(groupIndex, currentUrl));
 	};
 
-	var getGroupFunctions = exports.getGroupFunctions = function getGroupFunctions(state, groupIndex) {
+	var getGroupFunctions = exports.getGroupFunctions = function getGroupFunctions(groupIndex) {
 	  return {
 	    switchToContainer: function switchToContainer(index) {
 	      return _switchToContainer(groupIndex, index);
@@ -238,6 +244,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return _push(groupIndex, containerIndex, url);
 	    },
 	    getActiveContainer: function getActiveContainer() {
+	      var state = getDerivedState();
 	      if (state) {
 	        var group = state.groups[groupIndex];
 	        return group.containers[group.history.current.containerIndex];
@@ -28674,20 +28681,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Group = function (_Component) {
-	  _inherits(Group, _Component);
+	var _class = function (_Component) {
+	  _inherits(_class, _Component);
 
-	  _createClass(Group, [{
+	  _createClass(_class, [{
 	    key: 'getChildContext',
 	    value: function getChildContext() {
 	      return { groupIndex: this.groupIndex };
 	    }
 	  }]);
 
-	  function Group(props) {
-	    _classCallCheck(this, Group);
+	  function _class(props) {
+	    _classCallCheck(this, _class);
 
-	    var _this = _possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).call(this, props));
+	    var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
 
 	    var groupIndex = (0, _main.getNextGroupIndex)();
 	    _this.groupIndex = groupIndex;
@@ -28757,14 +28764,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return _this;
 	  }
 
-	  _createClass(Group, [{
+	  _createClass(_class, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      (0, _main.initGroup)(this.groupIndex);
 	    }
 	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(newProps) {
+	      if (newProps.currentContainerIndex !== this.props.currentContainerIndex) {
+	        (0, _main.switchToContainer)(this.groupIndex, newProps.currentContainerIndex);
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      //const props = getGroupFunctions(this.groupIndex);
+	      //return <div>{Children.map(this.props.children, c => cloneElement(c, props))}</div>;
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -28773,21 +28789,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }]);
 
-	  return Group;
+	  return _class;
 	}(_react.Component);
 
-	Group.childContextTypes = {
+	/*
+	const ConnectedGroup = connect(
+	  state => getGroupFunctions(state, this.groupIndex),
+	  {}
+	)(Group);
+
+	export default () => <ConnectedGroup store={store} />;
+	*/
+
+
+	_class.childContextTypes = {
 	  groupIndex: _react.PropTypes.number.isRequired
 	};
-
-
-	var ConnectedGroup = (0, _reactRedux.connect)(function (state) {
-	  return (0, _main.getGroupFunctions)(state, undefined.groupIndex);
-	}, {})(Group);
-
-	exports.default = function () {
-	  return _react2.default.createElement(ConnectedGroup, { store: _store2.default });
+	_class.propTypes = {
+	  currentContainerIndex: _react.PropTypes.number.isRequired
 	};
+	exports.default = _class;
 
 /***/ },
 /* 112 */

@@ -1,13 +1,17 @@
-import React, { Component, PropTypes, Children, createElement } from 'react';
-import { getNextGroupIndex, initGroup, getGroupFunctions} from '../../main';
+import React, { Component, PropTypes, Children, cloneElement } from 'react';
+import { getNextGroupIndex, initGroup, switchToContainer } from '../../main';
 import { connect } from 'react-redux';
 import store from '../store';
 import * as _ from "lodash";
 import {mount} from 'react-mounter';
 
-class Group extends Component {
+export default class extends Component {
   static childContextTypes = {
     groupIndex: PropTypes.number.isRequired
+  };
+
+  static propTypes = {
+    currentContainerIndex: PropTypes.number.isRequired
   };
 
   getChildContext() {
@@ -47,14 +51,24 @@ class Group extends Component {
     initGroup(this.groupIndex);
   }
 
+  componentWillReceiveProps(newProps) {
+    if (newProps.currentContainerIndex !== this.props.currentContainerIndex) {
+      switchToContainer(this.groupIndex, newProps.currentContainerIndex);
+    }
+  };
+
   render() {
+    //const props = getGroupFunctions(this.groupIndex);
+    //return <div>{Children.map(this.props.children, c => cloneElement(c, props))}</div>;
     return <div>{this.props.children}</div>;
   }
 }
 
+/*
 const ConnectedGroup = connect(
   state => getGroupFunctions(state, this.groupIndex),
   {}
 )(Group);
 
 export default () => <ConnectedGroup store={store} />;
+*/

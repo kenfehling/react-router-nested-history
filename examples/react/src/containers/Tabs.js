@@ -83,18 +83,17 @@ class Tabs extends Component {
   */
 
   render() {
-    const {switchToContainer} = this.props;
     return (<div>
       <h2>Tabs example</h2>
       <div className="description">
         <p>Each tab has its own individual history.</p>
         <p>Clicking on an already active tab goes to the top of its history stack.</p>
       </div>
-      <ContainerGroup>
+      <ContainerGroup currentContainerIndex={this.state.currentTabIndex}>
         <ReactTabs activeKey={'' + this.state.currentTabIndex}
                    renderTabBar={()=><ScrollableInkTabBar />}
                    renderTabContent={()=><TabContent />}
-                   onChange={key => switchToContainer(parseInt(key))}
+                   onChange={key => this.setState({currentTabIndex: parseInt(key)})}
         >
           <TabPane tab="One" key={0}>
             <div className="tab-content"><Tab1 /></div>
@@ -111,9 +110,11 @@ class Tabs extends Component {
   }
 }
 
+/*
 Tabs.contextTypes = {
   router: PropTypes.any.isRequired,
   match: PropTypes.any.isRequired
 };
+*/
 
 export default Tabs;

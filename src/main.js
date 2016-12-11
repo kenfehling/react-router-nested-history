@@ -70,11 +70,12 @@ export const initGroup = (groupIndex:number) => {
   store.dispatch(actions.initGroup(groupIndex, currentUrl));
 };
 
-export const getGroupFunctions = (state:?State, groupIndex:number) : Object => {
+export const getGroupFunctions = (groupIndex:number) : Object => {
   return {
     switchToContainer: (index:number) => switchToContainer(groupIndex, index),
     push: (containerIndex:number, url:string) => push(groupIndex, containerIndex, url),
     getActiveContainer: () : ?Container => {
+      const state = getDerivedState();
       if (state) {
         const group = state.groups[groupIndex];
         return group.containers[group.history.current.containerIndex];
