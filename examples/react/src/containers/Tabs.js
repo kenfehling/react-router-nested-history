@@ -1,5 +1,8 @@
 import React, { PropTypes, Component } from 'react';
-import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs';
+import ReactTabs, { TabPane } from 'rc-tabs';
+import TabContent from 'rc-tabs/lib/TabContent';
+import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
+import 'rc-tabs/assets/index.css';
 import { HistoryMatch, Container, createGroup } from '../../../../dist/tab-history-library';
 import { TransitionMotion, spring } from 'react-motion';
 import './Tabs.css';
@@ -96,15 +99,20 @@ class Tabs extends Component {
         <p>Each tab has its own individual history.</p>
         <p>Clicking on an already active tab goes to the top of its history stack.</p>
       </div>
-      <ReactTabs selectedIndex={this.state.currentTabIndex}>
-        <TabList>
-          <ReactTab onClick={() => switchToContainer(0)}>One</ReactTab>
-          <ReactTab onClick={() => switchToContainer(1)}>Two</ReactTab>
-          <ReactTab onClick={() => switchToContainer(2)}>Three</ReactTab>
-        </TabList>
-        <TabPanel><div className="tab-content"><Tab1 /></div></TabPanel>
-        <TabPanel><div className="tab-content"><Tab2 /></div></TabPanel>
-        <TabPanel><div className="tab-content"><Tab3 /></div></TabPanel>
+      <ReactTabs activeKey={'' + this.state.currentTabIndex}
+                 renderTabBar={()=><ScrollableInkTabBar />}
+                 renderTabContent={()=><TabContent />}
+                 onChange={key => switchToContainer(parseInt(key))}
+      >
+        <TabPane tab="One" key={0}>
+          <div className="tab-content"><Tab1 /></div>
+        </TabPane>
+        <TabPane tab="Two" key={1}>
+          <div className="tab-content"><Tab2 /></div>
+        </TabPane>
+        <TabPane tab="Three" key={2}>
+          <div className="tab-content"><Tab3 /></div>
+          </TabPane>
       </ReactTabs>
     </div>);
   }
