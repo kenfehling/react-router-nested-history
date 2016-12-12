@@ -21440,7 +21440,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  serverRouter: _react.PropTypes.object
 	};
 	function reallyMatches(location) {
-	  return (0, _main.isPageActive)(location.state.id);
+	  return location.state && (0, _main.isPageActive)(location.state.id);
 	}
 
 	var _class = function (_reactRouter$Match) {
@@ -21484,7 +21484,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	              location = void 0;
 	          if (!!groupMatch) {
 	            // the change was inside this tab group
-	            if (!!newMatch && newLocation.state.real) {
+
+	            console.log(newLocation);
+
+	            if (!!newMatch && newLocation.state && newLocation.state.real) {
 	              // if this was a change to this tab
 	              _this3.oldMatch = newMatch;
 	              _this3.oldLocation = newLocation;
@@ -28748,7 +28751,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function getChildren(component) {
 	      if (component.type === _Container2.default) {
 	        return [component];
-	      } else if (component.props.children) {
+	      } else if (component.props && component.props.children) {
 	        var _children = _react.Children.map(component.props.children, function (c) {
 	          return c;
 	        });
@@ -28761,11 +28764,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var children = getChildren(_this);
 	    var div = document.createElement('div');
 	    children.forEach(function (c) {
-	      return (0, _reactDom.render)(_react2.default.createElement(
-	        G,
-	        null,
-	        _react2.default.createElement(c.type, null)
-	      ), div);
+	      if (c instanceof Object) {
+	        (0, _reactDom.render)(_react2.default.createElement(
+	          G,
+	          null,
+	          _react2.default.createElement(c.type, null)
+	        ), div);
+	      }
 	    });
 	    (0, _main.initGroup)(_this.groupIndex);
 	    return _this;

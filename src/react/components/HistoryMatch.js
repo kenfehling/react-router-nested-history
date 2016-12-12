@@ -57,7 +57,7 @@ class RegisterMatch extends React.Component {
 
 // Added by Ken Fehling to support multiple groups of nested tabs/windows
 function reallyMatches(location) {
-  return isPageActive(location.state.id);
+  return location.state && isPageActive(location.state.id);
 }
 
 export default class extends reactRouter.Match {
@@ -85,7 +85,10 @@ export default class extends reactRouter.Match {
           const groupMatch = matchPattern('/tabs', newLocation, false, parent);
           let match, location;
           if (!!groupMatch) {  // the change was inside this tab group
-            if (!!newMatch && newLocation.state.real) {  // if this was a change to this tab
+
+            console.log(newLocation);
+
+            if (!!newMatch && newLocation.state && newLocation.state.real) {  // if this was a change to this tab
               this.oldMatch = newMatch;
               this.oldLocation = newLocation;
             }
