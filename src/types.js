@@ -12,11 +12,6 @@ export interface History {
   forward: Page[];
 }
 
-export interface ContainerConfig {
-  initialUrl: string;
-  urlPatterns: string[];
-}
-
 export interface Container {
   index: number;
   initialUrl: string;

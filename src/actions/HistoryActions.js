@@ -1,11 +1,17 @@
 // @flow
 
-import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
-import type { Container, ContainerConfig } from '../types';
+import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 
-export const setContainers = (containers: ContainerConfig[], currentUrl: string) => ({
-  type: SET_CONTAINERS,
-  containers,
+export const createContainer = (groupIndex:number, initialUrl:string, urlPatterns:string[]) => ({
+  type: CREATE_CONTAINER,
+  groupIndex,
+  initialUrl,
+  urlPatterns
+});
+
+export const initGroup = (groupIndex:number, currentUrl:string) => ({
+  type: INIT_GROUP,
+  groupIndex,
   currentUrl
 });
 

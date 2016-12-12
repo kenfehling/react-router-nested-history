@@ -4,22 +4,21 @@ declare var describe:any;
 declare var it:any;
 declare var expect:any;
 import { deriveState } from '../src/util/history';
-import reducer from '../src/reducers/index';
 import { switchContainer} from '../src/behaviorist';
-import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH } from "../src/constants/ActionTypes";
-import type { State, Container, ContainerConfig } from '../src/types';
+import { CREATE_CONTAINER, INIT_GROUP } from "../src/constants/ActionTypes";
+import type { State, Container } from '../src/types';
+
+const createContainers = (currentUrl='/a') => [
+  {type: CREATE_CONTAINER, initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/c', urlPatterns: ['/c', '/c/*']},
+  {type: INIT_GROUP, groupIndex: 0, currentUrl}
+];
 
 describe('behaviorist', () => {
 
   it('does a simple switch', () => {
-    const containerConfigs : ContainerConfig[] = [
-      {initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
-      {initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
-      {initialUrl: '/c', urlPatterns: ['/c', '/c/*']}
-    ];
-
-    const tempState:State = deriveState(reducer([],
-        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}));
+    const tempState:State = deriveState(createContainers());
     const group = tempState.groups[0];
     const containers:Container[] = group.containers;
 

@@ -5,20 +5,20 @@ declare var it:any;
 declare var expect:any;
 import * as util from '../../src/util/history';
 import { push, back, forward, go } from '../../src/browserFunctions';
-import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD } from "../../src/constants/ActionTypes";
-import type { ContainerConfig, State, StateSnapshot } from '../../src/types';
-import * as _ from "lodash";
+import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD } from "../../src/constants/ActionTypes";
+import type { State, StateSnapshot } from '../../src/types';
+import * as _ from 'lodash';
 import fp from 'lodash/fp';
 
-describe('history utils', () => {
-  const containerConfigs : ContainerConfig[] = [
-    {initialUrl: '/a', urlPatterns: ['/a/*']},
-    {initialUrl: '/b', urlPatterns: ['/b/*']},
-    {initialUrl: '/c', urlPatterns: ['/c/*']}
-  ];
+const createContainers = (currentUrl='/a') => [
+  {type: CREATE_CONTAINER, initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/c', urlPatterns: ['/c', '/c/*']},
+  {type: INIT_GROUP, groupIndex: 0, currentUrl}
+];
 
-  const originalState = util.reducer(null,
-      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'});
+describe('history utils', () => {
+  const originalState:State = util.deriveState(createContainers());
   const group = originalState.groups[0];
   const containers = group.containers;
 
@@ -27,12 +27,11 @@ describe('history utils', () => {
   const a1 = {url: '/a/1', id: 3, container: containers[0]};
 
   it('reduces a bunch of actions', () => {
-    expect(util.reduceAll(null, [
-      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
-    ])).toEqual(originalState);
+    expect(util.reduceAll(null, createContainers())).toEqual(
+        _.omit(originalState, ['previousState', 'lastAction']));
 
     const newState = util.reduceAll(null, [
-      {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+      ...createContainers(),
       {type: PUSH, url: '/a/1'}
     ]);
     expect(newState.groups[0].history.current.url).toEqual('/a/1');
@@ -50,7 +49,7 @@ describe('history utils', () => {
       expect(steps).toEqual([
         {fn: back, args: [1]},
         {fn: push, args: [newState.groups[0].history.back[0]]},
-        {fn: push, args: [newState.groups[0].history.current]}
+        {fn: push, args: [newState.groups[0].history.current, true]}
       ]);
     });
 
@@ -59,7 +58,7 @@ describe('history utils', () => {
       const steps = util.diffStateToSteps(originalState, newState);
       expect(steps).toEqual([
         {fn: back, args: [1]},
-        {fn: push, args: [newState.groups[0].history.current]},
+        {fn: push, args: [newState.groups[0].history.current, true]},
         {fn: push, args: [newState.groups[0].history.forward[0]]},
         {fn: back, args: [1]}
       ]);
@@ -71,15 +70,13 @@ describe('history utils', () => {
     });
 
     it('gets container stack order (default)', () => {
-      const actions = [
-        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
-      ];
+      const actions = createContainers();
       expect(util.getContainerStackOrder(actions, 0)).toEqual(containers);
     });
 
     it('gets container stack order (default) 2', () => {
       const actions = [
-        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'},
+        ...createContainers(),
         {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
         {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2},
       ];
@@ -87,9 +84,7 @@ describe('history utils', () => {
     });
 
     it('gets container stack order (default) b', () => {
-      const actions = [
-        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'},
-      ];
+      const actions = createContainers('/b');
       expect(util.getContainerStackOrder(actions, 0)).toEqual([
           containers[1],
           containers[0],
@@ -98,16 +93,12 @@ describe('history utils', () => {
     });
 
     it('gets indexed container stack order (default)', () => {
-      const actions = [
-        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/a'}
-      ];
+      const actions = createContainers();
       expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([0, 1, 2]);
     });
 
     it('gets indexed container stack order (non-default)', () => {
-      const actions = [
-        {type: SET_CONTAINERS, containers: containerConfigs, currentUrl: '/b'}
-      ];
+      const actions = createContainers('/b');
       expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([1, 0, 2]);
     });
   });

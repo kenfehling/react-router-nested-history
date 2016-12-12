@@ -1,13 +1,19 @@
 // @flow
+/* globals PopStateEvent, dispatchEvent */
+declare var PopStateEvent:any;
+declare var dispatchEvent:Function;
+
 import createBrowserHistory from 'history/createBrowserHistory';
 import type { Page } from './types';
 
 let history = createBrowserHistory();
 
-export const push = (page:Page) => {
-  const state = {id: page.id};
+export const push = (page:Page, real:boolean=false) => {
+  const state = {id: page.id, real};
   history.push(page.url, state);
-  const popStateEvent = new PopStateEvent('popstate', {state});
+
+  // TODO: With react-router 4.0.0-alpha.6 we should be able to get rid of this
+  const popStateEvent = new PopStateEvent('popstate', {state: {state}});
   dispatchEvent(popStateEvent);
 };
 

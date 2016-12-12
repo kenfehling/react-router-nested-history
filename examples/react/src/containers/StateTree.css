@@ -1,0 +1,17 @@
+.history-tree {
+  height: 100%;
+}
+
+.history-tree div {
+  margin-left: 8px;
+}
+
+.history-tree .current-page {
+  padding: 0 8px;
+  border: thin solid #a1ff9d;
+  border-radius: 4px;
+}
+
+.history-tree .current-page.group {
+  background-color: #a1ff9d;
+}

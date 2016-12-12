@@ -7,8 +7,11 @@
     "react-scripts": "^0.6.0"
   },
   "dependencies": {
-    "react": "^15.3.0",
-    "react-dom": "^15.3.0",
+    "rc-tabs": "^7.1.0",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "react-motion": "^0.4.5",
+    "react-router": "^4.0.0-alpha.6",
     "react-tabs": "^0.8.2"
   },
   "scripts": {

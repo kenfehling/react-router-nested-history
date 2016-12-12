@@ -1,13 +1,12 @@
 // @flow
 
-import { SET_CONTAINERS, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
+import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
 import * as _ from 'lodash';
 import fp from 'lodash/fp';
-import { patternsMatch } from "./url";
 import { pushToStack, back, forward } from './core';
 import * as browser from '../browserFunctions';
 import { switchContainer, loadGroupFromUrl } from '../behaviorist';
-import type { History, State, StateSnapshot, Container, ContainerConfig, Page, Group, Step } from '../types';
+import type { History, State, StateSnapshot, Container, Page, Group, Step } from '../types';
 
 export const push = (oldState:State, url:string):State => {
   const state = _.cloneDeep(oldState);
@@ -75,7 +74,7 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
   return _.flatten([
     h1 ? {fn: browser.back, args: [h1.back.length + 1]} : [],
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
-    {fn: browser.push, args: [h2.current]},
+    {fn: browser.push, args: [h2.current, true]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ]);
@@ -84,8 +83,9 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
 export const constructNewHistory = (state:State, newCurrentId:number) : State => {
   const shiftAmount = getHistoryShiftAmount(state, newCurrentId);
   if (shiftAmount === 0) {
-    console.error(state, newCurrentId);
-    throw new Error("This should be used for back and forward");
+    return state;
+    //console.error(state, newCurrentId);
+    //throw new Error("This should be used for back and forward");
   }
   else {
     return go(state, shiftAmount);
@@ -94,32 +94,42 @@ export const constructNewHistory = (state:State, newCurrentId:number) : State =>
 
 export function reducer(state:?State, action:Object) : State {
   switch (action.type) {
-    case SET_CONTAINERS: {
+    case CREATE_CONTAINER: {
+      const {groupIndex=0, initialUrl, urlPatterns} = action;
       const id = (state ? state.lastPageId : 0) + 1;
-      const groupIndex = state ? state.groups.length : 0;
-      const histories = action.containers.map((c, i) => ({
+      const existingGroup:?Group = state ? state.groups[groupIndex] : null;
+      const containerIndex = existingGroup ? existingGroup.containers.length : 0;
+
+      const history:History = {
         back: [],
-        current: {url: c.initialUrl, id: id + i, containerIndex: i},
+        current: {url: initialUrl, id, containerIndex},
         forward: []
-      }));
-      const group = {
+      };
+
+      const container:Container = {
+        initialUrl,
+        urlPatterns,
+        history,
+        groupIndex,
+        index: containerIndex,
+        isDefault: containerIndex === 0  // TODO: Add option to not have a default
+      };
+
+      const group = existingGroup ? {
+        ...existingGroup,
+        containers: [...existingGroup.containers, container]
+      } : {
         index: groupIndex,
-        history: histories[0],
-        containers: action.containers.map((c, i) => ({
-          ...c,
-          history: histories[i],
-          isDefault: i === 0,
-          groupIndex,
-          index: i
-        }))
+        history: history,
+        containers: [container]
       };
-      const newState = {
+
+      return {
         ...(state ? state : {}),
-        groups: [...(state ? state.groups : []), group],
+        groups: state ? [...state.groups.slice(0, groupIndex), group, ...state.groups.slice(groupIndex + 1)] : [group],
         activeGroupIndex: state ? state.activeGroupIndex : 0,
-        lastPageId: (state ? state.lastPageId : 0) + action.containers.length
+        lastPageId: id
       };
-      return loadGroupFromUrl(newState, group.index, action.currentUrl);
     }
   }
   if (!state) {
@@ -127,6 +137,9 @@ export function reducer(state:?State, action:Object) : State {
   }
   else {
     switch (action.type) {
+      case INIT_GROUP: {
+        return loadGroupFromUrl(state, action.groupIndex, action.currentUrl);
+      }
       case SWITCH_TO_CONTAINER: {
         const newState:State = _.cloneDeep(state);
         const group:Group = newState.groups[action.groupIndex];
@@ -136,7 +149,9 @@ export function reducer(state:?State, action:Object) : State {
         newState.activeGroupIndex = group.index;
         return newState;
       }
-      case PUSH: { return push(state, action.url); }
+      case PUSH: {
+        return push(state, action.url);
+      }
       case BACK: { return {...state, ...go(state, 0 - action.n || -1)}; }
       case FORWARD:
       case GO: { return {...state, ...go(state, action.n || 1)}; }
@@ -153,15 +168,20 @@ export function reducer(state:?State, action:Object) : State {
 
 export const reduceAll = (state:?State, actions:Object[]) : State => actions.reduce(reducer, state);
 
-export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
-  const lastAction = _.last(actionHistory);
-  const previousState = _.initial(actionHistory).reduce((state, action) =>
-      reducer(state, action), null);
-  const finalState = reducer(previousState, lastAction);
-  return {
-    ...finalState,
-    previousState,
-    lastAction
+export const deriveState = (actionHistory:Object[]) : ?StateSnapshot => {
+  if (actionHistory.length === 0) {
+    return null;
+  }
+  else {
+    const lastAction = _.last(actionHistory);
+    const previousState = _.initial(actionHistory).reduce((state, action) =>
+        reducer(state, action), null);
+    const finalState = reducer(previousState, lastAction);
+    return {
+      ...finalState,
+      previousState,
+      lastAction
+    }
   }
 };
 
@@ -172,7 +192,7 @@ export function getContainerStackOrder(actionHistory:Object[], groupIndex:number
   const containerSwitches:Container[] = [];
   actionHistory.reduce((oldState:?State, action:Object) : State => {
     const newState:State = reducer(oldState, action);
-    if (action.type === SET_CONTAINERS) {
+    if (action.type === CREATE_CONTAINER) {
       const group:Group = _.last(newState.groups);
       fp.reverse(group.containers).forEach(c => containerSwitches.push(c));
     }
@@ -206,4 +226,15 @@ export function getContainer(state:State, groupIndex:number, index:number):Conta
 
 export function getActiveGroup(state:State):Group {
   return state.groups[state.activeGroupIndex];
+}
+
+export function getActiveContainer(group:Group):Container {
+  return group.containers[group.history.current.containerIndex];
+}
+
+/**
+ * @returns {boolean} true if page is active in any group
+ */
+export function isPageActive(state:State, id:number):boolean {
+  return _.some(state.groups, group => group.history.current.id === id);
 }
