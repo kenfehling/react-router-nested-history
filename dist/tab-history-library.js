@@ -28750,13 +28750,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    function getChildren(component) {
 	      if (component.type === _Container2.default) {
+	        // if you find a Container, stop
 	        return [component];
 	      } else if (component.props && component.props.children) {
 	        var _children = _react.Children.map(component.props.children, function (c) {
 	          return c;
-	        });
-	        return _.flatten(_children.map(getChildren));
+	        }); // your children
+	        return _.flatten(_children.map(getChildren)); // ...and your children's children
 	      } else {
+	        // no children
 	        return [component];
 	      }
 	    }
@@ -28769,7 +28771,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          G,
 	          null,
 	          _react2.default.createElement(c.type, null)
-	        ), div);
+	        ), div); // Initialize the Containers in group
 	      }
 	    });
 	    (0, _main.initGroup)(_this.groupIndex);

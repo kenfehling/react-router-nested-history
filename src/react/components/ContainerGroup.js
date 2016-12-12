@@ -41,14 +41,14 @@ export default class extends Component {
     }
 
     function getChildren(component) {
-      if (component.type === Container) {
+      if (component.type === Container) {  // if you find a Container, stop
         return [component];
       }
       else if (component.props && component.props.children) {
-        const children = Children.map(component.props.children, c => c);
-        return _.flatten(children.map(getChildren));
+        const children = Children.map(component.props.children, c => c);  // your children
+        return _.flatten(children.map(getChildren));  // ...and your children's children
       }
-      else {
+      else {  // no children
         return [component];
       }
     }
@@ -57,7 +57,7 @@ export default class extends Component {
     const div = document.createElement('div');
     children.forEach(c => {
       if (c instanceof Object) {
-        render(<G><c.type /></G>, div)
+        render(<G><c.type /></G>, div);  // Initialize the Containers in group
       }
     });
     initGroup(this.groupIndex);
