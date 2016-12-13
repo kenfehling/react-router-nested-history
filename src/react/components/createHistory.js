@@ -128,45 +128,7 @@ const createBrowserHistory = (props = {}) => {
   // Public interface
 
   const push = (path, state) => {
-    warning(
-        !(typeof path === 'object' && path.state !== undefined && state !== undefined),
-        'You should avoid providing a 2nd state argument to push when the 1st ' +
-        'argument is a location-like object that already has state; it is ignored'
-    )
-
-    const action = 'PUSH'
-    const location = createLocation(path, state, createKey(), history.location)
-
-    transitionManager.confirmTransitionTo(location, action, getUserConfirmation, (ok) => {
-      if (!ok)
-        return
-
-      const url = basename + createPath(location)
-      const { key, state } = location
-
-      if (canUseHistory) {
-        globalHistory.pushState({ key, state }, null, url)
-
-        if (forceRefresh) {
-          window.location.href = url
-        } else {
-          const prevIndex = allKeys.indexOf(history.location.key)
-          const nextKeys = allKeys.slice(0, prevIndex === -1 ? 0 : prevIndex + 1)
-
-          nextKeys.push(location.key)
-          allKeys = nextKeys
-
-          setState({ action, location })
-        }
-      } else {
-        warning(
-            state === undefined,
-            'Browser history cannot push state in browsers that do not support HTML5 history'
-        )
-
-        window.location.href = url
-      }
-    })
+    // EVerything removed
   }
 
   const replace = (path, state) => {
