@@ -8,13 +8,10 @@ import {
   addEventListener,
   removeEventListener,
   getConfirmation,
-  supportsHistory,
-  supportsPopStateOnHashChange,
-  isExtraneousPopstateEvent
+  supportsHistory
 } from 'history/DOMUtils'
 
-const PopStateEvent = 'popstate'
-const HashChangeEvent = 'hashchange'
+const LocationChangeEvent = 'locationChange'
 
 const getHistoryState = () => {
   try {
@@ -32,13 +29,12 @@ const getHistoryState = () => {
  */
 const createBrowserHistory = (props = {}) => {
   invariant(
-      canUseDOM,
-      'Browser history needs a DOM'
+    canUseDOM,
+    'Browser history needs a DOM'
   )
 
   const globalHistory = window.history
   const canUseHistory = supportsHistory()
-  const needsHashChangeListener = !supportsPopStateOnHashChange()
 
   const {
       basename = '',
@@ -79,21 +75,12 @@ const createBrowserHistory = (props = {}) => {
     )
   }
 
-  const handlePopState = (event) => {
-    // Ignore extraneous popstate events in WebKit.
-    if (isExtraneousPopstateEvent(event))
-      return
-
-    handlePop(getDOMLocation(event.state))
-  }
-
-  const handleHashChange = () => {
-    handlePop(getDOMLocation(getHistoryState()))
-  }
-
   let forceNextPop = false
 
-  const handlePop = (location) => {
+  const handleLocationChange = (event) => {
+
+    const location = event.detail.location
+
     if (forceNextPop) {
       forceNextPop = false
       setState()
@@ -239,15 +226,9 @@ const createBrowserHistory = (props = {}) => {
     listenerCount += delta
 
     if (listenerCount === 1) {
-      addEventListener(window, PopStateEvent, handlePopState)
-
-      if (needsHashChangeListener)
-        addEventListener(window, HashChangeEvent, handleHashChange)
+      addEventListener(window, LocationChangeEvent, handleLocationChange)
     } else if (listenerCount === 0) {
-      removeEventListener(window, PopStateEvent, handlePopState)
-
-      if (needsHashChangeListener)
-        removeEventListener(window, HashChangeEvent, handleHashChange)
+      removeEventListener(window, LocationChangeEvent, handleLocationChange)
     }
   }
 
@@ -280,8 +261,6 @@ const createBrowserHistory = (props = {}) => {
       return unlisten()
     }
   }
-
-  console.log(initialLocation)
 
   const history = {
     length: globalHistory.length,

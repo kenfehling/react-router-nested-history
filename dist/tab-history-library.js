@@ -29588,8 +29588,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var groupIndex = (0, _main.getNextGroupIndex)();
 	    _this.groupIndex = groupIndex;
 
-	    // TODO: Listen to location and then run when initialized?
-
 	    var G = function (_Component2) {
 	      _inherits(G, _Component2);
 
@@ -47213,8 +47211,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var PopStateEvent = 'popstate';
-	var HashChangeEvent = 'hashchange';
+	var LocationChangeEvent = 'locationChange';
 
 	var getHistoryState = function getHistoryState() {
 	  try {
@@ -47237,7 +47234,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  var globalHistory = window.history;
 	  var canUseHistory = (0, _DOMUtils.supportsHistory)();
-	  var needsHashChangeListener = !(0, _DOMUtils.supportsPopStateOnHashChange)();
 
 	  var _props$basename = props.basename,
 	      basename = _props$basename === undefined ? '' : _props$basename,
@@ -47284,20 +47280,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    transitionManager.notifyListeners(history.location, history.action);
 	  };
 
-	  var handlePopState = function handlePopState(event) {
-	    // Ignore extraneous popstate events in WebKit.
-	    if ((0, _DOMUtils.isExtraneousPopstateEvent)(event)) return;
-
-	    handlePop(getDOMLocation(event.state));
-	  };
-
-	  var handleHashChange = function handleHashChange() {
-	    handlePop(getDOMLocation(getHistoryState()));
-	  };
-
 	  var forceNextPop = false;
 
-	  var handlePop = function handlePop(location) {
+	  var handleLocationChange = function handleLocationChange(event) {
+
+	    var location = event.detail.location;
+
 	    if (forceNextPop) {
 	      forceNextPop = false;
 	      setState();
@@ -47432,13 +47420,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    listenerCount += delta;
 
 	    if (listenerCount === 1) {
-	      (0, _DOMUtils.addEventListener)(window, PopStateEvent, handlePopState);
-
-	      if (needsHashChangeListener) (0, _DOMUtils.addEventListener)(window, HashChangeEvent, handleHashChange);
+	      (0, _DOMUtils.addEventListener)(window, LocationChangeEvent, handleLocationChange);
 	    } else if (listenerCount === 0) {
-	      (0, _DOMUtils.removeEventListener)(window, PopStateEvent, handlePopState);
-
-	      if (needsHashChangeListener) (0, _DOMUtils.removeEventListener)(window, HashChangeEvent, handleHashChange);
+	      (0, _DOMUtils.removeEventListener)(window, LocationChangeEvent, handleLocationChange);
 	    }
 	  };
 
@@ -47473,8 +47457,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return unlisten();
 	    };
 	  };
-
-	  console.log(initialLocation);
 
 	  var history = {
 	    length: globalHistory.length,
