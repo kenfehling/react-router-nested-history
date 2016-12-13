@@ -1,9 +1,10 @@
-import React, { Component, PropTypes } from 'react';
-import { getOrCreateContainer } from '../../main';
+import React, { Component, PropTypes } from 'react'
+import { getOrCreateContainer } from '../../main'
 
 export default class extends Component {
   static contextTypes = {
-    groupIndex: PropTypes.number.isRequired
+    groupIndex: PropTypes.number.isRequired,
+    initializing: PropTypes.bool
   };
 
   static childContextTypes = {
@@ -18,19 +19,19 @@ export default class extends Component {
   };
 
   constructor(props, context) {
-    super(props);
-    const {groupIndex} = context;
-    const {initialUrl, pattern, patterns=[]} = this.props;
-    const p = [...patterns, ...(pattern ? [pattern] : [])];
-    const container = getOrCreateContainer(groupIndex, initialUrl, p);
-    this.containerIndex = container.index;
+    super(props)
+    const {groupIndex} = context
+    const {initialUrl, pattern, patterns=[]} = this.props
+    const p = [...patterns, ...(pattern ? [pattern] : [])]
+    const container = getOrCreateContainer(groupIndex, initialUrl, p)
+    this.containerIndex = container.index
   }
 
   getChildContext() {
-    return {containerIndex: this.containerIndex};
+    return {containerIndex: this.containerIndex}
   }
 
   render() {
-    return <div>{this.props.children}</div>;
+    return <div>{this.context.initializing ? '' : this.props.children}</div>
   }
 }

@@ -1,22 +1,20 @@
-import React, { PropTypes, Component } from 'react';
-import ReactTabs, { TabPane } from 'rc-tabs';
-import TabContent from 'rc-tabs/lib/TabContent';
-import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
-import 'rc-tabs/assets/index.css';
-import { HistoryMatch, Container, ContainerGroup } from '../../../../dist/tab-history-library';
-import { TransitionMotion, spring } from 'react-motion';
-import './Tabs.css';
-import TabMaster1 from "../components/TabMaster1";
-import TabMaster2 from "../components/TabMaster2";
-import TabMaster3 from "../components/TabMaster3";
-import TabPage from "../components/TabPage";
+import React, { PropTypes, Component } from 'react'
+import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs'
+import { Container, ContainerGroup } from '../../../../dist/tab-history-library'
+import { Match } from 'react-router'
+import { TransitionMotion, spring } from 'react-motion'
+import './Tabs.css'
+import TabMaster1 from "../components/TabMaster1"
+import TabMaster2 from "../components/TabMaster2"
+import TabMaster3 from "../components/TabMaster3"
+import TabPage from "../components/TabPage"
 
 const MatchWithFade = ({ component:Component, ...rest }) => {
-  const willEnter = () => ({ opacity: spring(1) });
-  const willLeave = () => ({ opacity: spring(0) });
+  const willEnter = () => ({ opacity: spring(1) })
+  const willLeave = () => ({ opacity: spring(0) })
 
   return (
-      <HistoryMatch {...rest} children={({ matched, ...props }) => (
+    <Match {...rest} children={({ matched, ...props }) => (
       <TransitionMotion
         willEnter={willEnter}
         willLeave={willLeave}
@@ -41,34 +39,34 @@ const MatchWithFade = ({ component:Component, ...rest }) => {
       </TransitionMotion>
     )}/>
   )
-};
+}
 
 const Tab = ({initialUrl, patterns, masterComponent}) => (
   <Container initialUrl={initialUrl} patterns={patterns}>
     <MatchWithFade exactly pattern={patterns[0]} component={masterComponent} />
     <MatchWithFade exactly pattern={patterns[1]} component={TabPage} />
   </Container>
-);
+)
 
 const Tab1 = () => <Tab initialUrl="/tabs/1"
-                        patterns={['/tabs/1', '/tabs/1/*']}
-                        masterComponent={TabMaster1} />;
+                        patterns={['/tabs/1', '/tabs/1/:page']}
+                        masterComponent={TabMaster1} />
 
 const Tab2 = () => <Tab initialUrl="/tabs/2"
-                        patterns={['/tabs/2', '/tabs/2/*']}
-                        masterComponent={TabMaster2} />;
+                        patterns={['/tabs/2', '/tabs/2/:page']}
+                        masterComponent={TabMaster2} />
 
 const Tab3 = () => <Tab initialUrl="/tabs/3"
-                        patterns={['/tabs/3', '/tabs/3/*']}
-                        masterComponent={TabMaster3} />;
+                        patterns={['/tabs/3', '/tabs/3/:page']}
+                        masterComponent={TabMaster3} />
 
 class Tabs extends Component {
 
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       currentTabIndex: 0
-    };
+    }
   }
 
   render() {
@@ -82,24 +80,20 @@ class Tabs extends Component {
           currentContainerIndex={this.state.currentTabIndex}
           onContainerSwitch={currentTabIndex => this.setState({currentTabIndex})}
       >
-        <ReactTabs activeKey={String(this.state.currentTabIndex)}
-                   renderTabBar={()=><ScrollableInkTabBar />}
-                   renderTabContent={()=><TabContent />}
-                   onChange={key => this.setState({currentTabIndex: parseInt(key)})}
-        >
-          <TabPane tab="One" key={0}>
-            <div className="tab-content"><Tab1 /></div>
-          </TabPane>
-          <TabPane tab="Two" key={1}>
-            <div className="tab-content"><Tab2 /></div>
-          </TabPane>
-          <TabPane tab="Three" key={2}>
-            <div className="tab-content"><Tab3 /></div>
-            </TabPane>
+        <ReactTabs onSelect={currentTabIndex => this.setState({currentTabIndex})}
+                   selectedIndex={this.state.currentTabIndex}>
+          <TabList>
+            <ReactTab>One</ReactTab>
+            <ReactTab>Two</ReactTab>
+            <ReactTab>Three</ReactTab>
+          </TabList>
+          <TabPanel><div className="tab-content"><Tab1 /></div></TabPanel>
+          <TabPanel><div className="tab-content"><Tab2 /></div></TabPanel>
+          <TabPanel><div className="tab-content"><Tab3 /></div></TabPanel>
         </ReactTabs>
       </ContainerGroup>
-    </div>);
+    </div>)
   }
 }
 
-export default Tabs;
+export default Tabs
