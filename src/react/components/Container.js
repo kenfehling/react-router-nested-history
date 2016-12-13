@@ -32,6 +32,6 @@ export default class extends Component {
   }
 
   render() {
-    return <div>{this.context.initializing ? '' : this.props.children}</div>;
+    return <div>{this.context.initializing ? '' : this.props.children}</div>
   }
 }

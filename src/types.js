@@ -1,24 +1,24 @@
 // @flow
 
 export interface Page {
-  url: string;
-  id: number;
-  containerIndex: number;
+  url: string
+  id: number
+  containerIndex: number
 }
 
 export interface History {
-  back: Page[];
-  current: Page;
-  forward: Page[];
+  back: Page[]
+  current: Page
+  forward: Page[]
 }
 
 export interface Container {
-  index: number;
-  initialUrl: string;
-  urlPatterns: string[];
-  isDefault: boolean;
-  history: History;
-  groupIndex: number;
+  index: number
+  initialUrl: string
+  urlPatterns: string[]
+  isDefault: boolean
+  history: History
+  groupIndex: number
 }
 
 export interface Group {
@@ -28,9 +28,9 @@ export interface Group {
 }
 
 export interface State {
-  groups: Group[];
-  activeGroupIndex: number;
-  lastPageId: number;
+  groups: Group[]
+  activeGroupIndex: number
+  lastPageId: number
 }
 
 export interface StateSnapshot extends State {
@@ -54,7 +54,7 @@ export const defaultHistory : History = {
   back: [],
   current: null,
   forward: []
-};
+}
 
 export const defaultContainer : Container = {
   initialUrl: '/',
@@ -62,17 +62,17 @@ export const defaultContainer : Container = {
   isDefault: true,
   group: 0,
   history: defaultHistory
-};
+}
 
 export const defaultPage : Page = new Page({
   url: '/',
   id: 0,
   container: defaultContainer
-});
+})
 
 export const defaultState : State = {
   browserHistory: defaultHistory,
   containers: [],
   lastId: 1
-};
+}
 */

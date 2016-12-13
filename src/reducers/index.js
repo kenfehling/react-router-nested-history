@@ -1,11 +1,11 @@
-import * as actionTypes from "../constants/ActionTypes";
-import * as _ from 'lodash';
+import * as actionTypes from "../constants/ActionTypes"
+import * as _ from 'lodash'
 
-const initialState = [];
+const initialState = []
 
 export default function(state=initialState, action) {
   if (_.includes(_.values(actionTypes), action.type)) {
-    return [...state, action];
+    return [...state, action]
   }
-  return state;
+  return state
 }

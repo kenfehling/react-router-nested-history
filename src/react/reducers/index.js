@@ -1,2 +1,2 @@
-export location from './location';
-export history from './history';
+export location from './location'
+export history from './history'

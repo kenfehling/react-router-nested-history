@@ -1,23 +1,23 @@
-import React, { Component, PropTypes, Children, cloneElement } from 'react';
-import { render } from 'react-dom';
-import { getNextGroupIndex, initGroup, switchToContainer, addChangeListener } from '../../main';
-import { connect } from 'react-redux';
-import store from '../store';
-import * as _ from "lodash";
-import Container from "./Container";
+import React, { Component, PropTypes, Children, cloneElement } from 'react'
+import { render } from 'react-dom'
+import { getNextGroupIndex, initGroup, switchToContainer, addChangeListener } from '../../main'
+import { connect } from 'react-redux'
+import store from '../store'
+import * as _ from "lodash"
+import Container from "./Container"
 
 export default class extends Component {
   static childContextTypes = {
     groupIndex: PropTypes.number.isRequired
-  };
+  }
 
   static propTypes = {
     currentContainerIndex: PropTypes.number.isRequired,
     onContainerSwitch: PropTypes.func
-  };
+  }
 
   getChildContext() {
-    return {groupIndex: this.groupIndex};
+    return {groupIndex: this.groupIndex}
   }
 
   componentWillMount() {
@@ -28,7 +28,7 @@ export default class extends Component {
       static childContextTypes = {
         groupIndex: PropTypes.number.isRequired,
         initializing: PropTypes.bool
-      };
+      }
 
       getChildContext() {
         return {groupIndex, initializing: true}
@@ -64,25 +64,25 @@ export default class extends Component {
 
   componentDidMount() {
     addChangeListener(state => {
-      const {currentContainerIndex, onContainerSwitch} = this.props;
-      const group = state.groups[this.groupIndex];
-      const newContainerIndex = group.history.current.containerIndex;
+      const {currentContainerIndex, onContainerSwitch} = this.props
+      const group = state.groups[this.groupIndex]
+      const newContainerIndex = group.history.current.containerIndex
       if (newContainerIndex !== currentContainerIndex) {
-        onContainerSwitch(newContainerIndex);
+        onContainerSwitch(newContainerIndex)
       }
-    });
+    })
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.currentContainerIndex !== this.props.currentContainerIndex) {
-      switchToContainer(this.groupIndex, newProps.currentContainerIndex);
+      switchToContainer(this.groupIndex, newProps.currentContainerIndex)
     }
-  };
+  }
 
   render() {
-    //const props = getGroupFunctions(this.groupIndex);
-    //return <div>{Children.map(this.props.children, c => cloneElement(c, props))}</div>;
-    return <div>{this.props.children}</div>;
+    //const props = getGroupFunctions(this.groupIndex)
+    //return <div>{Children.map(this.props.children, c => cloneElement(c, props))}</div>
+    return <div>{this.props.children}</div>
   }
 }
 
@@ -90,7 +90,7 @@ export default class extends Component {
 const ConnectedGroup = connect(
   state => getGroupFunctions(state, this.groupIndex),
   {}
-)(Group);
+)(Group)
 
-export default () => <ConnectedGroup store={store} />;
+export default () => <ConnectedGroup store={store} />
 */

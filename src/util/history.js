@@ -1,24 +1,24 @@
 // @flow
 
-import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes";
-import * as _ from 'lodash';
-import fp from 'lodash/fp';
-import { pushToStack, back, forward } from './core';
-import * as browser from '../browserFunctions';
-import { switchContainer, loadGroupFromUrl } from '../behaviorist';
-import type { History, State, StateSnapshot, Container, Page, Group, Step } from '../types';
+import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes"
+import * as _ from 'lodash'
+import fp from 'lodash/fp'
+import { pushToStack, back, forward } from './core'
+import * as browser from '../browserFunctions'
+import { switchContainer, loadGroupFromUrl } from '../behaviorist'
+import type { History, State, StateSnapshot, Container, Page, Group, Step } from '../types'
 
 export const push = (oldState:State, url:string):State => {
-  const state = _.cloneDeep(oldState);
-  const group = state.groups[state.activeGroupIndex];
-  const container = group.containers[group.history.current.containerIndex];
-  const id = state.lastPageId + 1;
-  const page = {url, id, containerIndex: container.index};
-  container.history = pushToStack(container.history, page);
-  group.history = pushToStack(group.history, page);
+  const state = _.cloneDeep(oldState)
+  const group = state.groups[state.activeGroupIndex]
+  const container = group.containers[group.history.current.containerIndex]
+  const id = state.lastPageId + 1
+  const page = {url, id, containerIndex: container.index}
+  container.history = pushToStack(container.history, page)
+  group.history = pushToStack(group.history, page)
   state.lastPageId = id
   return state
-};
+}
 
 export function go(oldState:State, n:number) : State {
   if (n === 0) {
@@ -42,7 +42,7 @@ export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :numb
   const group = oldState.groups[oldState.activeGroupIndex]
   const oldHistory = group.history
   if (!_.isEmpty(oldHistory.back)) {
-    const i = _.findIndex(oldHistory.back, b => b.id === newCurrentId);
+    const i = _.findIndex(oldHistory.back, b => b.id === newCurrentId)
     if (i !== -1) {
       return 0 - (_.size(oldHistory.back) - i)
     }
@@ -64,10 +64,10 @@ export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :numb
  * @returns {[Object]} An array of steps to get from old state to new state
  */
 export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
-  const group1:?Group = oldState ? oldState.groups[oldState.activeGroupIndex] : null;
-  const group2:Group = newState.groups[newState.activeGroupIndex];
-  const h1:?History = group1 ? group1.history : null;
-  const h2:History = group2.history;
+  const group1:?Group = oldState ? oldState.groups[oldState.activeGroupIndex] : null
+  const group2:Group = newState.groups[newState.activeGroupIndex]
+  const h1:?History = group1 ? group1.history : null
+  const h2:History = group2.history
   if (_.isEqual(h1, h2)) {
     return []
   }
@@ -84,13 +84,13 @@ export const constructNewHistory = (state:State, newCurrentId:number) : State =>
   const shiftAmount = getHistoryShiftAmount(state, newCurrentId)
   if (shiftAmount === 0) {
     return state
-    //console.error(state, newCurrentId);
-    //throw new Error("This should be used for back and forward");
+    //console.error(state, newCurrentId)
+    //throw new Error("This should be used for back and forward")
   }
   else {
     return go(state, shiftAmount)
   }
-};
+}
 
 export function reducer(state:?State, action:Object) : State {
   switch (action.type) {
@@ -166,7 +166,7 @@ export function reducer(state:?State, action:Object) : State {
   return state
 }
 
-export const reduceAll = (state:?State, actions:Object[]) : State => actions.reduce(reducer, state);
+export const reduceAll = (state:?State, actions:Object[]) : State => actions.reduce(reducer, state)
 
 export const deriveState = (actionHistory:Object[]) : ?StateSnapshot => {
   if (actionHistory.length === 0) {
@@ -183,58 +183,58 @@ export const deriveState = (actionHistory:Object[]) : ?StateSnapshot => {
       lastAction
     }
   }
-};
+}
 
 export function getContainerStackOrder(actionHistory:Object[], groupIndex:number) : Container[] {
   if (actionHistory.length === 0) {
-    throw new Error("No actions in history");
+    throw new Error("No actions in history")
   }
-  const containerSwitches:Container[] = [];
+  const containerSwitches:Container[] = []
   actionHistory.reduce((oldState:?State, action:Object) : State => {
-    const newState:State = reducer(oldState, action);
+    const newState:State = reducer(oldState, action)
     if (action.type === CREATE_CONTAINER) {
-      const group:Group = _.last(newState.groups);
-      fp.reverse(group.containers).forEach(c => containerSwitches.push(c));
+      const group:Group = _.last(newState.groups)
+      fp.reverse(group.containers).forEach(c => containerSwitches.push(c))
     }
     if (newState.activeGroupIndex === groupIndex) {
-      const newGroup:Group = newState.groups[groupIndex];
-      const oldGroup:?Group = oldState ? getActiveGroup(oldState) : null;
-      const oldContainerIndex:?number = oldGroup? oldGroup.history.current.containerIndex : null;
-      const newContainerIndex:number = newGroup.history.current.containerIndex;
+      const newGroup:Group = newState.groups[groupIndex]
+      const oldGroup:?Group = oldState ? getActiveGroup(oldState) : null
+      const oldContainerIndex:?number = oldGroup? oldGroup.history.current.containerIndex : null
+      const newContainerIndex:number = newGroup.history.current.containerIndex
       if (!oldGroup || oldGroup.index !== newGroup.index || oldContainerIndex !== newContainerIndex) {
-        const container = newGroup.containers[newContainerIndex];
-        containerSwitches.push(container);
+        const container = newGroup.containers[newContainerIndex]
+        containerSwitches.push(container)
       }
     }
-    return newState;
-  }, null);
-  return _.uniqBy(fp.reverse(containerSwitches), c => c.index);
+    return newState
+  }, null)
+  return _.uniqBy(fp.reverse(containerSwitches), c => c.index)
 }
 
 /**
  * Gets the stack order values as numbers, in container order instead of stack order
  */
 export function getIndexedContainerStackOrder(actionHistory:Object[], groupIndex:number) : number[] {
-  const stackOrder = getContainerStackOrder(actionHistory, groupIndex);
-  const values = _.map(stackOrder, (s, i) => ({index: s.index, i}));
-  return _.map(_.sortBy(values, s => s.index), s => s.i);
+  const stackOrder = getContainerStackOrder(actionHistory, groupIndex)
+  const values = _.map(stackOrder, (s, i) => ({index: s.index, i}))
+  return _.map(_.sortBy(values, s => s.index), s => s.i)
 }
 
 export function getContainer(state:State, groupIndex:number, index:number):Container {
-  return state.groups[groupIndex].containers[index];
+  return state.groups[groupIndex].containers[index]
 }
 
 export function getActiveGroup(state:State):Group {
-  return state.groups[state.activeGroupIndex];
+  return state.groups[state.activeGroupIndex]
 }
 
 export function getActiveContainer(group:Group):Container {
-  return group.containers[group.history.current.containerIndex];
+  return group.containers[group.history.current.containerIndex]
 }
 
 /**
  * @returns {boolean} true if page is active in any group
  */
 export function isPageActive(state:State, id:number):boolean {
-  return _.some(state.groups, group => group.history.current.id === id);
+  return _.some(state.groups, group => group.history.current.id === id)
 }
