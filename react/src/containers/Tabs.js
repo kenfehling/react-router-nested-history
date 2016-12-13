@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs';
-import { HistoryMatch, Container, ContainerGroup } from '../../../../dist/tab-history-library';
+import { Container, ContainerGroup } from '../../../../dist/tab-history-library';
+import { Match } from 'react-router';
 import { TransitionMotion, spring } from 'react-motion';
 import './Tabs.css';
 import TabMaster1 from "../components/TabMaster1";
@@ -13,7 +14,7 @@ const MatchWithFade = ({ component:Component, ...rest }) => {
   const willLeave = () => ({ opacity: spring(0) });
 
   return (
-    <HistoryMatch {...rest} children={({ matched, ...props }) => (
+    <Match {...rest} children={({ matched, ...props }) => (
       <TransitionMotion
         willEnter={willEnter}
         willLeave={willLeave}
@@ -48,15 +49,15 @@ const Tab = ({initialUrl, patterns, masterComponent}) => (
 );
 
 const Tab1 = () => <Tab initialUrl="/tabs/1"
-                        patterns={['/tabs/1', '/tabs/1/*']}
+                        patterns={['/tabs/1', '/tabs/1/:page']}
                         masterComponent={TabMaster1} />;
 
 const Tab2 = () => <Tab initialUrl="/tabs/2"
-                        patterns={['/tabs/2', '/tabs/2/*']}
+                        patterns={['/tabs/2', '/tabs/2/:page']}
                         masterComponent={TabMaster2} />;
 
 const Tab3 = () => <Tab initialUrl="/tabs/3"
-                        patterns={['/tabs/3', '/tabs/3/*']}
+                        patterns={['/tabs/3', '/tabs/3/:page']}
                         masterComponent={TabMaster3} />;
 
 class Tabs extends Component {
