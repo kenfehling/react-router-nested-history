@@ -2,4 +2,4 @@ export { getOrCreateContainer, getNextGroupIndex, switchToContainer, push, isPag
 export HistoryLink from './react/components/HistoryLink'
 export ContainerGroup from './react/components/ContainerGroup'
 export Container from './react/components/Container'
-export BrowserRouter from './react/components/BrowserRouter'
+export HistoryRouter from './react/components/HistoryRouter'

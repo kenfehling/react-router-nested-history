@@ -1,8 +1,8 @@
 ### react-router
 <br>
 
-#### HistoryMatch
-Use this component in place of `Match` to enable history.
+#### HistoryRouter
+Use this in place of react-router's `BrowserRouter` component to enable this library.
 <br>
 
 #### HistoryLink
@@ -73,4 +73,3 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
         </tr>
     </tbody>   
 </table>
-
