@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { addChangeListener } from '../../../../dist/tab-history-library';
-import './StateTree.css';
+import React, { Component } from 'react'
+import { addChangeListener } from '../../../../dist/tab-history-library'
+import './StateTree.css'
 
 const HistoryTree = ({history, className}) => (
   <div>
@@ -14,7 +14,7 @@ const HistoryTree = ({history, className}) => (
       {history.forward.map((page, i) => <div key={i}>{page.url}</div>)}
     </div>
   </div>
-);
+)
 
 const StateTree = ({state}) => (
   <div className="history-tree">
@@ -32,19 +32,19 @@ const StateTree = ({state}) => (
               </div>
           </div>) : ''}
   </div>
-);
+)
 
 export default class extends Component {
   constructor(props) {
-    super(props);
-    this.state = {};
+    super(props)
+    this.state = {}
   }
 
   componentWillMount() {
-    addChangeListener(state => this.setState(state));
+    addChangeListener(state => this.setState(state))
   }
 
   render() {
-    return <StateTree state={this.state} />;
+    return <StateTree state={this.state} />
   }
 }

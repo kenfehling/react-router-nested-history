@@ -1,44 +1,45 @@
-import React, { Component } from 'react';
-import { HistoryMatch, Container, createGroup } from '../../../../dist/tab-history-library';
-import './Windows.css';
+import React, { Component } from 'react'
+import { Container, createGroup } from '../../../../dist/tab-history-library'
+import { Match } from 'react-router';
+import './Windows.css'
 
 class Window extends Component {
 
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       zIndex: 1
     }
   }
 
   setZIndex(indexedStackOrder) {
-    const {index} = this.props;
+    const {index} = this.props
     this.setState({
       zIndex: indexedStackOrder.length - indexedStackOrder[index] + 1
-    });
+    })
   }
 
   componentWillMount() {
-    const {containers} = this.props;
+    const {containers} = this.props
     containers.addChangeListener(state => {
-      this.setZIndex(state.indexedStackOrder);
-    });
-    this.setZIndex(containers.getIndexedStackOrder());
+      this.setZIndex(state.indexedStackOrder)
+    })
+    this.setZIndex(containers.getIndexedStackOrder())
   }
 
   render() {
-    const {className, index, children, containers} = this.props;
+    const {className, index, children, containers} = this.props
     return (<Container>
       <div className={`window ${className}`} onClick={() => containers.switchTo(index)}
            style={{zIndex: this.state.zIndex}}>
         {children}
       </div>
-    </Container>);
+    </Container>)
   }
 }
 
-export const Window1 = props => <Window className="window1" index={0} {...props} />;
-export const Window2 = props => <Window className="window2" index={1} {...props} />;
+export const Window1 = props => <Window className="window1" index={0} {...props} />
+export const Window2 = props => <Window className="window2" index={1} {...props} />
 
 const Windows = () => (
   <div className="windows">
@@ -50,6 +51,6 @@ const Windows = () => (
     <Window1 />
     <Window2 />
   </div>
-);
+)
 
-export default createGroup(Windows);
+export default createGroup(Windows)
