@@ -29583,76 +29583,80 @@ return /******/ (function(modules) { // webpackBootstrap
 	  function _class(props) {
 	    _classCallCheck(this, _class);
 
-	    var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
-
-	    var groupIndex = (0, _main.getNextGroupIndex)();
-	    _this.groupIndex = groupIndex;
-
-	    var G = function (_Component2) {
-	      _inherits(G, _Component2);
-
-	      function G() {
-	        _classCallCheck(this, G);
-
-	        return _possibleConstructorReturn(this, (G.__proto__ || Object.getPrototypeOf(G)).apply(this, arguments));
-	      }
-
-	      _createClass(G, [{
-	        key: 'getChildContext',
-	        value: function getChildContext() {
-	          return { groupIndex: groupIndex, initializing: true };
-	        }
-	      }, {
-	        key: 'render',
-	        value: function render() {
-	          return _react2.default.createElement(
-	            'div',
-	            null,
-	            this.props.children
-	          );
-	        }
-	      }]);
-
-	      return G;
-	    }(_react.Component);
-
-	    G.childContextTypes = {
-	      groupIndex: _react.PropTypes.number.isRequired,
-	      initializing: _react.PropTypes.bool
-	    };
-
-
-	    function getChildren(component) {
-	      if (component.type === _Container2.default) {
-	        // if you find a Container, stop
-	        return [component];
-	      } else if (component.props && component.props.children) {
-	        var _children = _react.Children.map(component.props.children, function (c) {
-	          return c;
-	        }); // your children
-	        return _.flatten(_children.map(getChildren)); // ...and your children's children
-	      } else {
-	        // no children
-	        return [component];
-	      }
-	    }
-
-	    var children = getChildren(_this);
-	    var div = document.createElement('div');
-	    children.forEach(function (c) {
-	      if (c instanceof Object) {
-	        (0, _reactDom.render)(_react2.default.createElement(
-	          G,
-	          null,
-	          _react2.default.createElement(c.type, null)
-	        ), div); // Initialize the Containers in group
-	      }
-	    });
-	    (0, _main.initGroup)(_this.groupIndex);
-	    return _this;
+	    return _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
 	  }
 
 	  _createClass(_class, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      var groupIndex = (0, _main.getNextGroupIndex)();
+	      this.groupIndex = groupIndex;
+
+	      var G = function (_Component2) {
+	        _inherits(G, _Component2);
+
+	        function G() {
+	          _classCallCheck(this, G);
+
+	          return _possibleConstructorReturn(this, (G.__proto__ || Object.getPrototypeOf(G)).apply(this, arguments));
+	        }
+
+	        _createClass(G, [{
+	          key: 'getChildContext',
+	          value: function getChildContext() {
+	            return { groupIndex: groupIndex, initializing: true };
+	          }
+	        }, {
+	          key: 'render',
+	          value: function render() {
+	            return _react2.default.createElement(
+	              'div',
+	              null,
+	              this.props.children
+	            );
+	          }
+	        }]);
+
+	        return G;
+	      }(_react.Component);
+
+	      G.childContextTypes = {
+	        groupIndex: _react.PropTypes.number.isRequired,
+	        initializing: _react.PropTypes.bool
+	      };
+
+
+	      function getChildren(component) {
+	        if (component.type === _Container2.default) {
+	          // if you find a Container, stop
+	          return [component];
+	        } else if (component.props && component.props.children) {
+	          var _children = _react.Children.map(component.props.children, function (c) {
+	            return c;
+	          }); // your children
+	          return _.flatten(_children.map(getChildren)); // ...and your children's children
+	        } else {
+	          // no children
+	          return [component];
+	        }
+	      }
+
+	      console.log("MACUSO");
+
+	      var children = getChildren(this);
+	      var div = document.createElement('div');
+	      children.forEach(function (c) {
+	        if (c instanceof Object) {
+	          (0, _reactDom.render)(_react2.default.createElement(
+	            G,
+	            null,
+	            _react2.default.createElement(c.type, null)
+	          ), div); // Initialize the Containers in group
+	        }
+	      });
+	      (0, _main.initGroup)(this.groupIndex);
+	    }
+	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      var _this3 = this;

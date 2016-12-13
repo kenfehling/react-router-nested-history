@@ -20,9 +20,7 @@ export default class extends Component {
     return {groupIndex: this.groupIndex};
   }
 
-  constructor(props) {
-    super(props)
-
+  componentWillMount() {
     const groupIndex = getNextGroupIndex()
     this.groupIndex = groupIndex
 
