@@ -1,4 +1,6 @@
 // @flow
+declare var Promise:any
+declare var CustomEvent:any
 
 import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes"
 import * as actions from './actions/HistoryActions'
@@ -122,7 +124,7 @@ export const switchToContainer = (groupIndex:number, containerIndex:number) => {
 }
 
 export const push = (groupIndex:number, containerIndex:number, url:string) => {
-  if (!isAciveContainer()) {
+  if (!isAciveContainer(groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
   store.dispatch(actions.push(url))

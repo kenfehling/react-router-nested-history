@@ -74,7 +74,7 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
   return _.flatten([
     h1 ? {fn: browser.back, args: [h1.back.length + 1]} : [],
     _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
-    {fn: browser.push, args: [h2.current, true]},
+    {fn: browser.push, args: [h2.current]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ])
@@ -168,9 +168,9 @@ export function reducer(state:?State, action:Object) : State {
 
 export const reduceAll = (state:?State, actions:Object[]) : State => actions.reduce(reducer, state)
 
-export const deriveState = (actionHistory:Object[]) : ?StateSnapshot => {
+export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
   if (actionHistory.length === 0) {
-    return null
+    throw new Error('No action history')
   }
   else {
     const lastAction = _.last(actionHistory)

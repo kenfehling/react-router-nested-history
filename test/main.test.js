@@ -27,7 +27,7 @@ describe('main', () => {
   it.only('creates steps to init (default)', () => {
     const state = performAll(createContainers())
 
-    console.log(state.groups[0].history)
+    console.log(state)
 
     const steps = createSteps(state)
     expect(state.groups[0].history.back.length).toBe(0)
@@ -70,7 +70,7 @@ describe('main', () => {
     expect(steps).toEqual([
       {fn: back, args: [1]},
       {fn: push, args: [state.groups[0].history.back[0]]},
-      {fn: push, args: [state.groups[0].history.current, true]}
+      {fn: push, args: [state.groups[0].history.current]}
     ])
   })
 })

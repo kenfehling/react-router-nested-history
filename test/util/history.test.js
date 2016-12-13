@@ -49,7 +49,7 @@ describe('history utils', () => {
       expect(steps).toEqual([
         {fn: back, args: [1]},
         {fn: push, args: [newState.groups[0].history.back[0]]},
-        {fn: push, args: [newState.groups[0].history.current, true]}
+        {fn: push, args: [newState.groups[0].history.current]}
       ])
     })
 
@@ -58,7 +58,7 @@ describe('history utils', () => {
       const steps = util.diffStateToSteps(originalState, newState)
       expect(steps).toEqual([
         {fn: back, args: [1]},
-        {fn: push, args: [newState.groups[0].history.current, true]},
+        {fn: push, args: [newState.groups[0].history.current]},
         {fn: push, args: [newState.groups[0].history.forward[0]]},
         {fn: back, args: [1]}
       ])
