@@ -12,9 +12,11 @@ export const push = (page:Page, real:boolean=false) => {
   const state = {id: page.id, real};
   history.push(page.url, state);
 
+  /*
   // TODO: With react-router 4.0.0-alpha.6 we should be able to get rid of this
   const popStateEvent = new PopStateEvent('popstate', {state: {state}});
   dispatchEvent(popStateEvent);
+  */
 };
 
 export const replace = (page: Page) => history.replace(page.url, {id: page.id});

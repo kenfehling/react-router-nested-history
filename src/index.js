@@ -3,3 +3,4 @@ export HistoryMatch from './react/components/HistoryMatch';
 export HistoryLink from './react/components/HistoryLink';
 export ContainerGroup from './react/components/ContainerGroup';
 export Container from './react/components/Container';
+export BrowserRouter from './react/components/BrowserRouter';

@@ -16,45 +16,45 @@ export const push = (oldState:State, url:string):State => {
   const page = {url, id, containerIndex: container.index};
   container.history = pushToStack(container.history, page);
   group.history = pushToStack(group.history, page);
-  state.lastPageId = id;
-  return state;
+  state.lastPageId = id
+  return state
 };
 
 export function go(oldState:State, n:number) : State {
   if (n === 0) {
-    return oldState;
+    return oldState
   }
-  const state = _.cloneDeep(oldState);
-  const group = state.groups[state.activeGroupIndex];
-  const container = group.containers[group.history.current.containerIndex];
-  const f = n < 0 ? back : forward;
-  group.history = f(group.history);
-  const stack = n < 0 ? container.history.back : container.history.forward;
-  const containerCanGo = stack.length > 0;
-  const nextN = n < 0 ? n + 1 : n - 1;
+  const state = _.cloneDeep(oldState)
+  const group = state.groups[state.activeGroupIndex]
+  const container = group.containers[group.history.current.containerIndex]
+  const f = n < 0 ? back : forward
+  group.history = f(group.history)
+  const stack = n < 0 ? container.history.back : container.history.forward
+  const containerCanGo = stack.length > 0
+  const nextN = n < 0 ? n + 1 : n - 1
   if (containerCanGo) {
-    container.history = f(container.history);
+    container.history = f(container.history)
   }
-  return go(state, nextN);
+  return go(state, nextN)
 }
 
 export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :number => {
-  const group = oldState.groups[oldState.activeGroupIndex];
-  const oldHistory = group.history;
+  const group = oldState.groups[oldState.activeGroupIndex]
+  const oldHistory = group.history
   if (!_.isEmpty(oldHistory.back)) {
     const i = _.findIndex(oldHistory.back, b => b.id === newCurrentId);
     if (i !== -1) {
-      return 0 - (_.size(oldHistory.back) - i);
+      return 0 - (_.size(oldHistory.back) - i)
     }
   }
   if (!_.isEmpty(oldHistory.forward)) {
-    const i = _.findIndex(oldHistory.forward, b => b.id === newCurrentId);
+    const i = _.findIndex(oldHistory.forward, b => b.id === newCurrentId)
     if (i !== -1) {
-      return i + 1;
+      return i + 1
     }
   }
-  return 0;
-};
+  return 0
+}
 
 /**
  * Get the difference between oldState and newState and return a list of
@@ -69,7 +69,7 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
   const h1:?History = group1 ? group1.history : null;
   const h2:History = group2.history;
   if (_.isEqual(h1, h2)) {
-    return [];
+    return []
   }
   return _.flatten([
     h1 ? {fn: browser.back, args: [h1.back.length + 1]} : [],
@@ -77,34 +77,34 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
     {fn: browser.push, args: [h2.current, true]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
-  ]);
-};
+  ])
+}
 
 export const constructNewHistory = (state:State, newCurrentId:number) : State => {
-  const shiftAmount = getHistoryShiftAmount(state, newCurrentId);
+  const shiftAmount = getHistoryShiftAmount(state, newCurrentId)
   if (shiftAmount === 0) {
-    return state;
+    return state
     //console.error(state, newCurrentId);
     //throw new Error("This should be used for back and forward");
   }
   else {
-    return go(state, shiftAmount);
+    return go(state, shiftAmount)
   }
 };
 
 export function reducer(state:?State, action:Object) : State {
   switch (action.type) {
     case CREATE_CONTAINER: {
-      const {groupIndex=0, initialUrl, urlPatterns} = action;
-      const id = (state ? state.lastPageId : 0) + 1;
-      const existingGroup:?Group = state ? state.groups[groupIndex] : null;
-      const containerIndex = existingGroup ? existingGroup.containers.length : 0;
+      const {groupIndex=0, initialUrl, urlPatterns} = action
+      const id = (state ? state.lastPageId : 0) + 1
+      const existingGroup:?Group = state ? state.groups[groupIndex] : null
+      const containerIndex = existingGroup ? existingGroup.containers.length : 0
 
       const history:History = {
         back: [],
         current: {url: initialUrl, id, containerIndex},
         forward: []
-      };
+      }
 
       const container:Container = {
         initialUrl,
@@ -113,7 +113,7 @@ export function reducer(state:?State, action:Object) : State {
         groupIndex,
         index: containerIndex,
         isDefault: containerIndex === 0  // TODO: Add option to not have a default
-      };
+      }
 
       const group = existingGroup ? {
         ...existingGroup,
@@ -122,39 +122,39 @@ export function reducer(state:?State, action:Object) : State {
         index: groupIndex,
         history: history,
         containers: [container]
-      };
+      }
 
       return {
         ...(state ? state : {}),
         groups: state ? [...state.groups.slice(0, groupIndex), group, ...state.groups.slice(groupIndex + 1)] : [group],
         activeGroupIndex: state ? state.activeGroupIndex : 0,
         lastPageId: id
-      };
+      }
     }
   }
   if (!state) {
-    throw new Error("State not yet initialized");
+    throw new Error("State not yet initialized")
   }
   else {
     switch (action.type) {
       case INIT_GROUP: {
-        return loadGroupFromUrl(state, action.groupIndex, action.currentUrl);
+        return loadGroupFromUrl(state, action.groupIndex, action.currentUrl)
       }
       case SWITCH_TO_CONTAINER: {
-        const newState:State = _.cloneDeep(state);
-        const group:Group = newState.groups[action.groupIndex];
-        const fromContainer:Container = group.containers[group.history.current.containerIndex];
-        const toContainer:Container = getContainer(newState, action.groupIndex, action.containerIndex);
-        group.history = switchContainer(fromContainer, toContainer, group.containers[0]);
-        newState.activeGroupIndex = group.index;
-        return newState;
+        const newState:State = _.cloneDeep(state)
+        const group:Group = newState.groups[action.groupIndex]
+        const fromContainer:Container = group.containers[group.history.current.containerIndex]
+        const toContainer:Container = getContainer(newState, action.groupIndex, action.containerIndex)
+        group.history = switchContainer(fromContainer, toContainer, group.containers[0])
+        newState.activeGroupIndex = group.index
+        return newState
       }
       case PUSH: {
-        return push(state, action.url);
+        return push(state, action.url)
       }
-      case BACK: { return {...state, ...go(state, 0 - action.n || -1)}; }
+      case BACK: { return {...state, ...go(state, 0 - action.n || -1)} }
       case FORWARD:
-      case GO: { return {...state, ...go(state, action.n || 1)}; }
+      case GO: { return {...state, ...go(state, action.n || 1)} }
       case POPSTATE: {
         return {
           ...state,
@@ -163,20 +163,20 @@ export function reducer(state:?State, action:Object) : State {
       }
     }
   }
-  return state;
+  return state
 }
 
 export const reduceAll = (state:?State, actions:Object[]) : State => actions.reduce(reducer, state);
 
 export const deriveState = (actionHistory:Object[]) : ?StateSnapshot => {
   if (actionHistory.length === 0) {
-    return null;
+    return null
   }
   else {
-    const lastAction = _.last(actionHistory);
+    const lastAction = _.last(actionHistory)
     const previousState = _.initial(actionHistory).reduce((state, action) =>
-        reducer(state, action), null);
-    const finalState = reducer(previousState, lastAction);
+        reducer(state, action), null)
+    const finalState = reducer(previousState, lastAction)
     return {
       ...finalState,
       previousState,

@@ -8,6 +8,7 @@ import * as util from './util/history';
 import store from './store';
 import * as _ from 'lodash';
 import type { StateSnapshot, Step, State, Group, Container } from './types';
+import {createLocation} from "history";
 
 const needsPop = [browser.back, browser.forward, browser.go];
 let unlisten;
@@ -163,4 +164,12 @@ export function createSteps(state:StateSnapshot) : Step[] {
   }
 }
 
-store.subscribe(() => runSteps(createSteps(getDerivedState())));
+store.subscribe(() => {
+  const state = getDerivedState();
+  const group = util.getActiveGroup(state);
+  const current = group.history.current;
+  window.dispatchEvent(new CustomEvent('locationChange', {
+    detail: {location: createLocation(current.url, {id: current.id})}
+  }));
+  runSteps(createSteps(state));
+});

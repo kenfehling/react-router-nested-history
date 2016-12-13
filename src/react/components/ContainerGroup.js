@@ -21,46 +21,47 @@ export default class extends Component {
   }
 
   constructor(props) {
-    super(props);
+    super(props)
 
-    const groupIndex = getNextGroupIndex();
-    this.groupIndex = groupIndex;
+    const groupIndex = getNextGroupIndex()
+    this.groupIndex = groupIndex
 
     class G extends Component {
       static childContextTypes = {
-        groupIndex: PropTypes.number.isRequired
+        groupIndex: PropTypes.number.isRequired,
+        initializing: PropTypes.bool
       };
 
       getChildContext() {
-        return {groupIndex};
+        return {groupIndex, initializing: true}
       }
 
       render() {
-        return <div>{this.props.children}</div>;
+        return <div>{this.props.children}</div>
       }
     }
 
     function getChildren(component) {
       if (component.type === Container) {  // if you find a Container, stop
-        return [component];
+        return [component]
       }
       else if (component.props && component.props.children) {
-        const children = Children.map(component.props.children, c => c);  // your children
-        return _.flatten(children.map(getChildren));  // ...and your children's children
+        const children = Children.map(component.props.children, c => c)  // your children
+        return _.flatten(children.map(getChildren))  // ...and your children's children
       }
       else {  // no children
-        return [component];
+        return [component]
       }
     }
 
-    const children = getChildren(this);
-    const div = document.createElement('div');
+    const children = getChildren(this)
+    const div = document.createElement('div')
     children.forEach(c => {
       if (c instanceof Object) {
-        render(<G><c.type /></G>, div);  // Initialize the Containers in group
+        render(<G><c.type /></G>, div)  // Initialize the Containers in group
       }
-    });
-    initGroup(this.groupIndex);
+    })
+    initGroup(this.groupIndex)
   }
 
   componentDidMount() {

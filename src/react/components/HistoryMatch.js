@@ -2,8 +2,12 @@ import React, { Component, PropTypes } from 'react';
 import * as reactRouter from 'react-router';
 import MatchProvider from 'react-router/MatchProvider';
 import matchPattern from 'react-router/matchPattern';
-import { LocationSubscriber } from 'react-router/Broadcasts';
+import { connect } from 'react-redux';
 import { isPageActive } from '../../main';
+import store from '../store';
+import {listenToLocation} from "../actions/StateActions";
+
+//store.dispatch(listenToLocation());
 
 class RegisterMatch extends React.Component {
   static contextTypes = {
@@ -60,66 +64,60 @@ function reallyMatches(location) {
   return location.state && isPageActive(location.state.id);
 }
 
-export default class extends reactRouter.Match {
+class HistoryMatch extends reactRouter.Match {
   render() {
-    return (
-      <LocationSubscriber>
-        {(newLocation) => {
-          const {
-              children,
-              render,
-              component:Component,
-              pattern,
-              exactly
-          } = this.props;
+    const newLocation = this.props.location;
+    const {children, render, component:Component, pattern, exactly} = this.props;
+    if (newLocation) {
+      const { match:matchContext } = this.context;
+      const parent = matchContext && matchContext.parent;
+      const newMatch = matchPattern(pattern, newLocation, exactly, parent);
 
-          if (!newLocation) {
-            return <div></div>;
-          }
+      // Added by Ken Fehling to support multiple groups of nested tabs/windows
+      const groupMatch = matchPattern('/tabs', newLocation, false, parent);
+      let match, location;
+      if (!!groupMatch) {  // the change was inside this tab group
+        if (!!newMatch && newLocation.state) {  // if this was a change to this tab
+          this.oldMatch = newMatch;
+          this.oldLocation = newLocation;
+        }
+        match = newMatch;  // proceed normally
+        location = newLocation;
+      }
+      else {  // the change was outside this tab group
+        match = this.oldMatch;  // keep showing the page you were on
+        location = this.oldLocation;
+      }
 
-          const { match:matchContext } = this.context;
-          const parent = matchContext && matchContext.parent;
-          const newMatch = matchPattern(pattern, newLocation, exactly, parent);
+      //console.log(match, this.oldMatch, reallyMatches(location), location);
 
-          // Added by Ken Fehling to support multiple groups of nested tabs/windows
-          const groupMatch = matchPattern('/tabs', newLocation, false, parent);
-          let match, location;
-          if (!!groupMatch) {  // the change was inside this tab group
-
-            console.log(newLocation);
-
-            if (!!newMatch && newLocation.state && newLocation.state.real) {  // if this was a change to this tab
-              this.oldMatch = newMatch;
-              this.oldLocation = newLocation;
-            }
-            match = newMatch;  // proceed normally
-            location = newLocation;
-          }
-          else {  // the change was outside this tab group
-            match = this.oldMatch;  // keep showing the page you were on
-            location = this.oldLocation;
-          }
-
-          //console.log(match, this.oldMatch, reallyMatches(location), location);
-
-          const props = { ...match, location, pattern };
-          return (
-              <RegisterMatch match={match}>
-                <MatchProvider match={match}>
-                  {children ? (
-                      children({ matched: !!match && reallyMatches(location), ...props })
-                  ) : match ? (
-                      render ? (
-                          render(props)
-                      ) : (
-                          <Component {...props}/>
-                      )
-                  ) : null}
-                </MatchProvider>
-              </RegisterMatch>
-          )
-        }}
-      </LocationSubscriber>
-    )
+      const props = { ...match, location, pattern };
+      return (
+          <RegisterMatch match={match}>
+            <MatchProvider match={match}>
+              {children ? (
+                  children({ matched: !!match && reallyMatches(location), ...props })
+              ) : match ? (
+                  render ? (
+                      render(props)
+                  ) : (
+                      <Component {...props}/>
+                  )
+              ) : null}
+            </MatchProvider>
+          </RegisterMatch>
+      )
+    }
+    else {
+      return <div></div>;
+    }
   }
-};
+}
+
+const ConnectedHistoryMatch = connect(
+  state => ({
+    location: state.location
+  })
+)(HistoryMatch);
+
+export default props => <ConnectedHistoryMatch store={store} {...props} />

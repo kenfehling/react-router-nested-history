@@ -1,6 +1,6 @@
 // @flow
 import * as _ from 'lodash';
-import { patternsMatch , pathsMatch} from "./util/url";
+import { patternsMatch , patternMatches} from "./util/url";
 import { pushToStack } from './util/core';
 import type { State, Page, Group, Container, History } from './types';
 
@@ -41,7 +41,7 @@ export function loadGroupFromUrl(oldState:State, groupIndex:number, url:string) 
   const containers:Container[] = group.containers;
   const defaultContainer:Container = _.find(containers, c => c.isDefault);
   const A = defaultContainer.history.current;
-  const initialContainer:Container = _.find(containers, c => pathsMatch(c.initialUrl, url));
+  const initialContainer:Container = _.find(containers, c => patternMatches(c.initialUrl, url));
   if (initialContainer) {
     if (initialContainer.isDefault) {
       group.history = fromArray(behavior.load_A([A], []));
