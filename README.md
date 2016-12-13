@@ -1,4 +1,5 @@
 ### react-router
+This library is built to support [react-router 4](https://github.com/ReactTraining/react-router/tree/v4).
 <br>
 
 #### HistoryRouter
