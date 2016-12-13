@@ -6,7 +6,7 @@ declare var expect:any
 import * as util from '../../src/util/history'
 import { push, back, forward, go } from '../../src/browserFunctions'
 import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD } from "../../src/constants/ActionTypes"
-import type { State, StateSnapshot } from '../../src/types'
+import type { State } from '../../src/types'
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
 
@@ -100,6 +100,62 @@ describe('history utils', () => {
     it('gets indexed container stack order (non-default)', () => {
       const actions = createContainers('/b')
       expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([1, 0, 2])
+    })
+  })
+
+  describe('createSteps', () => {
+    const perform = (action) : State => util.deriveState([action])
+    const performAll = (actions) : State => util.deriveState(actions)
+
+    it('creates steps to init (default)', () => {
+      const actions = createContainers()
+      const state = performAll(actions)
+      const steps = util.createSteps(actions)
+      expect(state.groups[0].history.back.length).toBe(0)
+      expect(steps.length).toBe(1)
+      expect(steps).toEqual([
+        {fn: push, args: [state.groups[0].history.current]}
+      ])
+    })
+
+    it('creates steps to init (non-default)', () => {
+      const actions = createContainers('/b')
+      const state = performAll(actions)
+      const steps = util.createSteps(actions)
+      expect(state.groups[0].history.back.length).toBe(1)
+      expect(steps.length).toBe(2)
+      expect(steps).toEqual([
+        {fn: push, args: [state.groups[0].history.back[0]]},
+        {fn: push, args: [state.groups[0].history.current]}
+      ])
+    })
+
+    it('creates steps to init (non-default) 2', () => {
+      const actions = createContainers('/b/1')
+      const state = performAll(actions)
+      const steps = util.createSteps(actions)
+      expect(state.groups[0].history.back.length).toBe(2)
+      expect(steps.length).toBe(3)
+      expect(steps).toEqual([
+        {fn: push, args: [state.groups[0].history.back[0]]},
+        {fn: push, args: [state.groups[0].history.back[1]]},
+        {fn: push, args: [state.groups[0].history.current]}
+      ])
+    })
+
+    it('creates steps for switching a tab', () => {
+      const actions = [
+        ...createContainers(),
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1}
+      ]
+      const state = performAll(actions)
+      const steps = util.createSteps(actions)
+      expect(state.groups[0].history.back.length).toBe(1)
+      expect(steps).toEqual([
+        {fn: back, args: [1]},
+        {fn: push, args: [state.groups[0].history.back[0]]},
+        {fn: push, args: [state.groups[0].history.current]}
+      ])
     })
   })
 })

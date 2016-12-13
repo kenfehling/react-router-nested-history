@@ -133,7 +133,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	exports.isPageActive = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.addChangeListener = exports.getGroupFunctions = exports.initGroup = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
-	exports.createSteps = createSteps;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -200,11 +199,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	startListening();
 
 	var getNextGroupIndex = exports.getNextGroupIndex = function getNextGroupIndex() {
-	  var state = getDerivedState();
-	  if (state) {
-	    return state.groups.length;
-	  } else {
+	  var actions = _store2.default.getState();
+	  if (_.isEmpty(actions)) {
 	    return 0;
+	  } else {
+	    var state = util.deriveState(actions);
+	    return state.groups.length;
 	  }
 	};
 
@@ -218,10 +218,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var create = function create() {
 	    return createContainer(groupIndex, initialUrl, patterns);
 	  };
-	  var state = getDerivedState();
-	  if (!state) {
+	  var actions = _store2.default.getState();
+	  if (_.isEmpty(actions)) {
 	    return create();
 	  }
+	  var state = util.deriveState(actions);
 	  var group = state.groups[groupIndex];
 	  if (!group) {
 	    return create();
@@ -270,7 +271,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	};
 
-	function isAciveContainer(groupIndex, containerIndex) {
+	function isActiveContainer(groupIndex, containerIndex) {
 	  var state = getDerivedState();
 	  var activeGroup = util.getActiveGroup(state);
 	  var activeContainer = util.getActiveContainer(activeGroup);
@@ -278,14 +279,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	var _switchToContainer = function _switchToContainer(groupIndex, containerIndex) {
-	  if (!isAciveContainer(groupIndex, containerIndex)) {
+	  if (!isActiveContainer(groupIndex, containerIndex)) {
 	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	  }
 	};
 
 	exports.switchToContainer = _switchToContainer;
 	var _push = function _push(groupIndex, containerIndex, url) {
-	  if (!isAciveContainer()) {
+	  if (!isActiveContainer(groupIndex, containerIndex)) {
 	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	  }
 	  _store2.default.dispatch(actions.push(url));
@@ -327,31 +328,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}
 
-	function createSteps(state) {
-	  switch (state.lastAction.type) {
-	    //case CREATE_CONTAINER:
-	    case _ActionTypes.INIT_GROUP:
-	    case _ActionTypes.SWITCH_TO_CONTAINER:
-	      return util.diffStateToSteps(state.previousState, state);
-	    case _ActionTypes.PUSH:
-	      return [{ fn: browser.push, args: [util.getActiveGroup(state).history.current] }];
-	    case _ActionTypes.BACK:
-	    case _ActionTypes.FORWARD:
-	    case _ActionTypes.GO:
-	    case _ActionTypes.POPSTATE:
-	    default:
-	      return [];
-	  }
-	}
-
 	_store2.default.subscribe(function () {
-	  var state = getDerivedState();
+	  var actions = _store2.default.getState();
+	  var state = util.deriveState(actions);
 	  var group = util.getActiveGroup(state);
 	  var current = group.history.current;
 	  window.dispatchEvent(new CustomEvent('locationChange', {
 	    detail: { location: (0, _history2.createLocation)(current.url, { id: current.id }) }
 	  }));
-	  runSteps(createSteps(state));
+	  runSteps(util.createSteps(actions));
 	});
 
 /***/ },
@@ -463,18 +448,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var history = (0, _createBrowserHistory2.default)();
-	/* globals PopStateEvent, dispatchEvent */
+
 	var push = exports.push = function push(page) {
-	  var real = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-	  var state = { id: page.id, real: real };
+	  var state = { id: page.id };
 	  history.push(page.url, state);
-
-	  /*
-	  // TODO: With react-router 4.0.0-alpha.6 we should be able to get rid of this
-	  const popStateEvent = new PopStateEvent('popstate', {state: {state}});
-	  dispatchEvent(popStateEvent);
-	  */
 	};
 
 	var replace = exports.replace = function replace(page) {
@@ -1390,6 +1367,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	exports.go = go;
+	exports.createSteps = createSteps;
 	exports.reducer = reducer;
 	exports.getContainerStackOrder = getContainerStackOrder;
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
@@ -1491,10 +1469,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	  return _.flatten([h1 ? { fn: browser.back, args: [h1.back.length + 1] } : [], _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
 	    return { fn: browser.push, args: [b] };
-	  }), { fn: browser.push, args: [h2.current, true] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
+	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
 	    return { fn: browser.push, args: [f] };
 	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
 	};
+
+	function createSteps(actions) {
+	  var currentState = deriveState(actions);
+	  switch (currentState.lastAction.type) {
+	    //case CREATE_CONTAINER:
+	    case _ActionTypes.INIT_GROUP:
+	      {
+	        var i = _.findLastIndex(actions, function (a) {
+	          return !_.includes([_ActionTypes.CREATE_CONTAINER, _ActionTypes.INIT_GROUP], a.type);
+	        });
+	        var previousState = i < 0 ? null : deriveState(actions.slice(0, i + 1));
+	        return diffStateToSteps(previousState, currentState);
+	      }
+	    case _ActionTypes.SWITCH_TO_CONTAINER:
+	      {
+	        var _previousState = deriveState(_.initial(actions));
+	        return diffStateToSteps(_previousState, currentState);
+	      }
+	    case _ActionTypes.PUSH:
+	      return [{ fn: browser.push, args: [getActiveGroup(currentState).history.current] }];
+	    case _ActionTypes.BACK:
+	    case _ActionTypes.FORWARD:
+	    case _ActionTypes.GO:
+	    case _ActionTypes.POPSTATE:
+	    default:
+	      return [];
+	  }
+	}
 
 	var constructNewHistory = exports.constructNewHistory = function constructNewHistory(state, newCurrentId) {
 	  var shiftAmount = getHistoryShiftAmount(state, newCurrentId);
@@ -1594,28 +1600,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return actions.reduce(reducer, state);
 	};
 
-	var deriveState = exports.deriveState = function deriveState(actionHistory) {
-	  if (actionHistory.length === 0) {
-	    return null;
-	  } else {
-	    var lastAction = _.last(actionHistory);
-	    var previousState = _.initial(actionHistory).reduce(function (state, action) {
-	      return reducer(state, action);
-	    }, null);
-	    var finalState = reducer(previousState, lastAction);
-	    return _extends({}, finalState, {
-	      previousState: previousState,
-	      lastAction: lastAction
-	    });
+	var deriveState = exports.deriveState = function deriveState(actions) {
+	  if (actions.length === 0) {
+	    throw new Error('No action history');
 	  }
+	  return _extends({}, actions.reduce(function (state, action) {
+	    return reducer(state, action);
+	  }, null), {
+	    lastAction: _.last(actions)
+	  });
 	};
 
-	function getContainerStackOrder(actionHistory, groupIndex) {
-	  if (actionHistory.length === 0) {
+	function getContainerStackOrder(actions, groupIndex) {
+	  if (actions.length === 0) {
 	    throw new Error("No actions in history");
 	  }
 	  var containerSwitches = [];
-	  actionHistory.reduce(function (oldState, action) {
+	  actions.reduce(function (oldState, action) {
 	    var newState = reducer(oldState, action);
 	    if (action.type === _ActionTypes.CREATE_CONTAINER) {
 	      var group = _.last(newState.groups);
@@ -1643,8 +1644,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Gets the stack order values as numbers, in container order instead of stack order
 	 */
-	function getIndexedContainerStackOrder(actionHistory, groupIndex) {
-	  var stackOrder = getContainerStackOrder(actionHistory, groupIndex);
+	function getIndexedContainerStackOrder(actions, groupIndex) {
+	  var stackOrder = getContainerStackOrder(actions, groupIndex);
 	  var values = _.map(stackOrder, function (s, i) {
 	    return { index: s.index, i: i };
 	  });

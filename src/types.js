@@ -30,11 +30,7 @@ export interface Group {
 export interface State {
   groups: Group[],
   activeGroupIndex: number,
-  lastPageId: number
-}
-
-export interface StateSnapshot extends State {
-  previousState: State,
+  lastPageId: number,
   lastAction: Object
 }
 

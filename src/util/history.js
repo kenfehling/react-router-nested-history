@@ -6,7 +6,7 @@ import fp from 'lodash/fp'
 import { pushToStack, back, forward } from './core'
 import * as browser from '../browserFunctions'
 import { switchContainer, loadGroupFromUrl } from '../behaviorist'
-import type { History, State, StateSnapshot, Container, Page, Group, Step } from '../types'
+import type { History, State, Container, Page, Group, Step } from '../types'
 
 export const push = (oldState:State, url:string):State => {
   const state = _.cloneDeep(oldState)
@@ -78,6 +78,29 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ])
+}
+
+export function createSteps(actions:Object[]) : Step[] {
+  const currentState:State = deriveState(actions)
+  switch(currentState.lastAction.type) {
+      //case CREATE_CONTAINER:
+    case INIT_GROUP: {
+      const i = _.findLastIndex(actions, a => !_.includes([CREATE_CONTAINER, INIT_GROUP], a.type))
+      const previousState:?State= i < 0 ? null : deriveState(actions.slice(0, i + 1))
+      return diffStateToSteps(previousState, currentState)
+    }
+    case SWITCH_TO_CONTAINER: {
+      const previousState:State = deriveState(_.initial(actions))
+      return diffStateToSteps(previousState, currentState)
+    }
+    case PUSH:
+      return [{fn: browser.push, args: [getActiveGroup(currentState).history.current]}]
+    case BACK:
+    case FORWARD:
+    case GO:
+    case POPSTATE:
+    default: return []
+  }
 }
 
 export const constructNewHistory = (state:State, newCurrentId:number) : State => {
@@ -166,31 +189,25 @@ export function reducer(state:?State, action:Object) : State {
   return state
 }
 
-export const reduceAll = (state:?State, actions:Object[]) : State => actions.reduce(reducer, state)
+export const reduceAll = (state:?State, actions:Object[]) : State =>
+    actions.reduce(reducer, state)
 
-export const deriveState = (actionHistory:Object[]) : StateSnapshot => {
-  if (actionHistory.length === 0) {
+export const deriveState = (actions:Object[]) : State => {
+  if (actions.length === 0) {
     throw new Error('No action history')
   }
-  else {
-    const lastAction = _.last(actionHistory)
-    const previousState = _.initial(actionHistory).reduce((state, action) =>
-        reducer(state, action), null)
-    const finalState = reducer(previousState, lastAction)
-    return {
-      ...finalState,
-      previousState,
-      lastAction
-    }
+  return {
+    ...actions.reduce((state, action) => reducer(state, action), null),
+    lastAction: _.last(actions)
   }
 }
 
-export function getContainerStackOrder(actionHistory:Object[], groupIndex:number) : Container[] {
-  if (actionHistory.length === 0) {
+export function getContainerStackOrder(actions:Object[], groupIndex:number) : Container[] {
+  if (actions.length === 0) {
     throw new Error("No actions in history")
   }
   const containerSwitches:Container[] = []
-  actionHistory.reduce((oldState:?State, action:Object) : State => {
+  actions.reduce((oldState:?State, action:Object) : State => {
     const newState:State = reducer(oldState, action)
     if (action.type === CREATE_CONTAINER) {
       const group:Group = _.last(newState.groups)
@@ -214,8 +231,8 @@ export function getContainerStackOrder(actionHistory:Object[], groupIndex:number
 /**
  * Gets the stack order values as numbers, in container order instead of stack order
  */
-export function getIndexedContainerStackOrder(actionHistory:Object[], groupIndex:number) : number[] {
-  const stackOrder = getContainerStackOrder(actionHistory, groupIndex)
+export function getIndexedContainerStackOrder(actions:Object[], groupIndex:number) : number[] {
+  const stackOrder = getContainerStackOrder(actions, groupIndex)
   const values = _.map(stackOrder, (s, i) => ({index: s.index, i}))
   return _.map(_.sortBy(values, s => s.index), s => s.i)
 }

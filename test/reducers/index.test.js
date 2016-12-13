@@ -6,7 +6,7 @@ declare var expect:any
 import reducer from '../../src/reducers/index'
 import { deriveState } from '../../src/util/history'
 import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, POPSTATE } from "../../src/constants/ActionTypes"
-import type { State, StateSnapshot } from '../../src/types'
+import type { State } from '../../src/types'
 
 const createContainers = (currentUrl='/a') => [
   {type: CREATE_CONTAINER, initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
@@ -27,8 +27,8 @@ describe('reducer', () => {
   const containers = group.containers
 
   describe('with no initial state', () => {
-    const perform = (action) : StateSnapshot => deriveState([action])
-    const performAll = (actions) : StateSnapshot => deriveState(actions)
+    const perform = (action) : State => deriveState([action])
+    const performAll = (actions) : State => deriveState(actions)
 
     it('loads with default container', () => {
       const result = performAll(createContainers())
@@ -51,9 +51,6 @@ describe('reducer', () => {
 
     it.only('loads with non-initial page on default container', () => {
       const result = performAll(createContainers('/a/1'))
-
-      console.log(result.groups[0].history)
-
       expect(result.groups[0].history.back.length).toBe(1)
       expect(result.groups[0].history.current.url).toBe('/a/1')
       expect(result.groups[0].history.current.id).toBe(4)
@@ -82,8 +79,8 @@ describe('reducer', () => {
       {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1}
     ]
 
-    const perform = (action:Object) : StateSnapshot => deriveState(reducer(state, action))
-    const performAll = (actions:Array<Object>) : StateSnapshot =>
+    const perform = (action:Object) : State => deriveState(reducer(state, action))
+    const performAll = (actions:Array<Object>) : State =>
         deriveState(actions.reduce(reducer, state))
 
     it('pushes page', () => {

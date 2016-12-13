@@ -9,13 +9,13 @@ import { listen, listenPromise } from './historyListener'
 import * as util from './util/history'
 import store from './store'
 import * as _ from 'lodash'
-import type { StateSnapshot, Step, State, Group, Container } from './types'
+import type { Step, State, Group, Container } from './types'
 import {createLocation} from "history"
 
 const needsPop = [browser.back, browser.forward, browser.go]
 let unlisten
 
-const getDerivedState = () : StateSnapshot => util.deriveState(store.getState())
+const getDerivedState = () : State => util.deriveState(store.getState())
 
 const startListening = () => {
   unlisten = listen(location => {
@@ -39,27 +39,29 @@ const startListeningPromise = () => new Promise(resolve => {
 startListening()
 
 export const getNextGroupIndex = () => {
-  const state = getDerivedState()
-  if (state) {
-    return state.groups.length
+  const actions = store.getState()
+  if (_.isEmpty(actions)) {
+    return 0
   }
   else {
-    return 0
+    const state = util.deriveState(actions)
+    return state.groups.length
   }
 }
 
 const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]) : Container => {
   store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns))
-  const state:StateSnapshot = getDerivedState()
+  const state:State = getDerivedState()
   return _.last(state.groups[groupIndex].containers)
 }
 
 export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[]) : Container => {
   const create = () : Container => createContainer(groupIndex, initialUrl, patterns)
-  const state:StateSnapshot = getDerivedState()
-  if (!state) {
+  const actions = store.getState()
+  if (_.isEmpty(actions)) {
     return create()
   }
+  const state:State = util.deriveState(actions)
   const group = state.groups[groupIndex]
   if (!group) {
     return create()
@@ -110,7 +112,7 @@ export const addChangeListener = (fn:Function) => {
   return store.subscribe(() => fn(getDerivedState()))
 }
 
-function isAciveContainer(groupIndex:number, containerIndex:number) {
+function isActiveContainer(groupIndex:number, containerIndex:number) {
   const state = getDerivedState()
   const activeGroup = util.getActiveGroup(state)
   const activeContainer = util.getActiveContainer(activeGroup)
@@ -118,13 +120,13 @@ function isAciveContainer(groupIndex:number, containerIndex:number) {
 }
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) => {
-  if (!isAciveContainer(groupIndex, containerIndex)) {
+  if (!isActiveContainer(groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
 }
 
 export const push = (groupIndex:number, containerIndex:number, url:string) => {
-  if (!isAciveContainer(groupIndex, containerIndex)) {
+  if (!isActiveContainer(groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
   store.dispatch(actions.push(url))
@@ -152,26 +154,13 @@ function runSteps(steps:Step[]) {
   }
 }
 
-export function createSteps(state:StateSnapshot) : Step[] {
-  switch(state.lastAction.type) {
-    //case CREATE_CONTAINER:
-    case INIT_GROUP:
-    case SWITCH_TO_CONTAINER: return util.diffStateToSteps(state.previousState, state)
-    case PUSH: return [{fn: browser.push, args: [util.getActiveGroup(state).history.current]}]
-    case BACK:
-    case FORWARD:
-    case GO:
-    case POPSTATE:
-    default: return []
-  }
-}
-
 store.subscribe(() => {
-  const state = getDerivedState()
+  const actions = store.getState()
+  const state = util.deriveState(actions)
   const group = util.getActiveGroup(state)
   const current = group.history.current
   window.dispatchEvent(new CustomEvent('locationChange', {
     detail: {location: createLocation(current.url, {id: current.id})}
   }))
-  runSteps(createSteps(state))
+  runSteps(util.createSteps(actions))
 })
