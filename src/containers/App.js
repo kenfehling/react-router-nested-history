@@ -6,7 +6,7 @@ import './App.css'
 
 export default () => (
   <div className="app-container">
-    {/* <div className="tabs-container"><Tabs /></div> */}
+    <div className="tabs-container"><Tabs /></div>
     <div className="windows-container"><Windows /></div>
     <div className="state-tree-container"><StateTree /></div>
   </div>
