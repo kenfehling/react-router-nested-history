@@ -65,8 +65,12 @@ class Tabs extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      currentTabIndex: 0
+      activeTabIndex: 0
     }
+  }
+
+  onContainerSwitch({activeContainer:{index}}) {
+    this.setState({activeTabIndex: index})
   }
 
   render() {
@@ -76,12 +80,10 @@ class Tabs extends Component {
         <p>Each tab has its own individual history.</p>
         <p>Clicking on an already active tab goes to the top of its history stack.</p>
       </div>
-      <ContainerGroup
-          currentContainerIndex={this.state.currentTabIndex}
-          onContainerSwitch={currentTabIndex => this.setState({currentTabIndex})}
-      >
-        <ReactTabs onSelect={currentTabIndex => this.setState({currentTabIndex})}
-                   selectedIndex={this.state.currentTabIndex}>
+      <ContainerGroup currentContainerIndex={this.state.activeTabIndex}
+          onContainerSwitch={this.onContainerSwitch.bind(this)}>
+        <ReactTabs onSelect={activeTabIndex => this.setState({activeTabIndex})}
+                   selectedIndex={this.state.activeTabIndex}>
           <TabList>
             <ReactTab>One</ReactTab>
             <ReactTab>Two</ReactTab>

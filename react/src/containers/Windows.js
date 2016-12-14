@@ -1,56 +1,66 @@
 import React, { Component } from 'react'
-import { Container, createGroup } from '../../../../dist/tab-history-library'
+import { Container, ContainerGroup } from '../../../../dist/tab-history-library'
 import { Match } from 'react-router';
+import WindowMaster1 from '../components/WindowMaster1'
+import WindowMaster2 from '../components/WindowMaster2'
+import WindowPage from '../components/WindowPage'
 import './Windows.css'
 
-class Window extends Component {
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      zIndex: 1
-    }
+function getWindowZIndex(indexedStackOrder, index) {
+  if (indexedStackOrder.length > index) {
+    return indexedStackOrder.length - indexedStackOrder[index] + 1
   }
-
-  setZIndex(indexedStackOrder) {
-    const {index} = this.props
-    this.setState({
-      zIndex: indexedStackOrder.length - indexedStackOrder[index] + 1
-    })
-  }
-
-  componentWillMount() {
-    const {containers} = this.props
-    containers.addChangeListener(state => {
-      this.setZIndex(state.indexedStackOrder)
-    })
-    this.setZIndex(containers.getIndexedStackOrder())
-  }
-
-  render() {
-    const {className, index, children, containers} = this.props
-    return (<Container>
-      <div className={`window ${className}`} onClick={() => containers.switchTo(index)}
-           style={{zIndex: this.state.zIndex}}>
-        {children}
-      </div>
-    </Container>)
+  else {
+    return 1
   }
 }
 
-export const Window1 = props => <Window className="window1" index={0} {...props} />
-export const Window2 = props => <Window className="window2" index={1} {...props} />
-
-const Windows = () => (
-  <div className="windows">
-    <h2>Windows example</h2>
-    <div className="description">
-      <p>Each window has its own individual history.</p>
-      <p>Clicking on a window brings it to the front.</p>
+const Window = (props) => {
+  console.log(props)
+  const {className, initialUrl, masterComponent, index, indexedStackOrder, switchTo} = props
+  return <Container initialUrl={initialUrl} patterns={[initialUrl, initialUrl + '/:page']}>
+    <div className={`window ${className}`} onClick={() => switchTo(index)}
+         style={{zIndex: getWindowZIndex(indexedStackOrder, index)}}>
+      <Match exactly pattern={initialUrl} component={masterComponent}/>
+      <Match exactly pattern={initialUrl + '/:page'} component={WindowPage}/>
     </div>
-    <Window1 />
-    <Window2 />
-  </div>
-)
+  </Container>
+}
 
-export default createGroup(Windows)
+export default class Windows extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      activeWindowIndex: 0,
+      indexedStackOrder: []
+    }
+  }
+
+  onContainerSwitch({indexedStackOrder}) {
+    this.setState({indexedStackOrder})
+  }
+
+  renderWindow(index, masterComponent) {
+    return (<Window className={'window' + (index + 1)}
+                    initialUrl={'/windows/' + (index + 1)}
+                    index={index}
+                    masterComponent={masterComponent}
+                    indexedStackOrder={this.state.indexedStackOrder}
+                    switchTo={() => this.setState({activeWindowIndex: index})} />)
+  }
+
+  render() {
+    return (<div className="windows">
+      <h2>Windows example</h2>
+      <div className="description">
+        <p>Each window has its own individual history.</p>
+        <p>Clicking on a window brings it to the front.</p>
+      </div>
+      <ContainerGroup currentContainerIndex={this.state.activeWindowIndex}
+                      onContainerSwitch={this.onContainerSwitch.bind(this)}>
+        {this.renderWindow(0, WindowMaster1)}
+        {this.renderWindow(1, WindowMaster2)}
+      </ContainerGroup>
+    </div>)
+  }
+}
