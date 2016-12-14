@@ -1,7 +1,6 @@
 import React, { PropTypes, Component } from 'react'
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs'
-import { Container, ContainerGroup } from '../../../../dist/tab-history-library'
-import { Match } from 'react-router'
+import { Container, ContainerGroup, HistoryMatch } from '../../../../dist/tab-history-library'
 import { TransitionMotion, spring } from 'react-motion'
 import './Tabs.css'
 import TabMaster1 from "../components/TabMaster1"
@@ -14,7 +13,7 @@ const MatchWithFade = ({ component:Component, ...rest }) => {
   const willLeave = () => ({ opacity: spring(0) })
 
   return (
-    <Match {...rest} children={({ matched, ...props }) => (
+    <HistoryMatch {...rest} children={({ matched, ...props }) => (
       <TransitionMotion
         willEnter={willEnter}
         willLeave={willLeave}
