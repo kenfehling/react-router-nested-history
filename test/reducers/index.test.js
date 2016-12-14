@@ -9,15 +9,15 @@ import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD,
 import type { State } from '../../src/types'
 
 const createContainers = (currentUrl='/a') => [
-  {type: CREATE_CONTAINER, initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
-  {type: CREATE_CONTAINER, initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
-  {type: CREATE_CONTAINER, initialUrl: '/c', urlPatterns: ['/c', '/c/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/a', urlPatterns: ['/a', '/a/:id']},
+  {type: CREATE_CONTAINER, initialUrl: '/b', urlPatterns: ['/b', '/b/:id']},
+  {type: CREATE_CONTAINER, initialUrl: '/c', urlPatterns: ['/c', '/c/:id']},
   {type: INIT_GROUP, groupIndex: 0, currentUrl}
 ]
 
 const createContainers2 = (currentUrl='/e') => [
-  {type: CREATE_CONTAINER, initialUrl: '/e', urlPatterns: ['/e', '/e/*']},
-  {type: CREATE_CONTAINER, initialUrl: '/f', urlPatterns: ['/f', '/f/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/e', urlPatterns: ['/e', '/e/:id']},
+  {type: CREATE_CONTAINER, initialUrl: '/f', urlPatterns: ['/f', '/f/:id']},
   {type: INIT_GROUP, groupIndex: 1, currentUrl}
 ]
 

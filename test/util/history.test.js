@@ -11,9 +11,9 @@ import * as _ from 'lodash'
 import fp from 'lodash/fp'
 
 const createContainers = (currentUrl='/a') => [
-  {type: CREATE_CONTAINER, initialUrl: '/a', urlPatterns: ['/a', '/a/*']},
-  {type: CREATE_CONTAINER, initialUrl: '/b', urlPatterns: ['/b', '/b/*']},
-  {type: CREATE_CONTAINER, initialUrl: '/c', urlPatterns: ['/c', '/c/*']},
+  {type: CREATE_CONTAINER, initialUrl: '/a', urlPatterns: ['/a', '/a/:id']},
+  {type: CREATE_CONTAINER, initialUrl: '/b', urlPatterns: ['/b', '/b/:id']},
+  {type: CREATE_CONTAINER, initialUrl: '/c', urlPatterns: ['/c', '/c/:id']},
   {type: INIT_GROUP, groupIndex: 0, currentUrl}
 ]
 
