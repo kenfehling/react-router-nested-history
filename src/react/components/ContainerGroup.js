@@ -1,8 +1,6 @@
 import React, { Component, PropTypes, Children, cloneElement } from 'react'
 import { render } from 'react-dom'
-import { getNextGroupIndex, initGroup, switchToContainer, addChangeListener } from '../../main'
-import { connect } from 'react-redux'
-import store from '../store'
+import { getNextGroupIndex, initGroup, switchToContainer, addGroupChangeListener } from '../../main'
 import * as _ from "lodash"
 import Container from "./Container"
 
@@ -31,7 +29,10 @@ export default class extends Component {
       }
 
       getChildContext() {
-        return {groupIndex, initializing: true}
+        return {
+          groupIndex,
+          initializing: true
+        }
       }
 
       render() {
@@ -40,12 +41,15 @@ export default class extends Component {
     }
 
     function getChildren(component) {
+      if (!component.type) {
+        return []
+      }
       if (component.type === Container) {  // if you find a Container, stop
         return [component]
       }
       else if (component.props && component.props.children) {
-        const children = Children.map(component.props.children, c => c)  // your children
-        return _.flatten(children.map(getChildren))  // ...and your children's children
+        const children = Children.map(component.props.children, c => c)
+        return _.flatten(children.map(getChildren))  // grandchildren
       }
       else {  // no children
         return [component]
@@ -57,18 +61,16 @@ export default class extends Component {
     children.forEach(c => {
       if (c instanceof Object) {
         render(<G><c.type /></G>, div)  // Initialize the Containers in group
-      }
+      }                                 // (most tab libraries lazy load tabs)
     })
-    initGroup(this.groupIndex)
   }
 
   componentDidMount() {
-    addChangeListener(state => {
+    initGroup(this.groupIndex)
+    addGroupChangeListener(this.groupIndex, event => {
       const {currentContainerIndex, onContainerSwitch} = this.props
-      const group = state.groups[this.groupIndex]
-      const newContainerIndex = group.history.current.containerIndex
-      if (newContainerIndex !== currentContainerIndex) {
-        onContainerSwitch(newContainerIndex)
+      if (event.activeContainer.index !== currentContainerIndex) {
+        onContainerSwitch(event)
       }
     })
   }
@@ -80,17 +82,6 @@ export default class extends Component {
   }
 
   render() {
-    //const props = getGroupFunctions(this.groupIndex)
-    //return <div>{Children.map(this.props.children, c => cloneElement(c, props))}</div>
     return <div>{this.props.children}</div>
   }
 }
-
-/*
-const ConnectedGroup = connect(
-  state => getGroupFunctions(state, this.groupIndex),
-  {}
-)(Group)
-
-export default () => <ConnectedGroup store={store} />
-*/

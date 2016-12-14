@@ -21,6 +21,9 @@ export default class extends Component {
   constructor(props, context) {
     super(props)
     const {groupIndex} = context
+
+    console.log('Loading container in group ' + groupIndex)
+
     const {initialUrl, pattern, patterns=[]} = this.props
     const p = [...patterns, ...(pattern ? [pattern] : [])]
     const container = getOrCreateContainer(groupIndex, initialUrl, p)

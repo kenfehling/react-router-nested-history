@@ -75,41 +75,21 @@ export const initGroup = (groupIndex:number) => {
   store.dispatch(actions.initGroup(groupIndex, currentUrl))
 }
 
-export const getGroupFunctions = (groupIndex:number) : Object => {
-  return {
-    switchToContainer: (index:number) => switchToContainer(groupIndex, index),
-    push: (containerIndex:number, url:string) => push(groupIndex, containerIndex, url),
-    getActiveContainer: () : ?Container => {
-      const state = getDerivedState()
-      if (state) {
-        const group = state.groups[groupIndex]
-        return group.containers[group.history.current.containerIndex]
-      }
-      else {
-        return null
-      }
-    },
-    getContainerStackOrder: () => util.getContainerStackOrder(store.getState(), groupIndex),
-    getIndexedStackOrder: () => util.getIndexedContainerStackOrder(store.getState(), groupIndex),
-    /*
-    addChangeListener: (fn:Function) => store.subscribe(() => {
-      const actions:Array<Object> = store.getState()
-      const state:State = util.deriveState(actions)
-      const group:Group = state.groups[groupIndex]
-      const currentUrl:string = group.history.current.url
-      const activeContainer:Container = group.containers[group.history.current.containerIndex]
-      const activeGroup:Group = state.groups[state.activeGroupIndex]
-      const stackOrder:Container[] = util.getContainerStackOrder(actions, groupIndex)
-      const indexedStackOrder:number[] = util.getIndexedContainerStackOrder(actions, groupIndex)
-      fn({activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder})
-    })
-    */
-  }
-}
-
 export const addChangeListener = (fn:Function) => {
   fn(getDerivedState())
   return store.subscribe(() => fn(getDerivedState()))
+}
+
+export const addGroupChangeListener = (groupIndex:number, fn:Function) => {
+  const actions:Array<Object> = store.getState()
+  const state:State = util.deriveState(actions)
+  const group:Group = state.groups[groupIndex]
+  const currentUrl:string = group.history.current.url
+  const activeContainer:Container = group.containers[group.history.current.containerIndex]
+  const activeGroup:Group = state.groups[state.activeGroupIndex]
+  const stackOrder:Container[] = util.getContainerStackOrder(actions, groupIndex)
+  const indexedStackOrder:number[] = util.getIndexedContainerStackOrder(actions, groupIndex)
+  fn({activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder})
 }
 
 function isActiveContainer(groupIndex:number, containerIndex:number) {
@@ -159,8 +139,11 @@ store.subscribe(() => {
   const state = util.deriveState(actions)
   const group = util.getActiveGroup(state)
   const current = group.history.current
-  window.dispatchEvent(new CustomEvent('locationChange', {
-    detail: {location: createLocation(current.url, {id: current.id})}
-  }))
-  runSteps(util.createSteps(actions))
+  const steps = util.createSteps(actions)
+  if (!_.isEmpty(steps)) {
+    window.dispatchEvent(new CustomEvent('locationChange', {
+      detail: {location: createLocation(current.url, {id: current.id})}
+    }))
+    runSteps(steps)
+  }
 })

@@ -1,10 +1,10 @@
 import React from 'react'
 import { render } from 'react-dom'
 import App from './containers/App'
-import { BrowserRouter } from '../../../dist/tab-history-library'
+import { HistoryRouter } from '../../../dist/tab-history-library'
 
 render((
-  <BrowserRouter>
+  <HistoryRouter>
     <App />
-  </BrowserRouter>
+  </HistoryRouter>
 ), document.getElementById('root'))
