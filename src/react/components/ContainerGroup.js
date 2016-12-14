@@ -1,6 +1,6 @@
 import React, { Component, PropTypes, Children, cloneElement } from 'react'
 import { render } from 'react-dom'
-import { getNextGroupIndex, initGroup, switchToContainer, addGroupChangeListener } from '../../main'
+import { getNextGroupIndex, switchToContainer, addGroupChangeListener } from '../../main'
 import * as _ from "lodash"
 import Container from "./Container"
 
@@ -66,7 +66,6 @@ export default class extends Component {
   }
 
   componentDidMount() {
-    initGroup(this.groupIndex)
     addGroupChangeListener(this.groupIndex, event => {
       const {currentContainerIndex, onContainerSwitch} = this.props
       //if (event.activeContainer.index !== currentContainerIndex) {

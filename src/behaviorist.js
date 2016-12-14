@@ -35,7 +35,7 @@ function push(state:State, container:Container, url:string) : Page {
   return page
 }
 
-export function loadGroupFromUrl(oldState:State, groupIndex:number, url:string) : State {
+export function loadGroupFromUrl(oldState:State, url:string, groupIndex:number) : State {
   const state:State = _.cloneDeep(oldState)
   const group = state.groups[groupIndex]
   const containers:Container[] = group.containers
@@ -66,3 +66,7 @@ export function loadGroupFromUrl(oldState:State, groupIndex:number, url:string) 
   }
   return state
 }
+
+export const loadFromUrl = (oldState:State, url:string) : State =>
+    oldState.groups.reduce((newState:State, group:Group) =>
+      loadGroupFromUrl(newState, url, group.index), oldState)

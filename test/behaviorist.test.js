@@ -8,17 +8,21 @@ import { switchContainer} from '../src/behaviorist'
 import { CREATE_CONTAINER, INIT_GROUP } from "../src/constants/ActionTypes"
 import type { State, Container } from '../src/types'
 
-const createContainers = (currentUrl='/a') => [
-  {type: CREATE_CONTAINER, initialUrl: '/a', urlPatterns: ['/a', '/a/:id']},
-  {type: CREATE_CONTAINER, initialUrl: '/b', urlPatterns: ['/b', '/b/:id']},
-  {type: CREATE_CONTAINER, initialUrl: '/c', urlPatterns: ['/c', '/c/:id']},
-  {type: INIT_GROUP, groupIndex: 0, currentUrl}
+const createContainers = [
+  {type: CREATE_CONTAINER, groupIndex: 0, initialUrl: '/a', urlPatterns: ['/a', '/a/:id']},
+  {type: CREATE_CONTAINER, groupIndex: 0, initialUrl: '/b', urlPatterns: ['/b', '/b/:id']},
+  {type: CREATE_CONTAINER, groupIndex: 0, initialUrl: '/c', urlPatterns: ['/c', '/c/:id']}
+]
+
+const createContainers2 = [
+  {type: CREATE_CONTAINER, groupIndex: 1, initialUrl: '/e', urlPatterns: ['/e', '/e/:id']},
+  {type: CREATE_CONTAINER, groupIndex: 1, initialUrl: '/f', urlPatterns: ['/f', '/f/:id']}
 ]
 
 describe('behaviorist', () => {
 
   it('does a simple switch', () => {
-    const tempState:State = deriveState(createContainers())
+    const tempState:State = deriveState(createContainers)
     const group = tempState.groups[0]
     const containers:Container[] = group.containers
 

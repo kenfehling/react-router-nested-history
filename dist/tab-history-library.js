@@ -143,7 +143,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.isPageActive = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.addGroupChangeListener = exports.addChangeListener = exports.getGroupState = exports.initGroup = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
+	exports.isPageActive = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.addGroupChangeListener = exports.addChangeListener = exports.getGroupState = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -244,9 +244,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return existingContainer || create();
 	};
 
-	var initGroup = exports.initGroup = function initGroup(groupIndex) {
-	  var currentUrl = window.location.pathname;
-	  _store2.default.dispatch(actions.initGroup(groupIndex, currentUrl));
+	var loadFromUrl = exports.loadFromUrl = function loadFromUrl() {
+	  var url = window.location.pathname;
+	  _store2.default.dispatch(actions.loadFromUrl(url));
 	};
 
 	var addListener = function addListener(fn, generateData) {
@@ -358,7 +358,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	var CREATE_CONTAINER = exports.CREATE_CONTAINER = 'create-container';
-	var INIT_GROUP = exports.INIT_GROUP = 'init-group';
+	var LOAD_FROM_URL = exports.LOAD_FROM_URL = 'load-from-url';
 	var SWITCH_TO_CONTAINER = exports.SWITCH_TO_CONTAINER = 'switch-to-container';
 	var PUSH = exports.PUSH = 'push';
 	var BACK = exports.BACK = 'back';
@@ -375,7 +375,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToContainer = exports.initGroup = exports.createContainer = undefined;
+	exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToContainer = exports.loadFromUrl = exports.createContainer = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -388,11 +388,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 
-	var initGroup = exports.initGroup = function initGroup(groupIndex, currentUrl) {
+	var loadFromUrl = exports.loadFromUrl = function loadFromUrl(url) {
 	  return {
-	    type: _ActionTypes.INIT_GROUP,
-	    groupIndex: groupIndex,
-	    currentUrl: currentUrl
+	    type: _ActionTypes.LOAD_FROM_URL,
+	    url: url
 	  };
 	};
 
@@ -1486,11 +1485,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	function createSteps(actions) {
 	  var currentState = deriveState(actions);
 	  switch (currentState.lastAction.type) {
-	    //case CREATE_CONTAINER:
-	    case _ActionTypes.INIT_GROUP:
+	    case _ActionTypes.LOAD_FROM_URL:
 	      {
 	        var i = _.findLastIndex(actions, function (a) {
-	          return !_.includes([_ActionTypes.CREATE_CONTAINER, _ActionTypes.INIT_GROUP], a.type);
+	          return !_.includes([_ActionTypes.CREATE_CONTAINER, _ActionTypes.LOAD_FROM_URL], a.type);
 	        });
 	        var previousState = i < 0 ? null : deriveState(actions.slice(0, i + 1));
 	        return diffStateToSteps(previousState, currentState);
@@ -1502,6 +1500,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    case _ActionTypes.PUSH:
 	      return [{ fn: browser.push, args: [getActiveGroup(currentState).history.current] }];
+	    case _ActionTypes.CREATE_CONTAINER:
 	    case _ActionTypes.BACK:
 	    case _ActionTypes.FORWARD:
 	    case _ActionTypes.GO:
@@ -1569,9 +1568,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    throw new Error("State not yet initialized");
 	  } else {
 	    switch (action.type) {
-	      case _ActionTypes.INIT_GROUP:
+	      case _ActionTypes.LOAD_FROM_URL:
 	        {
-	          return (0, _behaviorist.loadGroupFromUrl)(state, action.groupIndex, action.currentUrl);
+	          return (0, _behaviorist.loadFromUrl)(state, action.url);
 	        }
 	      case _ActionTypes.SWITCH_TO_CONTAINER:
 	        {
@@ -19934,6 +19933,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.loadFromUrl = undefined;
 
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -19992,7 +19992,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return page;
 	}
 
-	function loadGroupFromUrl(oldState, groupIndex, url) {
+	function loadGroupFromUrl(oldState, url, groupIndex) {
 	  var state = _.cloneDeep(oldState);
 	  var group = state.groups[groupIndex];
 	  var containers = group.containers;
@@ -20026,6 +20026,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	  return state;
 	}
+
+	var loadFromUrl = exports.loadFromUrl = function loadFromUrl(oldState, url) {
+	  return oldState.groups.reduce(function (newState, group) {
+	    return loadGroupFromUrl(newState, url, group.index);
+	  }, oldState);
+	};
 
 /***/ },
 /* 26 */
@@ -28625,7 +28631,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function componentDidMount() {
 	      var _this3 = this;
 
-	      (0, _main.initGroup)(this.groupIndex);
 	      (0, _main.addGroupChangeListener)(this.groupIndex, function (event) {
 	        var _props = _this3.props,
 	            currentContainerIndex = _props.currentContainerIndex,

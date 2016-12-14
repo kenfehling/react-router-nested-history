@@ -2,7 +2,7 @@
 declare var Promise:any
 declare var CustomEvent:any
 
-import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes"
+import { CREATE_CONTAINER, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes"
 import * as actions from './actions/HistoryActions'
 import * as browser from './browserFunctions'
 import { listen, listenPromise } from './historyListener'
@@ -70,9 +70,9 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
   return existingContainer || create()
 }
 
-export const initGroup = (groupIndex:number) => {
-  const currentUrl:string = window.location.pathname
-  store.dispatch(actions.initGroup(groupIndex, currentUrl))
+export const loadFromUrl = () => {
+  const url:string = window.location.pathname
+  store.dispatch(actions.loadFromUrl(url))
 }
 
 const addListener = (fn: Function, generateData: Function) => {
@@ -81,7 +81,7 @@ const addListener = (fn: Function, generateData: Function) => {
   return store.subscribe(f)
 }
 
-export const getGroupState = (groupIndex) => {
+export const getGroupState = (groupIndex:number) => {
   const actions:Array<Object> = store.getState()
   const state:State = util.deriveState(actions)
   const group:Group = state.groups[groupIndex]

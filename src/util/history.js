@@ -1,11 +1,11 @@
 // @flow
 
-import { CREATE_CONTAINER, INIT_GROUP, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes"
+import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes"
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
 import { pushToStack, back, forward } from './core'
 import * as browser from '../browserFunctions'
-import { switchContainer, loadGroupFromUrl } from '../behaviorist'
+import { switchContainer, loadFromUrl } from '../behaviorist'
 import type { History, State, Container, Page, Group, Step } from '../types'
 
 export const push = (oldState:State, url:string):State => {
@@ -83,9 +83,8 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
 export function createSteps(actions:Object[]) : Step[] {
   const currentState:State = deriveState(actions)
   switch(currentState.lastAction.type) {
-      //case CREATE_CONTAINER:
-    case INIT_GROUP: {
-      const i = _.findLastIndex(actions, a => !_.includes([CREATE_CONTAINER, INIT_GROUP], a.type))
+    case LOAD_FROM_URL: {
+      const i = _.findLastIndex(actions, a => !_.includes([CREATE_CONTAINER, LOAD_FROM_URL], a.type))
       const previousState:?State= i < 0 ? null : deriveState(actions.slice(0, i + 1))
       return diffStateToSteps(previousState, currentState)
     }
@@ -95,6 +94,7 @@ export function createSteps(actions:Object[]) : Step[] {
     }
     case PUSH:
       return [{fn: browser.push, args: [getActiveGroup(currentState).history.current]}]
+    case CREATE_CONTAINER:
     case BACK:
     case FORWARD:
     case GO:
@@ -160,8 +160,8 @@ export function reducer(state:?State, action:Object) : State {
   }
   else {
     switch (action.type) {
-      case INIT_GROUP: {
-        return loadGroupFromUrl(state, action.groupIndex, action.currentUrl)
+      case LOAD_FROM_URL: {
+        return loadFromUrl(state, action.url)
       }
       case SWITCH_TO_CONTAINER: {
         const newState:State = _.cloneDeep(state)
