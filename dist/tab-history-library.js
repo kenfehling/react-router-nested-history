@@ -46557,22 +46557,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	          if (newMatch) {
 	            // if this was a change to this tab
-	            _this3.oldMatch = newMatch;
-	            _this3.oldLocation = newLocation;
 	            match = newMatch; // proceed normally
 	            location = newLocation;
+	            _this3.oldMatch = match;
+	            _this3.oldLocation = location;
 	          } else if (_this3.oldMatch) {
 	            // the change was outside this tab group
 	            match = _this3.oldMatch; // keep showing the page you were on
 	            location = _this3.oldLocation;
+	          } else {
+	            // if there is no old page, try matching in the state
+	            var currentPage = _this3.getCurrentPage();
+	            match = (0, _matchPattern2.default)(pattern, _extends({}, newLocation, { pathname: currentPage.url }), exactly, parent);
+	            location = newLocation;
+	            _this3.oldMatch = match;
+	            _this3.oldLocation = location;
 	          }
-	          /*
-	          else {  // if there is no old page, try matching in the state
-	            const currentPage = this.getCurrentPage()
-	            match = matchPattern(pattern, {...newLocation, pathname: currentPage.url}, exactly, parent)
-	            location = newLocation
-	          }
-	          */
 
 	          var props = _extends({}, match, { location: location, pattern: pattern });
 	          return _react2.default.createElement(

@@ -85,10 +85,10 @@ export default class extends reactRouter.Match {
             let match, location
 
             if (newMatch) {  // if this was a change to this tab
-              this.oldMatch = newMatch
-              this.oldLocation = newLocation
               match = newMatch  // proceed normally
               location = newLocation
+              this.oldMatch = match
+              this.oldLocation = location
             }
             else if (this.oldMatch) {  // the change was outside this tab group
               match = this.oldMatch  // keep showing the page you were on
@@ -98,6 +98,8 @@ export default class extends reactRouter.Match {
               const currentPage = this.getCurrentPage()
               match = matchPattern(pattern, {...newLocation, pathname: currentPage.url}, exactly, parent)
               location = newLocation
+              this.oldMatch = match
+              this.oldLocation = location
             }
 
             const props = { ...match, location, pattern }
