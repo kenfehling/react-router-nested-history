@@ -10,4 +10,4 @@ export default () => (
     <div className="windows-container"><Windows /></div>
     <div className="state-tree-container"><StateTree /></div>
   </div>
-);
+)
