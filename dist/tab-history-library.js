@@ -143,7 +143,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.isPageActive = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.addGroupChangeListener = exports.addChangeListener = exports.getGroupState = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
+	exports.getCurrentPage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.addGroupChangeListener = exports.addChangeListener = exports.getGroupState = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -312,8 +312,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.dispatch(actions.forward(n));
 	};
 
-	var isPageActive = exports.isPageActive = function isPageActive(id) {
-	  return util.isPageActive(getDerivedState(), id);
+	var getCurrentPage = exports.getCurrentPage = function getCurrentPage(groupIndex) {
+	  return util.getCurrentPage(getDerivedState(), groupIndex);
 	};
 
 	function runSteps(steps) {
@@ -1382,7 +1382,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.getContainer = getContainer;
 	exports.getActiveGroup = getActiveGroup;
 	exports.getActiveContainer = getActiveContainer;
-	exports.isPageActive = isPageActive;
+	exports.getCurrentPage = getCurrentPage;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -1676,13 +1676,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return group.containers[group.history.current.containerIndex];
 	}
 
-	/**
-	 * @returns {boolean} true if page is active in any group
-	 */
-	function isPageActive(state, id) {
-	  return _.some(state.groups, function (group) {
-	    return group.history.current.id === id;
-	  });
+	function getCurrentPage(state, groupIndex) {
+	  return state.groups[groupIndex].history.current;
 	}
 
 /***/ },
@@ -46513,16 +46508,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return RegisterMatch;
 	}(_react2.default.Component);
 
-	// Added by Ken Fehling to support multiple groups of nested tabs/windows
-
-
 	RegisterMatch.contextTypes = {
 	  match: _react.PropTypes.object,
 	  serverRouter: _react.PropTypes.object
 	};
-	function reallyMatches(location) {
-	  return (0, _main.isPageActive)(location.state.id);
-	}
 
 	var _class = function (_reactRouter$Match) {
 	  _inherits(_class, _reactRouter$Match);
@@ -46534,6 +46523,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(_class, [{
+	    key: 'getCurrentPage',
+
+
+	    // Added by Ken Fehling to support multiple groups of nested tabs/windows
+	    value: function getCurrentPage() {
+	      var groupIndex = this.context.groupIndex;
+
+	      return (0, _main.getCurrentPage)(groupIndex);
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var _this3 = this;
@@ -46562,11 +46561,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _this3.oldLocation = newLocation;
 	            match = newMatch; // proceed normally
 	            location = newLocation;
-	          } else {
+	          } else if (_this3.oldMatch) {
 	            // the change was outside this tab group
 	            match = _this3.oldMatch; // keep showing the page you were on
 	            location = _this3.oldLocation;
 	          }
+	          /*
+	          else {  // if there is no old page, try matching in the state
+	            const currentPage = this.getCurrentPage()
+	            match = matchPattern(pattern, {...newLocation, pathname: currentPage.url}, exactly, parent)
+	            location = newLocation
+	          }
+	          */
 
 	          var props = _extends({}, match, { location: location, pattern: pattern });
 	          return _react2.default.createElement(
@@ -46586,6 +46592,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _class;
 	}(reactRouter.Match);
 
+	_class.contextTypes = {
+	  groupIndex: _react.PropTypes.number.isRequired
+	};
 	exports.default = _class;
 
 /***/ }

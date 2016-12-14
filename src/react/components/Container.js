@@ -5,18 +5,18 @@ export default class extends Component {
   static contextTypes = {
     groupIndex: PropTypes.number.isRequired,
     initializing: PropTypes.bool
-  };
+  }
 
   static childContextTypes = {
     containerIndex: PropTypes.number.isRequired
-  };
+  }
 
   static propTypes = {
     children: PropTypes.node.isRequired,
     initialUrl: PropTypes.string.isRequired,
     pattern: PropTypes.string,
     patterns: PropTypes.arrayOf(PropTypes.string)
-  };
+  }
 
   constructor(props, context) {
     super(props)

@@ -122,7 +122,8 @@ export const go = (n:number=1) => store.dispatch(actions.go(n))
 export const back = (n:number=1) => store.dispatch(actions.back(n))
 export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 
-export const isPageActive = (id:number) => util.isPageActive(getDerivedState(), id)
+export const getCurrentPage = (groupIndex:number) =>
+    util.getCurrentPage(getDerivedState(), groupIndex)
 
 function runSteps(steps:Step[]) {
   if (steps.length === 1) {

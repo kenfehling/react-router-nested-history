@@ -3,7 +3,7 @@ import * as reactRouter from 'react-router'
 import MatchProvider from 'react-router/MatchProvider'
 import matchPattern from 'react-router/matchPattern'
 import { LocationSubscriber } from 'react-router/Broadcasts'
-import { isPageActive } from '../../main'
+import { getCurrentPage } from '../../main'
 
 class RegisterMatch extends React.Component {
   static contextTypes = {
@@ -55,13 +55,17 @@ class RegisterMatch extends React.Component {
   }
 }
 
-// Added by Ken Fehling to support multiple groups of nested tabs/windows
-function reallyMatches(location) {
-  return isPageActive(location.state.id)
-}
-
 export default class extends reactRouter.Match {
-
+  static contextTypes = {
+    groupIndex: PropTypes.number.isRequired
+  }
+  
+  // Added by Ken Fehling to support multiple groups of nested tabs/windows
+  getCurrentPage() {
+    const {groupIndex} = this.context
+    return getCurrentPage(groupIndex)
+  }
+  
   render() {
     return (
         <LocationSubscriber>
@@ -86,9 +90,14 @@ export default class extends reactRouter.Match {
               match = newMatch  // proceed normally
               location = newLocation
             }
-            else {  // the change was outside this tab group
+            else if (this.oldMatch) {  // the change was outside this tab group
               match = this.oldMatch  // keep showing the page you were on
               location = this.oldLocation
+            }
+            else {  // if there is no old page, try matching in the state
+              const currentPage = this.getCurrentPage()
+              match = matchPattern(pattern, {...newLocation, pathname: currentPage.url}, exactly, parent)
+              location = newLocation
             }
 
             const props = { ...match, location, pattern }

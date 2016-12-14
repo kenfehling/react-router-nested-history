@@ -249,9 +249,6 @@ export function getActiveContainer(group:Group):Container {
   return group.containers[group.history.current.containerIndex]
 }
 
-/**
- * @returns {boolean} true if page is active in any group
- */
-export function isPageActive(state:State, id:number):boolean {
-  return _.some(state.groups, group => group.history.current.id === id)
+export function getCurrentPage(state:State, groupIndex:number) {
+  return state.groups[groupIndex].history.current;
 }
