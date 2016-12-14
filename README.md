@@ -6,6 +6,10 @@ This library is built to support [react-router 4](https://github.com/ReactTraini
 Use this in place of react-router's `BrowserRouter` component to enable this library.
 <br>
 
+#### HistoryMatch
+Use this in place of react-router's `Match` component to prevent a match's previous content from disappearing.
+<br>
+
 #### HistoryLink
 Use this in place of react-router's `Link` component to enable history tracking for a link.
 <br>
