@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import { Container, ContainerGroup } from '../../../../dist/tab-history-library'
-import { Match } from 'react-router';
+import { Container, ContainerGroup, HistoryMatch } from '../../../../dist/tab-history-library'
 import WindowMaster1 from '../components/WindowMaster1'
 import WindowMaster2 from '../components/WindowMaster2'
 import WindowPage from '../components/WindowPage'
@@ -15,17 +14,15 @@ function getWindowZIndex(indexedStackOrder, index) {
   }
 }
 
-const Window = (props) => {
-  console.log(props)
-  const {className, initialUrl, masterComponent, index, indexedStackOrder, switchTo} = props
-  return <Container initialUrl={initialUrl} patterns={[initialUrl, initialUrl + '/:page']}>
+const Window = ({className, initialUrl, masterComponent, index, indexedStackOrder, switchTo}) => (
+  <Container initialUrl={initialUrl} patterns={[initialUrl, initialUrl + '/:page']}>
     <div className={`window ${className}`} onClick={() => switchTo(index)}
          style={{zIndex: getWindowZIndex(indexedStackOrder, index)}}>
-      <Match exactly pattern={initialUrl} component={masterComponent}/>
-      <Match exactly pattern={initialUrl + '/:page'} component={WindowPage}/>
+      <HistoryMatch exactly pattern={initialUrl} component={masterComponent}/>
+      <HistoryMatch exactly pattern={initialUrl + '/:page'} component={WindowPage}/>
     </div>
   </Container>
-}
+)
 
 export default class Windows extends Component {
   constructor(props) {

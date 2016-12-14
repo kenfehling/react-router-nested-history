@@ -69,9 +69,9 @@ export default class extends Component {
     initGroup(this.groupIndex)
     addGroupChangeListener(this.groupIndex, event => {
       const {currentContainerIndex, onContainerSwitch} = this.props
-      if (event.activeContainer.index !== currentContainerIndex) {
+      //if (event.activeContainer.index !== currentContainerIndex) {
         onContainerSwitch(event)
-      }
+      //}
     })
   }
 
