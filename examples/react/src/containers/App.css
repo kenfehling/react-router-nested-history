@@ -17,17 +17,17 @@ a {
 }
 
 .tabs-container {
-  width: 320px;
+  width: 300px;
 }
 
 .windows-container {
-  width: 400px;
-  height: 440px;
+  width: 360px;
+  height: 436px;
 }
 
 .state-tree-container {
   margin-top: 12px;
-  padding-right: 12px;
+  padding-right: 3%;
   width: 160px;
 }
 
