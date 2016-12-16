@@ -33,13 +33,15 @@ class ContainerGroup extends Component {
     class G extends Component {
       static childContextTypes = {
         groupIndex: PropTypes.number.isRequired,
-        location: PropTypes.object.isRequired
+        location: PropTypes.object.isRequired,
+        initializing: PropTypes.bool
       }
 
       getChildContext() {
         return {
           groupIndex,
-          location
+          location,
+          initializing: true
         }
       }
 
@@ -53,7 +55,7 @@ class ContainerGroup extends Component {
         return []
       }
       if (component instanceof Container || component.type === Container) {
-        return [cloneElement(component, {...component.props, children: ''})]
+        return [component]  // Stop if you find a Container
       }
       else if (component.props && component.props.children) {
         const children = Children.map(component.props.children, c => c)

@@ -30309,7 +30309,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          value: function getChildContext() {
 	            return {
 	              groupIndex: groupIndex,
-	              location: location
+	              location: location,
+	              initializing: true
 	            };
 	          }
 	        }, {
@@ -30328,7 +30329,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      G.childContextTypes = {
 	        groupIndex: _react.PropTypes.number.isRequired,
-	        location: _react.PropTypes.object.isRequired
+	        location: _react.PropTypes.object.isRequired,
+	        initializing: _react.PropTypes.bool
 	      };
 
 
@@ -30337,7 +30339,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          return [];
 	        }
 	        if (component instanceof _Container2.default || component.type === _Container2.default) {
-	          return [(0, _react.cloneElement)(component, _extends({}, component.props, { children: '' }))];
+	          return [component]; // Stop if you find a Container
 	        } else if (component.props && component.props.children) {
 	          var _children = _react.Children.map(component.props.children, function (c) {
 	            return c;
@@ -48622,7 +48624,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        this.props.children
+	        this.context.initializing ? '' : this.props.children
 	      );
 	    }
 	  }]);
@@ -48632,7 +48634,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	Container.contextTypes = {
 	  groupIndex: _react.PropTypes.number.isRequired,
-	  location: _react.PropTypes.object.isRequired
+	  location: _react.PropTypes.object.isRequired,
+	  initializing: _react.PropTypes.bool
 	};
 	Container.childContextTypes = {
 	  containerIndex: _react.PropTypes.number.isRequired,
