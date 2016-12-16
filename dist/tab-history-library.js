@@ -1615,7 +1615,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var containerSwitches = [];
 	  actions.reduce(function (oldState, action) {
 	    var newState = reducer(oldState, action);
-	    if (action.type === _ActionTypes.CREATE_CONTAINER) {
+	    if (action.type === _ActionTypes.CREATE_CONTAINER && action.groupIndex === groupIndex) {
 	      var group = _.last(newState.groups);
 	      _fp2.default.reverse(group.containers).forEach(function (c) {
 	        return containerSwitches.push(c);

@@ -207,7 +207,7 @@ export function getContainerStackOrder(actions:Object[], groupIndex:number) : Co
   const containerSwitches:Container[] = []
   actions.reduce((oldState:?State, action:Object) : State => {
     const newState:State = reducer(oldState, action)
-    if (action.type === CREATE_CONTAINER) {
+    if (action.type === CREATE_CONTAINER && action.groupIndex === groupIndex) {
       const group:Group = _.last(newState.groups)
       fp.reverse(group.containers).forEach(c => containerSwitches.push(c))
     }
