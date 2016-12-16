@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.HistoryMatch = exports.HistoryRouter = exports.Container = exports.ContainerGroup = exports.HistoryLink = exports.addGroupChangeListener = exports.addChangeListener = exports.isPageActive = exports.push = exports.switchToContainer = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
+	exports.HistoryMatch = exports.HistoryRouter = exports.Container = exports.ContainerGroup = exports.HistoryLink = exports.addChangeListener = exports.push = exports.switchToContainer = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
 
 	var _main = __webpack_require__(1);
 
@@ -87,22 +87,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return _main.push;
 	  }
 	});
-	Object.defineProperty(exports, 'isPageActive', {
-	  enumerable: true,
-	  get: function get() {
-	    return _main.isPageActive;
-	  }
-	});
 	Object.defineProperty(exports, 'addChangeListener', {
 	  enumerable: true,
 	  get: function get() {
 	    return _main.addChangeListener;
-	  }
-	});
-	Object.defineProperty(exports, 'addGroupChangeListener', {
-	  enumerable: true,
-	  get: function get() {
-	    return _main.addGroupChangeListener;
 	  }
 	});
 
@@ -253,7 +241,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var addChangeListener = exports.addChangeListener = function addChangeListener(fn) {
-	  return addListener(fn, getDerivedState);
+	  return _store2.default.subscribe(function () {
+	    return fn(getDerivedState());
+	  });
 	};
 
 	var getGroupState = exports.getGroupState = function getGroupState(groupIndex) {
@@ -30262,6 +30252,27 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	/**
+	 * Recursively gets the children of a component for simlated rendering
+	 * so that the containers are initialized even if they're hidden inside tabs
+	 */
+	function getChildren(component) {
+	  if (!(component instanceof _react.Component) && !component.type) {
+	    return [];
+	  }
+	  if (component instanceof _Container2.default || component.type === _Container2.default) {
+	    return [component]; // Stop if you find a Container
+	  } else if (component.props && component.props.children) {
+	    var children = _react.Children.map(component.props.children, function (c) {
+	      return c;
+	    });
+	    return _.flatten(children.map(getChildren)); // grandchildren
+	  } else {
+	    // no children
+	    return [component];
+	  }
+	}
+
 	var ContainerGroup = function (_Component) {
 	  _inherits(ContainerGroup, _Component);
 
@@ -30278,6 +30289,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        groupIndex: this.groupIndex,
 	        location: this.props.location
 	      };
+	    }
+	  }, {
+	    key: 'update',
+	    value: function update() {
+	      var onContainerSwitch = this.props.onContainerSwitch;
+
+	      var state = (0, _main.getGroupState)(this.groupIndex);
+	      if (!_.isEqual(this.indexedStackOrder, state.indexedStackOrder)) {
+	        onContainerSwitch(state);
+	        this.indexedStackOrder = state.indexedStackOrder;
+	      }
 	    }
 	  }, {
 	    key: 'componentWillMount',
@@ -30325,23 +30347,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      };
 
 
-	      function getChildren(component) {
-	        if (!(component instanceof _react.Component) && !component.type) {
-	          return [];
-	        }
-	        if (component instanceof _Container2.default || component.type === _Container2.default) {
-	          return [component]; // Stop if you find a Container
-	        } else if (component.props && component.props.children) {
-	          var _children = _react.Children.map(component.props.children, function (c) {
-	            return c;
-	          });
-	          return _.flatten(_children.map(getChildren)); // grandchildren
-	        } else {
-	          // no children
-	          return [component];
-	        }
-	      }
-
 	      var children = getChildren(this);
 	      var div = document.createElement('div');
 	      children.forEach(function (c) {
@@ -30353,6 +30358,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          ), div); // Initialize the Containers in this group
 	        } // (since most tab libraries lazy load tabs)
 	      });
+
+	      this.update();
 	    }
 	  }, {
 	    key: 'componentWillReceiveProps',
@@ -30360,21 +30367,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (newProps.currentContainerIndex !== this.props.currentContainerIndex) {
 	        (0, _main.switchToContainer)(this.groupIndex, newProps.currentContainerIndex);
 	      }
-
-	      var onContainerSwitch = this.props.onContainerSwitch;
-
-	      var state = (0, _main.getGroupState)(this.groupIndex);
-	      if (!_.isEqual(this.indexedStackOrder, state.indexedStackOrder)) {
-	        onContainerSwitch(state);
-	        this.indexedStackOrder = state.indexedStackOrder;
-	      }
+	      this.update();
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
-
-	      console.log(this.props.location);
-
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -48446,7 +48443,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _ActionTypes = __webpack_require__(281);
 
 	var initialState = {
-	  location: window.location // TODO: Is this the correct type of location object?
+	  location: null
 	};
 
 /***/ },
@@ -48667,7 +48664,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    var _this = _possibleConstructorReturn(this, (HistoryRouter.__proto__ || Object.getPrototypeOf(HistoryRouter)).call(this, props));
 
-	    props.listenToLocation();
+	    var listenToLocation = props.listenToLocation,
+	        locationChanged = props.locationChanged;
+
+	    if (_ExecutionEnvironment.canUseDOM) {
+	      locationChanged(window.location);
+	    }
+	    listenToLocation();
 	    return _this;
 	  }
 
@@ -48721,7 +48724,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var ConnectedHistoryRouter = (0, _reactRedux.connect)(function (state) {
 	  return {};
-	}, { listenToLocation: _LocationActions.listenToLocation })(HistoryRouter);
+	}, { listenToLocation: _LocationActions.listenToLocation, locationChanged: _LocationActions.locationChanged })(HistoryRouter);
 
 	exports.default = function (props) {
 	  return _react2.default.createElement(ConnectedHistoryRouter, _extends({ store: _store2.default }, props));
@@ -48736,21 +48739,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.listenToLocation = undefined;
+	exports.listenToLocation = exports.locationChanged = undefined;
 
 	var _ActionTypes = __webpack_require__(281);
 
-	var locationChanged = function locationChanged(event) {
+	var locationChanged = exports.locationChanged = function locationChanged(location) {
 	  return {
 	    type: _ActionTypes.LOCATION_CHANGED,
-	    location: event.detail.location
+	    location: location
 	  };
 	};
 
 	var listenToLocation = exports.listenToLocation = function listenToLocation() {
 	  return function (dispatch) {
 	    return window.addEventListener('locationChange', function (event) {
-	      return dispatch(locationChanged(event));
+	      return dispatch(locationChanged(event.detail.location));
 	    });
 	  };
 	};

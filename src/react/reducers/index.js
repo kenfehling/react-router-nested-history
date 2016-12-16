@@ -1,7 +1,7 @@
 import { LOCATION_CHANGED } from '../constants/ActionTypes'
 
 const initialState = {
-  location: window.location  // TODO: Is this the correct type of location object?
+  location: null
 }
 
 export default function(state=initialState, action) {

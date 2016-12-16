@@ -76,7 +76,7 @@ const addListener = (fn: Function, generateData: Function) => {
   return store.subscribe(f)
 }
 
-export const addChangeListener = (fn:Function) => addListener(fn, getDerivedState)
+export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
 
 export const getGroupState = (groupIndex:number) =>
     util.getGroupState(store.getState(), groupIndex)

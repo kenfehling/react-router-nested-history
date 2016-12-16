@@ -5,13 +5,17 @@ import StaticRouter from 'react-router/StaticRouter'
 import History from 'react-router/History'
 import createBrowserHistory from 'history/createBrowserHistory'
 import createMemoryHistory from "history/createMemoryHistory"
-import { listenToLocation } from "../actions/LocationActions"
+import { listenToLocation, locationChanged } from "../actions/LocationActions"
 import { canUseDOM } from 'history/ExecutionEnvironment'
 
 class HistoryRouter extends Component {
   constructor(props) {
     super(props)
-    props.listenToLocation()
+    const {listenToLocation, locationChanged} = props
+    if (canUseDOM) {
+      locationChanged(window.location)
+    }
+    listenToLocation()
   }
 
   render() {
@@ -59,7 +63,7 @@ HistoryRouter.propTypes = {
 
 const ConnectedHistoryRouter = connect(
   state => ({}),
-  { listenToLocation }
+  { listenToLocation, locationChanged }
 )(HistoryRouter)
 
 export default props => <ConnectedHistoryRouter store={store} {...props} />

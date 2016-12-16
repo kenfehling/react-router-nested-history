@@ -7,6 +7,26 @@ import * as _ from "lodash"
 import Container from "./Container"
 import { getGroupState } from "../../main"
 
+/**
+ * Recursively gets the children of a component for simlated rendering
+ * so that the containers are initialized even if they're hidden inside tabs
+ */
+function getChildren(component) {
+  if (!(component instanceof Component) && !component.type) {
+    return []
+  }
+  if (component instanceof Container || component.type === Container) {
+    return [component]  // Stop if you find a Container
+  }
+  else if (component.props && component.props.children) {
+    const children = Children.map(component.props.children, c => c)
+    return _.flatten(children.map(getChildren))  // grandchildren
+  }
+  else {  // no children
+    return [component]
+  }
+}
+
 class ContainerGroup extends Component {
   static childContextTypes = {
     groupIndex: PropTypes.number.isRequired,
@@ -22,6 +42,15 @@ class ContainerGroup extends Component {
     return {
       groupIndex: this.groupIndex,
       location: this.props.location
+    }
+  }
+
+  update() {
+    const {onContainerSwitch} = this.props
+    const state = getGroupState(this.groupIndex)
+    if (!_.isEqual(this.indexedStackOrder, state.indexedStackOrder)) {
+      onContainerSwitch(state)
+      this.indexedStackOrder = state.indexedStackOrder
     }
   }
 
@@ -50,22 +79,6 @@ class ContainerGroup extends Component {
       }
     }
 
-    function getChildren(component) {
-      if (!(component instanceof Component) && !component.type) {
-        return []
-      }
-      if (component instanceof Container || component.type === Container) {
-        return [component]  // Stop if you find a Container
-      }
-      else if (component.props && component.props.children) {
-        const children = Children.map(component.props.children, c => c)
-        return _.flatten(children.map(getChildren))  // grandchildren
-      }
-      else {  // no children
-        return [component]
-      }
-    }
-
     const children = getChildren(this)
     const div = document.createElement('div')
     children.forEach(c => {
@@ -73,25 +86,18 @@ class ContainerGroup extends Component {
         render(<G>{c}</G>, div)  // Initialize the Containers in this group
       }                          // (since most tab libraries lazy load tabs)
     })
+
+    this.update()
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.currentContainerIndex !== this.props.currentContainerIndex) {
       switchToContainer(this.groupIndex, newProps.currentContainerIndex)
     }
-
-    const {onContainerSwitch} = this.props
-    const state = getGroupState(this.groupIndex)
-    if (!_.isEqual(this.indexedStackOrder, state.indexedStackOrder)) {
-      onContainerSwitch(state)
-      this.indexedStackOrder = state.indexedStackOrder
-    }
+    this.update()
   }
 
   render() {
-
-    console.log(this.props.location)
-
     return <div>{this.props.children}</div>
   }
 }

@@ -1,11 +1,12 @@
 import { LOCATION_CHANGED } from '../constants/ActionTypes'
 
-const locationChanged = (event) => ({
+export const locationChanged = (location) => ({
   type: LOCATION_CHANGED,
-  location: event.detail.location
+  location
 })
 
 export const listenToLocation = () => {
   return (dispatch) =>
-    window.addEventListener('locationChange', event => dispatch(locationChanged(event)))
+    window.addEventListener('locationChange',
+        event => dispatch(locationChanged(event.detail.location)))
 }

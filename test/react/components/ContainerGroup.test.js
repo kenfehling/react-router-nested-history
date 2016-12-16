@@ -1,9 +1,16 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import { shallow, mount, render } from 'enzyme'
 import ContainerGroup from '../../../src/react/components/ContainerGroup'
 import Container from '../../../src/react/components/Container'
+import store from '../../../src/react/store'
+import {locationChanged} from "../../../src/react/actions/LocationActions"
 
 describe('ContainerGroup', () => {
+
+  beforeEach(() => {
+    store.dispatch(locationChanged({pathname: '/a'}))
+  })
+
   function getWindowZIndex(indexedStackOrder, index) {
     if (indexedStackOrder.length > index) {
       return indexedStackOrder.length - indexedStackOrder[index] + 1

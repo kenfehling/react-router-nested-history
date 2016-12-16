@@ -129,7 +129,10 @@ describe('history utils', () => {
     const performAll = (actions) : State => util.deriveState(actions)
 
     it('creates steps to init (default)', () => {
-      const actions = createContainers
+      const actions = [
+        ...createContainers,
+        {type: LOAD_FROM_URL, url: '/a'}
+      ]
       const state = performAll(actions)
       const steps = util.createSteps(actions)
       expect(state.groups[0].history.back.length).toBe(0)
