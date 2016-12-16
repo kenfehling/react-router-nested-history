@@ -143,7 +143,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.getCurrentPage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.addGroupChangeListener = exports.addChangeListener = exports.getGroupState = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
+	exports.getCurrentPage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getIndexedContainerStackOrder = exports.addGroupChangeListener = exports.addChangeListener = exports.getGroupState = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -277,6 +277,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return addListener(fn, function () {
 	    return getGroupState(groupIndex);
 	  });
+	};
+
+	var getIndexedContainerStackOrder = exports.getIndexedContainerStackOrder = function getIndexedContainerStackOrder(groupIndex) {
+	  return util.getIndexedContainerStackOrder(_store2.default.getState(), groupIndex);
 	};
 
 	function isActiveContainer(groupIndex, containerIndex) {
@@ -30259,8 +30263,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _Container2 = _interopRequireDefault(_Container);
 
-	var _history = __webpack_require__(16);
-
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -30378,24 +30380,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(newProps) {
-
-	      console.log('CWRP', newProps);
-
 	      if (newProps.currentContainerIndex !== this.props.currentContainerIndex) {
 	        (0, _main.switchToContainer)(this.groupIndex, newProps.currentContainerIndex);
-	      } else {
-	        var f = _history.getIndexedContainerStackOrder;
-	        var _props = this.props,
-	            historyActions = _props.historyActions,
-	            onContainerSwitch = _props.onContainerSwitch;
+	      }
 
-	        var oldIndexedStackOrder = f(historyActions, this.groupIndex);
-	        var newIndexedStackOrder = f(newProps.historyActions, this.groupIndex);
-	        if (_.isEqual(oldIndexedStackOrder, newIndexedStackOrder)) {
-	          onContainerSwitch({
-	            indexedStackOrder: newIndexedStackOrder
-	          });
-	        }
+	      var onContainerSwitch = this.props.onContainerSwitch;
+
+	      var indexedStackOrder = (0, _main.getIndexedContainerStackOrder)(this.groupIndex);
+	      if (!_.isEqual(this.indexedStackOrder, indexedStackOrder)) {
+	        onContainerSwitch({ indexedStackOrder: indexedStackOrder });
+	        this.indexedStackOrder = indexedStackOrder;
 	      }
 	    }
 	  }, {
@@ -30424,8 +30418,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var ConnectedContainerGroup = (0, _reactRedux.connect)(function (state) {
 	  return {
-	    location: state.location,
-	    historyActions: state.history
+	    location: state.location
 	  };
 	}, {})(ContainerGroup);
 
@@ -48507,7 +48500,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var SET_STATE = exports.SET_STATE = 'set-state';
 	var LOCATION_CHANGED = exports.LOCATION_CHANGED = 'location-changed';
 
 /***/ },
@@ -48685,7 +48677,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createHistory2 = _interopRequireDefault(_createHistory);
 
-	var _StateActions = __webpack_require__(287);
+	var _LocationActions = __webpack_require__(287);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -48759,7 +48751,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var ConnectedHistoryRouter = (0, _reactRedux.connect)(function (state) {
 	  return {};
-	}, { listenToLocation: _StateActions.listenToLocation })(HistoryRouter);
+	}, { listenToLocation: _LocationActions.listenToLocation })(HistoryRouter);
 
 	exports.default = function (props) {
 	  return _react2.default.createElement(ConnectedHistoryRouter, _extends({ store: _store2.default }, props));
@@ -49043,16 +49035,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.listenToLocation = exports.setState = undefined;
+	exports.listenToLocation = undefined;
 
 	var _ActionTypes = __webpack_require__(282);
-
-	var setState = exports.setState = function setState(state) {
-	  return {
-	    type: _ActionTypes.SET_STATE,
-	    state: state
-	  };
-	};
 
 	var locationChanged = function locationChanged(event) {
 	  return {

@@ -98,6 +98,9 @@ export const addChangeListener = (fn:Function) => addListener(fn, getDerivedStat
 export const addGroupChangeListener = (groupIndex:number, fn:Function) =>
     addListener(fn, () => getGroupState(groupIndex))
 
+export const getIndexedContainerStackOrder = (groupIndex:number) =>
+    util.getIndexedContainerStackOrder(store.getState(), groupIndex)
+
 function isActiveContainer(groupIndex:number, containerIndex:number) {
   const state = getDerivedState()
   const activeGroup = util.getActiveGroup(state)

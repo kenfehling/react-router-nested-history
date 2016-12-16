@@ -4,7 +4,7 @@ import store from '../store'
 import StaticRouter from 'react-router/StaticRouter'
 import History from 'react-router/History'
 import createHistory from './createHistory'
-import {listenToLocation} from "../actions/StateActions";
+import {listenToLocation} from "../actions/LocationActions";
 
 class HistoryRouter extends Component {
   constructor(props) {

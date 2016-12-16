@@ -5,7 +5,7 @@ import store from '../store'
 import { getNextGroupIndex, switchToContainer } from '../../main'
 import * as _ from "lodash"
 import Container from "./Container"
-import { getIndexedContainerStackOrder } from "../../util/history"
+import { getIndexedContainerStackOrder } from "../../main"
 
 class ContainerGroup extends Component {
   static childContextTypes = {
@@ -87,22 +87,15 @@ class ContainerGroup extends Component {
   */
 
   componentWillReceiveProps(newProps) {
-
-    console.log('CWRP', newProps)
-
     if (newProps.currentContainerIndex !== this.props.currentContainerIndex) {
       switchToContainer(this.groupIndex, newProps.currentContainerIndex)
     }
-    else {
-      const f = getIndexedContainerStackOrder
-      const {historyActions, onContainerSwitch} = this.props
-      const oldIndexedStackOrder = f(historyActions, this.groupIndex)
-      const newIndexedStackOrder = f(newProps.historyActions, this.groupIndex)
-      if (_.isEqual(oldIndexedStackOrder, newIndexedStackOrder)) {
-        onContainerSwitch({
-          indexedStackOrder: newIndexedStackOrder
-        })
-      }
+
+    const {onContainerSwitch} = this.props
+    const indexedStackOrder = getIndexedContainerStackOrder(this.groupIndex)
+    if (!_.isEqual(this.indexedStackOrder, indexedStackOrder)) {
+      onContainerSwitch({indexedStackOrder})
+      this.indexedStackOrder = indexedStackOrder
     }
   }
 
@@ -112,11 +105,10 @@ class ContainerGroup extends Component {
 }
 
 const ConnectedContainerGroup = connect(
-  state => ({
-    location: state.location,
-    historyActions: state.history
-  }),
-  {}
+    state => ({
+      location: state.location
+    }),
+    {}
 )(ContainerGroup)
 
 export default props => <ConnectedContainerGroup store={store} {...props} />
