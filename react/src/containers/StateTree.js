@@ -18,19 +18,19 @@ const HistoryTree = ({history, className}) => (
 
 const StateTree = ({state}) => (
   <div className="history-tree">
-      {state.groups ? state.groups.map(group =>
-          <div key={group.index}>
-            <div>{'Group ' + group.index}</div>
-              <HistoryTree history={group.history} className="group" />
-              <div>
-                {group.containers.map(container =>
-                  <div key={container.index}>
-                    <div>{'Container ' + container.index}</div>
-                    <HistoryTree history={container.history} className="container" />
-                  </div>
-                )}
+    {state.groups ? state.groups.map(group =>
+      <div key={group.index}>
+        <div>{'Group ' + group.index}</div>
+          <HistoryTree history={group.history} className="group" />
+          <div>
+            {group.containers.map(container =>
+              <div key={container.index}>
+                <div>{'Container ' + container.index}</div>
+                <HistoryTree history={container.history} className="container" />
               </div>
-          </div>) : ''}
+            )}
+          </div>
+      </div>) : ''}
   </div>
 )
 
