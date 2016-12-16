@@ -1,6 +1,9 @@
 import React, { Component, PropTypes } from 'react'
 import { getOrCreateContainer } from '../../main'
 import {patternsMatch} from "../../util/url";
+import {modifyLocation} from "../../util/location";
+
+const getKey = (groupIndex, locationIndex) => groupIndex + '_' + locationIndex
 
 export default class Container extends Component {
   static contextTypes = {
@@ -21,6 +24,8 @@ export default class Container extends Component {
     patterns: PropTypes.arrayOf(PropTypes.string)
   }
 
+  static locations = {}  // Stays stored even if a Container is unmounted
+
   getPatterns() {
     const {pattern, patterns=[]} = this.props
     return [...patterns, ...(pattern ? [pattern] : [])]
@@ -28,24 +33,24 @@ export default class Container extends Component {
 
   constructor(props, context) {
     super(props)
-    const {groupIndex} = context
+    const patterns = this.getPatterns()
     const {initialUrl} = this.props
-    const container = getOrCreateContainer(groupIndex, initialUrl, this.getPatterns())
+    const {groupIndex} = context
+    const container = getOrCreateContainer(groupIndex, initialUrl, patterns)
     this.containerIndex = container.index
   }
 
   getFilteredLocation() {
     const patterns = this.getPatterns()
-    const {location} = this.context
+    const {initialUrl} = this.props
+    const {location, groupIndex} = this.context
+    const key = getKey(groupIndex, this.containerIndex)
     if (patternsMatch(patterns, location.pathname)) {
-      this.oldLocation = location
+      Container.locations[key] = location
       return location
     }
-    else if (this.oldLocation) {
-      return this.oldLocation
-    }
     else {
-      return {...location, pathname: this.initialUrl}
+      return Container.locations[key] || modifyLocation(location, initialUrl)
     }
   }
 

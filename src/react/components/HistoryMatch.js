@@ -70,7 +70,7 @@ export default class extends reactRouter.Match {
         exactly
     } = this.props
 
-    const { match:matchContext } = this.context
+    const { match:matchContext, location } = this.context
     const parent = matchContext && matchContext.parent
     const match = matchPattern(pattern, location, exactly, parent)
     const props = { ...match, location, pattern }
