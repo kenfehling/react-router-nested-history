@@ -14,20 +14,15 @@ function getWindowZIndex(indexedStackOrder, index) {
   }
 }
 
-const Window = (props) => {
-
-  const {className, initialUrl, masterComponent, index, indexedStackOrder, switchTo} = props
-
-  console.log(props)
-
-  return <Container initialUrl={initialUrl} patterns={[initialUrl, initialUrl + '/:page']}>
+const Window = ({className, initialUrl, masterComponent, index, indexedStackOrder, switchTo}) => (
+  <Container initialUrl={initialUrl} patterns={[initialUrl, initialUrl + '/:page']}>
     <div className={`window ${className}`} onClick={() => switchTo(index)}
          style={{zIndex: getWindowZIndex(indexedStackOrder, index)}}>
       <HistoryMatch exactly pattern={initialUrl} component={masterComponent}/>
       <HistoryMatch exactly pattern={initialUrl + '/:page'} component={WindowPage}/>
     </div>
   </Container>
-}
+)
 
 export default class Windows extends Component {
   constructor(props) {
@@ -39,18 +34,12 @@ export default class Windows extends Component {
   }
 
   onContainerSwitch(state) {
-
-    console.log('state', state)
-
     this.setState({
       indexedStackOrder: state.indexedStackOrder
     })
   }
 
   renderWindow(index, masterComponent) {
-
-    console.log("RENDER WINDOW", this.state)
-
     return (<Window className={'window' + (index + 1)}
                     initialUrl={'/windows/' + (index + 1)}
                     index={index}
