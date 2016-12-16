@@ -107,8 +107,6 @@ export const constructNewHistory = (state:State, newCurrentId:number) : State =>
   const shiftAmount = getHistoryShiftAmount(state, newCurrentId)
   if (shiftAmount === 0) {
     return state
-    //console.error(state, newCurrentId)
-    //throw new Error("This should be used for back and forward")
   }
   else {
     return go(state, shiftAmount)
@@ -167,9 +165,6 @@ export function reducer(state:?State, action:Object) : State {
         const newState:State = _.cloneDeep(state)
         const group:Group = newState.groups[action.groupIndex]
         const fromContainer:Container = group.containers[group.history.current.containerIndex]
-
-        console.log(newState, action)
-
         const toContainer:Container = getContainer(newState, action.groupIndex, action.containerIndex)
         group.history = switchContainer(fromContainer, toContainer, group.containers[0])
         newState.activeGroupIndex = group.index
@@ -254,4 +249,15 @@ export function getActiveContainer(group:Group):Container {
 
 export function getCurrentPage(state:State, groupIndex:number) {
   return state.groups[groupIndex].history.current;
+}
+
+export const getGroupState = (actions:Object[], groupIndex:number) => {
+  const state:State = deriveState(actions)
+  const group:Group = state.groups[groupIndex]
+  const currentUrl:string = group.history.current.url
+  const activeContainer:Container = group.containers[group.history.current.containerIndex]
+  const activeGroup:Group = state.groups[state.activeGroupIndex]
+  const stackOrder:Container[] = getContainerStackOrder(actions, groupIndex)
+  const indexedStackOrder:number[] = getIndexedContainerStackOrder(actions, groupIndex)
+  return {activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder}
 }

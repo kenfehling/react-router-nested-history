@@ -5,7 +5,7 @@ import store from '../store'
 import { getNextGroupIndex, switchToContainer } from '../../main'
 import * as _ from "lodash"
 import Container from "./Container"
-import { getIndexedContainerStackOrder } from "../../main"
+import { getGroupState } from "../../main"
 
 class ContainerGroup extends Component {
   static childContextTypes = {
@@ -92,10 +92,10 @@ class ContainerGroup extends Component {
     }
 
     const {onContainerSwitch} = this.props
-    const indexedStackOrder = getIndexedContainerStackOrder(this.groupIndex)
-    if (!_.isEqual(this.indexedStackOrder, indexedStackOrder)) {
-      onContainerSwitch({indexedStackOrder})
-      this.indexedStackOrder = indexedStackOrder
+    const state = getGroupState(this.groupIndex)
+    if (!_.isEqual(this.indexedStackOrder, state.indexedStackOrder)) {
+      onContainerSwitch(state)
+      this.indexedStackOrder = state.indexedStackOrder
     }
   }
 

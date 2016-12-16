@@ -81,25 +81,10 @@ const addListener = (fn: Function, generateData: Function) => {
   return store.subscribe(f)
 }
 
-export const getGroupState = (groupIndex:number) => {
-  const actions:Array<Object> = store.getState()
-  const state:State = util.deriveState(actions)
-  const group:Group = state.groups[groupIndex]
-  const currentUrl:string = group.history.current.url
-  const activeContainer:Container = group.containers[group.history.current.containerIndex]
-  const activeGroup:Group = state.groups[state.activeGroupIndex]
-  const stackOrder:Container[] = util.getContainerStackOrder(actions, groupIndex)
-  const indexedStackOrder:number[] = util.getIndexedContainerStackOrder(actions, groupIndex)
-  return {activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder}
-}
-
 export const addChangeListener = (fn:Function) => addListener(fn, getDerivedState)
 
-export const addGroupChangeListener = (groupIndex:number, fn:Function) =>
-    addListener(fn, () => getGroupState(groupIndex))
-
-export const getIndexedContainerStackOrder = (groupIndex:number) =>
-    util.getIndexedContainerStackOrder(store.getState(), groupIndex)
+export const getGroupState = (groupIndex:number) =>
+    util.getGroupState(store.getState(), groupIndex)
 
 function isActiveContainer(groupIndex:number, containerIndex:number) {
   const state = getDerivedState()
