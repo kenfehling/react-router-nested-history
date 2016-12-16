@@ -1,24 +1,34 @@
-import React, { PropTypes } from 'react'
+import React, { Component, PropTypes } from 'react'
+import { connect } from "react-redux";
+import store from '../store'
 import StaticRouter from 'react-router/StaticRouter'
 import History from 'react-router/History'
-import createHistory from './createHistory';
+import createHistory from './createHistory'
+import {listenToLocation} from "../actions/StateActions";
 
-const BrowserRouter = ({
-    basename,
-    forceRefresh,
-    getUserConfirmation,
-    keyLength,
-    ...routerProps
-}) => (
-    <History
-        createHistory={createHistory}
-        historyOptions={{
+class HistoryRouter extends Component {
+  constructor(props) {
+    super(props)
+    props.listenToLocation()
+  }
+
+  render() {
+    const {
       basename,
-      forceRefresh,
-      getUserConfirmation,
-      keyLength
-    }}
-    >
+          forceRefresh,
+          getUserConfirmation,
+          keyLength,
+    ...routerProps
+    } = this.props;
+
+    return (<History
+            createHistory={createHistory}
+            historyOptions={{
+              basename,
+              forceRefresh,
+              getUserConfirmation,
+              keyLength
+            }}>
       {({ history, action, location }) => (
           <StaticRouter
               action={action}
@@ -30,10 +40,11 @@ const BrowserRouter = ({
               {...routerProps}
           />
       )}
-    </History>
-)
+    </History>)
+  }
+}
 
-BrowserRouter.propTypes = {
+HistoryRouter.propTypes = {
   basename: PropTypes.string,
   forceRefresh: PropTypes.bool,
   getUserConfirmation: PropTypes.func,
@@ -44,4 +55,9 @@ BrowserRouter.propTypes = {
   ])
 }
 
-export default BrowserRouter
+const ConnectedHistoryRouter = connect(
+  state => ({}),
+  { listenToLocation }
+)(HistoryRouter)
+
+export default props => <ConnectedHistoryRouter store={store} {...props} />

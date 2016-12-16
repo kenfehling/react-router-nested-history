@@ -167,6 +167,9 @@ export function reducer(state:?State, action:Object) : State {
         const newState:State = _.cloneDeep(state)
         const group:Group = newState.groups[action.groupIndex]
         const fromContainer:Container = group.containers[group.history.current.containerIndex]
+
+        console.log(newState, action)
+
         const toContainer:Container = getContainer(newState, action.groupIndex, action.containerIndex)
         group.history = switchContainer(fromContainer, toContainer, group.containers[0])
         newState.activeGroupIndex = group.index
