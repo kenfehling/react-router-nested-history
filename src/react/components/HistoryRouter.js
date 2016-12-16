@@ -3,8 +3,10 @@ import { connect } from "react-redux";
 import store from '../store'
 import StaticRouter from 'react-router/StaticRouter'
 import History from 'react-router/History'
-import createHistory from './createHistory'
-import {listenToLocation} from "../actions/LocationActions";
+import createBrowserHistory from 'history/createBrowserHistory'
+import createMemoryHistory from "history/createMemoryHistory"
+import { listenToLocation } from "../actions/LocationActions"
+import { canUseDOM } from 'history/ExecutionEnvironment'
 
 class HistoryRouter extends Component {
   constructor(props) {
@@ -22,7 +24,7 @@ class HistoryRouter extends Component {
     } = this.props;
 
     return (<History
-            createHistory={createHistory}
+            createHistory={canUseDOM ? createBrowserHistory : createMemoryHistory}
             historyOptions={{
               basename,
               forceRefresh,

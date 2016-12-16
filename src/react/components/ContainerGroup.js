@@ -75,17 +75,6 @@ class ContainerGroup extends Component {
     })
   }
 
-  /*
-  componentDidMount() {
-    addGroupChangeListener(this.groupIndex, event => {
-      const {currentContainerIndex, onContainerSwitch} = this.props
-      //if (event.activeContainer.index !== currentContainerIndex) {
-        onContainerSwitch(event)
-      //}
-    })
-  }
-  */
-
   componentWillReceiveProps(newProps) {
     if (newProps.currentContainerIndex !== this.props.currentContainerIndex) {
       switchToContainer(this.groupIndex, newProps.currentContainerIndex)
@@ -100,6 +89,9 @@ class ContainerGroup extends Component {
   }
 
   render() {
+
+    console.log(this.props.location)
+
     return <div>{this.props.children}</div>
   }
 }

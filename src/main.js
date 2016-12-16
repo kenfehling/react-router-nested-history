@@ -70,11 +70,6 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
   return existingContainer || create()
 }
 
-export const loadFromUrl = () => {
-  const url:string = window.location.pathname
-  store.dispatch(actions.loadFromUrl(url))
-}
-
 const addListener = (fn: Function, generateData: Function) => {
   const f = () => fn(generateData())
   f()

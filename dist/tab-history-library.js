@@ -122,7 +122,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _HistoryRouter3 = _interopRequireDefault(_HistoryRouter2);
 
-	var _HistoryMatch2 = __webpack_require__(287);
+	var _HistoryMatch2 = __webpack_require__(286);
 
 	var _HistoryMatch3 = _interopRequireDefault(_HistoryMatch2);
 
@@ -143,7 +143,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.getCurrentPage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
+	exports.getCurrentPage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.addChangeListener = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -242,11 +242,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return c.initialUrl === initialUrl;
 	  });
 	  return existingContainer || create();
-	};
-
-	var loadFromUrl = exports.loadFromUrl = function loadFromUrl() {
-	  var url = window.location.pathname;
-	  _store2.default.dispatch(actions.loadFromUrl(url));
 	};
 
 	var addListener = function addListener(fn, generateData) {
@@ -22348,20 +22343,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(HistoryLink, [{
+	    key: 'onClick',
+	    value: function onClick(event) {
+	      var to = this.props.to;
+	      var _context = this.context,
+	          containerIndex = _context.containerIndex,
+	          groupIndex = _context.groupIndex;
+
+	      (0, _main.push)(groupIndex, containerIndex, to);
+	      event.preventDefault();
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var _props = this.props,
 	          to = _props.to,
 	          children = _props.children;
-	      var _context = this.context,
-	          containerIndex = _context.containerIndex,
-	          groupIndex = _context.groupIndex;
 
 	      return _react2.default.createElement(
 	        _reactRouter.Link,
-	        { to: to, onClick: function onClick() {
-	            return (0, _main.push)(groupIndex, containerIndex, to);
-	          } },
+	        { to: to, onClick: this.onClick.bind(this) },
 	        children
 	      );
 	    }
@@ -30353,18 +30354,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        } // (since most tab libraries lazy load tabs)
 	      });
 	    }
-
-	    /*
-	    componentDidMount() {
-	      addGroupChangeListener(this.groupIndex, event => {
-	        const {currentContainerIndex, onContainerSwitch} = this.props
-	        //if (event.activeContainer.index !== currentContainerIndex) {
-	          onContainerSwitch(event)
-	        //}
-	      })
-	    }
-	    */
-
 	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(newProps) {
@@ -30383,6 +30372,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
+
+	      console.log(this.props.location);
+
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -48645,11 +48637,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _History2 = _interopRequireDefault(_History);
 
-	var _createHistory = __webpack_require__(285);
+	var _createBrowserHistory = __webpack_require__(5);
 
-	var _createHistory2 = _interopRequireDefault(_createHistory);
+	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
 
-	var _LocationActions = __webpack_require__(286);
+	var _createMemoryHistory = __webpack_require__(54);
+
+	var _createMemoryHistory2 = _interopRequireDefault(_createMemoryHistory);
+
+	var _LocationActions = __webpack_require__(285);
+
+	var _ExecutionEnvironment = __webpack_require__(13);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -48686,7 +48684,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return _react2.default.createElement(
 	        _History2.default,
 	        {
-	          createHistory: _createHistory2.default,
+	          createHistory: _ExecutionEnvironment.canUseDOM ? _createBrowserHistory2.default : _createMemoryHistory2.default,
 	          historyOptions: {
 	            basename: basename,
 	            forceRefresh: forceRefresh,
@@ -48738,275 +48736,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _warning = __webpack_require__(6);
-
-	var _warning2 = _interopRequireDefault(_warning);
-
-	var _invariant = __webpack_require__(7);
-
-	var _invariant2 = _interopRequireDefault(_invariant);
-
-	var _LocationUtils = __webpack_require__(8);
-
-	var _PathUtils = __webpack_require__(11);
-
-	var _createTransitionManager = __webpack_require__(12);
-
-	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
-
-	var _ExecutionEnvironment = __webpack_require__(13);
-
-	var _DOMUtils = __webpack_require__(14);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var LocationChangeEvent = 'locationChange';
-
-	var getHistoryState = function getHistoryState() {
-	  try {
-	    return window.history.state || {};
-	  } catch (e) {
-	    // IE 11 sometimes throws when accessing window.history.state
-	    // See https://github.com/mjackson/history/pull/289
-	    return {};
-	  }
-	};
-
-	/**
-	 * Creates a history object that uses the HTML5 history API including
-	 * pushState, replaceState, and the popstate event.
-	 */
-	var createBrowserHistory = function createBrowserHistory() {
-	  var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-	  (0, _invariant2.default)(_ExecutionEnvironment.canUseDOM, 'Browser history needs a DOM');
-
-	  var globalHistory = window.history;
-	  var canUseHistory = (0, _DOMUtils.supportsHistory)();
-
-	  var _props$basename = props.basename,
-	      basename = _props$basename === undefined ? '' : _props$basename,
-	      _props$forceRefresh = props.forceRefresh,
-	      forceRefresh = _props$forceRefresh === undefined ? false : _props$forceRefresh,
-	      _props$getUserConfirm = props.getUserConfirmation,
-	      getUserConfirmation = _props$getUserConfirm === undefined ? _DOMUtils.getConfirmation : _props$getUserConfirm,
-	      _props$keyLength = props.keyLength,
-	      keyLength = _props$keyLength === undefined ? 6 : _props$keyLength;
-
-
-	  var getDOMLocation = function getDOMLocation(historyState) {
-	    var _ref = historyState || {},
-	        key = _ref.key,
-	        state = _ref.state;
-
-	    var _window$location = window.location,
-	        pathname = _window$location.pathname,
-	        search = _window$location.search,
-	        hash = _window$location.hash;
-
-
-	    var path = pathname + search + hash;
-
-	    if (basename) path = (0, _PathUtils.stripPrefix)(path, basename);
-
-	    return _extends({}, (0, _PathUtils.parsePath)(path), {
-	      state: state,
-	      key: key
-	    });
-	  };
-
-	  var createKey = function createKey() {
-	    return Math.random().toString(36).substr(2, keyLength);
-	  };
-
-	  var transitionManager = (0, _createTransitionManager2.default)();
-
-	  var setState = function setState(nextState) {
-	    Object.assign(history, nextState);
-
-	    history.length = globalHistory.length;
-
-	    transitionManager.notifyListeners(history.location, history.action);
-	  };
-
-	  var forceNextPop = false;
-
-	  var handleLocationChange = function handleLocationChange(event) {
-
-	    var location = event.detail.location;
-
-	    if (forceNextPop) {
-	      forceNextPop = false;
-	      setState();
-	    } else {
-	      (function () {
-	        var action = 'POP';
-
-	        transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
-	          if (ok) {
-	            setState({ action: action, location: location });
-	          } else {
-	            revertPop(location);
-	          }
-	        });
-	      })();
-	    }
-	  };
-
-	  var revertPop = function revertPop(fromLocation) {
-	    var toLocation = history.location;
-
-	    // TODO: We could probably make this more reliable by
-	    // keeping a list of keys we've seen in sessionStorage.
-	    // Instead, we just default to 0 for keys we don't know.
-
-	    var toIndex = allKeys.indexOf(toLocation.key);
-
-	    if (toIndex === -1) toIndex = 0;
-
-	    var fromIndex = allKeys.indexOf(fromLocation.key);
-
-	    if (fromIndex === -1) fromIndex = 0;
-
-	    var delta = toIndex - fromIndex;
-
-	    if (delta) {
-	      forceNextPop = true;
-	      go(delta);
-	    }
-	  };
-
-	  var initialLocation = getDOMLocation(getHistoryState());
-	  var allKeys = [initialLocation.key];
-
-	  // Public interface
-
-	  var push = function push(path, state) {
-	    // EVerything removed
-	  };
-
-	  var replace = function replace(path, state) {
-	    (0, _warning2.default)(!((typeof path === 'undefined' ? 'undefined' : _typeof(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to replace when the 1st ' + 'argument is a location-like object that already has state; it is ignored');
-
-	    var action = 'REPLACE';
-	    var location = (0, _LocationUtils.createLocation)(path, state, createKey(), history.location);
-
-	    transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
-	      if (!ok) return;
-
-	      var url = basename + (0, _PathUtils.createPath)(location);
-	      var key = location.key,
-	          state = location.state;
-
-
-	      if (canUseHistory) {
-	        globalHistory.replaceState({ key: key, state: state }, null, url);
-
-	        if (forceRefresh) {
-	          window.location.replace(url);
-	        } else {
-	          var prevIndex = allKeys.indexOf(history.location.key);
-
-	          if (prevIndex !== -1) allKeys[prevIndex] = location.key;
-
-	          setState({ action: action, location: location });
-	        }
-	      } else {
-	        (0, _warning2.default)(state === undefined, 'Browser history cannot replace state in browsers that do not support HTML5 history');
-
-	        window.location.replace(url);
-	      }
-	    });
-	  };
-
-	  var go = function go(n) {
-	    globalHistory.go(n);
-	  };
-
-	  var goBack = function goBack() {
-	    return go(-1);
-	  };
-
-	  var goForward = function goForward() {
-	    return go(1);
-	  };
-
-	  var listenerCount = 0;
-
-	  var checkDOMListeners = function checkDOMListeners(delta) {
-	    listenerCount += delta;
-
-	    if (listenerCount === 1) {
-	      (0, _DOMUtils.addEventListener)(window, LocationChangeEvent, handleLocationChange);
-	    } else if (listenerCount === 0) {
-	      (0, _DOMUtils.removeEventListener)(window, LocationChangeEvent, handleLocationChange);
-	    }
-	  };
-
-	  var isBlocked = false;
-
-	  var block = function block() {
-	    var prompt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-	    var unblock = transitionManager.setPrompt(prompt);
-
-	    if (!isBlocked) {
-	      checkDOMListeners(1);
-	      isBlocked = true;
-	    }
-
-	    return function () {
-	      if (isBlocked) {
-	        isBlocked = false;
-	        checkDOMListeners(-1);
-	      }
-
-	      return unblock();
-	    };
-	  };
-
-	  var listen = function listen(listener) {
-	    var unlisten = transitionManager.appendListener(listener);
-	    checkDOMListeners(1);
-
-	    return function () {
-	      checkDOMListeners(-1);
-	      return unlisten();
-	    };
-	  };
-
-	  var history = {
-	    length: globalHistory.length,
-	    action: 'POP',
-	    location: initialLocation,
-	    push: push,
-	    replace: replace,
-	    go: go,
-	    goBack: goBack,
-	    goForward: goForward,
-	    block: block,
-	    listen: listen
-	  };
-
-	  return history;
-	};
-
-	exports.default = createBrowserHistory;
-
-/***/ },
-/* 286 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
 	exports.listenToLocation = undefined;
 
 	var _ActionTypes = __webpack_require__(281);
@@ -49027,7 +48756,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 287 */
+/* 286 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

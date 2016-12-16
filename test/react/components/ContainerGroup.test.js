@@ -4,9 +4,6 @@ import ContainerGroup from '../../../src/react/components/ContainerGroup'
 import Container from '../../../src/react/components/Container'
 
 describe('ContainerGroup', () => {
-
-  const WindowMaster = () => <div></div>
-
   function getWindowZIndex(indexedStackOrder, index) {
     if (indexedStackOrder.length > index) {
       return indexedStackOrder.length - indexedStackOrder[index] + 1
@@ -17,9 +14,6 @@ describe('ContainerGroup', () => {
   }
 
   const Window = ({className, initialUrl, index, indexedStackOrder, switchTo}) => {
-
-    console.log(indexedStackOrder)
-
     return <Container initialUrl={initialUrl} patterns={[initialUrl, initialUrl + '/:page']}>
       <div className={`window ${className}`} onClick={() => switchTo(index)}
            style={{zIndex: getWindowZIndex(indexedStackOrder, index)}}>
@@ -66,7 +60,7 @@ describe('ContainerGroup', () => {
     }
   }
 
-  it('', () => {
+  it('sho', () => {
 
     const output = mount(<Windows />)
 
