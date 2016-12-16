@@ -1,11 +1,11 @@
-import React, { Component, PropTypes, Children } from 'react'
+import React, { Component, PropTypes, Children, cloneElement } from 'react'
 import { render } from 'react-dom'
 import { connect } from "react-redux";
 import store from '../store'
 import { getNextGroupIndex, switchToContainer } from '../../main'
 import * as _ from "lodash"
 import Container from "./Container"
-import {getIndexedContainerStackOrder} from "../../util/history";
+import { getIndexedContainerStackOrder } from "../../util/history"
 
 class ContainerGroup extends Component {
   static childContextTypes = {
@@ -33,15 +33,13 @@ class ContainerGroup extends Component {
     class G extends Component {
       static childContextTypes = {
         groupIndex: PropTypes.number.isRequired,
-        location: PropTypes.object.isRequired,
-        initializing: PropTypes.bool
+        location: PropTypes.object.isRequired
       }
 
       getChildContext() {
         return {
           groupIndex,
-          location,
-          initializing: true
+          location
         }
       }
 
@@ -54,8 +52,8 @@ class ContainerGroup extends Component {
       if (!(component instanceof Component) && !component.type) {
         return []
       }
-      if (component.type === Container) {  // if you find a Container, stop
-        return [component]
+      if (component instanceof Container || component.type === Container) {
+        return [cloneElement(component, {...component.props, children: ''})]
       }
       else if (component.props && component.props.children) {
         const children = Children.map(component.props.children, c => c)
@@ -70,8 +68,8 @@ class ContainerGroup extends Component {
     const div = document.createElement('div')
     children.forEach(c => {
       if (c instanceof Object) {
-        render(<G><c.type /></G>, div)  // Initialize the Containers in group
-      }                                 // (most tab libraries lazy load tabs)
+        render(<G>{c}</G>, div)  // Initialize the Containers in this group
+      }                          // (since most tab libraries lazy load tabs)
     })
   }
 

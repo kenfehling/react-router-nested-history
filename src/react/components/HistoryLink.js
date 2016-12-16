@@ -6,7 +6,6 @@ export default class HistoryLink extends Component {
   static propTypes = Link.propTypes
 
   static contextTypes = {
-    ...Link.contextTypes,
     groupIndex: PropTypes.number.isRequired,
     containerIndex: PropTypes.number.isRequired
   }

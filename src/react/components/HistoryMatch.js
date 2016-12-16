@@ -44,7 +44,7 @@ class RegisterMatch extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this.props.match) {
+    if (this.props.match && this.context.match) {
       this.context.match.removeMatch(this.props.match)
     }
   }
@@ -56,6 +56,7 @@ class RegisterMatch extends React.Component {
 
 export default class extends reactRouter.Match {
   static contextTypes = {
+    ...(reactRouter.Match.contextTypes ? reactRouter.Match.contextTypes : []),
     groupIndex: PropTypes.number.isRequired,
     location: PropTypes.object.isRequired
   }

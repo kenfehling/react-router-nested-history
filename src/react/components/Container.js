@@ -5,8 +5,7 @@ import {patternsMatch} from "../../util/url";
 export default class Container extends Component {
   static contextTypes = {
     groupIndex: PropTypes.number.isRequired,
-    location: PropTypes.object.isRequired,
-    initializing: PropTypes.bool
+    location: PropTypes.object.isRequired
   }
 
   static childContextTypes = {
@@ -57,9 +56,6 @@ export default class Container extends Component {
   }
 
   render() {
-
-    console.log('RENDER C', this.props.initialUrl, this.context.initializing)
-
-    return <div>{this.context.initializing ? '' : this.props.children}</div>
+    return <div>{this.props.children}</div>
   }
 }
