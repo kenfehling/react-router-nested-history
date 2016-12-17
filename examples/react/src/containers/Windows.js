@@ -33,8 +33,10 @@ export default class Windows extends Component {
     }
   }
 
-  onContainerSwitch({indexedStackOrder}) {
-    this.setState({indexedStackOrder})
+  onContainerSwitch(state) {
+    this.setState({
+      indexedStackOrder: state.indexedStackOrder
+    })
   }
 
   renderWindow(index, masterComponent) {
@@ -54,7 +56,8 @@ export default class Windows extends Component {
         <p>Clicking on a window brings it to the front.</p>
       </div>
       <ContainerGroup currentContainerIndex={this.state.activeWindowIndex}
-                      onContainerSwitch={this.onContainerSwitch.bind(this)}>
+                      onContainerSwitch={this.onContainerSwitch.bind(this)}
+                      useDefaultContainer={false}>
         {this.renderWindow(0, WindowMaster1)}
         {this.renderWindow(1, WindowMaster2)}
       </ContainerGroup>

@@ -11,8 +11,12 @@ import store from './store'
 import * as _ from 'lodash'
 import type { Step, State, Group, Container } from './types'
 import {createLocation} from "history"
+import Queue from 'promise-queue'
 
-const needsPop = [browser.back, browser.forward, browser.go]
+const maxConcurrent = 1
+const maxQueue = Infinity
+const queue = new Queue(maxConcurrent, maxQueue)
+const needsPopListener = [browser.back, browser.forward, browser.go]
 let unlisten
 
 const getDerivedState = () : State => util.deriveState(store.getState())
@@ -49,14 +53,14 @@ export const getNextGroupIndex = () => {
   }
 }
 
-const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]) : Container => {
-  store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns))
+const createContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
+  store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns, useDefault))
   const state:State = getDerivedState()
   return _.last(state.groups[groupIndex].containers)
 }
 
-export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[]) : Container => {
-  const create = () : Container => createContainer(groupIndex, initialUrl, patterns)
+export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
+  const create = () : Container => createContainer(groupIndex, initialUrl, patterns, useDefault)
   const actions = store.getState()
   if (_.isEmpty(actions)) {
     return create()
@@ -70,33 +74,12 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
   return existingContainer || create()
 }
 
-export const loadFromUrl = () => {
-  const url:string = window.location.pathname
-  store.dispatch(actions.loadFromUrl(url))
-}
+export const loadFromUrl = (url:string) => store.dispatch(actions.loadFromUrl(url))
 
-const addListener = (fn: Function, generateData: Function) => {
-  const f = () => fn(generateData())
-  f()
-  return store.subscribe(f)
-}
+export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
 
-export const getGroupState = (groupIndex:number) => {
-  const actions:Array<Object> = store.getState()
-  const state:State = util.deriveState(actions)
-  const group:Group = state.groups[groupIndex]
-  const currentUrl:string = group.history.current.url
-  const activeContainer:Container = group.containers[group.history.current.containerIndex]
-  const activeGroup:Group = state.groups[state.activeGroupIndex]
-  const stackOrder:Container[] = util.getContainerStackOrder(actions, groupIndex)
-  const indexedStackOrder:number[] = util.getIndexedContainerStackOrder(actions, groupIndex)
-  return {activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder}
-}
-
-export const addChangeListener = (fn:Function) => addListener(fn, getDerivedState)
-
-export const addGroupChangeListener = (groupIndex:number, fn:Function) =>
-    addListener(fn, () => getGroupState(groupIndex))
+export const getGroupState = (groupIndex:number) =>
+    util.getGroupState(store.getState(), groupIndex)
 
 function isActiveContainer(groupIndex:number, containerIndex:number) {
   const state = getDerivedState()
@@ -105,9 +88,9 @@ function isActiveContainer(groupIndex:number, containerIndex:number) {
   return activeGroup.index === groupIndex && activeContainer.index === containerIndex
 }
 
-export const switchToContainer = (groupIndex:number, containerIndex:number) => {
+export const switchToContainer = (groupIndex:number, containerIndex:number, useDefault:boolean) => {
   if (!isActiveContainer(groupIndex, containerIndex)) {
-    store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
+    store.dispatch(actions.switchToContainer(groupIndex, containerIndex, useDefault))
   }
 }
 
@@ -122,23 +105,24 @@ export const go = (n:number=1) => store.dispatch(actions.go(n))
 export const back = (n:number=1) => store.dispatch(actions.back(n))
 export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 
-export const getCurrentPage = (groupIndex:number) =>
-    util.getCurrentPage(getDerivedState(), groupIndex)
+export const getCurrentPageInGrouo = (groupIndex:number) =>
+  util.getCurrentPage(getDerivedState(), groupIndex)
 
-function runSteps(steps:Step[]) {
-  if (steps.length === 1) {
-    steps[0].fn(...steps[0].args)
+export const getCurrentPage = () => {
+  const state = getDerivedState()
+  return util.getCurrentPage(state, state.activeGroupIndex)
+}
+
+function runStep(step:Step) {
+  const stepPromise = () => {
+    step.fn(...step.args)
+    return _.includes(needsPopListener, step.fn) ? listenPromise() : Promise.resolve()
   }
-  else if (steps.length > 1) {
-    const promisedSteps = steps.map(s => () => {
-      s.fn(...s.args)
-      return _.includes(needsPop, s.fn) ? listenPromise() : Promise.resolve()
-    });
-    [unlistenPromise, ...promisedSteps, startListeningPromise].reduce(
-        (p, step) => p.then(step),
-        Promise.resolve()
-    )
-  }
+  const ps = () => [unlistenPromise, stepPromise, startListeningPromise].reduce(
+    (p, step) => p.then(step),
+    Promise.resolve()
+  )
+  queue.add(ps)
 }
 
 store.subscribe(() => {
@@ -151,6 +135,6 @@ store.subscribe(() => {
     window.dispatchEvent(new CustomEvent('locationChange', {
       detail: {location: createLocation(current.url, {id: current.id})}
     }))
-    runSteps(steps)
+    steps.forEach(runStep)
   }
 })

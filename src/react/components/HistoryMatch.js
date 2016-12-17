@@ -2,8 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import * as reactRouter from 'react-router'
 import MatchProvider from 'react-router/MatchProvider'
 import matchPattern from 'react-router/matchPattern'
-import { LocationSubscriber } from 'react-router/Broadcasts'
-import { getCurrentPage } from '../../main'
+import { getCurrentPageInGrouo } from '../../main'
 
 class RegisterMatch extends React.Component {
   static contextTypes = {
@@ -45,7 +44,7 @@ class RegisterMatch extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this.props.match) {
+    if (this.props.match && this.context.match) {
       this.context.match.removeMatch(this.props.match)
     }
   }
@@ -57,69 +56,38 @@ class RegisterMatch extends React.Component {
 
 export default class extends reactRouter.Match {
   static contextTypes = {
-    groupIndex: PropTypes.number.isRequired
-  }
-  
-  // Added by Ken Fehling to support multiple groups of nested tabs/windows
-  getCurrentPage() {
-    const {groupIndex} = this.context
-    return getCurrentPage(groupIndex)
+    ...(reactRouter.Match.contextTypes ? reactRouter.Match.contextTypes : []),
+    groupIndex: PropTypes.number.isRequired,
+    location: PropTypes.object.isRequired
   }
   
   render() {
+    const {
+        children,
+        render,
+        component:Component,
+        pattern,
+        exactly
+    } = this.props
+
+    const { match:matchContext, location } = this.context
+    const parent = matchContext && matchContext.parent
+    const match = matchPattern(pattern, location, exactly, parent)
+    const props = { ...match, location, pattern }
     return (
-        <LocationSubscriber>
-          {(newLocation) => {
-            const {
-                children,
-                render,
-                component:Component,
-                pattern,
-                exactly
-            } = this.props
-
-            const { match:matchContext } = this.context
-            const parent = matchContext && matchContext.parent
-            const newMatch = matchPattern(pattern, newLocation, exactly, parent)
-
-            let match, location
-
-            if (newMatch) {  // if this was a change to this tab
-              match = newMatch  // proceed normally
-              location = newLocation
-              this.oldMatch = match
-              this.oldLocation = location
-            }
-            else if (this.oldMatch) {  // the change was outside this tab group
-              match = this.oldMatch  // keep showing the page you were on
-              location = this.oldLocation
-            }
-            else {  // if there is no old page, try matching in the state
-              const currentPage = this.getCurrentPage()
-              match = matchPattern(pattern, {...newLocation, pathname: currentPage.url}, exactly, parent)
-              location = newLocation
-              this.oldMatch = match
-              this.oldLocation = location
-            }
-
-            const props = { ...match, location, pattern }
-            return (
-                <RegisterMatch match={match}>
-                  <MatchProvider match={match}>
-                    {children ? (
-                            children({ matched: !!match, ...props })
-                        ) : match ? (
-                                render ? (
-                                        render(props)
-                                    ) : (
-                                        <Component {...props}/>
-                                    )
-                            ) : null}
-                  </MatchProvider>
-                </RegisterMatch>
-            )
-          }}
-        </LocationSubscriber>
+      <RegisterMatch match={match}>
+        <MatchProvider match={match}>
+          {children ? (
+              children({ matched: !!match, ...props })
+            ) : match ? (
+                  render ? (
+                          render(props)
+                      ) : (
+                          <Component {...props}/>
+                      )
+              ) : null}
+        </MatchProvider>
+      </RegisterMatch>
     )
   }
 }

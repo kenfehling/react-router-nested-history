@@ -7,7 +7,7 @@ describe('Container', () => {
 
   it('', () => {
     const container = (
-      <WithContext context={{groupIndex: 0}}>
+      <WithContext context={{groupIndex: 0, location: {pathname: '/a/2'}}}>
         <Container initialUrl="/a" pattern="/a/:id">
           <div>Content</div>
         </Container>

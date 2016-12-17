@@ -6,15 +6,20 @@ export default class HistoryLink extends Component {
   static propTypes = Link.propTypes
 
   static contextTypes = {
-    ...Link.contextTypes,
     groupIndex: PropTypes.number.isRequired,
     containerIndex: PropTypes.number.isRequired
   }
 
+  onClick(event) {
+    const {to} = this.props
+    const {containerIndex, groupIndex} = this.context
+    push(groupIndex, containerIndex, to);
+    event.preventDefault()
+  }
+
   render() {
     const {to, children} = this.props
-    const {containerIndex, groupIndex} = this.context
-    return (<Link to={to} onClick={() => push(groupIndex, containerIndex, to)}>
+    return (<Link to={to} onClick={this.onClick.bind(this)}>
       {children}
     </Link>)
   }

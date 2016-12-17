@@ -1,4 +1,4 @@
-import type { Page } from '../types';
+import type { Page } from '../types'
 
 /**
  * Switch tab using mobile-app like behavior (with a default tab: A)
@@ -13,9 +13,9 @@ import type { Page } from '../types';
  * @param Cf {Page[]} forward pages
  * @return {Array} - [Page[], Page, Page[]] representing browser history
  */
-export const A_to_B = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [[...Ab, A, ...Bb], B, Bf];
-export const B_to_C = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [[...Ab, A, ...Cb], C, Cf];
-export const B_to_A = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [Ab, A, Af];
+export const A_to_B = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [[...Ab, A, ...Bb], B, Bf]
+export const B_to_C = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [[...Ab, A, ...Cb], C, Cf]
+export const B_to_A = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [Ab, A, Af]
 
 /**
  * Load from a URL
@@ -25,7 +25,7 @@ export const B_to_A = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [Ab, A, Af];
  * @param B1 {Page} any other matching page
  * @return {Array} - [Page[], Page, Page[]] representing browser history
  */
-export const load_A = ([A, A1], [B, B1]) => [[], A, []];
-export const load_A1 = ([A, A1], [B, B1]) => [[A], A1, []];
-export const load_B = ([A, A1], [B, B1]) => [[A], B, []];
-export const load_B1 = ([A, A1], [B, B1]) => [[A, B], B1, []];
+export const load_A = ([A, A1], [B, B1]) => [[], A, []]
+export const load_A1 = ([A, A1], [B, B1]) => [[A], A1, []]
+export const load_B = ([A, A1], [B, B1]) => [[A], B, []]
+export const load_B1 = ([A, A1], [B, B1]) => [[A, B], B1, []]

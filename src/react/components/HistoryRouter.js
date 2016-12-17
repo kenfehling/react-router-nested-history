@@ -1,24 +1,45 @@
-import React, { PropTypes } from 'react'
+import React, { Component, PropTypes } from 'react'
+import { connect } from "react-redux"
+import store from '../store'
 import StaticRouter from 'react-router/StaticRouter'
 import History from 'react-router/History'
-import createHistory from './createHistory';
+import createBrowserHistory from 'history/createBrowserHistory'
+import createMemoryHistory from "history/createMemoryHistory"
+import { listenToLocation, locationChanged } from "../actions/LocationActions"
+import { canUseDOM } from 'history/ExecutionEnvironment'
+import {loadFromUrl} from "../../main";
 
-const BrowserRouter = ({
-    basename,
-    forceRefresh,
-    getUserConfirmation,
-    keyLength,
-    ...routerProps
-}) => (
-    <History
-        createHistory={createHistory}
-        historyOptions={{
+class HistoryRouter extends Component {
+  constructor(props) {
+    super(props)
+    const {listenToLocation, locationChanged} = props
+    if (canUseDOM) {
+      locationChanged(window.location)
+    }
+    listenToLocation()
+  }
+
+  componentDidMount() {
+    loadFromUrl(window.location.pathname)
+  }
+
+  render() {
+    const {
       basename,
-      forceRefresh,
-      getUserConfirmation,
-      keyLength
-    }}
-    >
+          forceRefresh,
+          getUserConfirmation,
+          keyLength,
+    ...routerProps
+    } = this.props
+
+    return (<History
+            createHistory={canUseDOM ? createBrowserHistory : createMemoryHistory}
+            historyOptions={{
+              basename,
+              forceRefresh,
+              getUserConfirmation,
+              keyLength
+            }}>
       {({ history, action, location }) => (
           <StaticRouter
               action={action}
@@ -30,10 +51,11 @@ const BrowserRouter = ({
               {...routerProps}
           />
       )}
-    </History>
-)
+    </History>)
+  }
+}
 
-BrowserRouter.propTypes = {
+HistoryRouter.propTypes = {
   basename: PropTypes.string,
   forceRefresh: PropTypes.bool,
   getUserConfirmation: PropTypes.func,
@@ -44,4 +66,13 @@ BrowserRouter.propTypes = {
   ])
 }
 
-export default BrowserRouter
+if (!canUseDOM) {  // allow passing location in non-browser enviroment
+  HistoryRouter.propTypes.location = PropTypes.string
+}
+
+const ConnectedHistoryRouter = connect(
+  state => ({}),
+  { listenToLocation, locationChanged }
+)(HistoryRouter)
+
+export default props => <ConnectedHistoryRouter store={store} {...props} />
