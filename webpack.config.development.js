@@ -1,13 +1,13 @@
 'use strict';
 
 var webpack = require('webpack');
-var baseConfig = require('./webpack.config.base');
+var base = require('./webpack.config.base');
+var _ = require("lodash");
 
-var config = Object.create(baseConfig);
-config.plugins = [
-  new webpack.DefinePlugin({
-    'process.env.NODE_ENV': JSON.stringify('development')
-  })
-];
-
-module.exports = config;
+module.exports = _.merge(base, {
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('development')
+    })
+  ]
+});
