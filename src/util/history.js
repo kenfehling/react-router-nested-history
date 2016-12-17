@@ -159,7 +159,9 @@ export function reducer(state:?State, action:Object) : State {
   else {
     switch (action.type) {
       case LOAD_FROM_URL: {
-        return loadFromUrl(state, action.url)
+        const newState = loadFromUrl(state, action.url)
+        const activeGroup = findGroupWithCurrentUrl(newState, action.url)
+        return {...newState, activeGroupIndex: activeGroup.index}
       }
       case SWITCH_TO_CONTAINER: {
         const newState:State = _.cloneDeep(state)
@@ -261,3 +263,6 @@ export const getGroupState = (actions:Object[], groupIndex:number) => {
   const indexedStackOrder:number[] = getIndexedContainerStackOrder(actions, groupIndex)
   return {activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder}
 }
+
+export const findGroupWithCurrentUrl = (state:State, url:string) =>
+  _.find(state.groups, (g:Group) : Group => g.history.current.url === url)

@@ -70,11 +70,7 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
   return existingContainer || create()
 }
 
-const addListener = (fn: Function, generateData: Function) => {
-  const f = () => fn(generateData())
-  f()
-  return store.subscribe(f)
-}
+export const loadFromUrl = (url:string) => store.dispatch(actions.loadFromUrl(url))
 
 export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
 
@@ -105,8 +101,13 @@ export const go = (n:number=1) => store.dispatch(actions.go(n))
 export const back = (n:number=1) => store.dispatch(actions.back(n))
 export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 
-export const getCurrentPage = (groupIndex:number) =>
-    util.getCurrentPage(getDerivedState(), groupIndex)
+export const getCurrentPageInGrouo = (groupIndex:number) =>
+  util.getCurrentPage(getDerivedState(), groupIndex)
+
+export const getCurrentPage = () => {
+  const state = getDerivedState()
+  return util.getCurrentPage(state, state.activeGroupIndex)
+}
 
 function runSteps(steps:Step[]) {
   if (steps.length === 1) {

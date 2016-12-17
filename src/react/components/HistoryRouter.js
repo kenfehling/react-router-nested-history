@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { connect } from "react-redux";
+import { connect } from "react-redux"
 import store from '../store'
 import StaticRouter from 'react-router/StaticRouter'
 import History from 'react-router/History'
@@ -7,6 +7,7 @@ import createBrowserHistory from 'history/createBrowserHistory'
 import createMemoryHistory from "history/createMemoryHistory"
 import { listenToLocation, locationChanged } from "../actions/LocationActions"
 import { canUseDOM } from 'history/ExecutionEnvironment'
+import {loadFromUrl} from "../../main";
 
 class HistoryRouter extends Component {
   constructor(props) {
@@ -18,6 +19,10 @@ class HistoryRouter extends Component {
     listenToLocation()
   }
 
+  componentDidMount() {
+    loadFromUrl(window.location.pathname)
+  }
+
   render() {
     const {
       basename,
@@ -25,7 +30,7 @@ class HistoryRouter extends Component {
           getUserConfirmation,
           keyLength,
     ...routerProps
-    } = this.props;
+    } = this.props
 
     return (<History
             createHistory={canUseDOM ? createBrowserHistory : createMemoryHistory}
@@ -59,6 +64,10 @@ HistoryRouter.propTypes = {
     PropTypes.func,
     PropTypes.node
   ])
+}
+
+if (!canUseDOM) {  // allow passing location in non-browser enviroment
+  HistoryRouter.propTypes.location = PropTypes.string
 }
 
 const ConnectedHistoryRouter = connect(

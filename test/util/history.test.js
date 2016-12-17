@@ -43,7 +43,7 @@ describe('history utils', () => {
     const perform = (action): State => util.reducer(null, action)
     const performAll = (actions): State => util.reduceAll(null, actions)
 
-    it('loads 2 groups with the proper starting URL', () => {
+    it.only('loads 2 groups with the proper starting URL', () => {
       const state = performAll([
         ...createContainers,
         ...createContainers2,
@@ -51,6 +51,7 @@ describe('history utils', () => {
       ])
       expect(state.groups[0].history.current.url).toEqual('/a')
       expect(state.groups[1].history.current.url).toEqual('/e')
+      expect(state.activeGroupIndex).toEqual(1)
     })
   })
 

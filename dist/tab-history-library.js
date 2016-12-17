@@ -131,7 +131,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.getCurrentPage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.addChangeListener = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
+	exports.getCurrentPage = exports.getCurrentPageInGrouo = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
 
 	var _ActionTypes = __webpack_require__(2);
 
@@ -232,12 +232,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return existingContainer || create();
 	};
 
-	var addListener = function addListener(fn, generateData) {
-	  var f = function f() {
-	    return fn(generateData());
-	  };
-	  f();
-	  return _store2.default.subscribe(f);
+	var loadFromUrl = exports.loadFromUrl = function loadFromUrl(url) {
+	  return _store2.default.dispatch(actions.loadFromUrl(url));
 	};
 
 	var addChangeListener = exports.addChangeListener = function addChangeListener(fn) {
@@ -283,8 +279,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.dispatch(actions.forward(n));
 	};
 
-	var getCurrentPage = exports.getCurrentPage = function getCurrentPage(groupIndex) {
+	var getCurrentPageInGrouo = exports.getCurrentPageInGrouo = function getCurrentPageInGrouo(groupIndex) {
 	  return util.getCurrentPage(getDerivedState(), groupIndex);
+	};
+
+	var getCurrentPage = exports.getCurrentPage = function getCurrentPage() {
+	  var state = getDerivedState();
+	  return util.getCurrentPage(state, state.activeGroupIndex);
 	};
 
 	function runSteps(steps) {
@@ -1346,7 +1347,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.getGroupState = exports.deriveState = exports.reduceAll = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.push = undefined;
+	exports.findGroupWithCurrentUrl = exports.getGroupState = exports.deriveState = exports.reduceAll = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.push = undefined;
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -1544,17 +1545,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    switch (action.type) {
 	      case _ActionTypes.LOAD_FROM_URL:
 	        {
-	          return (0, _behaviorist.loadFromUrl)(state, action.url);
+	          var newState = (0, _behaviorist.loadFromUrl)(state, action.url);
+	          var activeGroup = findGroupWithCurrentUrl(newState, action.url);
+	          return _extends({}, newState, { activeGroupIndex: activeGroup.index });
 	        }
 	      case _ActionTypes.SWITCH_TO_CONTAINER:
 	        {
-	          var newState = _.cloneDeep(state);
-	          var _group = newState.groups[action.groupIndex];
+	          var _newState = _.cloneDeep(state);
+	          var _group = _newState.groups[action.groupIndex];
 	          var fromContainer = _group.containers[_group.history.current.containerIndex];
-	          var toContainer = getContainer(newState, action.groupIndex, action.containerIndex);
+	          var toContainer = getContainer(_newState, action.groupIndex, action.containerIndex);
 	          _group.history = (0, _behaviorist.switchContainer)(fromContainer, toContainer, _group.containers[0]);
-	          newState.activeGroupIndex = _group.index;
-	          return newState;
+	          _newState.activeGroupIndex = _group.index;
+	          return _newState;
 	        }
 	      case _ActionTypes.PUSH:
 	        {
@@ -1663,6 +1666,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var stackOrder = getContainerStackOrder(actions, groupIndex);
 	  var indexedStackOrder = getIndexedContainerStackOrder(actions, groupIndex);
 	  return { activeContainer: activeContainer, activeGroup: activeGroup, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder };
+	};
+
+	var findGroupWithCurrentUrl = exports.findGroupWithCurrentUrl = function findGroupWithCurrentUrl(state, url) {
+	  return _.find(state.groups, function (g) {
+	    return g.history.current.url === url;
+	  });
 	};
 
 /***/ },
@@ -30358,8 +30367,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	          ), div); // Initialize the Containers in this group
 	        } // (since most tab libraries lazy load tabs)
 	      });
-
-	      this.update();
 	    }
 	  }, {
 	    key: 'componentWillReceiveProps',
@@ -48646,6 +48653,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ExecutionEnvironment = __webpack_require__(13);
 
+	var _main = __webpack_require__(1);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -48675,6 +48684,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(HistoryRouter, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      (0, _main.loadFromUrl)(window.location.pathname);
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var _props = this.props,
@@ -48721,6 +48735,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  keyLength: _react.PropTypes.number,
 	  children: _react.PropTypes.oneOfType([_react.PropTypes.func, _react.PropTypes.node])
 	};
+
+	if (!_ExecutionEnvironment.canUseDOM) {
+	  // allow passing location in non-browser enviroment
+	  HistoryRouter.propTypes.location = _react.PropTypes.string;
+	}
 
 	var ConnectedHistoryRouter = (0, _reactRedux.connect)(function (state) {
 	  return {};
