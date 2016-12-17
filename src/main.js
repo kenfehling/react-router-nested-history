@@ -53,14 +53,14 @@ export const getNextGroupIndex = () => {
   }
 }
 
-const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]) : Container => {
-  store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns))
+const createContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
+  store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns, useDefault))
   const state:State = getDerivedState()
   return _.last(state.groups[groupIndex].containers)
 }
 
-export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[]) : Container => {
-  const create = () : Container => createContainer(groupIndex, initialUrl, patterns)
+export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
+  const create = () : Container => createContainer(groupIndex, initialUrl, patterns, useDefault)
   const actions = store.getState()
   if (_.isEmpty(actions)) {
     return create()
@@ -88,9 +88,9 @@ function isActiveContainer(groupIndex:number, containerIndex:number) {
   return activeGroup.index === groupIndex && activeContainer.index === containerIndex
 }
 
-export const switchToContainer = (groupIndex:number, containerIndex:number) => {
+export const switchToContainer = (groupIndex:number, containerIndex:number, useDefault:boolean) => {
   if (!isActiveContainer(groupIndex, containerIndex)) {
-    store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
+    store.dispatch(actions.switchToContainer(groupIndex, containerIndex, useDefault))
   }
 }
 

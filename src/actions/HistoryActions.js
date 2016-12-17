@@ -2,11 +2,12 @@
 
 import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes"
 
-export const createContainer = (groupIndex:number, initialUrl:string, urlPatterns:string[]) => ({
+export const createContainer = (groupIndex:number, initialUrl:string, urlPatterns:string[], useDefault:boolean) => ({
   type: CREATE_CONTAINER,
   groupIndex,
   initialUrl,
-  urlPatterns
+  urlPatterns,
+  useDefault
 })
 
 export const loadFromUrl = (url:string) => ({
@@ -14,10 +15,11 @@ export const loadFromUrl = (url:string) => ({
   url
 })
 
-export const switchToContainer = (groupIndex:number, containerIndex:number) => ({
+export const switchToContainer = (groupIndex:number, containerIndex:number, useDefault:boolean) => ({
   type: SWITCH_TO_CONTAINER,
   groupIndex,
-  containerIndex
+  containerIndex,
+  useDefault
 })
 
 export const push = (url: string) => ({

@@ -84,7 +84,8 @@ export function createSteps(actions:Object[]) : Step[] {
   const currentState:State = deriveState(actions)
   switch(currentState.lastAction.type) {
     case LOAD_FROM_URL: {
-      const i = _.findLastIndex(actions, a => !_.includes([CREATE_CONTAINER, LOAD_FROM_URL], a.type))
+      const i = _.findLastIndex(actions, a =>
+          !_.includes([CREATE_CONTAINER, LOAD_FROM_URL], a.type))
       const previousState:?State= i < 0 ? null : deriveState(actions.slice(0, i + 1))
       return diffStateToSteps(previousState, currentState)
     }
@@ -116,7 +117,7 @@ export const constructNewHistory = (state:State, newCurrentId:number) : State =>
 export function reducer(state:?State, action:Object) : State {
   switch (action.type) {
     case CREATE_CONTAINER: {
-      const {groupIndex=0, initialUrl, urlPatterns} = action
+      const {groupIndex=0, initialUrl, urlPatterns, useDefault=true} = action
       const id = (state ? state.lastPageId : 0) + 1
       const existingGroup:?Group = state ? state.groups[groupIndex] : null
       const containerIndex = existingGroup ? existingGroup.containers.length : 0
@@ -133,7 +134,7 @@ export function reducer(state:?State, action:Object) : State {
         history,
         groupIndex,
         index: containerIndex,
-        isDefault: containerIndex === 0  // TODO: Add option to not have a default
+        isDefault: containerIndex === 0 && useDefault
       }
 
       const group = existingGroup ? {
@@ -147,7 +148,11 @@ export function reducer(state:?State, action:Object) : State {
 
       return {
         ...(state ? state : {}),
-        groups: state ? [...state.groups.slice(0, groupIndex), group, ...state.groups.slice(groupIndex + 1)] : [group],
+        groups: state ? [
+          ...state.groups.slice(0, groupIndex),
+          group,
+          ...state.groups.slice(groupIndex + 1)
+        ] : [group],
         activeGroupIndex: state ? state.activeGroupIndex : 0,
         lastPageId: id
       }
@@ -164,11 +169,14 @@ export function reducer(state:?State, action:Object) : State {
         return {...newState, activeGroupIndex: activeGroup.index}
       }
       case SWITCH_TO_CONTAINER: {
+        const {groupIndex, containerIndex, useDefault} = action
         const newState:State = _.cloneDeep(state)
-        const group:Group = newState.groups[action.groupIndex]
-        const fromContainer:Container = group.containers[group.history.current.containerIndex]
-        const toContainer:Container = getContainer(newState, action.groupIndex, action.containerIndex)
-        group.history = switchContainer(fromContainer, toContainer, group.containers[0])
+        const group:Group = newState.groups[groupIndex]
+        const oldContainerIndex = group.history.current.containerIndex
+        const fromContainer:Container = group.containers[oldContainerIndex]
+        const toContainer:Container = getContainer(newState, groupIndex, containerIndex)
+        const defaultContainer:?Container = useDefault ? group.containers[0] : null
+        group.history = switchContainer(fromContainer, toContainer, defaultContainer)
         newState.activeGroupIndex = group.index
         return newState
       }

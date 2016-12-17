@@ -59,6 +59,7 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
     <tr>
         <th>name</th>
         <th>type</th>
+        <th>default</th>
         <th>required</th>
         <th>description</th>
     </tr>
@@ -67,6 +68,7 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
         <tr>
           <td>currentContainerIndex</td>
           <td>number</td>
+          <td></td>
           <td align="center"></td>
           <td>Allows you to set the index of the active container</td>
         </tr>
@@ -74,7 +76,15 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>onContainerSwitch</td>
           <td>Function</td>
           <td></td>
+          <td></td>
           <td>Runs when a container is switched (typically useful when loading from a URL (deep link/bookmark)</td>
+        </tr>
+        <tr>
+          <td>useDefaultContainer</td>
+          <td>boolean</td>
+          <td>true</td>
+          <td></td>
+          <td>Consider the first container in the group as the default</td>
         </tr>
     </tbody>   
 </table>

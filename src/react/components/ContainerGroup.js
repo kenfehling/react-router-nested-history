@@ -30,18 +30,25 @@ function getChildren(component) {
 class ContainerGroup extends Component {
   static childContextTypes = {
     groupIndex: PropTypes.number.isRequired,
-    location: PropTypes.object.isRequired
+    location: PropTypes.object.isRequired,
+    useDefaultContainer: PropTypes.bool
   }
 
   static propTypes = {
     currentContainerIndex: PropTypes.number.isRequired,
-    onContainerSwitch: PropTypes.func
+    onContainerSwitch: PropTypes.func,
+    useDefaultContainer: PropTypes.bool
+  }
+
+  static defaultProps = {
+    useDefaultContainer: true
   }
 
   getChildContext() {
     return {
       groupIndex: this.groupIndex,
-      location: this.props.location
+      location: this.props.location,
+      useDefaultContainer: this.props.useDefaultContainer
     }
   }
 
@@ -89,8 +96,9 @@ class ContainerGroup extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.currentContainerIndex !== this.props.currentContainerIndex) {
-      switchToContainer(this.groupIndex, newProps.currentContainerIndex)
+    const {currentContainerIndex, useDefaultContainer} = newProps
+    if (currentContainerIndex !== this.props.currentContainerIndex) {
+      switchToContainer(this.groupIndex, currentContainerIndex, useDefaultContainer)
     }
     this.update()
   }
