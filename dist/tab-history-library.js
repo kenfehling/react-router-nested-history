@@ -289,6 +289,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	function runSteps(steps) {
+
+	  console.log(steps);
+
 	  if (steps.length === 1) {
 	    var _steps$;
 

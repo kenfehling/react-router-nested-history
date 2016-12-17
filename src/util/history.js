@@ -250,7 +250,7 @@ export function getActiveContainer(group:Group):Container {
 }
 
 export function getCurrentPage(state:State, groupIndex:number) {
-  return state.groups[groupIndex].history.current;
+  return state.groups[groupIndex].history.current
 }
 
 export const getGroupState = (actions:Object[], groupIndex:number) => {
@@ -264,5 +264,5 @@ export const getGroupState = (actions:Object[], groupIndex:number) => {
   return {activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder}
 }
 
-export const findGroupWithCurrentUrl = (state:State, url:string) =>
-  _.find(state.groups, (g:Group) : Group => g.history.current.url === url)
+export const findGroupWithCurrentUrl = (state:State, url:string) : Group =>
+  _.find(state.groups, (g:Group) : boolean => g.history.current.url === url)
