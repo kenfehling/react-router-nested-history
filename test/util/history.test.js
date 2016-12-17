@@ -5,7 +5,7 @@ declare var it:any
 declare var expect:any
 import * as util from '../../src/util/history'
 import { push, back, forward, go } from '../../src/browserFunctions'
-import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD } from "../../src/constants/ActionTypes"
+import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, POPSTATE } from "../../src/constants/ActionTypes"
 import type { State } from '../../src/types'
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
@@ -122,6 +122,133 @@ describe('history utils', () => {
         {type: LOAD_FROM_URL, url: '/b'}
       ]
       expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([1, 0, 2])
+    })
+
+    it('pushes page', () => {
+      const result = perform({type: PUSH, url: '/b/2'})
+      expect(result.groups[0].history.back.length).toBe(3)
+      expect(result.groups[0].history.back[0].url).toBe('/a')
+      expect(result.groups[0].history.back[1].url).toBe('/a/1')
+      expect(result.groups[0].history.back[2].url).toBe('/b')
+      expect(result.groups[0].history.current.url).toBe('/b/2')
+      expect(result.groups[0].history.current.id).toBe(5)
+      expect(result.groups[0].history.current.containerIndex).toBe(1)
+      expect(result.lastPageId).toBe(5)
+    })
+
+    it('switches container', () => {
+      const result = perform({type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2})
+      expect(result.groups[0].history.back.length).toBe(1)
+      expect(result.groups[0].history.back[0].url).toBe('/a')
+      expect(result.groups[0].history.current.url).toBe('/a/1')
+      expect(result.groups[0].history.current.id).toBe(4)
+      expect(result.groups[0].history.current.containerIndex).toBe(0)
+      expect(result.lastPageId).toBe(4)
+    })
+
+    it('switches container(2)', () => {
+      const result = perform({type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2})
+      expect(result.groups[0].history.back.length).toBe(2)
+      expect(result.groups[0].history.back[0].url).toBe('/a')
+      expect(result.groups[0].history.back[1].url).toBe('/a/1')
+      expect(result.groups[0].history.current.url).toBe('/c')
+      expect(result.groups[0].history.current.id).toBe(3)
+      expect(result.groups[0].history.current.containerIndex).toBe(2)
+      expect(result.lastPageId).toBe(4)
+    })
+
+    it('goes back in history', () => {
+      const result = performAll([
+        {type: PUSH, url: '/b/1'},
+        {type: BACK, n: 2}
+      ])
+      expect(result.groups[0].history.back.length).toBe(1)
+      expect(result.groups[0].history.back[0].url).toBe('/a')
+      expect(result.groups[0].history.current.url).toBe('/a/1')
+      expect(result.groups[0].history.current.id).toBe(4)
+      expect(result.groups[0].history.forward.length).toBe(2)
+      expect(result.groups[0].history.forward[0].url).toBe('/b')
+      expect(result.groups[0].history.forward[1].url).toBe('/b/1')
+      expect(result.groups[0].history.current.containerIndex).toBe(0)
+      expect(result.lastPageId).toBe(5)
+    })
+
+    it('goes forward in history', () => {
+      const result = performAll([
+        {type: PUSH, url: '/b/1'},
+        {type: BACK, n: 2},
+        {type: FORWARD, n: 2}
+      ])
+      expect(result.groups[0].history.back.length).toBe(3)
+      expect(result.groups[0].history.back[0].url).toBe('/a')
+      expect(result.groups[0].history.back[1].url).toBe('/a/1')
+      expect(result.groups[0].history.back[2].url).toBe('/b')
+      expect(result.groups[0].history.current.url).toBe('/b/1')
+      expect(result.groups[0].history.current.id).toBe(5)
+      expect(result.groups[0].history.forward.length).toBe(0)
+      expect(result.groups[0].history.current.containerIndex).toBe(1)
+      expect(result.lastPageId).toBe(5)
+    })
+
+    it('goes back N pages in history', () => {
+
+    })
+
+    it('goes forward N pages in history', () => {
+
+    })
+
+    it('correctly updates history from popstate', () => {
+      const result = performAll([
+        {type: PUSH, url: '/b/1'},
+        {type: BACK, n: 2},
+        {type: POPSTATE, id: 5}
+      ])
+      expect(result.groups[0].history.back.length).toBe(3)
+      expect(result.groups[0].history.back[0].url).toBe('/a')
+      expect(result.groups[0].history.back[1].url).toBe('/a/1')
+      expect(result.groups[0].history.back[2].url).toBe('/b')
+      expect(result.groups[0].history.current.url).toBe('/b/1')
+      expect(result.groups[0].history.current.id).toBe(5)
+      expect(result.groups[0].history.forward.length).toBe(0)
+      expect(result.groups[0].history.current.containerIndex).toBe(1)
+      expect(result.lastPageId).toBe(5)
+    })
+  })
+
+  describe('actions', () => {
+    it('switches container, goes back, switches container back', () => {
+      const actions = [
+        ...createContainers,
+        {type: PUSH, url: '/a/1'},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 0},
+        {type: BACK},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 0}
+      ]
+      const result = util.deriveState(actions)
+      expect(result.groups[0].history.back.length).toBe(0)
+      expect(result.groups[0].history.current.url).toBe('/a')
+      expect(result.groups[0].history.current.id).toBe(1)
+      expect(result.groups[0].history.forward.length).toBe(1)
+      expect(result.groups[0].history.forward[0].url).toBe('/a/1')
+      expect(result.groups[0].history.forward[0].id).toBe(4)
+      expect(result.groups[0].history.current.containerIndex).toBe(0)
+      expect(result.lastPageId).toBe(4)
+    })
+
+    it('switches group without affecting other group', () => {
+      const actions = [
+        ...createContainers,
+        ...createContainers2,
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 1, containerIndex: 1}
+      ]
+      const result = util.deriveState(actions)
+      expect(result.activeGroupIndex).toBe(1)
+      expect(result.groups[0].history.current.containerIndex).toBe(2)
+      expect(result.groups[1].history.current.containerIndex).toBe(1)
     })
   })
 

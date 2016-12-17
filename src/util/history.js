@@ -197,8 +197,14 @@ export function reducer(state:?State, action:Object) : State {
   return state
 }
 
-export const reduceAll = (state:?State, actions:Object[]) : State =>
-    actions.reduce(reducer, state)
+export const reduceAll = (state:?State, actions:Object[]) : State => {
+  if (actions.length === 0) {
+    throw new Error('No action history')
+  }
+  else {
+    return actions.reduce(reducer, state)
+  }
+}
 
 export const deriveState = (actions:Object[]) : State => {
   if (actions.length === 0) {

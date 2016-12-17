@@ -30,6 +30,7 @@
     "promise-queue": "^2.2.3",
     "react-redux": "^4.4.6",
     "redux": "^3.6.0",
+    "redux-persist": "^4.0.0-beta2",
     "redux-thunk": "^2.1.0",
     "warning": "^3.0.0"
   },

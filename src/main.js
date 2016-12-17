@@ -19,7 +19,9 @@ const queue = new Queue(maxConcurrent, maxQueue)
 const needsPopListener = [browser.back, browser.forward, browser.go]
 let unlisten
 
-const getDerivedState = () : State => util.deriveState(store.getState())
+const getActions = () : Object[] => store.getState().actions
+const getDerivedState = () : State => util.deriveState(getActions())
+
 
 const startListening = () => {
   unlisten = listen(location => {
@@ -43,7 +45,7 @@ const startListeningPromise = () => new Promise(resolve => {
 startListening()
 
 export const getNextGroupIndex = () => {
-  const actions = store.getState()
+  const actions = getActions()
   if (_.isEmpty(actions)) {
     return 0
   }
@@ -61,7 +63,7 @@ const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]
 
 export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
   const create = () : Container => createContainer(groupIndex, initialUrl, patterns, useDefault)
-  const actions = store.getState()
+  const actions = getActions()
   if (_.isEmpty(actions)) {
     return create()
   }
@@ -79,7 +81,7 @@ export const loadFromUrl = (url:string) => store.dispatch(actions.loadFromUrl(ur
 export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
 
 export const getGroupState = (groupIndex:number) =>
-    util.getGroupState(store.getState(), groupIndex)
+    util.getGroupState(getActions(), groupIndex)
 
 function isActiveContainer(groupIndex:number, containerIndex:number) {
   const state = getDerivedState()
@@ -126,7 +128,7 @@ function runStep(step:Step) {
 }
 
 store.subscribe(() => {
-  const actions = store.getState()
+  const actions = getActions()
   const state = util.deriveState(actions)
   const group = util.getActiveGroup(state)
   const current = group.history.current
