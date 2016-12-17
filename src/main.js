@@ -11,8 +11,12 @@ import store from './store'
 import * as _ from 'lodash'
 import type { Step, State, Group, Container } from './types'
 import {createLocation} from "history"
+import Queue from 'promise-queue'
 
-const needsPop = [browser.back, browser.forward, browser.go]
+const maxConcurrent = 1
+const maxQueue = Infinity
+const queue = new Queue(maxConcurrent, maxQueue)
+const needsPopListener = [browser.back, browser.forward, browser.go]
 let unlisten
 
 const getDerivedState = () : State => util.deriveState(store.getState())
@@ -109,20 +113,16 @@ export const getCurrentPage = () => {
   return util.getCurrentPage(state, state.activeGroupIndex)
 }
 
-function runSteps(steps:Step[]) {
-  if (steps.length === 1) {
-    steps[0].fn(...steps[0].args)
+function runStep(step:Step) {
+  const stepPromise = () => {
+    step.fn(...step.args)
+    return _.includes(needsPopListener, step.fn) ? listenPromise() : Promise.resolve()
   }
-  else if (steps.length > 1) {
-    const promisedSteps = steps.map(s => () => {
-      s.fn(...s.args)
-      return _.includes(needsPop, s.fn) ? listenPromise() : Promise.resolve()
-    });
-    [unlistenPromise, ...promisedSteps, startListeningPromise].reduce(
-        (p, step) => p.then(step),
-        Promise.resolve()
-    )
-  }
+  const ps = () => [unlistenPromise, stepPromise, startListeningPromise].reduce(
+    (p, step) => p.then(step),
+    Promise.resolve()
+  )
+  queue.add(ps)
 }
 
 store.subscribe(() => {
@@ -135,6 +135,6 @@ store.subscribe(() => {
     window.dispatchEvent(new CustomEvent('locationChange', {
       detail: {location: createLocation(current.url, {id: current.id})}
     }))
-    runSteps(steps)
+    steps.forEach(runStep)
   }
 })
