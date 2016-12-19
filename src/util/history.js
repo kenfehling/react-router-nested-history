@@ -62,57 +62,6 @@ export const getHistoryShiftAmountForId = (oldState:State, id:number) : number =
 export const getHistoryShiftAmountForUrl = (oldState:State, url:string) : number =>
     getHistoryShiftAmount(oldState, (p:Page) => p.url === url)
 
-/**
- * Get the difference between oldState and newState and return a list of
- * browser functions to transform the browser history from oldState to newState
- * @param oldState {Object} The original historyStore state
- * @param newState {Object} The new historyStore state
- * @returns {[Object]} An array of steps to get from old state to new state
- */
-export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
-  const group1:?Group = oldState ? oldState.groups[oldState.activeGroupIndex] : null
-  const group2:Group = newState.groups[newState.activeGroupIndex]
-  const h1:?History = group1 ? group1.history : null
-  const h2:History = group2.history
-  if (_.isEqual(h1, h2)) {
-    return []
-  }
-  return _.flatten([
-    h1 ? {fn: browser.back, args: [h1.back.length + 1]} : [],
-    _.isEmpty(h2.back) ? [] : _.map(h2.back, b => ({fn: browser.push, args: [b]})),
-    {fn: browser.push, args: [h2.current]},
-    _.isEmpty(h2.forward) ? [] : _.map(h2.forward, f => ({fn: browser.push, args: [f]})),
-    _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
-  ])
-}
-
-export function createSteps(actions:Object[]) : Step[] {
-  const currentState:State = deriveState(actions)
-  switch(currentState.lastAction.type) {
-    case LOAD_FROM_URL: {
-      const i = _.findLastIndex(actions, a =>
-          !_.includes([CREATE_CONTAINER, LOAD_FROM_URL], a.type))
-      const previousState:?State= i < 0 ? null : deriveState(actions.slice(0, i + 1))
-      return diffStateToSteps(previousState, currentState)
-    }
-    case SWITCH_TO_CONTAINER: {
-      const previousState:State = deriveState(_.initial(actions))
-      return diffStateToSteps(previousState, currentState)
-    }
-    case PUSH:
-      return [{fn: browser.push, args: [getActiveGroup(currentState).history.current]}]
-    case BACK:
-      return [{fn: browser.back, args: [currentState.lastAction.n || 1]}]
-    case FORWARD:
-      return [{fn: browser.forward, args: [currentState.lastAction.n || 1]}]
-    case GO:
-      return [{fn: browser.go, args: [currentState.lastAction.n || 1]}]
-    case CREATE_CONTAINER:
-    case POPSTATE:
-    default: return []
-  }
-}
-
 export const onpop = (state:State, id:number) : State => {
   const shiftAmount = getHistoryShiftAmountForId(state, id)
   if (shiftAmount === 0) {
@@ -197,7 +146,8 @@ export function reducer(state:?State, action:Object) : State {
         const oldContainerIndex = group.history.current.containerIndex
         const fromContainer:Container = group.containers[oldContainerIndex]
         const toContainer:Container = getContainer(newState, groupIndex, containerIndex)
-        const defaultContainer:?Container = _.find(group.containers, (c:Container) => c.isDefault)
+        const defaultContainer:?Container =
+            _.find(group.containers, (c:Container) => c.isDefault)
         group.history = switchContainer(fromContainer, toContainer, defaultContainer)
         newState.activeGroupIndex = group.index
         return newState
@@ -210,6 +160,57 @@ export function reducer(state:?State, action:Object) : State {
     }
   }
   return state
+}
+
+const createPushStep = (page:Page) => ({fn: browser.push, args: [page]})
+
+/**
+ * Get the difference between oldState and newState and return a list of
+ * browser functions to transform the browser history from oldState to newState
+ * @param oldState {Object} The original historyStore state
+ * @param newState {Object} The new historyStore state
+ * @returns {[Object]} An array of steps to get from old state to new state
+ */
+export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
+  const group1:?Group = oldState ? oldState.groups[oldState.activeGroupIndex] : null
+  const group2:Group = newState.groups[newState.activeGroupIndex]
+  const h1:?History = group1 ? group1.history : null
+  const h2:History = group2.history
+  if (_.isEqual(h1, h2)) {
+    return []
+  }
+  return _.flatten([
+    h1 ? {fn: browser.back, args: [h1.back.length + 1]} : [],
+    _.isEmpty(h2.back) ? [] : _.map(h2.back, createPushStep),
+    {fn: browser.push, args: [h2.current]},
+    _.isEmpty(h2.forward) ? [] : _.map(h2.forward, createPushStep),
+    _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
+  ])
+}
+
+export function createSteps(actions:Object[]) : Step[] {
+  const currentState:State = deriveState(actions)
+  switch(currentState.lastAction.type) {
+    case LOAD_FROM_URL: {
+      const i = _.findLastIndex(actions, a =>
+          !_.includes([CREATE_CONTAINER, LOAD_FROM_URL], a.type))
+      const previousState:?State= i < 0 ? null : deriveState(actions.slice(0, i + 1))
+      return diffStateToSteps(previousState, currentState)
+    }
+    case SWITCH_TO_CONTAINER: {
+      const previousState:State = deriveState(_.initial(actions))
+      return diffStateToSteps(previousState, currentState)
+    }
+    case PUSH:
+      return [{fn: browser.push, args: [getActiveGroup(currentState).history.current]}]
+    case BACK:
+      return [{fn: browser.back, args: [currentState.lastAction.n || 1]}]
+    case FORWARD:
+      return [{fn: browser.forward, args: [currentState.lastAction.n || 1]}]
+    case GO:
+      return [{fn: browser.go, args: [currentState.lastAction.n || 1]}]
+  }
+  return []
 }
 
 export const reduceAll = (state:?State, actions:Object[]) : State => {
@@ -245,9 +246,11 @@ export function getContainerStackOrder(actions:Object[], groupIndex:number) : Co
     if (newState.activeGroupIndex === groupIndex) {
       const newGroup:Group = newState.groups[groupIndex]
       const oldGroup:?Group = oldState ? getActiveGroup(oldState) : null
-      const oldContainerIndex:?number = oldGroup? oldGroup.history.current.containerIndex : null
+      const oldCurrent:?Page = oldGroup ? oldGroup.history.current : null
+      const oldContainerIndex:?number = oldCurrent ? oldCurrent.containerIndex : null
       const newContainerIndex:number = newGroup.history.current.containerIndex
-      if (!oldGroup || oldGroup.index !== newGroup.index || oldContainerIndex !== newContainerIndex) {
+      const groupsAreDifferent:boolean = !oldGroup || oldGroup.index !== newGroup.index
+      if (groupsAreDifferent || oldContainerIndex !== newContainerIndex) {
         const container = newGroup.containers[newContainerIndex]
         containerSwitches.push(container)
       }

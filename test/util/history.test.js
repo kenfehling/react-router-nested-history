@@ -254,10 +254,10 @@ describe('history utils', () => {
     })
   })
 
-  describe('createSteps', () => {
+  describe('creates steps', () => {
     const performAll = (actions) : State => util.deriveState(actions)
 
-    it('creates steps to init (default)', () => {
+    it('for init (default)', () => {
       const actions = [
         ...createContainers,
         {type: LOAD_FROM_URL, url: '/a'}
@@ -271,7 +271,7 @@ describe('history utils', () => {
       ])
     })
 
-    it('creates steps to init (non-default)', () => {
+    it('for init (non-default)', () => {
       const actions = [
         ...createContainers,
         {type: LOAD_FROM_URL, url: '/b'}
@@ -286,7 +286,7 @@ describe('history utils', () => {
       ])
     })
 
-    it('creates steps to init (non-default) 2', () => {
+    it('for init (non-default) 2', () => {
       const actions = [
         ...createContainers,
         {type: LOAD_FROM_URL, url: '/b/1'}
@@ -302,7 +302,7 @@ describe('history utils', () => {
       ])
     })
 
-    it('creates steps for switching a tab', () => {
+    it('for switching a tab', () => {
       const actions = [
         ...createContainers,
         {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1}
@@ -317,7 +317,7 @@ describe('history utils', () => {
       ])
     })
 
-    it('creates steps to push', () => {
+    it('for push', () => {
       const actions = [
         ...createContainers,
         {type: PUSH, url: '/a/1'}
@@ -329,7 +329,7 @@ describe('history utils', () => {
       ])
     })
 
-    it.only('creates steps for back', () => {
+    it('for back', () => {
       const actions = [
         ...createContainers,
         {type: PUSH, url: '/a/1'},
@@ -338,6 +338,19 @@ describe('history utils', () => {
       const steps = util.createSteps(actions)
       expect(steps).toEqual([
         {fn: back, args: [1]}
+      ])
+    })
+
+    it.only('for reloading a previous page', () => {
+      const actions = [
+        ...createContainers,
+        {type: LOAD_FROM_URL, url: '/a'},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+        {type: LOAD_FROM_URL, url: '/a'}
+      ]
+      const steps = util.createSteps(actions)
+      expect(steps).toEqual([
+        {fn: go, args: [-1]}
       ])
     })
   })
