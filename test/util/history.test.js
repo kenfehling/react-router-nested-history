@@ -348,9 +348,12 @@ describe('history utils', () => {
         {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
         {type: LOAD_FROM_URL, url: '/a'}
       ]
+      const state = performAll(actions)
       const steps = util.createSteps(actions)
       expect(steps).toEqual([
-        {fn: go, args: [-1]}
+        {fn: push, args: [state.groups[0].history.back[0]]},
+        {fn: push, args: [state.groups[0].history.current]},
+        {fn: back, args: [1]}
       ])
     })
   })
