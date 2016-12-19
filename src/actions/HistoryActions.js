@@ -15,11 +15,10 @@ export const loadFromUrl = (url:string) => ({
   url
 })
 
-export const switchToContainer = (groupIndex:number, containerIndex:number, useDefault:boolean) => ({
+export const switchToContainer = (groupIndex:number, containerIndex:number) => ({
   type: SWITCH_TO_CONTAINER,
   groupIndex,
-  containerIndex,
-  useDefault
+  containerIndex
 })
 
 export const push = (url: string) => ({

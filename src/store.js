@@ -1,6 +1,7 @@
 import { createStore } from 'redux'
-import reducer from './reducers'
+import { autoRehydrate } from 'redux-persist'
+import reducer, {initialState} from './reducers'
 
-const store = createStore(reducer)
+const store = createStore(reducer, initialState, autoRehydrate())
 
 export default store

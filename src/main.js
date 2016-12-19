@@ -12,6 +12,7 @@ import * as _ from 'lodash'
 import type { Step, State, Group, Container } from './types'
 import {createLocation} from "history"
 import Queue from 'promise-queue'
+import { persistStore } from 'redux-persist'
 
 const maxConcurrent = 1
 const maxQueue = Infinity
@@ -19,7 +20,9 @@ const queue = new Queue(maxConcurrent, maxQueue)
 const needsPopListener = [browser.back, browser.forward, browser.go]
 let unlisten
 
-const getDerivedState = () : State => util.deriveState(store.getState())
+const getActions = () : Object[] => store.getState().actions
+const getDerivedState = () : State => util.deriveState(getActions())
+
 
 const startListening = () => {
   unlisten = listen(location => {
@@ -43,7 +46,7 @@ const startListeningPromise = () => new Promise(resolve => {
 startListening()
 
 export const getNextGroupIndex = () => {
-  const actions = store.getState()
+  const actions = getActions()
   if (_.isEmpty(actions)) {
     return 0
   }
@@ -61,7 +64,7 @@ const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]
 
 export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
   const create = () : Container => createContainer(groupIndex, initialUrl, patterns, useDefault)
-  const actions = store.getState()
+  const actions = getActions()
   if (_.isEmpty(actions)) {
     return create()
   }
@@ -74,23 +77,23 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
   return existingContainer || create()
 }
 
-export const loadFromUrl = (url:string) => store.dispatch(actions.loadFromUrl(url))
+export const loadFromUrl = (url:string) =>
+    persistStore(store, {}, () => store.dispatch(actions.loadFromUrl(url)))
 
 export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
 
 export const getGroupState = (groupIndex:number) =>
-    util.getGroupState(store.getState(), groupIndex)
+    util.getGroupState(getActions(), groupIndex)
 
 function isActiveContainer(groupIndex:number, containerIndex:number) {
   const state = getDerivedState()
-  const activeGroup = util.getActiveGroup(state)
-  const activeContainer = util.getActiveContainer(activeGroup)
-  return activeGroup.index === groupIndex && activeContainer.index === containerIndex
+  const c = util.getActiveContainer(state)
+  return c.groupIndex === groupIndex && c.index === containerIndex
 }
 
-export const switchToContainer = (groupIndex:number, containerIndex:number, useDefault:boolean) => {
+export const switchToContainer = (groupIndex:number, containerIndex:number) => {
   if (!isActiveContainer(groupIndex, containerIndex)) {
-    store.dispatch(actions.switchToContainer(groupIndex, containerIndex, useDefault))
+    store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
 }
 
@@ -106,11 +109,11 @@ export const back = (n:number=1) => store.dispatch(actions.back(n))
 export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 
 export const getCurrentPageInGrouo = (groupIndex:number) =>
-  util.getCurrentPage(getDerivedState(), groupIndex)
+  util.getCurrentPageInGroup(getDerivedState(), groupIndex)
 
 export const getCurrentPage = () => {
   const state = getDerivedState()
-  return util.getCurrentPage(state, state.activeGroupIndex)
+  return util.getCurrentPageInGroup(state, state.activeGroupIndex)
 }
 
 function runStep(step:Step) {
@@ -126,7 +129,7 @@ function runStep(step:Step) {
 }
 
 store.subscribe(() => {
-  const actions = store.getState()
+  const actions = getActions()
   const state = util.deriveState(actions)
   const group = util.getActiveGroup(state)
   const current = group.history.current

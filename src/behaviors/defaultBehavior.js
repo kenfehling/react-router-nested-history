@@ -1,4 +1,4 @@
-import type { Page } from '../types'
+import type { Page, History } from '../types'
 
 /**
  * Switch tab using mobile-app like behavior (with a default tab: A)
@@ -11,7 +11,7 @@ import type { Page } from '../types'
  * @param Cb {Page[]} back pages
  * @param C {Page} current page
  * @param Cf {Page[]} forward pages
- * @return {Array} - [Page[], Page, Page[]] representing browser history
+ * @return {History} representing browser history
  */
 export const A_to_B = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [[...Ab, A, ...Bb], B, Bf]
 export const B_to_C = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [[...Ab, A, ...Cb], C, Cf]
@@ -23,7 +23,7 @@ export const B_to_A = ([Ab, A, Af], [Bb, B, Bf], [Cb, C, Cf]) => [Ab, A, Af]
  * @param A1 {Page} any other matching page (default tab)
  * @param B {Page} initial page
  * @param B1 {Page} any other matching page
- * @return {Array} - [Page[], Page, Page[]] representing browser history
+ * @return {History} representing browser history
  */
 export const load_A = ([A, A1], [B, B1]) => [[], A, []]
 export const load_A1 = ([A, A1], [B, B1]) => [[A], A1, []]
