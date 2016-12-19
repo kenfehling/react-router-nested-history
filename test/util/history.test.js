@@ -341,7 +341,7 @@ describe('history utils', () => {
       ])
     })
 
-    it.only('for reloading a previous page', () => {
+    it('for reloading a previous page', () => {
       const actions = [
         ...createContainers,
         {type: LOAD_FROM_URL, url: '/a'},

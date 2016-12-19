@@ -87,9 +87,8 @@ export const getGroupState = (groupIndex:number) =>
 
 function isActiveContainer(groupIndex:number, containerIndex:number) {
   const state = getDerivedState()
-  const activeGroup = util.getActiveGroup(state)
-  const activeContainer = util.getActiveContainer(activeGroup)
-  return activeGroup.index === groupIndex && activeContainer.index === containerIndex
+  const c = util.getActiveContainer(state)
+  return c.groupIndex === groupIndex && c.index === containerIndex
 }
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) => {
@@ -110,11 +109,11 @@ export const back = (n:number=1) => store.dispatch(actions.back(n))
 export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 
 export const getCurrentPageInGrouo = (groupIndex:number) =>
-  util.getCurrentPage(getDerivedState(), groupIndex)
+  util.getCurrentPageInGroup(getDerivedState(), groupIndex)
 
 export const getCurrentPage = () => {
   const state = getDerivedState()
-  return util.getCurrentPage(state, state.activeGroupIndex)
+  return util.getCurrentPageInGroup(state, state.activeGroupIndex)
 }
 
 function runStep(step:Step) {

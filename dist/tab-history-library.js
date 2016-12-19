@@ -262,9 +262,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function isActiveContainer(groupIndex, containerIndex) {
 	  var state = getDerivedState();
-	  var activeGroup = util.getActiveGroup(state);
-	  var activeContainer = util.getActiveContainer(activeGroup);
-	  return activeGroup.index === groupIndex && activeContainer.index === containerIndex;
+	  var c = util.getActiveContainer(state);
+	  return c.groupIndex === groupIndex && c.index === containerIndex;
 	}
 	
 	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
@@ -294,12 +293,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var getCurrentPageInGrouo = exports.getCurrentPageInGrouo = function getCurrentPageInGrouo(groupIndex) {
-	  return util.getCurrentPage(getDerivedState(), groupIndex);
+	  return util.getCurrentPageInGroup(getDerivedState(), groupIndex);
 	};
 	
 	var getCurrentPage = exports.getCurrentPage = function getCurrentPage() {
 	  var state = getDerivedState();
-	  return util.getCurrentPage(state, state.activeGroupIndex);
+	  return util.getCurrentPageInGroup(state, state.activeGroupIndex);
 	};
 	
 	function runStep(step) {
@@ -1357,19 +1356,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.findGroupWithCurrentUrl = exports.getGroupState = exports.deriveState = exports.reduceAll = exports.onpop = exports.diffStateToSteps = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.push = undefined;
+	exports.findGroupWithCurrentUrl = exports.getGroupState = exports.deriveState = exports.reduceAll = exports.diffStateToSteps = exports.getHistoryReplacementSteps = exports.onpop = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.push = undefined;
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
 	exports.go = go;
-	exports.createSteps = createSteps;
 	exports.reducer = reducer;
+	exports.createSteps = createSteps;
 	exports.getContainerStackOrder = getContainerStackOrder;
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	exports.getContainer = getContainer;
 	exports.getActiveGroup = getActiveGroup;
 	exports.getActiveContainer = getActiveContainer;
-	exports.getCurrentPage = getCurrentPage;
+	exports.getCurrentPageInGroup = getCurrentPageInGroup;
+	exports.getActivePage = getActivePage;
+	exports.hasSameActiveContainer = hasSameActiveContainer;
 	
 	var _ActionTypes = __webpack_require__(2);
 	
@@ -1454,59 +1455,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return p.url === url;
 	  });
 	};
-	
-	/**
-	 * Get the difference between oldState and newState and return a list of
-	 * browser functions to transform the browser history from oldState to newState
-	 * @param oldState {Object} The original historyStore state
-	 * @param newState {Object} The new historyStore state
-	 * @returns {[Object]} An array of steps to get from old state to new state
-	 */
-	var diffStateToSteps = exports.diffStateToSteps = function diffStateToSteps(oldState, newState) {
-	  var group1 = oldState ? oldState.groups[oldState.activeGroupIndex] : null;
-	  var group2 = newState.groups[newState.activeGroupIndex];
-	  var h1 = group1 ? group1.history : null;
-	  var h2 = group2.history;
-	  if (_.isEqual(h1, h2)) {
-	    return [];
-	  }
-	  return _.flatten([h1 ? { fn: browser.back, args: [h1.back.length + 1] } : [], _.isEmpty(h2.back) ? [] : _.map(h2.back, function (b) {
-	    return { fn: browser.push, args: [b] };
-	  }), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, function (f) {
-	    return { fn: browser.push, args: [f] };
-	  }), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
-	};
-	
-	function createSteps(actions) {
-	  var currentState = deriveState(actions);
-	  switch (currentState.lastAction.type) {
-	    case _ActionTypes.LOAD_FROM_URL:
-	      {
-	        var i = _.findLastIndex(actions, function (a) {
-	          return !_.includes([_ActionTypes.CREATE_CONTAINER, _ActionTypes.LOAD_FROM_URL], a.type);
-	        });
-	        var previousState = i < 0 ? null : deriveState(actions.slice(0, i + 1));
-	        return diffStateToSteps(previousState, currentState);
-	      }
-	    case _ActionTypes.SWITCH_TO_CONTAINER:
-	      {
-	        var _previousState = deriveState(_.initial(actions));
-	        return diffStateToSteps(_previousState, currentState);
-	      }
-	    case _ActionTypes.PUSH:
-	      return [{ fn: browser.push, args: [getActiveGroup(currentState).history.current] }];
-	    case _ActionTypes.BACK:
-	      return [{ fn: browser.back, args: [currentState.lastAction.n || 1] }];
-	    case _ActionTypes.FORWARD:
-	      return [{ fn: browser.forward, args: [currentState.lastAction.n || 1] }];
-	    case _ActionTypes.GO:
-	      return [{ fn: browser.go, args: [currentState.lastAction.n || 1] }];
-	    case _ActionTypes.CREATE_CONTAINER:
-	    case _ActionTypes.POPSTATE:
-	    default:
-	      return [];
-	  }
-	}
 	
 	var onpop = exports.onpop = function onpop(state, id) {
 	  var shiftAmount = getHistoryShiftAmountForId(state, id);
@@ -1615,6 +1563,78 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return state;
 	}
 	
+	var createPushStep = function createPushStep(page) {
+	  return { fn: browser.push, args: [page] };
+	};
+	
+	var getHistoryReplacementSteps = exports.getHistoryReplacementSteps = function getHistoryReplacementSteps(h1, h2) {
+	  return _.flatten([h1 ? { fn: browser.back, args: [h1.back.length + 1] } : [], _.isEmpty(h2.back) ? [] : _.map(h2.back, createPushStep), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, createPushStep), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
+	};
+	
+	/**
+	 * Get the difference between oldState and newState and return a list of
+	 * browser functions to transform the browser history from oldState to newState
+	 * @param oldState {?State} The original historyStore state
+	 * @param newState {State} The new historyStore state
+	 * @returns {Step[]} An array of steps to get from old state to new state
+	 */
+	var diffStateToSteps = exports.diffStateToSteps = function diffStateToSteps(oldState, newState) {
+	  var group1 = oldState ? oldState.groups[oldState.activeGroupIndex] : null;
+	  var group2 = newState.groups[newState.activeGroupIndex];
+	  var h1 = group1 ? group1.history : null;
+	  var h2 = group2.history;
+	  if (_.isEqual(h1, h2)) {
+	    return [];
+	  }
+	  if (!oldState) {
+	    return getHistoryReplacementSteps(h1, h2);
+	  }
+	  var shiftAmount = getHistoryShiftAmount(oldState, function (p) {
+	    return p.id === h2.current.id;
+	  });
+	  if (shiftAmount !== 0) {
+	    return [{ fn: browser.go, args: [shiftAmount] }];
+	  } else if (hasSameActiveContainer(oldState, newState)) {
+	    return [{ fn: browser.push, args: [h2.current] }];
+	  } else {
+	    return getHistoryReplacementSteps(h1, h2);
+	  }
+	};
+	
+	function createSteps(actions) {
+	  var newState = deriveState(actions);
+	  switch (newState.lastAction.type) {
+	    case _ActionTypes.LOAD_FROM_URL:
+	      {
+	        var i = _.findLastIndex(actions, function (a) {
+	          return !_.includes([_ActionTypes.CREATE_CONTAINER, _ActionTypes.LOAD_FROM_URL], a.type);
+	        });
+	        var oldState = i < 0 ? null : deriveState(actions.slice(0, i + 1));
+	        var oldUrl = oldState ? getActivePage(oldState) : null;
+	        var newUrl = getActivePage(newState);
+	        if (oldUrl === newUrl) {
+	          return []; // probably a browser refresh
+	        } else {
+	          return diffStateToSteps(null, newState); // just start over again
+	        }
+	      }
+	    case _ActionTypes.SWITCH_TO_CONTAINER:
+	      {
+	        var _oldState = deriveState(_.initial(actions));
+	        return diffStateToSteps(_oldState, newState);
+	      }
+	    case _ActionTypes.PUSH:
+	      return [{ fn: browser.push, args: [getActiveGroup(newState).history.current] }];
+	    case _ActionTypes.BACK:
+	      return [{ fn: browser.back, args: [newState.lastAction.n || 1] }];
+	    case _ActionTypes.FORWARD:
+	      return [{ fn: browser.forward, args: [newState.lastAction.n || 1] }];
+	    case _ActionTypes.GO:
+	      return [{ fn: browser.go, args: [newState.lastAction.n || 1] }];
+	  }
+	  return [];
+	}
+	
 	var reduceAll = exports.reduceAll = function reduceAll(state, actions) {
 	  if (actions.length === 0) {
 	    throw new Error('No action history');
@@ -1648,13 +1668,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      });
 	    }
 	    if (newState.activeGroupIndex === groupIndex) {
-	      var newGroup = newState.groups[groupIndex];
-	      var oldGroup = oldState ? getActiveGroup(oldState) : null;
-	      var oldContainerIndex = oldGroup ? oldGroup.history.current.containerIndex : null;
-	      var newContainerIndex = newGroup.history.current.containerIndex;
-	      if (!oldGroup || oldGroup.index !== newGroup.index || oldContainerIndex !== newContainerIndex) {
-	        var container = newGroup.containers[newContainerIndex];
-	        containerSwitches.push(container);
+	      if (!hasSameActiveContainer(oldState, newState)) {
+	        containerSwitches.push(getActiveContainer(newState));
 	      }
 	    }
 	    return newState;
@@ -1687,20 +1702,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return state.groups[state.activeGroupIndex];
 	}
 	
-	function getActiveContainer(group) {
+	function getActiveContainer(state) {
+	  var group = getActiveGroup(state);
 	  return group.containers[group.history.current.containerIndex];
 	}
 	
-	function getCurrentPage(state, groupIndex) {
+	function getCurrentPageInGroup(state, groupIndex) {
 	  return state.groups[groupIndex].history.current;
+	}
+	
+	function getActivePage(state) {
+	  return getCurrentPageInGroup(state, getActiveGroup(state).index);
+	}
+	
+	function hasSameActiveContainer(oldState, newState) {
+	  if (!oldState) return false;
+	  var o = getActiveContainer(oldState);
+	  var n = getActiveContainer(newState);
+	  return o.groupIndex !== n.groupIndex && o.index !== n.index;
 	}
 	
 	var getGroupState = exports.getGroupState = function getGroupState(actions, groupIndex) {
 	  var state = deriveState(actions);
-	  var group = state.groups[groupIndex];
-	  var currentUrl = group.history.current.url;
-	  var activeContainer = group.containers[group.history.current.containerIndex];
-	  var activeGroup = state.groups[state.activeGroupIndex];
+	  var currentUrl = getCurrentPageInGroup(state, groupIndex).url;
+	  var activeContainer = getActiveContainer(state);
+	  var activeGroup = getActiveGroup(state);
 	  var stackOrder = getContainerStackOrder(actions, groupIndex);
 	  var indexedStackOrder = getIndexedContainerStackOrder(actions, groupIndex);
 	  return { activeContainer: activeContainer, activeGroup: activeGroup, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder };
@@ -20610,7 +20636,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param Cb {Page[]} back pages
 	 * @param C {Page} current page
 	 * @param Cf {Page[]} forward pages
-	 * @return {Array} - [Page[], Page, Page[]] representing browser history
+	 * @return {History} representing browser history
 	 */
 	var A_to_B = exports.A_to_B = function A_to_B(_ref, _ref2, _ref3) {
 	  var _ref6 = _slicedToArray(_ref, 3),
@@ -20673,7 +20699,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param A1 {Page} any other matching page (default tab)
 	 * @param B {Page} initial page
 	 * @param B1 {Page} any other matching page
-	 * @return {Array} - [Page[], Page, Page[]] representing browser history
+	 * @return {History} representing browser history
 	 */
 	var load_A = exports.load_A = function load_A(_ref19, _ref20) {
 	  var _ref22 = _slicedToArray(_ref19, 2),
