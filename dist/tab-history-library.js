@@ -31784,14 +31784,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	      });
 	    }
 	  }, {
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(newProps) {
-	      var currentContainerIndex = newProps.currentContainerIndex;
-	
-	      if (currentContainerIndex !== this.props.currentContainerIndex) {
-	        (0, _main.switchToContainer)(this.groupIndex, currentContainerIndex);
+	    key: 'setCurrentContainer',
+	    value: function setCurrentContainer(index) {
+	      if (index !== this.props.currentContainerIndex) {
+	        (0, _main.switchToContainer)(this.groupIndex, index);
 	      }
 	      this.update();
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.setCurrentContainer(this.props.currentContainerIndex);
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(newProps) {
+	
+	      console.log("CWRP", newProps);
+	
+	      this.setCurrentContainer(newProps.currentContainerIndex);
 	    }
 	  }, {
 	    key: 'render',

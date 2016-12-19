@@ -67,9 +67,10 @@ describe('ContainerGroup', () => {
     }
   }
 
-  it('sho', () => {
+  it('provides indexedStackOrder', () => {
+    const windows = mount(<Windows />).find(Window).nodes
+    const indexedStackOrder = windows[0].props.indexedStackOrder
 
-    const output = mount(<Windows />)
-
+    console.log(indexedStackOrder)
   })
 })

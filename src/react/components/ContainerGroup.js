@@ -95,12 +95,22 @@ class ContainerGroup extends Component {
     })
   }
 
-  componentWillReceiveProps(newProps) {
-    const {currentContainerIndex} = newProps
-    if (currentContainerIndex !== this.props.currentContainerIndex) {
-      switchToContainer(this.groupIndex, currentContainerIndex)
+  setCurrentContainer(index) {
+    if (index !== this.props.currentContainerIndex) {
+      switchToContainer(this.groupIndex, index)
     }
     this.update()
+  }
+
+  componentDidMount() {
+    this.setCurrentContainer(this.props.currentContainerIndex)
+  }
+
+  componentWillReceiveProps(newProps) {
+
+    //console.log("CWRP", newProps)
+
+    this.setCurrentContainer(newProps.currentContainerIndex)
   }
 
   render() {
