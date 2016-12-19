@@ -38,23 +38,29 @@ export function go(oldState:State, n:number) : State {
   return go(state, nextN)
 }
 
-export const getHistoryShiftAmount = (oldState:State, newCurrentId:number) :number => {
+export const getHistoryShiftAmount = (oldState:State, pageEquals:Function) : number => {
   const group = oldState.groups[oldState.activeGroupIndex]
   const oldHistory = group.history
   if (!_.isEmpty(oldHistory.back)) {
-    const i = _.findIndex(oldHistory.back, b => b.id === newCurrentId)
+    const i = _.findIndex(oldHistory.back, pageEquals)
     if (i !== -1) {
       return 0 - (_.size(oldHistory.back) - i)
     }
   }
   if (!_.isEmpty(oldHistory.forward)) {
-    const i = _.findIndex(oldHistory.forward, b => b.id === newCurrentId)
+    const i = _.findIndex(oldHistory.forward, pageEquals)
     if (i !== -1) {
       return i + 1
     }
   }
   return 0
 }
+
+export const getHistoryShiftAmountForId = (oldState:State, id:number) : number =>
+    getHistoryShiftAmount(oldState, (p:Page) => p.id === id)
+
+export const getHistoryShiftAmountForUrl = (oldState:State, url:string) : number =>
+    getHistoryShiftAmount(oldState, (p:Page) => p.url === url)
 
 /**
  * Get the difference between oldState and newState and return a list of
@@ -95,17 +101,20 @@ export function createSteps(actions:Object[]) : Step[] {
     }
     case PUSH:
       return [{fn: browser.push, args: [getActiveGroup(currentState).history.current]}]
-    case CREATE_CONTAINER:
     case BACK:
+      return [{fn: browser.back, args: [currentState.lastAction.n || 1]}]
     case FORWARD:
+      return [{fn: browser.forward, args: [currentState.lastAction.n || 1]}]
     case GO:
+      return [{fn: browser.go, args: [currentState.lastAction.n || 1]}]
+    case CREATE_CONTAINER:
     case POPSTATE:
     default: return []
   }
 }
 
-export const constructNewHistory = (state:State, newCurrentId:number) : State => {
-  const shiftAmount = getHistoryShiftAmount(state, newCurrentId)
+export const onpop = (state:State, id:number) : State => {
+  const shiftAmount = getHistoryShiftAmountForId(state, id)
   if (shiftAmount === 0) {
     return state
   }
@@ -164,34 +173,40 @@ export function reducer(state:?State, action:Object) : State {
   else {
     switch (action.type) {
       case LOAD_FROM_URL: {
-        const newState = loadFromUrl(state, action.url)
-        const activeGroup = findGroupWithCurrentUrl(newState, action.url)
-        return {...newState, activeGroupIndex: activeGroup.index}
+        const {url} = action
+        const currentUrl = state.groups[0].history.current.url
+        if (url === currentUrl) {
+          return state
+        }
+        else {
+          const shiftAmount:number = getHistoryShiftAmountForUrl(state, url)
+          if (shiftAmount === 0) {
+            const newState = loadFromUrl(state, url)
+            const activeGroup = findGroupWithCurrentUrl(newState, url)
+            return {...newState, activeGroupIndex: activeGroup.index}
+          }
+          else {
+            return go(state, shiftAmount)
+          }
+        }
       }
       case SWITCH_TO_CONTAINER: {
-        const {groupIndex, containerIndex, useDefault} = action
+        const {groupIndex, containerIndex} = action
         const newState:State = _.cloneDeep(state)
         const group:Group = newState.groups[groupIndex]
         const oldContainerIndex = group.history.current.containerIndex
         const fromContainer:Container = group.containers[oldContainerIndex]
         const toContainer:Container = getContainer(newState, groupIndex, containerIndex)
-        const defaultContainer:?Container = useDefault ? group.containers[0] : null
+        const defaultContainer:?Container = _.find(group.containers, (c:Container) => c.isDefault)
         group.history = switchContainer(fromContainer, toContainer, defaultContainer)
         newState.activeGroupIndex = group.index
         return newState
       }
-      case PUSH: {
-        return push(state, action.url)
-      }
-      case BACK: { return {...state, ...go(state, 0 - action.n || -1)} }
+      case PUSH: return push(state, action.url)
+      case BACK: return go(state, 0 - action.n || -1)
       case FORWARD:
-      case GO: { return {...state, ...go(state, action.n || 1)} }
-      case POPSTATE: {
-        return {
-          ...state,
-          ...constructNewHistory(state, action.id)
-        }
-      }
+      case GO: return go(state, action.n || 1)
+      case POPSTATE: return onpop(state, action.id)
     }
   }
   return state

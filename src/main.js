@@ -12,6 +12,7 @@ import * as _ from 'lodash'
 import type { Step, State, Group, Container } from './types'
 import {createLocation} from "history"
 import Queue from 'promise-queue'
+import { persistStore } from 'redux-persist'
 
 const maxConcurrent = 1
 const maxQueue = Infinity
@@ -76,7 +77,8 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
   return existingContainer || create()
 }
 
-export const loadFromUrl = (url:string) => store.dispatch(actions.loadFromUrl(url))
+export const loadFromUrl = (url:string) =>
+    persistStore(store, {}, () => store.dispatch(actions.loadFromUrl(url)))
 
 export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
 
@@ -90,9 +92,9 @@ function isActiveContainer(groupIndex:number, containerIndex:number) {
   return activeGroup.index === groupIndex && activeContainer.index === containerIndex
 }
 
-export const switchToContainer = (groupIndex:number, containerIndex:number, useDefault:boolean) => {
+export const switchToContainer = (groupIndex:number, containerIndex:number) => {
   if (!isActiveContainer(groupIndex, containerIndex)) {
-    store.dispatch(actions.switchToContainer(groupIndex, containerIndex, useDefault))
+    store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
 }
 

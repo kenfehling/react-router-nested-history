@@ -96,9 +96,9 @@ class ContainerGroup extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const {currentContainerIndex, useDefaultContainer} = newProps
+    const {currentContainerIndex} = newProps
     if (currentContainerIndex !== this.props.currentContainerIndex) {
-      switchToContainer(this.groupIndex, currentContainerIndex, useDefaultContainer)
+      switchToContainer(this.groupIndex, currentContainerIndex)
     }
     this.update()
   }

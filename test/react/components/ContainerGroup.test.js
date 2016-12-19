@@ -71,6 +71,5 @@ describe('ContainerGroup', () => {
 
     const output = mount(<Windows />)
 
-    console.log(output.state())
   })
 })

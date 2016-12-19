@@ -163,6 +163,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _promiseQueue2 = _interopRequireDefault(_promiseQueue);
 	
+	var _reduxPersist = __webpack_require__(52);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -243,7 +245,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var loadFromUrl = exports.loadFromUrl = function loadFromUrl(url) {
-	  return _store2.default.dispatch(actions.loadFromUrl(url));
+	  return (0, _reduxPersist.persistStore)(_store2.default, {}, function () {
+	    return _store2.default.dispatch(actions.loadFromUrl(url));
+	  });
 	};
 	
 	var addChangeListener = exports.addChangeListener = function addChangeListener(fn) {
@@ -263,9 +267,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return activeGroup.index === groupIndex && activeContainer.index === containerIndex;
 	}
 	
-	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex, useDefault) {
+	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
 	  if (!isActiveContainer(groupIndex, containerIndex)) {
-	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex, useDefault));
+	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	  }
 	};
 	
@@ -373,12 +377,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 	
-	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex, useDefault) {
+	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
 	  return {
 	    type: _ActionTypes.SWITCH_TO_CONTAINER,
 	    groupIndex: groupIndex,
-	    containerIndex: containerIndex,
-	    useDefault: useDefault
+	    containerIndex: containerIndex
 	  };
 	};
 	
@@ -1354,7 +1357,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.findGroupWithCurrentUrl = exports.getGroupState = exports.deriveState = exports.reduceAll = exports.constructNewHistory = exports.diffStateToSteps = exports.getHistoryShiftAmount = exports.push = undefined;
+	exports.findGroupWithCurrentUrl = exports.getGroupState = exports.deriveState = exports.reduceAll = exports.onpop = exports.diffStateToSteps = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.push = undefined;
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
@@ -1422,26 +1425,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return go(state, nextN);
 	}
 	
-	var getHistoryShiftAmount = exports.getHistoryShiftAmount = function getHistoryShiftAmount(oldState, newCurrentId) {
+	var getHistoryShiftAmount = exports.getHistoryShiftAmount = function getHistoryShiftAmount(oldState, pageEquals) {
 	  var group = oldState.groups[oldState.activeGroupIndex];
 	  var oldHistory = group.history;
 	  if (!_.isEmpty(oldHistory.back)) {
-	    var i = _.findIndex(oldHistory.back, function (b) {
-	      return b.id === newCurrentId;
-	    });
+	    var i = _.findIndex(oldHistory.back, pageEquals);
 	    if (i !== -1) {
 	      return 0 - (_.size(oldHistory.back) - i);
 	    }
 	  }
 	  if (!_.isEmpty(oldHistory.forward)) {
-	    var _i = _.findIndex(oldHistory.forward, function (b) {
-	      return b.id === newCurrentId;
-	    });
+	    var _i = _.findIndex(oldHistory.forward, pageEquals);
 	    if (_i !== -1) {
 	      return _i + 1;
 	    }
 	  }
 	  return 0;
+	};
+	
+	var getHistoryShiftAmountForId = exports.getHistoryShiftAmountForId = function getHistoryShiftAmountForId(oldState, id) {
+	  return getHistoryShiftAmount(oldState, function (p) {
+	    return p.id === id;
+	  });
+	};
+	
+	var getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForUrl = function getHistoryShiftAmountForUrl(oldState, url) {
+	  return getHistoryShiftAmount(oldState, function (p) {
+	    return p.url === url;
+	  });
 	};
 	
 	/**
@@ -1484,18 +1495,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    case _ActionTypes.PUSH:
 	      return [{ fn: browser.push, args: [getActiveGroup(currentState).history.current] }];
-	    case _ActionTypes.CREATE_CONTAINER:
 	    case _ActionTypes.BACK:
+	      return [{ fn: browser.back, args: [currentState.lastAction.n || 1] }];
 	    case _ActionTypes.FORWARD:
+	      return [{ fn: browser.forward, args: [currentState.lastAction.n || 1] }];
 	    case _ActionTypes.GO:
+	      return [{ fn: browser.go, args: [currentState.lastAction.n || 1] }];
+	    case _ActionTypes.CREATE_CONTAINER:
 	    case _ActionTypes.POPSTATE:
 	    default:
 	      return [];
 	  }
 	}
 	
-	var constructNewHistory = exports.constructNewHistory = function constructNewHistory(state, newCurrentId) {
-	  var shiftAmount = getHistoryShiftAmount(state, newCurrentId);
+	var onpop = exports.onpop = function onpop(state, id) {
+	  var shiftAmount = getHistoryShiftAmountForId(state, id);
 	  if (shiftAmount === 0) {
 	    return state;
 	  } else {
@@ -1554,43 +1568,48 @@ return /******/ (function(modules) { // webpackBootstrap
 	    switch (action.type) {
 	      case _ActionTypes.LOAD_FROM_URL:
 	        {
-	          var newState = (0, _behaviorist.loadFromUrl)(state, action.url);
-	          var activeGroup = findGroupWithCurrentUrl(newState, action.url);
-	          return _extends({}, newState, { activeGroupIndex: activeGroup.index });
+	          var url = action.url;
+	
+	          var currentUrl = state.groups[0].history.current.url;
+	          if (url === currentUrl) {
+	            return state;
+	          } else {
+	            var shiftAmount = getHistoryShiftAmountForUrl(state, url);
+	            if (shiftAmount === 0) {
+	              var newState = (0, _behaviorist.loadFromUrl)(state, url);
+	              var activeGroup = findGroupWithCurrentUrl(newState, url);
+	              return _extends({}, newState, { activeGroupIndex: activeGroup.index });
+	            } else {
+	              return go(state, shiftAmount);
+	            }
+	          }
 	        }
 	      case _ActionTypes.SWITCH_TO_CONTAINER:
 	        {
 	          var _groupIndex = action.groupIndex,
-	              _containerIndex = action.containerIndex,
-	              _useDefault = action.useDefault;
+	              _containerIndex = action.containerIndex;
 	
 	          var _newState = _.cloneDeep(state);
 	          var _group = _newState.groups[_groupIndex];
 	          var oldContainerIndex = _group.history.current.containerIndex;
 	          var fromContainer = _group.containers[oldContainerIndex];
 	          var toContainer = getContainer(_newState, _groupIndex, _containerIndex);
-	          var defaultContainer = _useDefault ? _group.containers[0] : null;
+	          var defaultContainer = _.find(_group.containers, function (c) {
+	            return c.isDefault;
+	          });
 	          _group.history = (0, _behaviorist.switchContainer)(fromContainer, toContainer, defaultContainer);
 	          _newState.activeGroupIndex = _group.index;
 	          return _newState;
 	        }
 	      case _ActionTypes.PUSH:
-	        {
-	          return push(state, action.url);
-	        }
+	        return push(state, action.url);
 	      case _ActionTypes.BACK:
-	        {
-	          return _extends({}, state, go(state, 0 - action.n || -1));
-	        }
+	        return go(state, 0 - action.n || -1);
 	      case _ActionTypes.FORWARD:
 	      case _ActionTypes.GO:
-	        {
-	          return _extends({}, state, go(state, action.n || 1));
-	        }
+	        return go(state, action.n || 1);
 	      case _ActionTypes.POPSTATE:
-	        {
-	          return _extends({}, state, constructNewHistory(state, action.id));
-	        }
+	        return onpop(state, action.id);
 	    }
 	  }
 	  return state;
@@ -20018,7 +20037,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var defaultContainer = useDefault ? _.find(containers, function (c) {
 	    return c.isDefault;
 	  }) : null;
-	  var A = useDefault ? defaultContainer.history.current : null;
+	  var A = defaultContainer ? defaultContainer.history.current : null;
 	  var initialContainer = _.find(containers, function (c) {
 	    return (0, _url.patternMatches)(c.initialUrl, url);
 	  });
@@ -20794,7 +20813,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var store = (0, _redux.createStore)(_reducers2.default, _reducers.initialState, (0, _reduxPersist.autoRehydrate)());
-	(0, _reduxPersist.persistStore)(store);
 	
 	exports.default = store;
 
@@ -31742,11 +31760,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(newProps) {
-	      var currentContainerIndex = newProps.currentContainerIndex,
-	          useDefaultContainer = newProps.useDefaultContainer;
+	      var currentContainerIndex = newProps.currentContainerIndex;
 	
 	      if (currentContainerIndex !== this.props.currentContainerIndex) {
-	        (0, _main.switchToContainer)(this.groupIndex, currentContainerIndex, useDefaultContainer);
+	        (0, _main.switchToContainer)(this.groupIndex, currentContainerIndex);
 	      }
 	      this.update();
 	    }

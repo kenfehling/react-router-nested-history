@@ -22,198 +22,185 @@ const createContainers2 = [
 ]
 
 describe('history utils', () => {
-  const originalState:State = util.deriveState(createContainers)
-  const group = originalState.groups[0]
+  const state:State = util.deriveState(createContainers)
+  const group = state.groups[0]
   const containers = group.containers
+  const performAll = (actions): State => util.reduceAll(null, actions)
 
-  it('reduces a bunch of actions', () => {
-    expect(util.reduceAll(null, createContainers)).toEqual(
-        _.omit(originalState, ['previousState', 'lastAction']))
+  it('loads 2 groups with the proper starting URL', () => {
+    const state = performAll([
+      ...createContainers,
+      ...createContainers2,
+      {type: LOAD_FROM_URL, url: '/e'}
+    ])
+    expect(state.groups[0].history.current.url).toEqual('/a')
+    expect(state.groups[1].history.current.url).toEqual('/e')
+    expect(state.activeGroupIndex).toEqual(1)
+  })
 
-    const state = util.reduceAll(null, [
+  it('gets history shift amount', () => {
+    const state = performAll([
       ...createContainers,
       {type: PUSH, url: '/a/1'}
     ])
-    expect(state.groups[0].history.current.url).toEqual('/a/1')
-    expect(state.groups[0].history.back.length).toEqual(1)
-    expect(state.groups[0].history.back[0].url).toEqual('/a')
+    expect(util.getHistoryShiftAmountForId(state, 1)).toEqual(-1)
   })
 
-  describe('loads initial state', () => {
-    const perform = (action): State => util.reducer(null, action)
-    const performAll = (actions): State => util.reduceAll(null, actions)
-
-    it.only('loads 2 groups with the proper starting URL', () => {
-      const state = performAll([
-        ...createContainers,
-        ...createContainers2,
-        {type: LOAD_FROM_URL, url: '/e'}
-      ])
-      expect(state.groups[0].history.current.url).toEqual('/a')
-      expect(state.groups[1].history.current.url).toEqual('/e')
-      expect(state.activeGroupIndex).toEqual(1)
-    })
+  it('gets container stack order (default)', () => {
+    const actions = createContainers
+    expect(util.getContainerStackOrder(actions, 0)).toEqual(containers)
   })
 
-  describe('handles existing state', () => {
-    const perform = (action): State => util.reducer(originalState, action)
-    const performAll = (actions): State => util.reduceAll(originalState, actions)
+  it('gets container stack order (default) 2', () => {
+    const actions = [
+      ...createContainers,
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2},
+    ]
+    expect(util.getContainerStackOrder(actions, 0)).toEqual(fp.reverse(containers))
+  })
 
-    it('diffs old state and new state for push', () => {
-      const state = perform({type: PUSH, url: '/a/1'})
-      const steps = util.diffStateToSteps(originalState, state)
-      expect(steps).toEqual([
-        {fn: back, args: [1]},
-        {fn: push, args: [state.groups[0].history.back[0]]},
-        {fn: push, args: [state.groups[0].history.current]}
-      ])
-    })
+  it('gets container stack order (default) b', () => {
+    const actions = [
+      ...createContainers,
+      {type: LOAD_FROM_URL, url: '/b'}
+    ]
+    expect(util.getContainerStackOrder(actions, 0)).toEqual([
+        containers[1],
+        containers[0],
+        containers[2]
+    ])
+  })
 
-    it('diffs old state and new state for back', () => {
-      const state = performAll([{type: PUSH, url: '/a/1'}, {type: BACK}])
-      const steps = util.diffStateToSteps(originalState, state)
-      expect(steps).toEqual([
-        {fn: back, args: [1]},
-        {fn: push, args: [state.groups[0].history.current]},
-        {fn: push, args: [state.groups[0].history.forward[0]]},
-        {fn: back, args: [1]}
-      ])
-    })
+  it('gets indexed container stack order (default)', () => {
+    const actions = createContainers
+    expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([0, 1, 2])
+  })
 
-    it('gets history shift amount', () => {
-      const state = perform({type: PUSH, url: '/a/1'})
-      expect(util.getHistoryShiftAmount(state, 1)).toEqual(-1)
-    })
+  it('gets indexed container stack order (non-default)', () => {
+    const actions = [
+      ...createContainers,
+      {type: LOAD_FROM_URL, url: '/b'}
+    ]
+    expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([1, 0, 2])
+  })
 
-    it('gets container stack order (default)', () => {
-      const actions = createContainers
-      expect(util.getContainerStackOrder(actions, 0)).toEqual(containers)
-    })
+  it('pushes page', () => {
+    const result = performAll([
+      ...createContainers,
+      {type: PUSH, url: '/a/1'}
+    ])
+    expect(result.groups[0].history.back.length).toBe(1)
+    expect(result.groups[0].history.back[0].url).toBe('/a')
+    expect(result.groups[0].history.current.url).toBe('/a/1')
+    expect(result.groups[0].history.current.id).toBe(4)
+    expect(result.groups[0].history.current.containerIndex).toBe(0)
+    expect(result.lastPageId).toBe(4)
+  })
 
-    it('gets container stack order (default) 2', () => {
-      const actions = [
-        ...createContainers,
-        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
-        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2},
-      ]
-      expect(util.getContainerStackOrder(actions, 0)).toEqual(fp.reverse(containers))
-    })
+  it('switches container', () => {
+    const result = performAll([
+      ...createContainers,
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2}
+    ])
+    expect(result.groups[0].history.back.length).toBe(1)
+    expect(result.groups[0].history.back[0].url).toBe('/a')
+    expect(result.groups[0].history.current.url).toBe('/c')
+    expect(result.groups[0].history.current.id).toBe(3)
+    expect(result.groups[0].history.current.containerIndex).toBe(2)
+    expect(result.lastPageId).toBe(3)
+  })
 
-    it('gets container stack order (default) b', () => {
-      const actions = [
-        ...createContainers,
-        {type: LOAD_FROM_URL, url: '/b'}
-      ]
-      expect(util.getContainerStackOrder(actions, 0)).toEqual([
-          containers[1],
-          containers[0],
-          containers[2]
-      ])
-    })
+  it('goes back in history', () => {
+    const result = performAll([
+      ...createContainers,
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+      {type: PUSH, url: '/b/1'},
+      {type: BACK, n: 2}
+    ])
+    expect(result.groups[0].history.back.length).toBe(0)
+    expect(result.groups[0].history.current.url).toBe('/a')
+    expect(result.groups[0].history.current.id).toBe(1)
+    expect(result.groups[0].history.forward.length).toBe(2)
+    expect(result.groups[0].history.forward[0].url).toBe('/b')
+    expect(result.groups[0].history.forward[1].url).toBe('/b/1')
+    expect(result.groups[0].history.current.containerIndex).toBe(0)
+    expect(result.lastPageId).toBe(4)
+  })
 
-    it('gets indexed container stack order (default)', () => {
-      const actions = createContainers
-      expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([0, 1, 2])
-    })
+  it('goes forward in history', () => {
+    const result = performAll([
+      ...createContainers,
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+      {type: PUSH, url: '/b/1'},
+      {type: BACK, n: 2},
+      {type: FORWARD, n: 1}
+    ])
+    expect(result.groups[0].history.back.length).toBe(1)
+    expect(result.groups[0].history.back[0].url).toBe('/a')
+    expect(result.groups[0].history.current.url).toBe('/b')
+    expect(result.groups[0].history.current.id).toBe(2)
+    expect(result.groups[0].history.forward.length).toBe(1)
+    expect(result.groups[0].history.forward[0].url).toBe('/b/1')
+    expect(result.groups[0].history.current.containerIndex).toBe(1)
+    expect(result.lastPageId).toBe(4)
+  })
 
-    it('gets indexed container stack order (non-default)', () => {
-      const actions = [
-        ...createContainers,
-        {type: LOAD_FROM_URL, url: '/b'}
-      ]
-      expect(util.getIndexedContainerStackOrder(actions, 0)).toEqual([1, 0, 2])
-    })
+  it('goes back in history after switch', () => {
+    const result = performAll([
+      ...createContainers,
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+      {type: BACK, n: 1}
+    ])
+    expect(result.groups[0].history.back.length).toBe(0)
+    expect(result.groups[0].history.current.url).toBe('/a')
+    expect(result.groups[0].history.current.id).toBe(1)
+    expect(result.groups[0].history.forward.length).toBe(1)
+    expect(result.groups[0].history.forward[0].url).toBe('/b')
+    expect(result.groups[0].history.current.containerIndex).toBe(0)
+    expect(result.lastPageId).toBe(3)
+  })
 
-    it('pushes page', () => {
-      const result = perform({type: PUSH, url: '/b/2'})
-      expect(result.groups[0].history.back.length).toBe(3)
-      expect(result.groups[0].history.back[0].url).toBe('/a')
-      expect(result.groups[0].history.back[1].url).toBe('/a/1')
-      expect(result.groups[0].history.back[2].url).toBe('/b')
-      expect(result.groups[0].history.current.url).toBe('/b/2')
-      expect(result.groups[0].history.current.id).toBe(5)
-      expect(result.groups[0].history.current.containerIndex).toBe(1)
-      expect(result.lastPageId).toBe(5)
-    })
+  it('goes forward in history after switch', () => {
+    const result = performAll([
+      ...createContainers,
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+      {type: BACK, n: 1},
+      {type: FORWARD, n: 1}
+    ])
+    expect(result.groups[0].history.back.length).toBe(1)
+    expect(result.groups[0].history.back[0].url).toBe('/a')
+    expect(result.groups[0].history.current.url).toBe('/b')
+    expect(result.groups[0].history.current.id).toBe(2)
+    expect(result.groups[0].history.forward.length).toBe(0)
+    expect(result.groups[0].history.current.containerIndex).toBe(1)
+    expect(result.lastPageId).toBe(3)
+  })
 
-    it('switches container', () => {
-      const result = perform({type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2})
-      expect(result.groups[0].history.back.length).toBe(1)
-      expect(result.groups[0].history.back[0].url).toBe('/a')
-      expect(result.groups[0].history.current.url).toBe('/a/1')
-      expect(result.groups[0].history.current.id).toBe(4)
-      expect(result.groups[0].history.current.containerIndex).toBe(0)
-      expect(result.lastPageId).toBe(4)
-    })
+  it('goes back N pages in history', () => {
 
-    it('switches container(2)', () => {
-      const result = perform({type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 2})
-      expect(result.groups[0].history.back.length).toBe(2)
-      expect(result.groups[0].history.back[0].url).toBe('/a')
-      expect(result.groups[0].history.back[1].url).toBe('/a/1')
-      expect(result.groups[0].history.current.url).toBe('/c')
-      expect(result.groups[0].history.current.id).toBe(3)
-      expect(result.groups[0].history.current.containerIndex).toBe(2)
-      expect(result.lastPageId).toBe(4)
-    })
+  })
 
-    it('goes back in history', () => {
-      const result = performAll([
-        {type: PUSH, url: '/b/1'},
-        {type: BACK, n: 2}
-      ])
-      expect(result.groups[0].history.back.length).toBe(1)
-      expect(result.groups[0].history.back[0].url).toBe('/a')
-      expect(result.groups[0].history.current.url).toBe('/a/1')
-      expect(result.groups[0].history.current.id).toBe(4)
-      expect(result.groups[0].history.forward.length).toBe(2)
-      expect(result.groups[0].history.forward[0].url).toBe('/b')
-      expect(result.groups[0].history.forward[1].url).toBe('/b/1')
-      expect(result.groups[0].history.current.containerIndex).toBe(0)
-      expect(result.lastPageId).toBe(5)
-    })
+  it('goes forward N pages in history', () => {
 
-    it('goes forward in history', () => {
-      const result = performAll([
-        {type: PUSH, url: '/b/1'},
-        {type: BACK, n: 2},
-        {type: FORWARD, n: 2}
-      ])
-      expect(result.groups[0].history.back.length).toBe(3)
-      expect(result.groups[0].history.back[0].url).toBe('/a')
-      expect(result.groups[0].history.back[1].url).toBe('/a/1')
-      expect(result.groups[0].history.back[2].url).toBe('/b')
-      expect(result.groups[0].history.current.url).toBe('/b/1')
-      expect(result.groups[0].history.current.id).toBe(5)
-      expect(result.groups[0].history.forward.length).toBe(0)
-      expect(result.groups[0].history.current.containerIndex).toBe(1)
-      expect(result.lastPageId).toBe(5)
-    })
+  })
 
-    it('goes back N pages in history', () => {
-
-    })
-
-    it('goes forward N pages in history', () => {
-
-    })
-
-    it('correctly updates history from popstate', () => {
-      const result = performAll([
-        {type: PUSH, url: '/b/1'},
-        {type: BACK, n: 2},
-        {type: POPSTATE, id: 5}
-      ])
-      expect(result.groups[0].history.back.length).toBe(3)
-      expect(result.groups[0].history.back[0].url).toBe('/a')
-      expect(result.groups[0].history.back[1].url).toBe('/a/1')
-      expect(result.groups[0].history.back[2].url).toBe('/b')
-      expect(result.groups[0].history.current.url).toBe('/b/1')
-      expect(result.groups[0].history.current.id).toBe(5)
-      expect(result.groups[0].history.forward.length).toBe(0)
-      expect(result.groups[0].history.current.containerIndex).toBe(1)
-      expect(result.lastPageId).toBe(5)
-    })
+  it('correctly updates history from popstate', () => {
+    const result = performAll([
+      ...createContainers,
+      {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+      {type: PUSH, url: '/b/1'},
+      {type: BACK, n: 2},
+      {type: POPSTATE, id: 4}
+    ])
+    expect(result.groups[0].history.back.length).toBe(2)
+    expect(result.groups[0].history.back[0].url).toBe('/a')
+    expect(result.groups[0].history.back[1].url).toBe('/b')
+    expect(result.groups[0].history.current.url).toBe('/b/1')
+    expect(result.groups[0].history.current.id).toBe(4)
+    expect(result.groups[0].history.forward.length).toBe(0)
+    expect(result.groups[0].history.current.containerIndex).toBe(1)
+    expect(result.lastPageId).toBe(4)
   })
 
   describe('actions', () => {
@@ -252,8 +239,22 @@ describe('history utils', () => {
     })
   })
 
+  describe('reloading behavior', () => {
+    it('reloads a previous page', () => {
+      const actions = [
+        ...createContainers,
+        {type: LOAD_FROM_URL, url: '/a'},
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+        {type: LOAD_FROM_URL, url: '/a'}
+      ]
+      const result = util.deriveState(actions)
+      expect(result.groups[0].history.current.containerIndex).toBe(0)
+      expect(result.groups[0].history.current.url).toBe('/a')
+      expect(result.groups[0].history.forward.length).toBe(1)
+    })
+  })
+
   describe('createSteps', () => {
-    const perform = (action) : State => util.deriveState([action])
     const performAll = (actions) : State => util.deriveState(actions)
 
     it('creates steps to init (default)', () => {
@@ -313,6 +314,30 @@ describe('history utils', () => {
         {fn: back, args: [1]},
         {fn: push, args: [state.groups[0].history.back[0]]},
         {fn: push, args: [state.groups[0].history.current]}
+      ])
+    })
+
+    it('creates steps to push', () => {
+      const actions = [
+        ...createContainers,
+        {type: PUSH, url: '/a/1'}
+      ]
+      const state = performAll(actions)
+      const steps = util.createSteps(actions)
+      expect(steps).toEqual([
+        {fn: push, args: [state.groups[0].history.current]}
+      ])
+    })
+
+    it.only('creates steps for back', () => {
+      const actions = [
+        ...createContainers,
+        {type: PUSH, url: '/a/1'},
+        {type: BACK}
+      ]
+      const steps = util.createSteps(actions)
+      expect(steps).toEqual([
+        {fn: back, args: [1]}
       ])
     })
   })

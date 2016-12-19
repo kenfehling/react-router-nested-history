@@ -47,7 +47,7 @@ export function loadGroupFromUrl(oldState:State, url:string, groupIndex:number) 
   const containers:Container[] = group.containers
   const useDefault:boolean = _.some(containers, c => c.isDefault)
   const defaultContainer:?Container = useDefault ? _.find(containers, c => c.isDefault) : null
-  const A = useDefault ? defaultContainer.history.current : null
+  const A = defaultContainer ? defaultContainer.history.current : null
   const initialContainer:Container = _.find(containers, c => patternMatches(c.initialUrl, url))
   const matchingContainer:Container = _.find(containers, c => patternsMatch(c.urlPatterns, url))
   if (useDefault) {
