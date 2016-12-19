@@ -351,8 +351,8 @@ describe('history utils', () => {
       const state = performAll(actions)
       const steps = util.createSteps(actions)
       expect(steps).toEqual([
-        {fn: push, args: [state.groups[0].history.back[0]]},
         {fn: push, args: [state.groups[0].history.current]},
+        {fn: push, args: [state.groups[0].history.forward[0]]},
         {fn: back, args: [1]}
       ])
     })
