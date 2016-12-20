@@ -33,9 +33,10 @@ export default class Windows extends Component {
     }
   }
 
-  onContainerSwitch(state) {
+  onContainerSwitch({activeContainer, indexedStackOrder}) {
     this.setState({
-      indexedStackOrder: state.indexedStackOrder
+      activeWindowIndex: activeContainer.index,
+      indexedStackOrder
     })
   }
 
