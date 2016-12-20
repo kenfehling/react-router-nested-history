@@ -1608,14 +1608,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	          return !_.includes([_ActionTypes.CREATE_CONTAINER, _ActionTypes.LOAD_FROM_URL], a.type);
 	        });
 	        var oldState = i < 0 ? null : deriveState(actions.slice(0, i + 1));
-	        var oldUrl = oldState ? getActivePage(oldState) : null;
-	        var newUrl = getActivePage(newState);
+	        var oldUrl = oldState ? getActivePage(oldState).url : null;
+	        var newUrl = getActivePage(newState).url;
 	        if (oldUrl === newUrl) {
 	          return []; // probably a browser refresh
 	        } else {
 	          return diffStateToSteps(null, newState); // just start over again
 	        }
 	      }
+	    case _ActionTypes.POPSTATE:
 	    case _ActionTypes.SWITCH_TO_CONTAINER:
 	      {
 	        var _oldState = deriveState(_.initial(actions));
@@ -20842,9 +20843,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = _location.canUseWindowLocation ? (0, _redux.createStore)(_reducers2.default, _reducers.initialState, (0, _reduxPersist.autoRehydrate)()) : (0, _redux.createStore)(_reducers2.default);
 	var persist = exports.persist = function persist(store, persistorConfig, onComplete) {
-	
-	  console.log('PURSE');
-	
 	  if (_location.canUseWindowLocation) {
 	    (0, _reduxPersist.persistStore)(store, persistorConfig, onComplete);
 	  } else {

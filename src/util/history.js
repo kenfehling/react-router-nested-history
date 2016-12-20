@@ -211,8 +211,8 @@ export function createSteps(actions:Object[]) : Step[] {
       const i = _.findLastIndex(actions, a =>
           !_.includes([CREATE_CONTAINER, LOAD_FROM_URL], a.type))
       const oldState:?State= i < 0 ? null : deriveState(actions.slice(0, i + 1))
-      const oldUrl:?string = oldState ? getActivePage(oldState) : null
-      const newUrl:string = getActivePage(newState)
+      const oldUrl:?string = oldState ? getActivePage(oldState).url : null
+      const newUrl:string = getActivePage(newState).url
       if (oldUrl === newUrl) {
         return []  // probably a browser refresh
       }
@@ -220,6 +220,7 @@ export function createSteps(actions:Object[]) : Step[] {
         return diffStateToSteps(null, newState)  // just start over again
       }
     }
+    case POPSTATE:
     case SWITCH_TO_CONTAINER: {
       const oldState:State = deriveState(_.initial(actions))
       return diffStateToSteps(oldState, newState)

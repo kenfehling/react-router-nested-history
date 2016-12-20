@@ -204,6 +204,23 @@ describe('history utils', () => {
   })
 
   describe('actions', () => {
+    it.only('switches tab, then back button', () => {
+      const actions = [
+        ...createContainers,
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+        {type: POPSTATE, id: 1}
+      ]
+      const result = util.deriveState(actions)
+      expect(result.groups[0].history.back.length).toBe(0)
+      expect(result.groups[0].history.current.url).toBe('/a')
+      expect(result.groups[0].history.current.id).toBe(1)
+      expect(result.groups[0].history.forward.length).toBe(1)
+      expect(result.groups[0].history.forward[0].url).toBe('/b')
+      expect(result.groups[0].history.forward[0].id).toBe(2)
+      expect(result.groups[0].history.current.containerIndex).toBe(0)
+      expect(result.lastPageId).toBe(3)
+    })
+
     it('switches container, goes back, switches container back', () => {
       const actions = [
         ...createContainers,
