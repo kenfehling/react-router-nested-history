@@ -204,7 +204,7 @@ describe('history utils', () => {
   })
 
   describe('actions', () => {
-    it.only('switches tab, then back button', () => {
+    it.only('switches tab, then pop back', () => {
       const actions = [
         ...createContainers,
         {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
@@ -356,6 +356,16 @@ describe('history utils', () => {
       expect(steps).toEqual([
         {fn: back, args: [1]}
       ])
+    })
+
+    it.only('for pop back', () => {
+      const actions = [
+        ...createContainers,
+        {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
+        {type: POPSTATE, id: 1}
+      ]
+      const steps = util.createSteps(actions)
+      expect(steps).toEqual([])
     })
 
     it('for reloading a previous page', () => {

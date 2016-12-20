@@ -318,7 +318,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var group = util.getActiveGroup(state);
 	  var current = group.history.current;
 	  var steps = util.createSteps(actions);
-	  if (!_.isEmpty(steps)) {
+	  if (state.lastAction.type !== _ActionTypes.CREATE_CONTAINER) {
 	    window.dispatchEvent(new CustomEvent('locationChange', {
 	      detail: { location: (0, _history2.createLocation)(current.url, { id: current.id }) }
 	    }));
@@ -1616,7 +1616,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	          return diffStateToSteps(null, newState); // just start over again
 	        }
 	      }
-	    case _ActionTypes.POPSTATE:
 	    case _ActionTypes.SWITCH_TO_CONTAINER:
 	      {
 	        var _oldState = deriveState(_.initial(actions));

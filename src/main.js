@@ -133,7 +133,7 @@ store.subscribe(() => {
   const group = util.getActiveGroup(state)
   const current = group.history.current
   const steps = util.createSteps(actions)
-  if (!_.isEmpty(steps)) {
+  if (state.lastAction.type !== CREATE_CONTAINER) {
     window.dispatchEvent(new CustomEvent('locationChange', {
       detail: {location: createLocation(current.url, {id: current.id})}
     }))

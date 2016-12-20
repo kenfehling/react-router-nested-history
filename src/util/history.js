@@ -220,7 +220,6 @@ export function createSteps(actions:Object[]) : Step[] {
         return diffStateToSteps(null, newState)  // just start over again
       }
     }
-    case POPSTATE:
     case SWITCH_TO_CONTAINER: {
       const oldState:State = deriveState(_.initial(actions))
       return diffStateToSteps(oldState, newState)
