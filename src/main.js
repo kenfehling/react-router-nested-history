@@ -7,12 +7,11 @@ import * as actions from './actions/HistoryActions'
 import * as browser from './browserFunctions'
 import { listen, listenPromise } from './historyListener'
 import * as util from './util/history'
-import store from './store'
+import store, { persist } from './store'
 import * as _ from 'lodash'
 import type { Step, State, Group, Container } from './types'
-import {createLocation} from "history"
+import { createLocation } from "history"
 import Queue from 'promise-queue'
-import { persistStore } from 'redux-persist'
 
 const maxConcurrent = 1
 const maxQueue = Infinity
@@ -78,7 +77,7 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
 }
 
 export const loadFromUrl = (url:string) =>
-    persistStore(store, {}, () => store.dispatch(actions.loadFromUrl(url)))
+    persist(store, {}, () => store.dispatch(actions.loadFromUrl(url)))
 
 export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
 

@@ -6,3 +6,5 @@ export function modifyLocation(location, pathname) {
     return {...location, pathname}
   }
 }
+
+export const canUseWindowLocation = window.location instanceof Object

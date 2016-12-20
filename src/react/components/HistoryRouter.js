@@ -6,21 +6,29 @@ import History from 'react-router/History'
 import createBrowserHistory from 'history/createBrowserHistory'
 import createMemoryHistory from "history/createMemoryHistory"
 import { listenToLocation, locationChanged } from "../actions/LocationActions"
-import { canUseDOM } from 'history/ExecutionEnvironment'
+import { canUseWindowLocation } from '../../util/location'
 import {loadFromUrl} from "../../main";
 
 class HistoryRouter extends Component {
   constructor(props) {
     super(props)
     const {listenToLocation, locationChanged} = props
-    if (canUseDOM) {
+    if (canUseWindowLocation) {
       locationChanged(window.location)
+    }
+    else {
+      locationChanged({pathname: this.props.location})
     }
     listenToLocation()
   }
 
   componentDidMount() {
-    loadFromUrl(window.location.pathname)
+    if (canUseWindowLocation) {
+      loadFromUrl(window.location.pathname)
+    }
+    else {
+      loadFromUrl(this.props.location)
+    }
   }
 
   render() {
@@ -33,7 +41,7 @@ class HistoryRouter extends Component {
     } = this.props
 
     return (<History
-            createHistory={canUseDOM ? createBrowserHistory : createMemoryHistory}
+            createHistory={canUseWindowLocation ? createBrowserHistory : createMemoryHistory}
             historyOptions={{
               basename,
               forceRefresh,
@@ -66,7 +74,7 @@ HistoryRouter.propTypes = {
   ])
 }
 
-if (!canUseDOM) {  // allow passing location in non-browser enviroment
+if (!canUseWindowLocation) {  // allow passing location in non-browser enviroment
   HistoryRouter.propTypes.location = PropTypes.string
 }
 

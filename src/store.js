@@ -1,7 +1,17 @@
 import { createStore } from 'redux'
-import { autoRehydrate } from 'redux-persist'
+import { autoRehydrate, persistStore } from 'redux-persist'
 import reducer, {initialState} from './reducers'
+import { canUseWindowLocation } from './util/location'
 
-const store = createStore(reducer, initialState, autoRehydrate())
+export default canUseWindowLocation ?
+    createStore(reducer, initialState, autoRehydrate()) :
+    createStore(reducer)
 
-export default store
+export const persist = (store, persistorConfig, onComplete) => {
+  if (canUseWindowLocation) {
+    persistStore(store, persistorConfig, onComplete)
+  }
+  else {
+    setTimeout(onComplete, 1000)  // for testing
+  }
+}

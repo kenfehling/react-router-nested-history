@@ -281,6 +281,7 @@ export function getContainerStackOrder(actions:Object[], groupIndex:number) : Co
  */
 export function getIndexedContainerStackOrder(actions:Object[], groupIndex:number) : number[] {
   const stackOrder = getContainerStackOrder(actions, groupIndex)
+
   const values = _.map(stackOrder, (s, i) => ({index: s.index, i}))
   return _.map(_.sortBy(values, s => s.index), s => s.i)
 }
@@ -310,7 +311,7 @@ export function hasSameActiveContainer(oldState:?State, newState:State) : boolea
   if (!oldState) return false
   const o:Container = getActiveContainer(oldState)
   const n:Container = getActiveContainer(newState)
-  return o.groupIndex !== n.groupIndex && o.index !== n.index
+  return o.groupIndex === n.groupIndex && o.index === n.index
 }
 
 export const getGroupState = (actions:Object[], groupIndex:number) => {
