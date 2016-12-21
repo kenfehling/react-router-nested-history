@@ -29,3 +29,6 @@ export const load_A = ([A, A1], [B, B1]) => [[], A, []]
 export const load_A1 = ([A, A1], [B, B1]) => [[A], A1, []]
 export const load_B = ([A, A1], [B, B1]) => [[A], B, []]
 export const load_B1 = ([A, A1], [B, B1]) => [[A, B], B1, []]
+
+
+export const reload = ([A, A1], [B, B1]) => [A]

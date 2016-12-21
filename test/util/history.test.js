@@ -5,21 +5,11 @@ declare var it:any
 declare var expect:any
 import * as util from '../../src/util/history'
 import { push, back, forward, go } from '../../src/browserFunctions'
-import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, POPSTATE } from "../../src/constants/ActionTypes"
+import { LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, POPSTATE } from "../../src/constants/ActionTypes"
 import type { State } from '../../src/types'
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
-
-const createContainers = [
-  {type: CREATE_CONTAINER, groupIndex: 0, initialUrl: '/a', urlPatterns: ['/a', '/a/:id']},
-  {type: CREATE_CONTAINER, groupIndex: 0, initialUrl: '/b', urlPatterns: ['/b', '/b/:id']},
-  {type: CREATE_CONTAINER, groupIndex: 0, initialUrl: '/c', urlPatterns: ['/c', '/c/:id']}
-]
-
-const createContainers2 = [
-  {type: CREATE_CONTAINER, groupIndex: 1, initialUrl: '/e', urlPatterns: ['/e', '/e/:id']},
-  {type: CREATE_CONTAINER, groupIndex: 1, initialUrl: '/f', urlPatterns: ['/f', '/f/:id']}
-]
+import { createContainers, createContainers2 } from "../react/fixtures"
 
 describe('history utils', () => {
   const state:State = util.deriveState(createContainers)
@@ -204,7 +194,7 @@ describe('history utils', () => {
   })
 
   describe('actions', () => {
-    it.only('switches tab, then pop back', () => {
+    it('switches tab, then pop back', () => {
       const actions = [
         ...createContainers,
         {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
@@ -358,7 +348,7 @@ describe('history utils', () => {
       ])
     })
 
-    it.only('for pop back', () => {
+    it('for pop back', () => {
       const actions = [
         ...createContainers,
         {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
@@ -366,6 +356,19 @@ describe('history utils', () => {
       ]
       const steps = util.createSteps(actions)
       expect(steps).toEqual([])
+    })
+
+    it('for reloading the initial page (with "zero page")', () => {
+      const actions = [
+        ...createContainers,
+        {type: LOAD_FROM_URL, url: '/a'},
+        {type: LOAD_FROM_URL, url: '/a'}
+      ]
+      const state = performAll(actions)
+      const steps = util.createSteps(actions)
+      expect(steps).toEqual([
+        {fn: push, args: [state.groups[0].history.current]}
+      ])
     })
 
     it('for reloading a previous page', () => {

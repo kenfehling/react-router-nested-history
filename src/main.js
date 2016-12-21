@@ -5,18 +5,19 @@ declare var CustomEvent:any
 import { CREATE_CONTAINER, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes"
 import * as actions from './actions/HistoryActions'
 import * as browser from './browserFunctions'
-import { listen, listenPromise } from './historyListener'
+import { listen, listenPromise } from './browserFunctions'
 import * as util from './util/history'
 import store, { persist } from './store'
 import * as _ from 'lodash'
 import type { Step, State, Group, Container } from './types'
 import { createLocation } from "history"
 import Queue from 'promise-queue'
+import { canUseWindowLocation } from './util/location'
 
 const maxConcurrent = 1
 const maxQueue = Infinity
 const queue = new Queue(maxConcurrent, maxQueue)
-const needsPopListener = [browser.back, browser.forward, browser.go]
+const needsPopListener = canUseWindowLocation ? [browser.back, browser.forward, browser.go] : []
 let unlisten
 
 const getActions = () : Object[] => store.getState().actions
@@ -81,23 +82,17 @@ export const loadFromUrl = (url:string) =>
 
 export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
 
-export const getGroupState = (groupIndex:number) =>
+export const getGroupState = (groupIndex:number) : Object =>
     util.getGroupState(getActions(), groupIndex)
 
-function isActiveContainer(groupIndex:number, containerIndex:number) {
-  const state = getDerivedState()
-  const c = util.getActiveContainer(state)
-  return c.groupIndex === groupIndex && c.index === containerIndex
-}
-
 export const switchToContainer = (groupIndex:number, containerIndex:number) => {
-  if (!isActiveContainer(groupIndex, containerIndex)) {
+  if (!util.isActiveContainer(getDerivedState(), groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
 }
 
 export const push = (groupIndex:number, containerIndex:number, url:string) => {
-  if (!isActiveContainer(groupIndex, containerIndex)) {
+  if (!util.isActiveContainer(getDerivedState(), groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
   store.dispatch(actions.push(url))
@@ -121,10 +116,12 @@ function runStep(step:Step) {
     return _.includes(needsPopListener, step.fn) ? listenPromise() : Promise.resolve()
   }
   const ps = () => [unlistenPromise, stepPromise, startListeningPromise].reduce(
-    (p, step) => p.then(step),
-    Promise.resolve()
-  )
-  queue.add(ps)
+      (p, s) => p.then(s), Promise.resolve())
+  return queue.add(ps)
+}
+
+export function runSteps(steps:Step[]) {
+  return steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
 }
 
 store.subscribe(() => {
@@ -137,6 +134,6 @@ store.subscribe(() => {
     window.dispatchEvent(new CustomEvent('locationChange', {
       detail: {location: createLocation(current.url, {id: current.id})}
     }))
-    steps.forEach(runStep)
+    runSteps(steps)
   }
 })

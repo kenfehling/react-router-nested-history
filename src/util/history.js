@@ -206,18 +206,25 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
 
 export function createSteps(actions:Object[]) : Step[] {
   const newState:State = deriveState(actions)
+
+  console.log(newState)
+
   switch(newState.lastAction.type) {
     case LOAD_FROM_URL: {
-      const i = _.findLastIndex(actions, a =>
-          !_.includes([CREATE_CONTAINER, LOAD_FROM_URL], a.type))
+      const i = _.findLastIndex(actions, a => a.type !== CREATE_CONTAINER)
       const oldState:?State= i < 0 ? null : deriveState(actions.slice(0, i + 1))
-      const oldUrl:?string = oldState ? getActivePage(oldState).url : null
-      const newUrl:string = getActivePage(newState).url
+      const oldPage:?Page = oldState ? getActivePage(oldState) : null
+      const newPage:Page = getActivePage(newState)
+      const oldUrl:?string = oldPage ? oldPage.url : null
+      const newUrl:string = newPage.url
       if (oldUrl === newUrl) {
-        return []  // probably a browser refresh
-      }
+        return [createPushStep(newPage)]  // probably a browser refresh
+      }                                   // but add "zero page" to be safe
       else {
-        return diffStateToSteps(null, newState)  // just start over again
+        return [
+          createPushStep(newPage),             // add "zero page"
+          ...diffStateToSteps(null, newState)  // and just start over again
+        ]
       }
     }
     case SWITCH_TO_CONTAINER: {
@@ -225,7 +232,7 @@ export function createSteps(actions:Object[]) : Step[] {
       return diffStateToSteps(oldState, newState)
     }
     case PUSH:
-      return [{fn: browser.push, args: [getActiveGroup(newState).history.current]}]
+      return [createPushStep(getActiveGroup(newState).history.current)]
     case BACK:
       return [{fn: browser.back, args: [newState.lastAction.n || 1]}]
     case FORWARD:
@@ -312,6 +319,11 @@ export function hasSameActiveContainer(oldState:?State, newState:State) : boolea
   const o:Container = getActiveContainer(oldState)
   const n:Container = getActiveContainer(newState)
   return o.groupIndex === n.groupIndex && o.index === n.index
+}
+
+export function isActiveContainer(state:State, groupIndex:number, containerIndex:number) {
+  const c = getActiveContainer(state)
+  return c.groupIndex === groupIndex && c.index === containerIndex
 }
 
 export const getGroupState = (actions:Object[], groupIndex:number) => {
