@@ -270,7 +270,7 @@ describe('history utils', () => {
         {type: LOAD_FROM_URL, url: '/a'}
       ]
       const state = performAll(actions)
-      const steps = util.createSteps(actions)
+      const steps = util.createStepsForLastAction(actions)
       expect(state.groups[0].history.back.length).toBe(0)
       expect(steps.length).toBe(1)
       expect(steps).toEqual([
@@ -284,7 +284,7 @@ describe('history utils', () => {
         {type: LOAD_FROM_URL, url: '/b'}
       ]
       const state = performAll(actions)
-      const steps = util.createSteps(actions)
+      const steps = util.createStepsForLastAction(actions)
       expect(state.groups[0].history.back.length).toBe(1)
       expect(steps.length).toBe(2)
       expect(steps).toEqual([
@@ -299,7 +299,7 @@ describe('history utils', () => {
         {type: LOAD_FROM_URL, url: '/b/1'}
       ]
       const state = performAll(actions)
-      const steps = util.createSteps(actions)
+      const steps = util.createStepsForLastAction(actions)
       expect(state.groups[0].history.back.length).toBe(2)
       expect(steps.length).toBe(3)
       expect(steps).toEqual([
@@ -315,7 +315,7 @@ describe('history utils', () => {
         {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1}
       ]
       const state = performAll(actions)
-      const steps = util.createSteps(actions)
+      const steps = util.createStepsForLastAction(actions)
       expect(state.groups[0].history.back.length).toBe(1)
       expect(steps).toEqual([
         {fn: back, args: [1]},
@@ -330,7 +330,7 @@ describe('history utils', () => {
         {type: PUSH, url: '/a/1'}
       ]
       const state = performAll(actions)
-      const steps = util.createSteps(actions)
+      const steps = util.createStepsForLastAction(actions)
       expect(steps).toEqual([
         {fn: push, args: [state.groups[0].history.current]}
       ])
@@ -342,7 +342,7 @@ describe('history utils', () => {
         {type: PUSH, url: '/a/1'},
         {type: BACK}
       ]
-      const steps = util.createSteps(actions)
+      const steps = util.createStepsForLastAction(actions)
       expect(steps).toEqual([
         {fn: back, args: [1]}
       ])
@@ -354,7 +354,7 @@ describe('history utils', () => {
         {type: SWITCH_TO_CONTAINER, groupIndex: 0, containerIndex: 1},
         {type: POPSTATE, id: 1}
       ]
-      const steps = util.createSteps(actions)
+      const steps = util.createStepsForLastAction(actions)
       expect(steps).toEqual([])
     })
 
@@ -365,7 +365,7 @@ describe('history utils', () => {
         {type: LOAD_FROM_URL, url: '/a'}
       ]
       const state = performAll(actions)
-      const steps = util.createSteps(actions)
+      const steps = util.createStepsForLastAction(actions)
       expect(steps).toEqual([
         {fn: push, args: [state.groups[0].history.current]}
       ])
@@ -379,7 +379,7 @@ describe('history utils', () => {
         {type: LOAD_FROM_URL, url: '/a'}
       ]
       const state = performAll(actions)
-      const steps = util.createSteps(actions)
+      const steps = util.createStepsForLastAction(actions)
       expect(steps).toEqual([
         {fn: push, args: [state.groups[0].history.current]},
         {fn: push, args: [state.groups[0].history.forward[0]]},

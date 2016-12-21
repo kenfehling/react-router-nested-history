@@ -9,6 +9,15 @@ export let _history = canUseWindowLocation ?
     createBrowserHistory() :
     createMemoryHistory()
 
+export const _resetHistory = () => {
+  if (canUseWindowLocation) {
+    throw new Error("This is only for tests")
+  }
+  else {
+    _history = createMemoryHistory()
+  }
+}
+
 export const push = (page:Page) => {
   const state = {id: page.id}
   _history.push(page.url, state)

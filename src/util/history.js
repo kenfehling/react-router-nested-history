@@ -204,11 +204,8 @@ export const diffStateToSteps = (oldState:?State, newState:State) : Step[] => {
   }
 }
 
-export function createSteps(actions:Object[]) : Step[] {
+export function createStepsForLastAction(actions:Object[]) : Step[] {
   const newState:State = deriveState(actions)
-
-  console.log(newState)
-
   switch(newState.lastAction.type) {
     case LOAD_FROM_URL: {
       const i = _.findLastIndex(actions, a => a.type !== CREATE_CONTAINER)
