@@ -7,12 +7,14 @@ import createBrowserHistory from 'history/createBrowserHistory'
 import createMemoryHistory from "history/createMemoryHistory"
 import { listenToLocation, locationChanged } from "../actions/LocationActions"
 import { canUseWindowLocation } from '../../util/location'
-import {loadFromUrl} from "../../main";
+import { loadFromUrl, listenToStore, setZeroPage } from "../../main"
 
 class HistoryRouter extends Component {
   constructor(props) {
     super(props)
-    const {listenToLocation, locationChanged} = props
+    const {listenToLocation, locationChanged, zeroPage} = props
+    setZeroPage(zeroPage)
+    listenToStore()
     if (canUseWindowLocation) {
       locationChanged(window.location)
     }
@@ -71,7 +73,8 @@ HistoryRouter.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.node
-  ])
+  ]),
+  zeroPage: PropTypes.string.isRequired
 }
 
 if (!canUseWindowLocation) {  // allow passing location in non-browser enviroment

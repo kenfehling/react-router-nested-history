@@ -1,5 +1,11 @@
 // @flow
 
+export interface Action {
+  type: string,
+  time: Date,
+  data: any
+}
+
 export interface Page {
   url: string,
   id: number,
@@ -31,7 +37,9 @@ export interface State {
   groups: Group[],
   activeGroupIndex: number,
   lastPageId: number,
-  lastAction: Object
+  lastAction: Action,
+  lastUpdate: Date,
+  browserHistory: History
 }
 
 export interface Step {

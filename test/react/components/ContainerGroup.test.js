@@ -3,6 +3,7 @@ import { shallow, mount, render } from 'enzyme'
 import ContainerGroup from '../../../src/react/components/ContainerGroup'
 import Container from '../../../src/react/components/Container'
 import HistoryRouter from '../../../src/react/components/HistoryRouter'
+import { zeroPage } from '../../fixtures'
 
 describe('ContainerGroup', () => {
 
@@ -49,7 +50,7 @@ describe('ContainerGroup', () => {
     }
 
     render() {
-      return (<HistoryRouter location='/windows/2'>
+      return (<HistoryRouter location='/windows/2' zeroPage={zeroPage}>
         <div className="windows">
           <h2>Windows example</h2>
           <div className="description">

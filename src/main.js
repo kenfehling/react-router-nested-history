@@ -1,15 +1,15 @@
 // @flow
 declare var Promise:any
 declare var CustomEvent:any
-
 import { CREATE_CONTAINER, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes"
 import * as actions from './actions/HistoryActions'
 import * as browser from './browserFunctions'
 import { listen, listenPromise } from './browserFunctions'
 import * as util from './util/history'
+import { getCurrentPageInGroup, getActiveGroup } from './util/core'
 import store, { persist } from './store'
 import * as _ from 'lodash'
-import type { Step, State, Group, Container } from './types'
+import type { Step, State, Group, Container, Page, Action } from './types'
 import { createLocation } from "history"
 import Queue from 'promise-queue'
 import { canUseWindowLocation } from './util/location'
@@ -18,11 +18,11 @@ const maxConcurrent = 1
 const maxQueue = Infinity
 const queue = new Queue(maxConcurrent, maxQueue)
 const needsPopListener = canUseWindowLocation ? [browser.back, browser.forward, browser.go] : []
-let unlisten
+let unlisten, lastUpdate = new Date()
 
-const getActions = () : Object[] => store.getState().actions
-const getDerivedState = () : State => util.deriveState(getActions())
-
+const getActions = () : Action[] => store.getState().actions
+const getDerivedState = () : State => util.deriveState(getActions(), getZeroPage())
+const getZeroPage = () : string => store.getState().zeroPage
 
 const startListening = () => {
   unlisten = listen(location => {
@@ -46,12 +46,12 @@ const startListeningPromise = () => new Promise(resolve => {
 startListening()
 
 export const getNextGroupIndex = () => {
-  const actions = getActions()
+  const actions:Action[] = getActions()
   if (_.isEmpty(actions)) {
     return 0
   }
   else {
-    const state = util.deriveState(actions)
+    const state = util.deriveState(actions, getZeroPage())
     return state.groups.length
   }
 }
@@ -64,11 +64,11 @@ const createContainer = (groupIndex:number, initialUrl:string, patterns:string[]
 
 export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
   const create = () : Container => createContainer(groupIndex, initialUrl, patterns, useDefault)
-  const actions = getActions()
+  const actions:Action[] = getActions()
   if (_.isEmpty(actions)) {
     return create()
   }
-  const state:State = util.deriveState(actions)
+  const state:State = util.deriveState(actions, getZeroPage())
   const group = state.groups[groupIndex]
   if (!group) {
     return create()
@@ -83,7 +83,7 @@ export const loadFromUrl = (url:string) =>
 export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
 
 export const getGroupState = (groupIndex:number) : Object =>
-    util.getGroupState(getActions(), groupIndex)
+    util.getGroupState(getActions(), groupIndex, getZeroPage())
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) => {
   if (!util.isActiveContainer(getDerivedState(), groupIndex, containerIndex)) {
@@ -103,11 +103,11 @@ export const back = (n:number=1) => store.dispatch(actions.back(n))
 export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 
 export const getCurrentPageInGrouo = (groupIndex:number) =>
-  util.getCurrentPageInGroup(getDerivedState(), groupIndex)
+    getCurrentPageInGroup(getDerivedState(), groupIndex)
 
 export const getCurrentPage = () => {
   const state = getDerivedState()
-  return util.getCurrentPageInGroup(state, state.activeGroupIndex)
+  return getCurrentPageInGroup(state, state.activeGroupIndex)
 }
 
 function runStep(step:Step) {
@@ -124,16 +124,23 @@ export function runSteps(steps:Step[]) {
   return steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
 }
 
-store.subscribe(() => {
-  const actions = getActions()
-  const state = util.deriveState(actions)
-  const group = util.getActiveGroup(state)
-  const current = group.history.current
-  const steps = util.createStepsForLastAction(actions)
-  if (state.lastAction.type !== CREATE_CONTAINER) {
-    window.dispatchEvent(new CustomEvent('locationChange', {
-      detail: {location: createLocation(current.url, {id: current.id})}
-    }))
-    runSteps(steps)
-  }
-})
+export function listenToStore() {
+  store.subscribe(() => {
+    const actions:Action[] = getActions()
+    const zeroPage:string = getZeroPage()
+    const state:State = util.deriveState(actions, zeroPage)
+    const group:Group = getActiveGroup(state)
+    const current:Page = group.history.current
+    const steps:Step[] = util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate)
+    lastUpdate = new Date()
+    //if (state.lastAction.type !== CREATE_CONTAINER) {
+      window.dispatchEvent(new CustomEvent('locationChange', {
+        detail: {location: createLocation(current.url, {id: current.id})}
+      }))
+      runSteps(steps)
+    //}
+  })
+}
+
+export const setZeroPage = (zeroPage:string) =>
+    store.dispatch(actions.setZeroPage(zeroPage))

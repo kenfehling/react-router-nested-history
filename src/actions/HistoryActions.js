@@ -1,47 +1,79 @@
 // @flow
 
-import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "../constants/ActionTypes"
+import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE, SET_ZERO_PAGE } from "../constants/ActionTypes"
 
 export const createContainer = (groupIndex:number, initialUrl:string, urlPatterns:string[], useDefault:boolean) => ({
   type: CREATE_CONTAINER,
-  groupIndex,
-  initialUrl,
-  urlPatterns,
-  useDefault
+  time: new Date(),
+  data: {
+    groupIndex,
+    initialUrl,
+    urlPatterns,
+    useDefault
+  },
 })
 
 export const loadFromUrl = (url:string) => ({
   type: LOAD_FROM_URL,
-  url
+  time: new Date(),
+  data: {
+    url
+  }
 })
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) => ({
   type: SWITCH_TO_CONTAINER,
-  groupIndex,
-  containerIndex
+  time: new Date(),
+  data: {
+    groupIndex,
+    containerIndex
+  }
 })
 
 export const push = (url: string) => ({
   type: PUSH,
-  url
+  time: new Date(),
+  data: {
+    url
+  }
 })
 
 export const back = (n: number) => ({
   type: BACK,
-  n
+  time: new Date(),
+  data: {
+    n
+  }
 })
 
 export const forward = (n: number) => ({
   type: FORWARD,
-  n
+  time: new Date(),
+  data: {
+    n
+  }
 })
 
 export const go = (n: number) => ({
   type: GO,
-  n
+  time: new Date(),
+  data: {
+    n
+  }
 })
 
 export const popstate = (id: number) => ({
   type: POPSTATE,
-  id
+  time: new Date(),
+  data: {
+    id
+  }
+})
+
+export const setZeroPage = (zeroPage: string) => ({
+  type: SET_ZERO_PAGE,
+  time: new Date(),
+  data: {
+    zeroPage
+  }
 })

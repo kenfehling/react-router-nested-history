@@ -1,3 +1,4 @@
+export const SET_ZERO_PAGE = 'set-zero-page'
 export const CREATE_CONTAINER = 'create-container'
 export const LOAD_FROM_URL = 'load-from-url'
 export const SWITCH_TO_CONTAINER = 'switch-to-container'
