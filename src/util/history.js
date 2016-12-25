@@ -184,7 +184,7 @@ export function reducer(state:?State, action:Action, zeroPage:string) : State {
       case BACK: return go(state, 0 - action.data.n || -1)
       case FORWARD:
       case GO: return go(state, action.data.n || 1)
-      case POPSTATE: return onpop(state, action.data.n)
+      case POPSTATE: return onpop(state, action.data.id)
     }
   }
   return state
@@ -202,7 +202,6 @@ export const getHistoryReplacementSteps = (h1:?History, h2:History) : Step[] => 
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ])
 }
-
 
 /**
  * Get the difference between oldState and newState and return a list of
@@ -236,42 +235,6 @@ export const diffStateToSteps = (oldState:?State, newState:State, zeroPage:strin
     return getHistoryReplacementSteps(h1, h2)
   }
 }
-
-/*
-export function createStepsForAction(oldState:?State, newState:State, action:Action, zeroPage:string) : Step[] {
-  switch(action.type) {
-    case CREATE_CONTAINER: {
-      return [createReplaceStep({url: zeroPage, id: 0, containerIndex: 0})]
-    }
-    case LOAD_FROM_URL: {
-      if (browser.wasLoadedFromRefresh()) {
-        return []
-      }
-      else {
-        return [
-          //createReplaceStep({url: zeroPage, id: 0, containerIndex: 0}),
-          ...diffStateToSteps(null, newState)
-        ]
-      }
-    }
-    case SWITCH_TO_CONTAINER: {
-      return diffStateToSteps(oldState, newState)
-    }
-    case PUSH: {
-      const s:Step = createPushStep(getActiveGroup(newState).history.current)
-      const onZeroPage:boolean = !!oldState && isOnZeroPage(oldState)
-      return onZeroPage ? [{fn: browser.go, args: [1]}, s] : [s]
-    }
-    case BACK:
-      return [{fn: browser.back, args: [newState.lastAction.n || 1]}]
-    case FORWARD:
-      return [{fn: browser.forward, args: [newState.lastAction.n || 1]}]
-    case GO:
-      return [{fn: browser.go, args: [newState.lastAction.n || 1]}]
-  }
-  return []
-}
-*/
 
 export function createStepsSinceLastUpdate(actions:Action[], zeroPage:string, lastUpdate:Date) : Step[] {
   const oldActions:Action[] = _.filter(actions, a => compareAsc(a.time, lastUpdate) === -1)
