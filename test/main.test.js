@@ -80,11 +80,10 @@ describe('main', () => {
 
         console.log(entries)
 
-        expect(entries.length).toBe(3)
-        expect(index).toBe(2)
+        expect(entries.length).toBe(2)
+        expect(index).toBe(1)
         expect(entries[0].pathname).toBe(zeroPage)
-        expect(entries[1].pathname).toBe(zeroPage)
-        expect(entries[2].pathname).toBe('/a')
+        expect(entries[1].pathname).toBe('/a')
       })
     })
 

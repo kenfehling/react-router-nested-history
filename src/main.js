@@ -1,7 +1,6 @@
 // @flow
 declare var Promise:any
 declare var CustomEvent:any
-import { CREATE_CONTAINER, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes"
 import * as actions from './actions/HistoryActions'
 import * as browser from './browserFunctions'
 import { listen, listenPromise } from './browserFunctions'
@@ -9,7 +8,7 @@ import * as util from './util/history'
 import { getCurrentPageInGroup, getActiveGroup } from './util/core'
 import store, { persist } from './store'
 import * as _ from 'lodash'
-import type { Step, State, Group, Container, Page, Action } from './types'
+import type { Step, State, InitializedState, Group, Container, Page, Action } from './types'
 import { createLocation } from "history"
 import Queue from 'promise-queue'
 import { canUseWindowLocation } from './util/location'
@@ -26,7 +25,7 @@ const getZeroPage = () : string => store.getState().zeroPage
 
 const startListening = () => {
   unlisten = listen(location => {
-    const state = location.state
+    const state:State = location.state
     if (state) {
       store.dispatch(actions.popstate(location.state.id))
     }
@@ -105,11 +104,6 @@ export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 export const getCurrentPageInGrouo = (groupIndex:number) =>
     getCurrentPageInGroup(getDerivedState(), groupIndex)
 
-export const getCurrentPage = () => {
-  const state = getDerivedState()
-  return getCurrentPageInGroup(state, state.activeGroupIndex)
-}
-
 function runStep(step:Step) {
   const stepPromise = () => {
     step.fn(...step.args)
@@ -128,7 +122,7 @@ export function listenToStore() {
   store.subscribe(() => {
     const actions:Action[] = getActions()
     const zeroPage:string = getZeroPage()
-    const state:State = util.deriveState(actions, zeroPage)
+    const state:InitializedState = util.deriveInitializedState(actions, zeroPage)
     const group:Group = getActiveGroup(state)
     const current:Page = group.history.current
     const steps:Step[] = util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate)

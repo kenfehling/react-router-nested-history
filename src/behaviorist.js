@@ -2,7 +2,7 @@
 import * as _ from 'lodash'
 import { patternsMatch , patternMatches} from "./util/url"
 import { pushToStack, findGroupWithCurrentUrl, toBrowserHistory} from './util/core'
-import type { State, Page, Group, Container, History } from './types'
+import type { State, UninitialzedState, InitializedState, Page, Group, Container, History } from './types'
 
 // TODO: Pass this in dynamically
 import * as defaultBehavior from './behaviors/defaultBehavior'
@@ -41,8 +41,8 @@ function push(state:State, container:Container, url:string) : Page {
   return page
 }
 
-function loadGroupFromUrl(oldState:State, url:string, groupIndex:number) : State {
-  const state:State = _.cloneDeep(oldState)
+function loadGroupFromUrl(oldState:UninitialzedState, url:string, groupIndex:number) : UninitialzedState {
+  const state:UninitialzedState = _.cloneDeep(oldState)
   const group:Group = state.groups[groupIndex]
   const containers:Container[] = group.containers
   const useDefault:boolean = _.some(containers, c => c.isDefault)
@@ -74,10 +74,12 @@ function loadGroupFromUrl(oldState:State, url:string, groupIndex:number) : State
   return state
 }
 
-export const loadFromUrl = (oldState:State, url:string, zeroPage:string) : State => {
-  const newState:State = oldState.groups.reduce((state:State, group:Group) : State =>
-      loadGroupFromUrl(state, url, group.index), oldState)
+export const loadFromUrl = (oldState:UninitialzedState, url:string, zeroPage:string) : InitializedState => {
+  const newState:UninitialzedState =
+      oldState.groups.reduce((state:State, group:Group) : UninitialzedState =>
+        loadGroupFromUrl(state, url, group.index), oldState)
   const activeGroup:Group = findGroupWithCurrentUrl(newState, url)
   const browserHistory:History = toBrowserHistory(activeGroup.history, zeroPage)
-  return {...newState, browserHistory, activeGroupIndex: activeGroup.index}
+  return {...newState, browserHistory, activeGroupIndex: activeGroup.index, lastUpdate: new Date(0)}
+  // TODO: Remove lastUpdate field and make a new more specific State type?
 }

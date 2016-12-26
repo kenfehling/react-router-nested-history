@@ -33,14 +33,20 @@ export interface Group {
   history: History
 }
 
-export interface State {
+interface BaseState {
   groups: Group[],
-  activeGroupIndex: number,
-  lastPageId: number,
-  lastAction: Action,
-  lastUpdate: Date,
-  browserHistory: History
+  lastPageId: number
 }
+
+export type UninitialzedState = BaseState
+
+export type InitializedState = {
+  browserHistory: History,
+  lastUpdate: Date,
+  activeGroupIndex: number
+} & BaseState
+
+export type State = InitializedState | UninitialzedState
 
 export interface Step {
   fn: Function,

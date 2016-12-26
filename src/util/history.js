@@ -4,15 +4,15 @@ import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWA
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
 import { pushToStack, replaceCurrent, back, forward, getCurrentPageInGroup, getActiveContainer, getActiveGroup,
-  filterZero, isZeroPage, isOnZeroPage, toBrowserHistory
+  filterZero, isZeroPage, isOnZeroPage, toBrowserHistory, isInitialized
 } from './core'
 import * as browser from '../browserFunctions'
 import { switchContainer, loadFromUrl } from '../behaviorist'
-import type { History, State, Container, Page, Group, Step, Action} from '../types'
+import type { History, State, Container, Page, Group, Step, Action, UninitialzedState, InitializedState} from '../types'
 import compareAsc from 'date-fns/compare_asc'
 
-export const pushPage = (oldState:State, page:Page) : State => {
-  const state:State = _.cloneDeep(oldState)
+export const pushPage = (oldState:InitializedState, page:Page) : State => {
+  const state:InitializedState = _.cloneDeep(oldState)
   const group:Group = getActiveGroup(state)
   const container:Container = group.containers[page.containerIndex]
   container.history = pushToStack(container.history, page)
@@ -22,8 +22,8 @@ export const pushPage = (oldState:State, page:Page) : State => {
   return state
 }
 
-export const replacePage = (oldState:State, page:Page) : State => {
-  const state:State = _.cloneDeep(oldState)
+export const replacePage = (oldState:InitializedState, page:Page) : State => {
+  const state:InitializedState = _.cloneDeep(oldState)
   const group:Group = state.groups[state.activeGroupIndex]
   const container:Container = group.containers[page.containerIndex]
   container.history = replaceCurrent(container.history, page)
@@ -33,12 +33,7 @@ export const replacePage = (oldState:State, page:Page) : State => {
   return state
 }
 
-export const replacePageZero = (state:State, zeroPage:string) : State => ({
-    ...state,
-  browserHistory: replaceCurrent(state.browserHistory, {url: zeroPage, id: 0, containerIndex: 0})
-})
-
-export const _Url = (state:State, url:string, containerIndex:?number, fn:Function) : State => {
+export const _Url = (state:InitializedState, url:string, containerIndex:?number, fn:Function) : State => {
   const id:number = state.lastPageId + 1
   return fn(state, {
     url,
@@ -47,17 +42,17 @@ export const _Url = (state:State, url:string, containerIndex:?number, fn:Functio
   })
 }
 
-export const pushUrl = (state:State, url:string, containerIndex:?number) : State =>
+export const pushUrl = (state:InitializedState, url:string, containerIndex:?number) : State =>
     _Url(state, url, containerIndex, pushPage)
 
-export const replaceUrl = (state:State, url:string, containerIndex:?number) : State =>
+export const replaceUrl = (state:InitializedState, url:string, containerIndex:?number) : State =>
     _Url(state, url, containerIndex, replacePage)
 
-export function go(oldState:State, n:number, zeroPage:string) : State {
+export function go(oldState:InitializedState, n:number, zeroPage:string) : State {
   if (n === 0) {
     return oldState
   }
-  const state = _.cloneDeep(oldState)
+  const state:InitializedState = _.cloneDeep(oldState)
   const group = state.groups[state.activeGroupIndex]
   const container = group.containers[group.history.current.containerIndex]
   const f = n < 0 ? back : forward
@@ -73,8 +68,8 @@ export function go(oldState:State, n:number, zeroPage:string) : State {
   return go(state, nextN, zeroPage)
 }
 
-export const getHistoryShiftAmount = (oldState:State, pageEquals:Function) : number => {
-  const group = oldState.groups[oldState.activeGroupIndex]
+export const getHistoryShiftAmount = (oldState:InitializedState, pageEquals:Function) : number => {
+  const group:Group = oldState.groups[oldState.activeGroupIndex]
   const oldHistory = group.history
   if (!_.isEmpty(oldHistory.back)) {
     const i = _.findIndex(oldHistory.back, pageEquals)
@@ -91,13 +86,13 @@ export const getHistoryShiftAmount = (oldState:State, pageEquals:Function) : num
   return 0
 }
 
-export const getHistoryShiftAmountForId = (oldState:State, id:number) : number =>
+export const getHistoryShiftAmountForId = (oldState:InitializedState, id:number) : number =>
     getHistoryShiftAmount(oldState, (p:Page) => p.id === id)
 
-export const getHistoryShiftAmountForUrl = (oldState:State, url:string) : number =>
+export const getHistoryShiftAmountForUrl = (oldState:InitializedState, url:string) : number =>
     getHistoryShiftAmount(oldState, (p:Page) => p.url === url)
 
-export const onpop = (state:State, id:number, zeroPage:string) : State => {
+export const onpop = (state:InitializedState, id:number, zeroPage:string) : State => {
   const shiftAmount = getHistoryShiftAmountForId(state, id)
   if (shiftAmount === 0) {
     return state
@@ -107,30 +102,28 @@ export const onpop = (state:State, id:number, zeroPage:string) : State => {
   }
 }
 
-export function reducer(state:?State, action:Action, zeroPage:string) : State {
-  switch (action.type) {
-    case CREATE_CONTAINER: {
-      const {groupIndex=0, initialUrl, urlPatterns, useDefault=true} = action.data
-      const id = (state ? state.lastPageId : 0) + 1
-      const existingGroup:?Group = state ? state.groups[groupIndex] : null
-      const containerIndex = existingGroup ? existingGroup.containers.length : 0
+function _ccReducer(state:?UninitialzedState, action:Action, zeroPage:string) : UninitialzedState {
+  const {groupIndex=0, initialUrl, urlPatterns, useDefault=true} = action.data
+  const id = (state ? state.lastPageId : 0) + 1
+  const existingGroup:?Group = state ? state.groups[groupIndex] : null
+  const containerIndex = existingGroup ? existingGroup.containers.length : 0
 
-      const history:History = {
-        back: [],
-        current: {url: initialUrl, id, containerIndex},
-        forward: []
-      }
+  const history:History = {
+    back: [],
+    current: {url: initialUrl, id, containerIndex},
+    forward: []
+  }
 
-      const container:Container = {
-        initialUrl,
-        urlPatterns,
-        history,
-        groupIndex,
-        index: containerIndex,
-        isDefault: containerIndex === 0 && useDefault
-      }
+  const container:Container = {
+    initialUrl,
+    urlPatterns,
+    history,
+    groupIndex,
+    index: containerIndex,
+    isDefault: containerIndex === 0 && useDefault
+  }
 
-      const group = existingGroup ? {
+  const group = existingGroup ? {
         ...existingGroup,
         containers: [...existingGroup.containers, container]
       } : {
@@ -138,56 +131,92 @@ export function reducer(state:?State, action:Action, zeroPage:string) : State {
         history: history,
         containers: [container]
       }
-      return {
-        ...(state ? state : {}),
-        groups: state ? [
+  return {
+    ...(state ? state : {}),
+    groups: state ? [
           ...state.groups.slice(0, groupIndex),
           group,
           ...state.groups.slice(groupIndex + 1)
         ] : [group],
-        activeGroupIndex: state ? state.activeGroupIndex : 0,
-        lastPageId: id,
-        browserHistory: state ? state.browserHistory :
-            toBrowserHistory(history, zeroPage)
-      }
-    }
+    lastPageId: id
   }
-  if (!state) {
-    throw new Error("State not yet initialized")
+}
+
+function _loadReducer(state:UninitialzedState, action:Action, zeroPage:string) : InitializedState {
+  const {url} = action.data
+
+  console.log('State', state)
+
+  return loadFromUrl(state, url, zeroPage)
+}
+
+function _reducer(state:InitializedState, action:Action, zeroPage:string) : InitializedState {
+  switch (action.type) {
+    case SWITCH_TO_CONTAINER: {
+      const {groupIndex, containerIndex} = action.data
+      const newState:InitializedState = isOnZeroPage(state) ?
+          _.cloneDeep(go(state, 1, zeroPage)) : _.cloneDeep(state)
+      const group:Group = newState.groups[groupIndex]
+      const oldContainerIndex = group.history.current.containerIndex
+      const fromContainer:Container = group.containers[oldContainerIndex]
+      const toContainer:Container = getContainer(newState, groupIndex, containerIndex)
+      const defaultContainer:?Container =
+          _.find(group.containers, (c:Container) => c.isDefault)
+      group.history = switchContainer(fromContainer, toContainer, defaultContainer)
+      newState.browserHistory = toBrowserHistory(group.history, zeroPage)
+      newState.activeGroupIndex = group.index
+      return newState
+    }
+    case PUSH: {
+      const {url} = action.data
+      const f:Function = (s:InitializedState) => pushUrl(s, url)
+      return isOnZeroPage(state) ? f(go(state, 1, zeroPage)) : f(state)
+    }
+    case BACK: return go(state, 0 - action.data.n || -1, zeroPage)
+    case FORWARD:
+    case GO: return go(state, action.data.n || 1, zeroPage)
+    case POPSTATE: return onpop(state, action.data.id, zeroPage)
+  }
+  return state
+}
+
+export function reducer(state:?State, action:Action, zeroPage:string) : State {
+  if (state !== null || state !== undefined) {
+    if (action.type === CREATE_CONTAINER) {
+      return _ccReducer(state, action, zeroPage)
+    }
+    else {
+      throw new Error("State not yet initialized")
+    }
   }
   else {
     switch (action.type) {
+      case CREATE_CONTAINER: {
+        if (!isInitialized(state)) {
+          return _ccReducer(state, action, zeroPage)
+        }
+        else {
+          throw new Error("State already initialized")
+        }
+      }
       case LOAD_FROM_URL: {
-        const {url} = action.data
-        return loadFromUrl(replacePageZero(state, zeroPage), url, zeroPage)
+        if (!isInitialized(state)) {
+          return _loadReducer(state, action, zeroPage)
+        }
+        else {
+          throw new Error("State already initialized")
+        }
       }
-      case SWITCH_TO_CONTAINER: {
-        const {groupIndex, containerIndex} = action.data
-        const newState:State = isOnZeroPage(state) ?
-            _.cloneDeep(go(state, 1, zeroPage)) : _.cloneDeep(state)
-        const group:Group = newState.groups[groupIndex]
-        const oldContainerIndex = group.history.current.containerIndex
-        const fromContainer:Container = group.containers[oldContainerIndex]
-        const toContainer:Container = getContainer(newState, groupIndex, containerIndex)
-        const defaultContainer:?Container =
-            _.find(group.containers, (c:Container) => c.isDefault)
-        group.history = switchContainer(fromContainer, toContainer, defaultContainer)
-        newState.browserHistory = toBrowserHistory(group.history, zeroPage)
-        newState.activeGroupIndex = group.index
-        return newState
+      default: {
+        if (isInitialized(state)) {
+          return _reducer(state, action, zeroPage)
+        }
+        else {
+          throw new Error("State not yet initialized")
+        }
       }
-      case PUSH: {
-        const {url} = action.data
-        const f:Function = (s:State) => pushUrl(s, url)
-        return isOnZeroPage(state) ? f(go(state, 1, zeroPage)) : f(state)
-      }
-      case BACK: return go(state, 0 - action.data.n || -1, zeroPage)
-      case FORWARD:
-      case GO: return go(state, action.data.n || 1, zeroPage)
-      case POPSTATE: return onpop(state, action.data.id, zeroPage)
     }
   }
-  return state
 }
 
 const createPushStep = (page:Page) => ({fn: browser.push, args: [page]})
@@ -207,20 +236,14 @@ export const getHistoryReplacementSteps = (h1:?History, h2:History) : Step[] => 
  * Get the difference between oldState and newState and return a list of
  * browser functions to transform the browser history from oldState to newState
  * @param oldState {?State} The original historyStore state
- * @param newState {State} The new historyStore state
+ * @param newState {InitializedState} The new historyStore state
  * @returns {Step[]} An array of steps to get from old state to new state
  */
-export const diffStateToSteps = (oldState:?State, newState:State, zeroPage:string) : Step[] => {
-  const h1:?History = oldState ? oldState.browserHistory : null
+export const diffStateToSteps = (oldState:InitializedState, newState:InitializedState, zeroPage:string) : Step[] => {
+  const h1:History = oldState.browserHistory
   const h2:History = newState.browserHistory
   if (_.isEqual(h1, h2)) {
     return []
-  }
-  if (!oldState) {
-    return [
-      createReplaceStep({url: zeroPage, id: 0, containerIndex: 0}),
-      ...getHistoryReplacementSteps(h1, h2)
-    ]
   }
   const shiftAmount:number = getHistoryShiftAmount(oldState, p => p.id === h2.current.id)
   if (shiftAmount !== 0) {
@@ -235,11 +258,19 @@ export const diffStateToSteps = (oldState:?State, newState:State, zeroPage:strin
 }
 
 export function createStepsSinceLastUpdate(actions:Action[], zeroPage:string, lastUpdate:Date) : Step[] {
+  const newState:InitializedState = deriveInitializedState(actions, zeroPage)
   const oldActions:Action[] = _.filter(actions,
       a => compareAsc(a.time, lastUpdate) === -1 || a.type === POPSTATE)
-  const oldState:?State = _.isEmpty(oldActions) ? null : deriveState(oldActions, zeroPage)
-  const newState:State = deriveState(actions, zeroPage)
-  return diffStateToSteps(oldState, newState, zeroPage)
+  if (_.isEmpty(oldActions)) {
+    return [
+      createReplaceStep({url: zeroPage, id: 0, containerIndex: 0}),
+      ...getHistoryReplacementSteps(null, newState.browserHistory)
+    ]
+  }
+  else {
+    const oldState:InitializedState = deriveInitializedState(oldActions, zeroPage)
+    return diffStateToSteps(oldState, newState, zeroPage)
+  }
 }
 
 export const reduceAll = (state:?State, actions:Action[], zeroPage:string) : State => {
@@ -247,7 +278,7 @@ export const reduceAll = (state:?State, actions:Action[], zeroPage:string) : Sta
     throw new Error('No action history')
   }
   else {
-    return actions.reduce((nextState:State, action:Action) =>
+    return actions.reduce((nextState:State, action:Action) : State =>
         reducer(nextState, action, zeroPage), state)
   }
 }
@@ -257,9 +288,17 @@ export const deriveState = (actions:Action[], zeroPage:string) : State => {
     throw new Error('No action history')
   }
   return {
-    ...actions.reduce((state, action) => reducer(state, action, zeroPage), null),
-    lastAction: _.last(actions)
+    ...actions.reduce((state:?State, action:Action) : State =>
+        reducer(state, action, zeroPage), null)
   }
+}
+
+export const deriveInitializedState = (actions:Action[], zeroPage:string) : InitializedState => {
+  const state:State = deriveState(actions, zeroPage)
+  if (!isInitialized(state)) {
+    throw new Error('State not initialized')
+  }
+  return state
 }
 
 export function getContainerStackOrder(actions:Action[], groupIndex:number, zeroPage:string) : Container[] {
@@ -273,8 +312,8 @@ export function getContainerStackOrder(actions:Action[], groupIndex:number, zero
       const group:Group = _.last(newState.groups)
       fp.reverse(group.containers).forEach(c => containerSwitches.push(c))
     }
-    if (newState.activeGroupIndex === groupIndex) {
-      if (!hasSameActiveContainer(oldState, newState)) {
+    if (isInitialized(newState) && newState.activeGroupIndex === groupIndex) {
+      if (!oldState || !isInitialized(oldState) || !hasSameActiveContainer(oldState, newState)) {
         containerSwitches.push(getActiveContainer(newState))
       }
     }
@@ -296,20 +335,19 @@ export function getContainer(state:State, groupIndex:number, index:number):Conta
   return state.groups[groupIndex].containers[index]
 }
 
-export function hasSameActiveContainer(oldState:?State, newState:State) : boolean {
-  if (!oldState) return false
+export function hasSameActiveContainer(oldState:InitializedState, newState:InitializedState) : boolean {
   const o:Container = getActiveContainer(oldState)
   const n:Container = getActiveContainer(newState)
   return o.groupIndex === n.groupIndex && o.index === n.index
 }
 
-export function isActiveContainer(state:State, groupIndex:number, containerIndex:number) {
+export function isActiveContainer(state:InitializedState, groupIndex:number, containerIndex:number) {
   const c = getActiveContainer(state)
   return c.groupIndex === groupIndex && c.index === containerIndex
 }
 
 export const getGroupState = (actions:Action[], groupIndex:number, zeroPage:string) => {
-  const state:State = deriveState(actions, zeroPage)
+  const state:InitializedState = deriveInitializedState(actions, zeroPage)
   const currentUrl:string = getCurrentPageInGroup(state, groupIndex).url
   const activeContainer:Container = getActiveContainer(state)
   const activeGroup:Group = getActiveGroup(state)
