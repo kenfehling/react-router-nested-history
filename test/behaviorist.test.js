@@ -4,16 +4,15 @@ declare var describe:any
 declare var it:any
 declare var expect:any
 import { deriveState } from '../src/util/history'
-import { switchContainer} from '../src/behaviorist'
-import { CREATE_CONTAINER, INIT_GROUP } from "../src/constants/ActionTypes"
-import type { State, Container } from '../src/types'
+import { switchContainer, loadFromUrl } from '../src/behaviorist'
+import type { State, Group, Container } from '../src/types'
 import { createContainers, zeroPage } from './fixtures'
 
 describe('behaviorist', () => {
+  const originalState:State = deriveState(createContainers, zeroPage)
+  const group:Group = originalState.groups[0]
 
   it('does a simple switch', () => {
-    const tempState:State = deriveState(createContainers, zeroPage)
-    const group = tempState.groups[0]
     const containers:Container[] = group.containers
 
     expect(switchContainer(containers[0], containers[1], containers[0])).toEqual({
@@ -173,5 +172,24 @@ describe('behaviorist', () => {
       current: {url: '/c', id: 3, containerIndex: 2},
       forward: []
     })
+  })
+
+  it('loads from URL /a', () => {
+    const state = loadFromUrl(originalState, '/a', zeroPage)
+    expect(state.browserHistory.back.length).toBe(1)
+    expect(state.browserHistory.back[0].url).toBe(zeroPage)
+    expect(state.browserHistory.current.url).toBe('/a')
+    expect(state.browserHistory.forward.length).toBe(0)
+    expect(state.activeGroupIndex).toBe(0)
+  })
+
+  it.only('loads from URL /a/1', () => {
+    const state = loadFromUrl(originalState, '/a/1', zeroPage)
+    expect(state.browserHistory.back.length).toBe(2)
+    expect(state.browserHistory.back[0].url).toBe(zeroPage)
+    expect(state.browserHistory.back[1].url).toBe('/a')
+    expect(state.browserHistory.current.url).toBe('/a/1')
+    expect(state.browserHistory.forward.length).toBe(0)
+
   })
 })

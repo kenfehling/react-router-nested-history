@@ -42,9 +42,17 @@ export function getActivePage(state:State) {
   return getCurrentPageInGroup(state, getActiveGroup(state).index)
 }
 
+export const findGroupWithCurrentUrl = (state:State, url:string) : Group =>
+    _.find(state.groups, (g:Group) : boolean => g.history.current.url === url)
+
 export const isZeroPage = (page:Page) : boolean => page.id === 0
 
 export const isOnZeroPage = (state:State) : boolean =>
     isZeroPage(getActivePage(state))
 
 export const filterZero = (pages:Page[]) => pages.filter(p => !!p.id)
+
+export const toBrowserHistory = (history:History, zeroPage:string) : History => ({
+  ...history,
+  back: [{url: zeroPage, id: 0, containerIndex: 0}, ...history.back]
+})

@@ -353,6 +353,19 @@ describe('history utils', () => {
       expect(steps).toEqual([])
     })
 
+    it('for pop back, then other stuff', () => {
+      const actions = [
+        ...createContainers,
+        {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
+        {type: POPSTATE, time: new Date(2), data: {id: 1}},
+        {type: PUSH, time: new Date(2), data: {url: '/a/1'}},
+      ]
+      const steps = createSteps(actions, 1)
+      expect(steps).toEqual([
+        {fn: push, args: [{url: '/a/1', id: 4, containerIndex: 0}]}
+      ])
+    })
+
     it('for reloading the initial page', () => {
       const steps = createSteps([
         ...createContainers,
