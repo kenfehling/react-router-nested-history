@@ -57,6 +57,11 @@ export const toBrowserHistory = (history:History, zeroPage:string) : History => 
   back: [{url: zeroPage, id: 0, containerIndex: 0}, ...history.back]
 })
 
-export const isInitialized = (s:State) =>
-  s.browserHistory !== null && s.lastUpdate !== null && s.activeGroupIndex !== null &&
-  s.browserHistory !== undefined && s.lastUpdate !== undefined && s.activeGroupIndex !== undefined
+export function assureType<T>(value:any, Type:Class<T>, errorMsg:string) : T {
+  if (value instanceof Type) {
+    return value
+  }
+  else {
+    throw new Error(errorMsg)
+  }
+}

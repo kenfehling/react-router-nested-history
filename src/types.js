@@ -33,22 +33,32 @@ export interface Group {
   history: History
 }
 
-interface BaseState {
-  groups: Group[],
-  lastPageId: number
-}
-
-export type UninitialzedState = BaseState
-
-export type InitializedState = {
-  browserHistory: History,
-  lastUpdate: Date,
-  activeGroupIndex: number
-} & BaseState
-
-export type State = InitializedState | UninitialzedState
-
 export interface Step {
   fn: Function,
   args: any[]
+}
+
+export class State {
+  groups: Group[];
+  lastPageId: number;
+  constructor({groups, lastPageId} : {groups:Group[]} & {lastPageId:number}) {
+    this.groups = groups
+    this.lastPageId = lastPageId
+  }
+}
+
+export class UninitialzedState extends State {}
+
+export class InitializedState extends State {
+  browserHistory: History;
+  lastUpdate: Date;
+  activeGroupIndex: number;
+  constructor({groups, lastPageId, browserHistory, lastUpdate, activeGroupIndex} :
+      {groups:Group[]} & {lastPageId:number} & {browserHistory:History} &
+          {lastUpdate:Date} & {activeGroupIndex:number}) {
+    super({groups, lastPageId})
+    this.browserHistory = browserHistory
+    this.lastUpdate = lastUpdate
+    this.activeGroupIndex = activeGroupIndex
+  }
 }

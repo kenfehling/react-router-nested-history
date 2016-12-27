@@ -4,11 +4,12 @@ import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWA
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
 import { pushToStack, replaceCurrent, back, forward, getCurrentPageInGroup, getActiveContainer, getActiveGroup,
-  filterZero, isZeroPage, isOnZeroPage, toBrowserHistory, isInitialized
+  filterZero, isZeroPage, isOnZeroPage, toBrowserHistory, assureType
 } from './core'
 import * as browser from '../browserFunctions'
 import { switchContainer, loadFromUrl } from '../behaviorist'
-import type { History, State, Container, Page, Group, Step, Action, UninitialzedState, InitializedState} from '../types'
+import type { History, Container, Page, Group, Step, Action} from '../types'
+import { State, UninitialzedState, InitializedState } from '../types'
 import compareAsc from 'date-fns/compare_asc'
 
 export const pushPage = (oldState:InitializedState, page:Page) : State => {
@@ -48,7 +49,7 @@ export const pushUrl = (state:InitializedState, url:string, containerIndex:?numb
 export const replaceUrl = (state:InitializedState, url:string, containerIndex:?number) : State =>
     _Url(state, url, containerIndex, replacePage)
 
-export function go(oldState:InitializedState, n:number, zeroPage:string) : State {
+export function go(oldState:InitializedState, n:number, zeroPage:string) : InitializedState {
   if (n === 0) {
     return oldState
   }
@@ -92,7 +93,7 @@ export const getHistoryShiftAmountForId = (oldState:InitializedState, id:number)
 export const getHistoryShiftAmountForUrl = (oldState:InitializedState, url:string) : number =>
     getHistoryShiftAmount(oldState, (p:Page) => p.url === url)
 
-export const onpop = (state:InitializedState, id:number, zeroPage:string) : State => {
+export const onpop = (state:InitializedState, id:number, zeroPage:string) : InitializedState => {
   const shiftAmount = getHistoryShiftAmountForId(state, id)
   if (shiftAmount === 0) {
     return state
@@ -124,14 +125,15 @@ function _ccReducer(state:?UninitialzedState, action:Action, zeroPage:string) : 
   }
 
   const group = existingGroup ? {
-        ...existingGroup,
-        containers: [...existingGroup.containers, container]
-      } : {
-        index: groupIndex,
-        history: history,
-        containers: [container]
-      }
-  return {
+    ...existingGroup,
+    containers: [...existingGroup.containers, container]
+  } : {
+    index: groupIndex,
+    history: history,
+    containers: [container]
+  }
+
+  return new UninitialzedState({
     ...(state ? state : {}),
     groups: state ? [
           ...state.groups.slice(0, groupIndex),
@@ -139,14 +141,11 @@ function _ccReducer(state:?UninitialzedState, action:Action, zeroPage:string) : 
           ...state.groups.slice(groupIndex + 1)
         ] : [group],
     lastPageId: id
-  }
+  })
 }
 
 function _loadReducer(state:UninitialzedState, action:Action, zeroPage:string) : InitializedState {
-  const {url} = action.data
-
-  console.log('State', state)
-
+  const {url} : {url:string} = action.data
   return loadFromUrl(state, url, zeroPage)
 }
 
@@ -181,7 +180,7 @@ function _reducer(state:InitializedState, action:Action, zeroPage:string) : Init
 }
 
 export function reducer(state:?State, action:Action, zeroPage:string) : State {
-  if (state !== null || state !== undefined) {
+  if (!state) {
     if (action.type === CREATE_CONTAINER) {
       return _ccReducer(state, action, zeroPage)
     }
@@ -192,7 +191,7 @@ export function reducer(state:?State, action:Action, zeroPage:string) : State {
   else {
     switch (action.type) {
       case CREATE_CONTAINER: {
-        if (!isInitialized(state)) {
+        if (state instanceof UninitialzedState) {
           return _ccReducer(state, action, zeroPage)
         }
         else {
@@ -200,7 +199,7 @@ export function reducer(state:?State, action:Action, zeroPage:string) : State {
         }
       }
       case LOAD_FROM_URL: {
-        if (!isInitialized(state)) {
+        if (state instanceof UninitialzedState) {
           return _loadReducer(state, action, zeroPage)
         }
         else {
@@ -208,7 +207,7 @@ export function reducer(state:?State, action:Action, zeroPage:string) : State {
         }
       }
       default: {
-        if (isInitialized(state)) {
+        if (state instanceof InitializedState) {
           return _reducer(state, action, zeroPage)
         }
         else {
@@ -287,19 +286,15 @@ export const deriveState = (actions:Action[], zeroPage:string) : State => {
   if (actions.length === 0) {
     throw new Error('No action history')
   }
-  return {
-    ...actions.reduce((state:?State, action:Action) : State =>
-        reducer(state, action, zeroPage), null)
-  }
+  return actions.reduce((state:?State, action:Action) : State =>
+      reducer(state, action, zeroPage), null)
 }
 
-export const deriveInitializedState = (actions:Action[], zeroPage:string) : InitializedState => {
-  const state:State = deriveState(actions, zeroPage)
-  if (!isInitialized(state)) {
-    throw new Error('State not initialized')
-  }
-  return state
-}
+export const deriveInitializedState = (actions:Action[], zeroPage:string) : InitializedState =>
+  assureType(deriveState(actions, zeroPage), InitializedState, 'State is not initialized')
+
+export const deriveUninitializedState = (actions:Action[], zeroPage:string) : UninitialzedState =>
+  assureType(deriveState(actions, zeroPage), UninitialzedState, 'State is already initialized')
 
 export function getContainerStackOrder(actions:Action[], groupIndex:number, zeroPage:string) : Container[] {
   if (actions.length === 0) {
@@ -312,8 +307,8 @@ export function getContainerStackOrder(actions:Action[], groupIndex:number, zero
       const group:Group = _.last(newState.groups)
       fp.reverse(group.containers).forEach(c => containerSwitches.push(c))
     }
-    if (isInitialized(newState) && newState.activeGroupIndex === groupIndex) {
-      if (!oldState || !isInitialized(oldState) || !hasSameActiveContainer(oldState, newState)) {
+    if (newState instanceof InitializedState && newState.activeGroupIndex === groupIndex) {
+      if (!hasSameActiveContainer(oldState, newState)) {
         containerSwitches.push(getActiveContainer(newState))
       }
     }
@@ -335,7 +330,8 @@ export function getContainer(state:State, groupIndex:number, index:number):Conta
   return state.groups[groupIndex].containers[index]
 }
 
-export function hasSameActiveContainer(oldState:InitializedState, newState:InitializedState) : boolean {
+export function hasSameActiveContainer(oldState:?State, newState:InitializedState) : boolean {
+  if (!oldState || !(oldState instanceof InitializedState)) return false
   const o:Container = getActiveContainer(oldState)
   const n:Container = getActiveContainer(newState)
   return o.groupIndex === n.groupIndex && o.index === n.index

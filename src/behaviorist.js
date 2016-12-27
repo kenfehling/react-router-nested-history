@@ -2,7 +2,8 @@
 import * as _ from 'lodash'
 import { patternsMatch , patternMatches} from "./util/url"
 import { pushToStack, findGroupWithCurrentUrl, toBrowserHistory} from './util/core'
-import type { State, UninitialzedState, InitializedState, Page, Group, Container, History } from './types'
+import type { Page, Group, Container, History } from './types'
+import { State, UninitialzedState, InitializedState } from './types'
 
 // TODO: Pass this in dynamically
 import * as defaultBehavior from './behaviors/defaultBehavior'
@@ -33,7 +34,7 @@ export function switchContainer(from:Container, to:Container, defaulT:?Container
   }
 }
 
-function push(state:State, container:Container, url:string) : Page {
+function push(state:UninitialzedState, container:Container, url:string) : Page {
   const id:number = state.lastPageId + 1
   const page:Page = {url, id, containerIndex: container.index}
   container.history = pushToStack(container.history, page)
@@ -76,10 +77,16 @@ function loadGroupFromUrl(oldState:UninitialzedState, url:string, groupIndex:num
 
 export const loadFromUrl = (oldState:UninitialzedState, url:string, zeroPage:string) : InitializedState => {
   const newState:UninitialzedState =
-      oldState.groups.reduce((state:State, group:Group) : UninitialzedState =>
+      oldState.groups.reduce((state:UninitialzedState, group:Group) : UninitialzedState =>
         loadGroupFromUrl(state, url, group.index), oldState)
   const activeGroup:Group = findGroupWithCurrentUrl(newState, url)
   const browserHistory:History = toBrowserHistory(activeGroup.history, zeroPage)
-  return {...newState, browserHistory, activeGroupIndex: activeGroup.index, lastUpdate: new Date(0)}
+  return new InitializedState({
+    groups: newState.groups,
+    lastPageId: newState.lastPageId,
+    browserHistory,
+    activeGroupIndex: activeGroup.index,
+    lastUpdate: new Date(0)
+  })
   // TODO: Remove lastUpdate field and make a new more specific State type?
 }

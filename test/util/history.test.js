@@ -7,7 +7,8 @@ declare var beforeEach:any
 import * as util from '../../src/util/history'
 import { push, back, forward, go, replace, _resetHistory } from '../../src/browserFunctions'
 import { LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, POPSTATE } from "../../src/constants/ActionTypes"
-import type { State, Step, Action} from '../../src/types'
+import type { Step, Action} from '../../src/types'
+import { State, InitializedState, UninitialzedState } from '../../src/types'
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
 import { createContainers, createContainers2, zeroPage} from "../fixtures"
@@ -16,13 +17,14 @@ describe('history utils', () => {
 
   beforeEach(_resetHistory)
 
-  const performAll = (actions:Action[]): State => util.reduceAll(null, actions, zeroPage)
-  const deriveState = (actions:Action[]) => util.deriveState(actions, zeroPage)
-  const getContainerStackOrder = (actions:Object[], groupIndex:number) =>
+  const performAll = (actions:Action[]): InitializedState =>
+      util.deriveInitializedState(actions, zeroPage)
+  const getContainerStackOrder = (actions:Action[], groupIndex:number) =>
       util.getContainerStackOrder(actions, groupIndex, zeroPage)
-  const getIndexedContainerStackOrder = (actions:Object[], groupIndex:number) =>
+  const getIndexedContainerStackOrder = (actions:Action[], groupIndex:number) =>
       util.getIndexedContainerStackOrder(actions, groupIndex, zeroPage)
-  const state:State = deriveState(createContainers)
+  const state:UninitialzedState =
+      util.deriveUninitializedState(createContainers, zeroPage)
   const group = state.groups[0]
   const containers = group.containers
   
@@ -85,7 +87,7 @@ describe('history utils', () => {
   })
 
   it('pushes page', () => {
-    const result = performAll([
+    const result : InitializedState = performAll([
       ...createContainers,
       {type: PUSH, time: new Date(0), data: {url: '/a/1'}}
     ])
@@ -98,7 +100,7 @@ describe('history utils', () => {
   })
 
   it('switches container', () => {
-    const result = performAll([
+    const result : InitializedState = performAll([
       ...createContainers,
       {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 2}}
     ])
@@ -111,7 +113,7 @@ describe('history utils', () => {
   })
 
   it('goes back in history', () => {
-    const result = performAll([
+    const result : InitializedState = performAll([
       ...createContainers,
       {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
       {type: PUSH, time: new Date(0), data: {url: '/b/1'}},
@@ -128,7 +130,7 @@ describe('history utils', () => {
   })
 
   it('goes forward in history', () => {
-    const result = performAll([
+    const result : InitializedState = performAll([
       ...createContainers,
       {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
       {type: PUSH, time: new Date(0), data: {url: '/b/1'}},
@@ -146,7 +148,7 @@ describe('history utils', () => {
   })
 
   it('goes back in history after switch', () => {
-    const result = performAll([
+    const result : InitializedState = performAll([
       ...createContainers,
       {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
       {type: BACK, time: new Date(0), data: {n: 1}}
@@ -161,7 +163,7 @@ describe('history utils', () => {
   })
 
   it('goes forward in history after switch', () => {
-    const result = performAll([
+    const result : InitializedState = performAll([
       ...createContainers,
       {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
       {type: BACK, time: new Date(0), data: {n: 1}},
@@ -185,7 +187,7 @@ describe('history utils', () => {
   })
 
   it('correctly updates history from popstate', () => {
-    const result = performAll([
+    const result : InitializedState = performAll([
       ...createContainers,
       {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
       {type: PUSH, time: new Date(0), data: {url: '/b/1'}},
@@ -204,7 +206,7 @@ describe('history utils', () => {
 
   describe('actions', () => {
     it('switches tab, then pop back', () => {
-      const result = deriveState([
+      const result : InitializedState = performAll([
         ...createContainers,
         {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
         {type: POPSTATE, time: new Date(0), data: {id: 1}}
@@ -220,7 +222,7 @@ describe('history utils', () => {
     })
 
     it('switches container, goes back, switches container back', () => {
-      const result = deriveState([
+      const result : InitializedState = performAll([
         ...createContainers,
         {type: PUSH, time: new Date(0), data: {url: '/a/1'}},
         {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
@@ -240,7 +242,7 @@ describe('history utils', () => {
     })
 
     it('switches group without affecting other group', () => {
-      const result = deriveState([
+      const result : InitializedState = performAll([
         ...createContainers,
         ...createContainers2,
         {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 2}},
@@ -252,7 +254,7 @@ describe('history utils', () => {
     })
 
     it('reloads a previous page', () => {
-      const result = deriveState([
+      const result : InitializedState = performAll([
         ...createContainers,
         {type: LOAD_FROM_URL, time: new Date(0), data: {url: '/a'}},
         {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
@@ -265,7 +267,7 @@ describe('history utils', () => {
   })
 
   describe('creates steps', () => {
-    const createSteps = (actions, lastUpdate:number=-1) : Step[] =>
+    const createSteps = (actions:Action[], lastUpdate:number=-1) : Step[] =>
         util.createStepsSinceLastUpdate(actions, zeroPage, new Date(lastUpdate))
 
     it('for init (default)', () => {

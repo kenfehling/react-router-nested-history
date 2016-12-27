@@ -3,13 +3,16 @@
 declare var describe:any
 declare var it:any
 declare var expect:any
-import { deriveState } from '../src/util/history'
+import { deriveUninitializedState } from '../src/util/history'
 import { switchContainer, loadFromUrl } from '../src/behaviorist'
-import type { State, Group, Container } from '../src/types'
+import type {Group, Container } from '../src/types'
+import { State, InitializedState, UninitialzedState } from '../src/types'
 import { createContainers, zeroPage } from './fixtures'
 
 describe('behaviorist', () => {
-  const originalState:State = deriveState(createContainers, zeroPage)
+  const originalState:UninitialzedState =
+      deriveUninitializedState(createContainers, zeroPage)
+  expect(originalState instanceof UninitialzedState).toBeTrue()
   const group:Group = originalState.groups[0]
 
   it('does a simple switch', () => {

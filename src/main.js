@@ -8,7 +8,8 @@ import * as util from './util/history'
 import { getCurrentPageInGroup, getActiveGroup } from './util/core'
 import store, { persist } from './store'
 import * as _ from 'lodash'
-import type { Step, State, InitializedState, Group, Container, Page, Action } from './types'
+import type { Step, Group, Container, Page, Action } from './types'
+import { State, InitializedState } from './types'
 import { createLocation } from "history"
 import Queue from 'promise-queue'
 import { canUseWindowLocation } from './util/location'
@@ -21,11 +22,13 @@ let unlisten, lastUpdate = new Date()
 
 const getActions = () : Action[] => store.getState().actions
 const getDerivedState = () : State => util.deriveState(getActions(), getZeroPage())
+const getInitializedDerivedState = () : InitializedState =>
+    util.deriveInitializedState(getActions(), getZeroPage())
 const getZeroPage = () : string => store.getState().zeroPage
 
 const startListening = () => {
   unlisten = listen(location => {
-    const state:State = location.state
+    const state:Object = location.state
     if (state) {
       store.dispatch(actions.popstate(location.state.id))
     }
@@ -85,13 +88,13 @@ export const getGroupState = (groupIndex:number) : Object =>
     util.getGroupState(getActions(), groupIndex, getZeroPage())
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) => {
-  if (!util.isActiveContainer(getDerivedState(), groupIndex, containerIndex)) {
+  if (!util.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
 }
 
 export const push = (groupIndex:number, containerIndex:number, url:string) => {
-  if (!util.isActiveContainer(getDerivedState(), groupIndex, containerIndex)) {
+  if (!util.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
   store.dispatch(actions.push(url))
