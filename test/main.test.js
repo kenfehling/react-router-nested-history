@@ -35,7 +35,7 @@ describe('main', () => {
       )
     }
 
-    it('loads the initial page (with "zero page")', async () => {
+    it('loads the initial page', async () => {
       await run([
         {type: LOAD_FROM_URL, time: new Date(0), data: {url: '/a'}}
       ]).then(({entries, index}) => {
@@ -46,14 +46,11 @@ describe('main', () => {
       })
     })
 
-    it('reloads the initial page (with "zero page")', async () => {
+    it.only('reloads the initial page', async () => {
       await run([
         {type: LOAD_FROM_URL, time: new Date(0), data: {url: '/a'}},
         {type: LOAD_FROM_URL, time: new Date(2), data: {url: '/a'}}
       ], 1).then(({entries, index}) => {
-
-        console.log(entries)
-
         expect(entries.length).toBe(2)
         expect(index).toBe(1)
         expect(entries[0].pathname).toBe(zeroPage)
@@ -62,6 +59,33 @@ describe('main', () => {
     })
 
     it('reloads a previous page', async () => {
+      await run([
+        {type: LOAD_FROM_URL, time: new Date(0), data: {url: '/a'}},
+        {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},
+        {type: LOAD_FROM_URL, time: new Date(0), data: {url: '/a'}}
+      ]).then(({entries, index}) => {
+        expect(entries.length).toBe(4)
+        expect(index).toBe(3)
+        expect(entries[0].pathname).toBe(zeroPage)
+        expect(entries[1].pathname).toBe('/a')
+        expect(entries[2].pathname).toBe(zeroPage)
+        expect(entries[3].pathname).toBe('/a')
+      })
+    })
+
+    it('reloads the initial page (from refresh)', async () => {
+      await run([
+        {type: LOAD_FROM_URL, time: new Date(0), data: {url: '/a'}},
+        {type: LOAD_FROM_URL, time: new Date(2), data: {url: '/a'}}
+      ], 1).then(({entries, index}) => {
+        expect(entries.length).toBe(2)
+        expect(index).toBe(1)
+        expect(entries[0].pathname).toBe(zeroPage)
+        expect(entries[1].pathname).toBe('/a')
+      })
+    })
+
+    it('reloads a previous page (from refresh)', async () => {
       await run([
         {type: LOAD_FROM_URL, time: new Date(0), data: {url: '/a'}},
         {type: SWITCH_TO_CONTAINER, time: new Date(0), data: {groupIndex: 0, containerIndex: 1}},

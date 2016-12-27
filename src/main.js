@@ -79,10 +79,11 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
   return existingContainer || create()
 }
 
-export const loadFromUrl = (url:string) =>
-    persist(store, {}, () => store.dispatch(actions.loadFromUrl(url)))
+export const loadFromUrl = (url:string) => persist(store, {}, () =>
+    store.dispatch(actions.loadFromUrl(url, browser.wasLoadedFromRefresh())))
 
-export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
+export const addChangeListener = (fn:Function) =>
+    store.subscribe(() => fn(getDerivedState()))
 
 export const getGroupState = (groupIndex:number) : Object =>
     util.getGroupState(getActions(), groupIndex, getZeroPage())
@@ -128,7 +129,7 @@ export function listenToStore() {
     const state:InitializedState = util.deriveInitializedState(actions, zeroPage)
     const group:Group = getActiveGroup(state)
     const current:Page = group.history.current
-    const steps:Step[] = util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate)
+    const steps:Step[] =util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate)
     lastUpdate = new Date()
     //if (state.lastAction.type !== CREATE_CONTAINER) {
       window.dispatchEvent(new CustomEvent('locationChange', {

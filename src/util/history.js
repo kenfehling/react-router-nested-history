@@ -103,7 +103,7 @@ export const onpop = (state:InitializedState, id:number, zeroPage:string) : Init
   }
 }
 
-function _ccReducer(state:?UninitialzedState, action:Action, zeroPage:string) : UninitialzedState {
+function _ccReducer(state:?UninitialzedState, action:Action) : UninitialzedState {
   const {groupIndex=0, initialUrl, urlPatterns, useDefault=true} = action.data
   const id = (state ? state.lastPageId : 0) + 1
   const existingGroup:?Group = state ? state.groups[groupIndex] : null
@@ -182,7 +182,7 @@ function _reducer(state:InitializedState, action:Action, zeroPage:string) : Init
 export function reducer(state:?State, action:Action, zeroPage:string) : State {
   if (!state) {
     if (action.type === CREATE_CONTAINER) {
-      return _ccReducer(state, action, zeroPage)
+      return _ccReducer(state, action)
     }
     else {
       throw new Error("State not yet initialized")
@@ -192,7 +192,7 @@ export function reducer(state:?State, action:Action, zeroPage:string) : State {
     switch (action.type) {
       case CREATE_CONTAINER: {
         if (state instanceof UninitialzedState) {
-          return _ccReducer(state, action, zeroPage)
+          return _ccReducer(state, action)
         }
         else {
           throw new Error("State already initialized")

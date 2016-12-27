@@ -1,8 +1,9 @@
 // @flow
+import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK,
+  FORWARD, GO, POPSTATE, SET_ZERO_PAGE } from "../constants/ActionTypes"
 
-import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE, SET_ZERO_PAGE } from "../constants/ActionTypes"
-
-export const createContainer = (groupIndex:number, initialUrl:string, urlPatterns:string[], useDefault:boolean) => ({
+export const createContainer = (groupIndex:number, initialUrl:string,
+                                urlPatterns:string[], useDefault:boolean) => ({
   type: CREATE_CONTAINER,
   time: new Date(),
   data: {
@@ -13,11 +14,12 @@ export const createContainer = (groupIndex:number, initialUrl:string, urlPattern
   },
 })
 
-export const loadFromUrl = (url:string) => ({
+export const loadFromUrl = (url:string, fromRefresh:boolean) => ({
   type: LOAD_FROM_URL,
   time: new Date(),
   data: {
-    url
+    url,
+    fromRefresh: fromRefresh || false
   }
 })
 

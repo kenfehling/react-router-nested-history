@@ -1,7 +1,6 @@
 // @flow
 import * as types from "../constants/ActionTypes"
 import { LOAD_FROM_URL, SET_ZERO_PAGE } from "../constants/ActionTypes"
-import { wasLoadedFromRefresh } from '../browserFunctions'
 import * as _ from 'lodash'
 
 export const initialState:Object = {
@@ -18,7 +17,7 @@ export default function(state:Object=initialState, action:Object) {
     return {...state, zeroPage: action.zeroPage}
   }
   else if (action.type === LOAD_FROM_URL) {
-    if (wasLoadedFromRefresh()) {
+    if (action.fromRefresh) {
       return state
     }
     else {
