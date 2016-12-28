@@ -114,20 +114,9 @@ export const loadFromUrl = (oldState:UninitialzedState, url:string,
 export const reloadFromUrl = (oldState:InitializedState, url:string,
                               zeroPage:string) : InitializedState => {
   if (KEEP_HISTORY_ON_FUTURE_VISIT) {
-    const shiftAmount:number = getHistoryShiftAmountForUrl(oldState, url)
-    if (shiftAmount === 0) {
-      if (oldState.browserHistory.current.url === url) {
-        return oldState
-      }
-      else {
-        return pushUrl(oldState, url)
-      }
-    }
-    else {
-      return go(oldState, shiftAmount, zeroPage)
-    }
+    return loadFromUrl(resetState(oldState), url, zeroPage)
   }
   else {
-    return loadFromUrl(resetState(oldState), url, zeroPage)
+    return loadFromUrl(oldState, url, zeroPage)
   }
 }

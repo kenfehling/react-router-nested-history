@@ -1670,12 +1670,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var newState = (0, _core.isOnZeroPage)(state) ? _.cloneDeep((0, _core.go)(state, 1, zeroPage)) : _.cloneDeep(state);
 	        var group = newState.groups[groupIndex];
 	        var oldContainerIndex = group.history.current.containerIndex;
-	        var fromContainer = group.containers[oldContainerIndex];
-	        var toContainer = getContainer(newState, groupIndex, containerIndex);
-	        var defaultContainer = _.find(group.containers, function (c) {
+	        var from = group.containers[oldContainerIndex];
+	        var to = getContainer(newState, groupIndex, containerIndex);
+	        var defaulT = _.find(group.containers, function (c) {
 	          return c.isDefault;
 	        });
-	        group.history = (0, _behaviorist.switchContainer)(fromContainer, toContainer, defaultContainer);
+	        group.history = (0, _behaviorist.switchContainer)(from, to, defaulT);
 	        newState.browserHistory = (0, _core.toBrowserHistory)(group.history, zeroPage);
 	        newState.activeGroupIndex = group.index;
 	        return newState;
@@ -1737,15 +1737,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}
 	
-	var createPushStep = function createPushStep(page) {
+	var pushStep = function pushStep(page) {
 	  return { fn: browser.push, args: [page] };
 	};
-	var createReplaceStep = function createReplaceStep(page) {
+	var replaceStep = function replaceStep(page) {
 	  return { fn: browser.replace, args: [page] };
+	};
+	var backStep = function backStep(n) {
+	  return { fn: browser.back, args: [n] };
 	};
 	
 	var getHistoryReplacementSteps = exports.getHistoryReplacementSteps = function getHistoryReplacementSteps(h1, h2) {
-	  return _.flatten([h1 && !(0, _core.isZeroPage)(h1.current) ? { fn: browser.back, args: [(0, _core.filterZero)(h1.back).length + 1] } : [], _.isEmpty(h2.back) ? [] : _.map((0, _core.filterZero)(h2.back), createPushStep), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, createPushStep), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
+	  return _.flatten([h1 && !(0, _core.isZeroPage)(h1.current) ? backStep((0, _core.filterZero)(h1.back).length + 1) : [], _.isEmpty(h2.back) ? [] : _.map((0, _core.filterZero)(h2.back), pushStep), { fn: browser.push, args: [h2.current] }, _.isEmpty(h2.forward) ? [] : _.map(h2.forward, pushStep), _.isEmpty(h2.forward) ? [] : { fn: browser.back, args: [h2.forward.length] }]);
 	};
 	
 	/**
@@ -1775,11 +1778,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function createStepsSinceLastUpdate(actions, zeroPage, lastUpdate) {
 	  var newState = deriveInitializedState(actions, zeroPage);
+	  var newActions = _.filter(actions, function (a) {
+	    return (0, _compare_asc2.default)(a.time, lastUpdate) === 1;
+	  });
 	  var oldActions = _.filter(actions, function (a) {
 	    return (0, _compare_asc2.default)(a.time, lastUpdate) === -1 || a.type === _ActionTypes.POPSTATE;
 	  });
-	  if (_.isEmpty(oldActions)) {
-	    return [createReplaceStep({ url: zeroPage, id: 0, containerIndex: 0 })].concat(_toConsumableArray(getHistoryReplacementSteps(null, newState.browserHistory)));
+	  var newLoad = _.some(newActions, function (a) {
+	    return a.type === _ActionTypes.LOAD_FROM_URL && !a.data.fromRefresh;
+	  });
+	  if (newLoad || _.isEmpty(oldActions)) {
+	    return [replaceStep({ url: zeroPage, id: 0, containerIndex: 0 })].concat(_toConsumableArray(getHistoryReplacementSteps(null, newState.browserHistory)));
 	  } else {
 	    var oldState = deriveInitializedState(oldActions, zeroPage);
 	    return diffStateToSteps(oldState, newState);
@@ -20533,18 +20542,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var reloadFromUrl = exports.reloadFromUrl = function reloadFromUrl(oldState, url, zeroPage) {
 	  if (_Settings.KEEP_HISTORY_ON_FUTURE_VISIT) {
-	    var shiftAmount = (0, _core.getHistoryShiftAmountForUrl)(oldState, url);
-	    if (shiftAmount === 0) {
-	      if (oldState.browserHistory.current.url === url) {
-	        return oldState;
-	      } else {
-	        return (0, _core.pushUrl)(oldState, url);
-	      }
-	    } else {
-	      return (0, _core.go)(oldState, shiftAmount, zeroPage);
-	    }
-	  } else {
 	    return loadFromUrl((0, _core.resetState)(oldState), url, zeroPage);
+	  } else {
+	    return loadFromUrl(oldState, url, zeroPage);
 	  }
 	};
 

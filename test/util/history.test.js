@@ -394,7 +394,7 @@ describe('history utils', () => {
         ...createContainers,
         loadAction('/a'),
         loadAction('/a', 2),
-      ])
+      ], 1)
       expect(steps).toEqual([
         {fn: replace, args: [{url: zeroPage, id: 0, containerIndex: 0}]},
         {fn: push, args: [{url: '/a', id: 1, containerIndex: 0}]},
@@ -406,12 +406,21 @@ describe('history utils', () => {
         ...createContainers,
         loadAction('/a'),
         switchAction(0, 1),
-        loadAction('/a')
-      ])
+        loadAction('/a', 2)
+      ], 1)
       expect(steps).toEqual([
         {fn: replace, args: [{url: zeroPage, id: 0, containerIndex: 0}]},
         {fn: push, args: [{url: '/a', id: 1, containerIndex: 0}]},
       ])
+    })
+
+    it('for reloading the initial page (from refresh)', () => {
+      const steps = createSteps([
+        ...createContainers,
+        loadAction('/a'),
+        loadAction('/a', 2, true),
+      ], 1)
+      expect(steps).toEqual([])
     })
   })
 })

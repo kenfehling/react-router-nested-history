@@ -55,38 +55,26 @@ describe('main', () => {
         expect(index).toBe(1)
         expect(entries[0].pathname).toBe(zeroPage)
         expect(entries[1].pathname).toBe('/a')
-      })
+      }, 1)
     })
 
     it('reloads a previous page', async () => {
       await run([
         loadAction('/a'),
         switchAction(0, 1),
-        loadAction('/a')
+        loadAction('/a', 2)
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(4)
-        expect(index).toBe(3)
+        expect(entries.length).toBe(2)
+        expect(index).toBe(1)
         expect(entries[0].pathname).toBe(zeroPage)
         expect(entries[1].pathname).toBe('/a')
-        expect(entries[2].pathname).toBe(zeroPage)
-        expect(entries[3].pathname).toBe('/a')
-      })
+      }, 1)
     })
 
     it('reloads the initial page (from refresh)', async () => {
       await run([
         loadAction('/a'),
         loadAction('/a', 2, true)
-      ], 1).then(({entries}) => {
-        expect(entries.length).toBe(0)
-      })
-    })
-
-    it('reloads a previous page (from refresh)', async () => {
-      await run([
-        loadAction('/a'),
-        switchAction(0, 1),
-        loadAction('/a', 2, true),
       ], 1).then(({entries}) => {
         expect(entries.length).toBe(0)
       })
