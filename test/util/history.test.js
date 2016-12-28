@@ -15,15 +15,7 @@ import * as _ from 'lodash'
 import fp from 'lodash/fp'
 import { createContainers, createContainers2, zeroPage} from "../fixtures"
 import {getHistoryShiftAmountForId} from "../../src/util/core";
-
-const loadAction = (url:string, time:number=0) => ({
-  type: LOAD_FROM_URL, time: new Date(time), data: {url}})
-
-const pushAction = (url:string, time:number=0) => ({
-  type: PUSH, time: new Date(time), data: {url}})
-
-const switchAction = (groupIndex:number, containerIndex:number, time:number=0) => ({
-  type: SWITCH_TO_CONTAINER, time: new Date(time), data: {groupIndex, containerIndex}})
+import {loadAction, pushAction, switchAction, backAction, forwardAction} from "../helpers";
 
 describe('history utils', () => {
 
@@ -134,7 +126,7 @@ describe('history utils', () => {
       loadAction('/a'),
       switchAction(0, 1),
       pushAction('/b/1'),
-      {type: BACK, time: new Date(0), data: {n: 2}}
+      backAction(2)
     ])
     expect(result.groups[0].history.back.length).toBe(0)
     expect(result.groups[0].history.current.url).toBe('/a')
@@ -152,8 +144,8 @@ describe('history utils', () => {
       loadAction('/a'),
       switchAction(0, 1),
       pushAction('/b/1'),
-      {type: BACK, time: new Date(0), data: {n: 2}},
-      {type: FORWARD, time: new Date(0), data: {n: 1}}
+      backAction(2),
+      forwardAction()
     ])
     expect(result.groups[0].history.back.length).toBe(1)
     expect(result.groups[0].history.back[0].url).toBe('/a')
@@ -170,7 +162,7 @@ describe('history utils', () => {
       ...createContainers,
       loadAction('/a'),
       switchAction(0, 1),
-      {type: BACK, time: new Date(0), data: {n: 1}}
+      backAction()
     ])
     expect(result.groups[0].history.back.length).toBe(0)
     expect(result.groups[0].history.current.url).toBe('/a')
@@ -186,8 +178,8 @@ describe('history utils', () => {
       ...createContainers,
       loadAction('/a'),
       switchAction(0, 1),
-      {type: BACK, time: new Date(0), data: {n: 1}},
-      {type: FORWARD, time: new Date(0), data: {n: 1}}
+      backAction(),
+      forwardAction()
     ])
     expect(result.groups[0].history.back.length).toBe(1)
     expect(result.groups[0].history.back[0].url).toBe('/a')
@@ -212,7 +204,7 @@ describe('history utils', () => {
       loadAction('/a'),
       switchAction(0, 1),
       pushAction('/b/1'),
-      {type: BACK, time: new Date(0), data: {n: 2}},
+      backAction(2),
       {type: POPSTATE, time: new Date(0), data: {id: 4}}
     ])
     expect(result.groups[0].history.back.length).toBe(2)
@@ -250,7 +242,7 @@ describe('history utils', () => {
         pushAction('/a/1'),
         switchAction(0, 1),
         switchAction(0, 0),
-        {type: BACK, time: new Date(0), data: {n: 1}},
+        backAction(),
         switchAction(0, 1),
         switchAction(0, 0),
       ])
@@ -361,7 +353,7 @@ describe('history utils', () => {
         ...createContainers,
         loadAction('/a'),
         pushAction('/a/1'),
-        {type: BACK, time: new Date(0), data: {n: 1}}
+        backAction()
       ]
       const steps = createSteps(actions)
       expect(steps).toEqual([

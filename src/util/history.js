@@ -24,12 +24,15 @@ export const onpop = (state:InitializedState, id:number, zeroPage:string) : Init
 }
 
 function _loadReducer(state:State, action:Action, zeroPage:string) : InitializedState {
-  const {url} : {url:string} = action.data
+  const {url, fromRefresh} : {url:string, fromRefresh:boolean} = action.data
   if (state instanceof UninitialzedState) {
     return loadFromUrl(state, url, zeroPage)
   }
   else if (state instanceof InitializedState) {
-    return reloadFromUrl(state, url, zeroPage)
+
+    console.log(action)
+
+    return fromRefresh ? state : reloadFromUrl(state, url, zeroPage)
   }
   else {
     throw new Error('state is unknown type')
