@@ -126,17 +126,17 @@ export function listenToStore() {
   store.subscribe(() => {
     const actions:Action[] = getActions()
     const zeroPage:string = getZeroPage()
-    const state:InitializedState = util.deriveInitializedState(actions, zeroPage)
-    const group:Group = getActiveGroup(state)
-    const current:Page = group.history.current
-    const steps:Step[] =util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate)
-    lastUpdate = new Date()
-    //if (state.lastAction.type !== CREATE_CONTAINER) {
+    const state:State = util.deriveState(actions, zeroPage)
+    if (state instanceof InitializedState) {
+      const group:Group = getActiveGroup(state)
+      const current:Page = group.history.current
+      const steps:Step[] =util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate)
+      lastUpdate = new Date()
       window.dispatchEvent(new CustomEvent('locationChange', {
         detail: {location: createLocation(current.url, {id: current.id})}
       }))
       runSteps(steps)
-    //}
+    }
   })
 }
 

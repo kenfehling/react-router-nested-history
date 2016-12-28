@@ -40,10 +40,6 @@ class ContainerGroup extends Component {
     useDefaultContainer: PropTypes.bool
   }
 
-  static defaultProps = {
-    useDefaultContainer: true
-  }
-
   getChildContext() {
     return {
       groupIndex: this.groupIndex,
@@ -99,7 +95,6 @@ class ContainerGroup extends Component {
     if (index !== this.props.currentContainerIndex) {
       switchToContainer(this.groupIndex, index)
     }
-    this.update()
   }
 
   componentDidMount() {
@@ -111,6 +106,7 @@ class ContainerGroup extends Component {
     //console.log("CWRP", newProps)
 
     this.setCurrentContainer(newProps.currentContainerIndex)
+    this.update()
   }
 
   render() {

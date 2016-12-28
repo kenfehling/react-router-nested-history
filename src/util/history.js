@@ -29,9 +29,6 @@ function _loadReducer(state:State, action:Action, zeroPage:string) : Initialized
     return loadFromUrl(state, url, zeroPage)
   }
   else if (state instanceof InitializedState) {
-
-    console.log(action)
-
     return fromRefresh ? state : reloadFromUrl(state, url, zeroPage)
   }
   else {

@@ -152,7 +152,7 @@ export const getHistoryShiftAmountForId = (oldState:InitializedState, id:number)
 export const getHistoryShiftAmountForUrl = (oldState:InitializedState, url:string) : number =>
     getHistoryShiftAmount(oldState, (p:Page) => p.url === url)
 
-export const createContainer  = (state:?UninitialzedState,
+export const createContainer = (state:?UninitialzedState,
     {groupIndex, initialUrl, useDefault, urlPatterns} :
         {groupIndex:number} & {initialUrl:string} &
             {urlPatterns:string[]} & {useDefault:boolean}) : UninitialzedState => {
