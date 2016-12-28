@@ -1,0 +1,1 @@
+export const KEEP_HISTORY_ON_FUTURE_VISIT = false

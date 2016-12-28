@@ -2,20 +2,22 @@
 import * as types from "../constants/ActionTypes"
 import { LOAD_FROM_URL, SET_ZERO_PAGE } from "../constants/ActionTypes"
 import * as _ from 'lodash'
+import type { Action } from '../types'
 
 export const initialState:Object = {
   actions: [],
   zeroPage: null
 }
 
-const setActions = (state:Object, actions:Object[]) => ({...state, actions})
-const addAction = (state:Object, action:Object) =>
+const setActions = (state:Object, actions:Action[]) => ({...state, actions})
+const addAction = (state:Object, action:Action) =>
     setActions(state, [...state.actions, action])
 
 export default function(state:Object=initialState, action:Object) {
   if (action.type === SET_ZERO_PAGE) {
     return {...state, zeroPage: action.zeroPage}
   }
+  /*
   else if (action.type === LOAD_FROM_URL) {
     if (action.fromRefresh) {
       return state
@@ -31,6 +33,7 @@ export default function(state:Object=initialState, action:Object) {
       }
     }
   }
+  */
   else if (_.includes(_.values(types), action.type)) {
     return addAction(state, action)
   }

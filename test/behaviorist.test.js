@@ -7,12 +7,11 @@ import { deriveUninitializedState } from '../src/util/history'
 import { switchContainer, loadFromUrl } from '../src/behaviorist'
 import type {Group, Container } from '../src/types'
 import { State, InitializedState, UninitialzedState } from '../src/types'
-import { createContainers, zeroPage } from './fixtures'
+import { createContainers, createContainers2, zeroPage } from './fixtures'
 
 describe('behaviorist', () => {
   const originalState:UninitialzedState =
-      deriveUninitializedState(createContainers, zeroPage)
-  expect(originalState instanceof UninitialzedState).toBeTrue()
+      deriveUninitializedState([...createContainers, ...createContainers2], zeroPage)
   const group:Group = originalState.groups[0]
 
   it('does a simple switch', () => {
@@ -186,7 +185,7 @@ describe('behaviorist', () => {
     expect(state.activeGroupIndex).toBe(0)
   })
 
-  it.only('loads from URL /a/1', () => {
+  it('loads from URL /a/1', () => {
     const state = loadFromUrl(originalState, '/a/1', zeroPage)
     expect(state.browserHistory.back.length).toBe(2)
     expect(state.browserHistory.back[0].url).toBe(zeroPage)
@@ -194,5 +193,41 @@ describe('behaviorist', () => {
     expect(state.browserHistory.current.url).toBe('/a/1')
     expect(state.browserHistory.forward.length).toBe(0)
 
+  })
+
+  it('loads from URL /b (with default)', () => {
+    const state = loadFromUrl(originalState, '/b', zeroPage)
+    expect(state.browserHistory.back.length).toBe(2)
+    expect(state.browserHistory.back[0].url).toBe(zeroPage)
+    expect(state.browserHistory.back[1].url).toBe('/a')
+    expect(state.browserHistory.current.url).toBe('/b')
+    expect(state.browserHistory.forward.length).toBe(0)
+  })
+
+  it('loads from URL /b/1 (with default)', () => {
+    const state = loadFromUrl(originalState, '/b/1', zeroPage)
+    expect(state.browserHistory.back.length).toBe(3)
+    expect(state.browserHistory.back[0].url).toBe(zeroPage)
+    expect(state.browserHistory.back[1].url).toBe('/a')
+    expect(state.browserHistory.back[2].url).toBe('/b')
+    expect(state.browserHistory.current.url).toBe('/b/1')
+    expect(state.browserHistory.forward.length).toBe(0)
+  })
+
+  it('loads from URL /f (with no default)', () => {
+    const state = loadFromUrl(originalState, '/f', zeroPage)
+    expect(state.browserHistory.back.length).toBe(1)
+    expect(state.browserHistory.back[0].url).toBe(zeroPage)
+    expect(state.browserHistory.current.url).toBe('/f')
+    expect(state.browserHistory.forward.length).toBe(0)
+  })
+
+  it('loads from URL /f/1 (with no default)', () => {
+    const state = loadFromUrl(originalState, '/f/1', zeroPage)
+    expect(state.browserHistory.back.length).toBe(2)
+    expect(state.browserHistory.back[0].url).toBe(zeroPage)
+    expect(state.browserHistory.back[1].url).toBe('/f')
+    expect(state.browserHistory.current.url).toBe('/f/1')
+    expect(state.browserHistory.forward.length).toBe(0)
   })
 })
