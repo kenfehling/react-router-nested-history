@@ -230,4 +230,22 @@ describe('behaviorist', () => {
     expect(state.browserHistory.current.url).toBe('/f/1')
     expect(state.browserHistory.forward.length).toBe(0)
   })
+
+  it('reloads from URL /a', () => {
+    const state = loadFromUrl(loadFromUrl(originalState, '/a', zeroPage), '/a', zeroPage)
+    expect(state.browserHistory.back.length).toBe(1)
+    expect(state.browserHistory.back[0].url).toBe(zeroPage)
+    expect(state.browserHistory.current.url).toBe('/a')
+    expect(state.browserHistory.forward.length).toBe(0)
+    expect(state.activeGroupIndex).toBe(0)
+  })
+
+  it('reloads from URL /b (from /a)', () => {
+    const state = loadFromUrl(loadFromUrl(originalState, '/a', zeroPage), '/b', zeroPage)
+    expect(state.browserHistory.back.length).toBe(2)
+    expect(state.browserHistory.back[0].url).toBe(zeroPage)
+    expect(state.browserHistory.back[1].url).toBe('/a')
+    expect(state.browserHistory.current.url).toBe('/b')
+    expect(state.browserHistory.forward.length).toBe(0)
+  })
 })
