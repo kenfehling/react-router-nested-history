@@ -150,9 +150,9 @@ export function createStepsSinceLastUpdate(actions:Action[], zeroPage:string,
       a => compareAsc(a.time, lastUpdate) === 1)
   const oldActions:Action[] = _.filter(actions,
       a => compareAsc(a.time, lastUpdate) === -1 || a.type === POPSTATE)
-  const newLoad:boolean = _.some(newActions,
+  const shouldReset:boolean = _.some(newActions,
       a => a.type === LOAD_FROM_URL && !a.data.fromRefresh)
-  if (newLoad || _.isEmpty(oldActions)) {
+  if (shouldReset || _.isEmpty(oldActions)) {
     return [
       replaceStep({url: zeroPage, id: 0, containerIndex: 0}),
       ...getHistoryReplacementSteps(null, newState.browserHistory)

@@ -131,7 +131,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.setZeroPage = exports.getCurrentPageInGrouo = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = undefined;
+	exports.setZeroPage = exports.getCurrentPageInGrouo = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = undefined;
 	exports.runSteps = runSteps;
 	exports.listenToStore = listenToStore;
 	
@@ -189,8 +189,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	var getInitializedDerivedState = function getInitializedDerivedState() {
 	  return util.deriveInitializedState(getActions(), getZeroPage());
 	};
-	var getZeroPage = function getZeroPage() {
-	  return _store2.default.getState().zeroPage;
+	
+	var getZeroPage = exports.getZeroPage = function getZeroPage() {
+	  var all = _store2.default.getState();
+	  if (all.zeroPage) {
+	    return all.zeroPage;
+	  } else {
+	    var state = util.deriveState(all.actions, 'whatever');
+	    return state.groups[0].containers[0].initialUrl;
+	  }
 	};
 	
 	var startListening = function startListening() {
@@ -1784,10 +1791,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var oldActions = _.filter(actions, function (a) {
 	    return (0, _compare_asc2.default)(a.time, lastUpdate) === -1 || a.type === _ActionTypes.POPSTATE;
 	  });
-	  var newLoad = _.some(newActions, function (a) {
+	  var shouldReset = _.some(newActions, function (a) {
 	    return a.type === _ActionTypes.LOAD_FROM_URL && !a.data.fromRefresh;
 	  });
-	  if (newLoad || _.isEmpty(oldActions)) {
+	  if (shouldReset || _.isEmpty(oldActions)) {
 	    return [replaceStep({ url: zeroPage, id: 0, containerIndex: 0 })].concat(_toConsumableArray(getHistoryReplacementSteps(null, newState.browserHistory)));
 	  } else {
 	    var oldState = deriveInitializedState(oldActions, zeroPage);
@@ -50812,7 +50819,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        locationChanged = props.locationChanged,
 	        zeroPage = props.zeroPage;
 	
-	    (0, _main.setZeroPage)(zeroPage);
+	    if (zeroPage) {
+	      (0, _main.setZeroPage)(zeroPage);
+	    }
 	    (0, _main.listenToStore)();
 	    if (_location.canUseWindowLocation) {
 	      locationChanged(window.location);
@@ -50878,7 +50887,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  getUserConfirmation: _react.PropTypes.func,
 	  keyLength: _react.PropTypes.number,
 	  children: _react.PropTypes.oneOfType([_react.PropTypes.func, _react.PropTypes.node]),
-	  zeroPage: _react.PropTypes.string.isRequired
+	  zeroPage: _react.PropTypes.string
 	};
 	
 	if (!_location.canUseWindowLocation) {

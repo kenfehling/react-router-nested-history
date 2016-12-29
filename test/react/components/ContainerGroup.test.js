@@ -1,11 +1,21 @@
-import React, { Component } from 'react'
+// @flow
+/* globals describe, it, expect, beforeEach */
+declare var describe:any
+declare var it:any
+declare var expect:any
+declare var beforeEach:any
+import React, { Component, PropTypes } from 'react'
 import { shallow, mount, render } from 'enzyme'
 import ContainerGroup from '../../../src/react/components/ContainerGroup'
 import Container from '../../../src/react/components/Container'
 import HistoryRouter from '../../../src/react/components/HistoryRouter'
 import { zeroPage } from '../../fixtures'
+import {getZeroPage} from "../../../src/main";
+import {_resetHistory} from "../../../src/browserFunctions";
 
 describe('ContainerGroup', () => {
+
+  beforeEach(_resetHistory)
 
   function getWindowZIndex(indexedStackOrder, index) {
     if (indexedStackOrder.length > index) {
@@ -25,6 +35,10 @@ describe('ContainerGroup', () => {
   }
 
   class App extends Component {
+    static propTypes = {
+      zeroPage: PropTypes.string
+    }
+
     constructor(props) {
       super(props)
       this.state = {
@@ -50,6 +64,7 @@ describe('ContainerGroup', () => {
     }
 
     render() {
+      const {zeroPage} = this.props
       return (<HistoryRouter location='/windows/2' zeroPage={zeroPage}>
         <div className="windows">
           <h2>Windows example</h2>
@@ -67,8 +82,11 @@ describe('ContainerGroup', () => {
     }
   }
 
+  const AppWithZeroPage = () => <App zeroPage={zeroPage} />
+  const AppWithoutZeroPage = () => <App />
+
   it('provides indexedStackOrder', () => {
-    const app = mount(<App />)
+    const app = mount(<AppWithZeroPage />)
     const group = app.find(ContainerGroup)
     const window1 = app.find(Window).nodes[0]
     const indexedStackOrder = window1.props.indexedStackOrder
@@ -77,5 +95,13 @@ describe('ContainerGroup', () => {
     // TODO: Make work with redux-persist's async nature
     //expect(indexedStackOrder).toEqual([1, 0])
     //expect(currentContainerIndex).toBe(1)
+    app.unmount()
+  })
+
+  it('uses a default zeroPage if not provided', () => {
+    const app = mount(<AppWithoutZeroPage />)
+    const zeroPage = getZeroPage()
+    expect(zeroPage).toBe('/windows/1')
+    app.unmount()
   })
 })

@@ -13,7 +13,9 @@ class HistoryRouter extends Component {
   constructor(props) {
     super(props)
     const {listenToLocation, locationChanged, zeroPage} = props
-    setZeroPage(zeroPage)
+    if (zeroPage) {
+      setZeroPage(zeroPage)
+    }
     listenToStore()
     if (canUseWindowLocation) {
       locationChanged(window.location)
@@ -74,7 +76,7 @@ HistoryRouter.propTypes = {
     PropTypes.func,
     PropTypes.node
   ]),
-  zeroPage: PropTypes.string.isRequired
+  zeroPage: PropTypes.string
 }
 
 if (!canUseWindowLocation) {  // allow passing location in non-browser enviroment

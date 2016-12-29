@@ -24,7 +24,17 @@ const getActions = () : Action[] => store.getState().actions
 const getDerivedState = () : State => util.deriveState(getActions(), getZeroPage())
 const getInitializedDerivedState = () : InitializedState =>
     util.deriveInitializedState(getActions(), getZeroPage())
-const getZeroPage = () : string => store.getState().zeroPage
+
+export const getZeroPage = () : string => {
+  const all = store.getState()
+  if (all.zeroPage) {
+    return all.zeroPage
+  }
+  else {
+    const state = util.deriveState(all.actions, 'whatever')
+    return state.groups[0].containers[0].initialUrl
+  }
+}
 
 const startListening = () => {
   unlisten = listen(location => {
