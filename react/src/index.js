@@ -4,7 +4,7 @@ import App from './containers/App'
 import { HistoryRouter } from '../../../dist/tab-history-library'
 
 render((
-  <HistoryRouter zeroPage='/'>
+  <HistoryRouter>
     <App />
   </HistoryRouter>
 ), document.getElementById('root'))
