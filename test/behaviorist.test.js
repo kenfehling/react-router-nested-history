@@ -6,11 +6,11 @@ declare var expect:any
 import { deriveUninitializedState } from '../src/util/history'
 import { switchContainer, loadFromUrl } from '../src/behaviorist'
 import type {Group, Container } from '../src/types'
-import { State, InitializedState, UninitialzedState } from '../src/types'
+import { State, InitializedState, UninitializedState } from '../src/types'
 import { createContainers, createContainers2, zeroPage } from './fixtures'
 
 describe('behaviorist', () => {
-  const originalState:UninitialzedState =
+  const originalState:UninitializedState =
       deriveUninitializedState([...createContainers, ...createContainers2], zeroPage)
   const group:Group = originalState.groups[0]
 

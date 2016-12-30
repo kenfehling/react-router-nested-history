@@ -1654,7 +1654,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      url = _action$data.url,
 	      fromRefresh = _action$data.fromRefresh;
 	
-	  if (state instanceof _types.UninitialzedState) {
+	  if (state instanceof _types.UninitializedState) {
 	    return (0, _behaviorist.loadFromUrl)(state, url, zeroPage);
 	  } else if (state instanceof _types.InitializedState) {
 	    return fromRefresh ? state : (0, _behaviorist.reloadFromUrl)(state, url, zeroPage);
@@ -1713,7 +1713,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    switch (action.type) {
 	      case _ActionTypes.CREATE_CONTAINER:
 	        {
-	          if (state instanceof _types.UninitialzedState) {
+	          if (state instanceof _types.UninitializedState) {
 	            return (0, _core.createContainer)(state, action.data);
 	          } else {
 	            throw new Error("State already initialized");
@@ -1810,7 +1810,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var deriveUninitializedState = exports.deriveUninitializedState = function deriveUninitializedState(actions, zeroPage) {
-	  return (0, _core.assureType)(deriveState(actions, zeroPage), _types.UninitialzedState, 'State is already initialized');
+	  return (0, _core.assureType)(deriveState(actions, zeroPage), _types.UninitializedState, 'State is already initialized');
 	};
 	
 	function getContainerStackOrder(actions, groupIndex, zeroPage) {
@@ -20296,7 +20296,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    containers: [container]
 	  };
 	
-	  return new _types.UninitialzedState(_extends({}, state ? state : {}, {
+	  return new _types.UninitializedState(_extends({}, state ? state : {}, {
 	    groups: state ? [].concat(_toConsumableArray(state.groups.slice(0, groupIndex)), [group], _toConsumableArray(state.groups.slice(groupIndex + 1))) : [group],
 	    lastPageId: id
 	  }));
@@ -20360,16 +20360,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.lastPageId = lastPageId;
 	};
 	
-	var UninitialzedState = exports.UninitialzedState = function (_State) {
-	  _inherits(UninitialzedState, _State);
+	var UninitializedState = exports.UninitializedState = function (_State) {
+	  _inherits(UninitializedState, _State);
 	
-	  function UninitialzedState() {
-	    _classCallCheck(this, UninitialzedState);
+	  function UninitializedState() {
+	    _classCallCheck(this, UninitializedState);
 	
-	    return _possibleConstructorReturn(this, (UninitialzedState.__proto__ || Object.getPrototypeOf(UninitialzedState)).apply(this, arguments));
+	    return _possibleConstructorReturn(this, (UninitializedState.__proto__ || Object.getPrototypeOf(UninitializedState)).apply(this, arguments));
 	  }
 	
-	  return UninitialzedState;
+	  return UninitializedState;
 	}(State);
 	
 	var InitializedState = exports.InitializedState = function (_State2) {

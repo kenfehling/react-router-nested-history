@@ -10,7 +10,7 @@ import { push, back, forward, go, replace,
 import { LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD,
   POPSTATE } from "../../src/constants/ActionTypes"
 import type { Step, Action} from '../../src/types'
-import { State, InitializedState, UninitialzedState } from '../../src/types'
+import { State, InitializedState, UninitializedState } from '../../src/types'
 import fp from 'lodash/fp'
 import { createContainers, createContainers2, zeroPage} from "../fixtures"
 import {getHistoryShiftAmountForId} from "../../src/util/core";
@@ -26,7 +26,7 @@ describe('history utils', () => {
       util.getContainerStackOrder(actions, groupIndex, zeroPage)
   const getIndexedContainerStackOrder = (actions:Action[], groupIndex:number) =>
       util.getIndexedContainerStackOrder(actions, groupIndex, zeroPage)
-  const state:UninitialzedState =
+  const state:UninitializedState =
       util.deriveUninitializedState(createContainers, zeroPage)
   const group = state.groups[0]
   const containers = group.containers

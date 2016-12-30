@@ -12,7 +12,7 @@ import { go, getCurrentPageInGroup, getActiveContainer, filterZero, isZeroPage,
 import * as browser from '../browserFunctions'
 import { switchContainer, loadFromUrl, reloadFromUrl} from '../behaviorist'
 import type { History, Container, Page, Group, Step, Action} from '../types'
-import { State, UninitialzedState, InitializedState } from '../types'
+import { State, UninitializedState, InitializedState } from '../types'
 import compareAsc from 'date-fns/compare_asc'
 
 export const onpop = (state:InitializedState, id:number,
@@ -29,7 +29,7 @@ export const onpop = (state:InitializedState, id:number,
 function _loadReducer(state:State, action:Action,
                       zeroPage:string) : InitializedState {
   const {url, fromRefresh} : {url:string, fromRefresh:boolean} = action.data
-  if (state instanceof UninitialzedState) {
+  if (state instanceof UninitializedState) {
     return loadFromUrl(state, url, zeroPage)
   }
   else if (state instanceof InitializedState) {
@@ -73,7 +73,7 @@ export function reducer(state:?State, action:Action, zeroPage:string) : State {
   else {
     switch (action.type) {
       case CREATE_CONTAINER: {
-        if (state instanceof UninitialzedState) {
+        if (state instanceof UninitializedState) {
           return createContainer(state, action.data)
         }
         else {
@@ -177,9 +177,9 @@ export const deriveInitializedState = (actions:Action[],
       InitializedState, 'State is not initialized')
 
 export const deriveUninitializedState = (actions:Action[],
-                                         zeroPage:string) : UninitialzedState =>
+                                         zeroPage:string) : UninitializedState =>
   assureType(deriveState(actions, zeroPage),
-      UninitialzedState, 'State is already initialized')
+      UninitializedState, 'State is already initialized')
 
 export function getContainerStackOrder(actions:Action[], groupIndex:number,
                                        zeroPage:string) : Container[] {

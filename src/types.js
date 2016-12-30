@@ -47,7 +47,7 @@ export class State {
   }
 }
 
-export class UninitialzedState extends State {}
+export class UninitializedState extends State {}
 
 export class InitializedState extends State {
   browserHistory: History;

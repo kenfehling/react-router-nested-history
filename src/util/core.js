@@ -1,7 +1,7 @@
 // @flow
 import * as _ from 'lodash'
 import type { History, Page, Container, Group } from '../types'
-import { State, InitializedState, UninitialzedState } from '../types'
+import { State, InitializedState, UninitializedState } from '../types'
 import {switchContainer} from "../behaviorist";
 
 export const pushToStack = (historyStack:History, page:Page) : History => ({
@@ -153,10 +153,10 @@ export const getHistoryShiftAmountForId = (oldState:InitializedState, id:number)
 export const getHistoryShiftAmountForUrl = (oldState:InitializedState, url:string) : number =>
     getHistoryShiftAmount(oldState, (p:Page) => p.url === url)
 
-export const createContainer = (state:?UninitialzedState,
+export const createContainer = (state:?UninitializedState,
     {groupIndex, initialUrl, useDefault, urlPatterns} :
         {groupIndex:number} & {initialUrl:string} &
-            {urlPatterns:string[]} & {useDefault:boolean}) : UninitialzedState => {
+            {urlPatterns:string[]} & {useDefault:boolean}) : UninitializedState => {
   const id = (state ? state.lastPageId : 0) + 1
   const existingGroup:?Group = state ? state.groups[groupIndex] : null
   const containerIndex = existingGroup ? existingGroup.containers.length : 0
@@ -185,7 +185,7 @@ export const createContainer = (state:?UninitialzedState,
         containers: [container]
       }
 
-  return new UninitialzedState({
+  return new UninitializedState({
     ...(state ? state : {}),
     groups: state ? [
           ...state.groups.slice(0, groupIndex),
@@ -217,9 +217,9 @@ export function isActiveContainer(state:InitializedState, groupIndex:number,
 export const doesGroupUseDefault = (state:State, groupIndex:number) : boolean =>
     _.some(state.groups[groupIndex].containers, (c:Container) => c.isDefault)
 
-export const resetState = (state:InitializedState) : UninitialzedState => {
+export const resetState = (state:InitializedState) : UninitializedState => {
   const containers:Container[] = _.flatMap(state.groups, (g:Group) => g.containers)
-  return containers.reduce((newState:?UninitialzedState, container:Container) => {
+  return containers.reduce((newState:?UninitializedState, container:Container) => {
     const useDefault:boolean = doesGroupUseDefault(state, container.groupIndex)
     return createContainer(newState, {...container, useDefault})
   }, null)

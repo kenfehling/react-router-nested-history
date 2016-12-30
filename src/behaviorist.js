@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 import { patternsMatch , patternMatches} from "./util/url"
 import { pushToStack, findGroupWithCurrentUrl, toBrowserHistory, resetState} from './util/core'
 import type { Page, Group, Container, History } from './types'
-import { State, UninitialzedState, InitializedState } from './types'
+import { State, UninitializedState, InitializedState } from './types'
 
 // TODO: Pass this in dynamically
 import * as defaultBehavior from './behaviors/defaultBehavior'
@@ -35,7 +35,7 @@ export function switchContainer(from:Container, to:Container,defaulT:?Container)
   }
 }
 
-function push(state:UninitialzedState, container:Container, url:string) : Page {
+function push(state:UninitializedState, container:Container, url:string) : Page {
   const id:number = state.lastPageId + 1
   const page:Page = {url, id, containerIndex: container.index}
   container.history = pushToStack(container.history, page)
@@ -45,7 +45,7 @@ function push(state:UninitialzedState, container:Container, url:string) : Page {
 
 function loadGroupFromUrl(oldState:State, url:string,
                           groupIndex:number) : State {
-  const state:UninitialzedState = _.cloneDeep(oldState)
+  const state:UninitializedState = _.cloneDeep(oldState)
   const group:Group = state.groups[groupIndex]
   const containers:Container[] = group.containers
   const useDefault:boolean = _.some(containers, c => c.isDefault)
