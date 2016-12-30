@@ -2,7 +2,7 @@ import React, { Component, PropTypes, Children, cloneElement } from 'react'
 import { render } from 'react-dom'
 import { connect } from "react-redux";
 import store from '../store'
-import { getNextGroupIndex, switchToContainer} from '../../main'
+import { getNextGroupIndex, switchToContainer } from '../../main'
 import * as _ from "lodash"
 import Container from "./Container"
 import { getGroupState } from "../../main"
@@ -40,10 +40,6 @@ class ContainerGroup extends Component {
     useDefaultContainer: PropTypes.bool
   }
 
-  static defaultProps = {
-    useDefaultContainer: true
-  }
-
   getChildContext() {
     return {
       groupIndex: this.groupIndex,
@@ -64,12 +60,11 @@ class ContainerGroup extends Component {
   componentWillMount() {
     const groupIndex = getNextGroupIndex()
     this.groupIndex = groupIndex
-    const location = this.props.location
+    const {location, useDefaultContainer} = this.props
 
     class G extends Component {
       static childContextTypes = {
-        groupIndex: PropTypes.number.isRequired,
-        location: PropTypes.object.isRequired,
+        ...ContainerGroup.childContextTypes,
         initializing: PropTypes.bool
       }
 
@@ -77,6 +72,7 @@ class ContainerGroup extends Component {
         return {
           groupIndex,
           location,
+          useDefaultContainer,
           initializing: true
         }
       }
@@ -99,7 +95,6 @@ class ContainerGroup extends Component {
     if (index !== this.props.currentContainerIndex) {
       switchToContainer(this.groupIndex, index)
     }
-    this.update()
   }
 
   componentDidMount() {
@@ -107,10 +102,8 @@ class ContainerGroup extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-
-    //console.log("CWRP", newProps)
-
     this.setCurrentContainer(newProps.currentContainerIndex)
+    this.update()
   }
 
   render() {
@@ -119,10 +112,10 @@ class ContainerGroup extends Component {
 }
 
 const ConnectedContainerGroup = connect(
-    state => ({
-      location: state.location
-    }),
-    {}
+  state => ({
+    location: state.location
+  }),
+  {}
 )(ContainerGroup)
 
 export default props => <ConnectedContainerGroup store={store} {...props} />

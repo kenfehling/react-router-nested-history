@@ -6,3 +6,5 @@ export const BACK = 'back'
 export const FORWARD = 'forward'
 export const GO = 'go'
 export const POPSTATE = 'popstate'
+
+export const SET_ZERO_PAGE = 'set-zero-page'

@@ -9,7 +9,8 @@ export default class Container extends Component {
   static contextTypes = {
     groupIndex: PropTypes.number.isRequired,
     location: PropTypes.object.isRequired,
-    initializing: PropTypes.bool
+    initializing: PropTypes.bool,
+    useDefaultContainer: PropTypes.bool
   }
 
   static childContextTypes = {
@@ -32,10 +33,10 @@ export default class Container extends Component {
   }
 
   constructor(props, context) {
-    super(props)
+    super(props, context)
     const patterns = this.getPatterns()
-    const {initialUrl} = this.props
-    const {groupIndex, useDefaultContainer} = context
+    const {initialUrl} = props
+    const {groupIndex, useDefaultContainer=true} = context
     const container = getOrCreateContainer(groupIndex, initialUrl, patterns, useDefaultContainer)
     this.containerIndex = container.index
   }

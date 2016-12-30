@@ -1,31 +1,46 @@
 // @flow
 declare var Promise:any
 declare var CustomEvent:any
-
-import { CREATE_CONTAINER, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD, GO, POPSTATE } from "./constants/ActionTypes"
 import * as actions from './actions/HistoryActions'
 import * as browser from './browserFunctions'
-import { listen, listenPromise } from './historyListener'
+import { listen, listenPromise } from './browserFunctions'
 import * as util from './util/history'
+import * as core from './util/core'
 import store, { persist } from './store'
 import * as _ from 'lodash'
-import type { Step, State, Group, Container } from './types'
+import type { Step, Group, Container, Page, Action } from './types'
+import { State, InitializedState } from './types'
 import { createLocation } from "history"
 import Queue from 'promise-queue'
+import { canUseWindowLocation } from './util/location'
 
 const maxConcurrent = 1
 const maxQueue = Infinity
 const queue = new Queue(maxConcurrent, maxQueue)
-const needsPopListener = [browser.back, browser.forward, browser.go]
-let unlisten
+const needsPopListener = canUseWindowLocation ?
+    [browser.back, browser.forward, browser.go] : []
+let unlisten, lastUpdate = new Date()
 
-const getActions = () : Object[] => store.getState().actions
-const getDerivedState = () : State => util.deriveState(getActions())
+export const getActions = () : Action[] => store.getState().actions
+export const getDerivedState = () : State =>
+    util.deriveState(getActions(), getZeroPage())
+const getInitializedState = () : InitializedState =>
+    util.deriveInitializedState(getActions(), getZeroPage())
 
+export const getZeroPage = () : string => {
+  const all = store.getState()
+  if (all.zeroPage) {
+    return all.zeroPage
+  }
+  else {
+    const state = util.deriveState(all.actions, 'whatever')
+    return state.groups[0].containers[0].initialUrl
+  }
+}
 
 const startListening = () => {
   unlisten = listen(location => {
-    const state = location.state
+    const state:Object = location.state
     if (state) {
       store.dispatch(actions.popstate(location.state.id))
     }
@@ -45,98 +60,103 @@ const startListeningPromise = () => new Promise(resolve => {
 startListening()
 
 export const getNextGroupIndex = () => {
-  const actions = getActions()
+  const actions:Action[] = getActions()
   if (_.isEmpty(actions)) {
     return 0
   }
   else {
-    const state = util.deriveState(actions)
+    const state = util.deriveState(actions, getZeroPage())
     return state.groups.length
   }
 }
 
-const createContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
-  store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns, useDefault))
+const createContainer = (groupIndex:number, initialUrl:string,
+                         patterns:string[],
+                         useDefault:boolean) : Container => {
+  store.dispatch(actions.createContainer(
+      groupIndex, initialUrl, patterns, useDefault))
   const state:State = getDerivedState()
   return _.last(state.groups[groupIndex].containers)
 }
 
-export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
-  const create = () : Container => createContainer(groupIndex, initialUrl, patterns, useDefault)
-  const actions = getActions()
+export const getOrCreateContainer = (groupIndex:number, initialUrl:string,
+                                     patterns:string[],
+                                     useDefault:boolean) : Container => {
+  const create = () : Container =>
+      createContainer(groupIndex, initialUrl, patterns, useDefault)
+  const actions:Action[] = getActions()
   if (_.isEmpty(actions)) {
     return create()
   }
-  const state:State = util.deriveState(actions)
+  const state:State = util.deriveState(actions, getZeroPage())
   const group = state.groups[groupIndex]
   if (!group) {
     return create()
   }
-  const existingContainer = _.find(group.containers, c => c.initialUrl === initialUrl)
+  const existingContainer =
+      _.find(group.containers, c => c.initialUrl === initialUrl)
   return existingContainer || create()
 }
 
 export const loadFromUrl = (url:string) =>
-    persist(store, {}, () => store.dispatch(actions.loadFromUrl(url)))
+    persist(store, {whitelist: ['actions']}, () =>
+        store.dispatch(actions.loadFromUrl(url, browser.loadedFromRefresh)))
 
-export const addChangeListener = (fn:Function) => store.subscribe(() => fn(getDerivedState()))
+export const addChangeListener = (fn:Function) =>
+    store.subscribe(() => fn(getDerivedState()))
 
-export const getGroupState = (groupIndex:number) =>
-    util.getGroupState(getActions(), groupIndex)
-
-function isActiveContainer(groupIndex:number, containerIndex:number) {
-  const state = getDerivedState()
-  const c = util.getActiveContainer(state)
-  return c.groupIndex === groupIndex && c.index === containerIndex
-}
+export const getGroupState = (groupIndex:number) : Object =>
+    util.getGroupState(getActions(), groupIndex, getZeroPage())
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) => {
-  if (!isActiveContainer(groupIndex, containerIndex)) {
+  if (!core.isActiveContainer(getInitializedState(), groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
 }
 
 export const push = (groupIndex:number, containerIndex:number, url:string) => {
-  if (!isActiveContainer(groupIndex, containerIndex)) {
-    store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
-  }
-  store.dispatch(actions.push(url))
+  store.dispatch(actions.push(url, groupIndex, containerIndex))
 }
 
 export const go = (n:number=1) => store.dispatch(actions.go(n))
 export const back = (n:number=1) => store.dispatch(actions.back(n))
 export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 
-export const getCurrentPageInGrouo = (groupIndex:number) =>
-  util.getCurrentPageInGroup(getDerivedState(), groupIndex)
-
-export const getCurrentPage = () => {
-  const state = getDerivedState()
-  return util.getCurrentPageInGroup(state, state.activeGroupIndex)
-}
+export const getCurrentPageInGroup = (groupIndex:number) =>
+    core.getCurrentPageInGroup(getDerivedState(), groupIndex)
 
 function runStep(step:Step) {
   const stepPromise = () => {
     step.fn(...step.args)
-    return _.includes(needsPopListener, step.fn) ? listenPromise() : Promise.resolve()
+    return _.includes(needsPopListener, step.fn) ?
+        listenPromise() : Promise.resolve()
   }
   const ps = () => [unlistenPromise, stepPromise, startListeningPromise].reduce(
-    (p, step) => p.then(step),
-    Promise.resolve()
-  )
-  queue.add(ps)
+      (p, s) => p.then(s), Promise.resolve())
+  return queue.add(ps)
 }
 
-store.subscribe(() => {
-  const actions = getActions()
-  const state = util.deriveState(actions)
-  const group = util.getActiveGroup(state)
-  const current = group.history.current
-  const steps = util.createSteps(actions)
-  if (state.lastAction.type !== CREATE_CONTAINER) {
-    window.dispatchEvent(new CustomEvent('locationChange', {
-      detail: {location: createLocation(current.url, {id: current.id})}
-    }))
-    steps.forEach(runStep)
-  }
-})
+export function runSteps(steps:Step[]) {
+  return steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
+}
+
+export function listenToStore() {
+  store.subscribe(() => {
+    const actions:Action[] = getActions()
+    const zeroPage:string = getZeroPage()
+    const state:State = util.deriveState(actions, zeroPage)
+    if (state instanceof InitializedState) {
+      const group:Group = core.getActiveGroup(state)
+      const current:Page = group.history.current
+      const steps:Step[] = util.createStepsSinceUpdate(actions, zeroPage, lastUpdate)
+      lastUpdate = new Date()
+      window.dispatchEvent(new CustomEvent('locationChange', {
+        detail: {location: createLocation(current.url, {id: current.id})}
+      }))
+      runSteps(steps)
+    }
+  })
+}
+
+export const setZeroPage = (zeroPage:string) =>
+    store.dispatch(actions.setZeroPage(zeroPage))

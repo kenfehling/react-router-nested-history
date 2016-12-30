@@ -4,6 +4,30 @@ This library is built to support [react-router 4](https://github.com/ReactTraini
 
 #### HistoryRouter
 Use this in place of react-router's `BrowserRouter` component to enable this library.
+
+##### props (in addition to the existing `BrowserRouter` props)
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>required</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>zeroPage</td>
+          <td>String</td>
+          <td align="center"></td>
+          <td>
+            Specify the page at the beginning of the history stack.
+            Default: initialPage of the first group's first container
+          </td>
+        </tr>
+    </tbody>
+</table>
+<br>
 <br>
 
 #### HistoryMatch

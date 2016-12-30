@@ -22,6 +22,7 @@
     "history"
   ],
   "dependencies": {
+    "date-fns": "^1.21.1",
     "history": "^4.4.0",
     "invariant": "^2.2.2",
     "lodash": "^4.2.0",
