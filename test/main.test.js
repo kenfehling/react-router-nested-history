@@ -22,7 +22,7 @@ describe('main', () => {
     beforeEach(_resetHistory)
     
     const run = (actions:Action[], lastUpdate:number=-1) : Promise => {
-      return runSteps(util.createStepsSinceLastUpdate(
+      return runSteps(util.createStepsSinceUpdate(
           [...createContainers, ...actions],
           zeroPage,
           new Date(lastUpdate)

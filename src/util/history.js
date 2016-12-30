@@ -4,9 +4,10 @@ import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK,
   FORWARD, GO, POPSTATE} from "../constants/ActionTypes"
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
-import { go, getCurrentPageInGroup, getActiveContainer, getActiveGroup,
-  filterZero, isZeroPage, isOnZeroPage, assureType,
-  createContainer, getHistoryShiftAmountForId, pushUrl, getHistoryShiftAmount, switchToContainer, hasSameActiveContainer
+import { go, getCurrentPageInGroup, getActiveContainer, filterZero, isZeroPage,
+  isOnZeroPage, assureType, createContainer, getHistoryShiftAmountForId,
+  pushUrl, getHistoryShiftAmount, switchToContainer, hasSameActiveContainer,
+  getActiveContainerInGroup
 } from './core'
 import * as browser from '../browserFunctions'
 import { switchContainer, loadFromUrl, reloadFromUrl} from '../behaviorist'
@@ -134,8 +135,8 @@ export const diffStateToSteps = (oldState:InitializedState,
   }
 }
 
-export function createStepsSinceLastUpdate(actions:Action[], zeroPage:string,
-                                           lastUpdate:Date) : Step[] {
+export function createStepsSinceUpdate(actions:Action[], zeroPage:string,
+                                       lastUpdate:Date) : Step[] {
   const newState:InitializedState = deriveInitializedState(actions, zeroPage)
   const newActions:Action[] = _.filter(actions,
       a => compareAsc(a.time, lastUpdate) === 1)
@@ -217,10 +218,9 @@ export const getGroupState = (actions:Action[], groupIndex:number,
                               zeroPage:string) => {
   const state:InitializedState = deriveInitializedState(actions, zeroPage)
   const currentUrl:string = getCurrentPageInGroup(state, groupIndex).url
-  const activeContainer:Container = getActiveContainer(state)
-  const activeGroup:Group = getActiveGroup(state)
+  const activeContainer:Container = getActiveContainerInGroup(state, groupIndex)
   const stackOrder:Container[] = getContainerStackOrder(actions, groupIndex, zeroPage)
   const indexedStackOrder:number[] =
       getIndexedContainerStackOrder(actions, groupIndex, zeroPage)
-  return {activeContainer, activeGroup, currentUrl, stackOrder, indexedStackOrder}
+  return {activeContainer, currentUrl, stackOrder, indexedStackOrder}
 }

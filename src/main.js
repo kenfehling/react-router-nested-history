@@ -17,12 +17,14 @@ import { canUseWindowLocation } from './util/location'
 const maxConcurrent = 1
 const maxQueue = Infinity
 const queue = new Queue(maxConcurrent, maxQueue)
-const needsPopListener = canUseWindowLocation ? [browser.back, browser.forward, browser.go] : []
+const needsPopListener = canUseWindowLocation ?
+    [browser.back, browser.forward, browser.go] : []
 let unlisten, lastUpdate = new Date()
 
 export const getActions = () : Action[] => store.getState().actions
-export const getDerivedState = () : State => util.deriveState(getActions(), getZeroPage())
-const getInitializedDerivedState = () : InitializedState =>
+export const getDerivedState = () : State =>
+    util.deriveState(getActions(), getZeroPage())
+const getInitializedState = () : InitializedState =>
     util.deriveInitializedState(getActions(), getZeroPage())
 
 export const getZeroPage = () : string => {
@@ -68,14 +70,20 @@ export const getNextGroupIndex = () => {
   }
 }
 
-const createContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
-  store.dispatch(actions.createContainer(groupIndex, initialUrl, patterns, useDefault))
+const createContainer = (groupIndex:number, initialUrl:string,
+                         patterns:string[],
+                         useDefault:boolean) : Container => {
+  store.dispatch(actions.createContainer(
+      groupIndex, initialUrl, patterns, useDefault))
   const state:State = getDerivedState()
   return _.last(state.groups[groupIndex].containers)
 }
 
-export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patterns:string[], useDefault:boolean) : Container => {
-  const create = () : Container => createContainer(groupIndex, initialUrl, patterns, useDefault)
+export const getOrCreateContainer = (groupIndex:number, initialUrl:string,
+                                     patterns:string[],
+                                     useDefault:boolean) : Container => {
+  const create = () : Container =>
+      createContainer(groupIndex, initialUrl, patterns, useDefault)
   const actions:Action[] = getActions()
   if (_.isEmpty(actions)) {
     return create()
@@ -85,7 +93,8 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
   if (!group) {
     return create()
   }
-  const existingContainer = _.find(group.containers, c => c.initialUrl === initialUrl)
+  const existingContainer =
+      _.find(group.containers, c => c.initialUrl === initialUrl)
   return existingContainer || create()
 }
 
@@ -100,7 +109,7 @@ export const getGroupState = (groupIndex:number) : Object =>
     util.getGroupState(getActions(), groupIndex, getZeroPage())
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) => {
-  if (!core.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
+  if (!core.isActiveContainer(getInitializedState(), groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
 }
@@ -119,7 +128,8 @@ export const getCurrentPageInGroup = (groupIndex:number) =>
 function runStep(step:Step) {
   const stepPromise = () => {
     step.fn(...step.args)
-    return _.includes(needsPopListener, step.fn) ? listenPromise() : Promise.resolve()
+    return _.includes(needsPopListener, step.fn) ?
+        listenPromise() : Promise.resolve()
   }
   const ps = () => [unlistenPromise, stepPromise, startListeningPromise].reduce(
       (p, s) => p.then(s), Promise.resolve())
@@ -138,7 +148,7 @@ export function listenToStore() {
     if (state instanceof InitializedState) {
       const group:Group = core.getActiveGroup(state)
       const current:Page = group.history.current
-      const steps:Step[] =util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate)
+      const steps:Step[] = util.createStepsSinceUpdate(actions, zeroPage, lastUpdate)
       lastUpdate = new Date()
       window.dispatchEvent(new CustomEvent('locationChange', {
         detail: {location: createLocation(current.url, {id: current.id})}

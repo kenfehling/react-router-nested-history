@@ -56,11 +56,10 @@ describe('ContainerGroup', () => {
       })
     }
 
-    renderWindow(index, masterComponent) {
+    renderWindow(index) {
       return (<Window className={'window' + (index + 1)}
                       initialUrl={'/windows/' + (index + 1)}
                       index={index}
-                      masterComponent={masterComponent}
                       indexedStackOrder={this.state.indexedStackOrder}
                       switchTo={() => this.setState({activeWindowIndex: index})} />)
     }

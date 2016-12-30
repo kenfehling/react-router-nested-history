@@ -292,6 +292,18 @@ describe('history utils', () => {
       expect(result.groups[1].history.current.containerIndex).toBe(1)
     })
 
+    it('loads group without affecting other group', () => {
+      const result : InitializedState = performAll([
+        ...createContainers,
+        ...createContainers2,
+        loadAction('/b')
+      ])
+      expect(result.activeGroupIndex).toBe(0)
+      expect(result.groups[0].history.current.containerIndex).toBe(1)
+      expect(result.groups[1].history.current.containerIndex).toBe(0)
+      expect(result.groups[1].history.current.url).toBe('/e')
+    })
+
     it('reloads a previous page', () => {
       const result : InitializedState = performAll([
         ...createContainers,
@@ -307,7 +319,7 @@ describe('history utils', () => {
 
   describe('creates steps', () => {
     const createSteps = (actions:Action[], lastUpdate:number=-1) : Step[] =>
-        util.createStepsSinceLastUpdate(actions, zeroPage, new Date(lastUpdate))
+        util.createStepsSinceUpdate(actions, zeroPage, new Date(lastUpdate))
 
     it('for init (default)', () => {
       const steps = createSteps([

@@ -85,22 +85,25 @@ export const pushUrl = (state:InitializedState, url:string, groupIndex:number,
   }
 }
 
-export function getActiveGroup(state:InitializedState):Group {
+export function getActiveGroup(state:InitializedState) : Group {
   return state.groups[state.activeGroupIndex]
 }
 
-export function getActiveContainer(state:InitializedState):Container {
-  const group = getActiveGroup(state)
+export const getActiveContainerInGroup = (state:InitializedState,
+                                          groupIndex:number) : Container => {
+  const group = state.groups[groupIndex]
   return group.containers[group.history.current.containerIndex]
 }
 
-export function getCurrentPageInGroup(state:State, groupIndex:number) {
-  return state.groups[groupIndex].history.current
-}
+export const getActiveContainer = (state:InitializedState) : Container =>
+  getActiveContainerInGroup(state, state.activeGroupIndex)
 
-export function getActivePage(state:InitializedState) {
-  return getCurrentPageInGroup(state, getActiveGroup(state).index)
-}
+
+export const getCurrentPageInGroup = (state:State, groupIndex:number) =>
+    state.groups[groupIndex].history.current
+
+export const getActivePage = (state:InitializedState) : Page =>
+    getCurrentPageInGroup(state, getActiveGroup(state).index)
 
 export const findGroupWithCurrentUrl = (state:State, url:string) : Group =>
     _.find(state.groups, (g:Group) : boolean => g.history.current.url === url)

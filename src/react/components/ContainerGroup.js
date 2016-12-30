@@ -2,7 +2,7 @@ import React, { Component, PropTypes, Children, cloneElement } from 'react'
 import { render } from 'react-dom'
 import { connect } from "react-redux";
 import store from '../store'
-import { getNextGroupIndex, switchToContainer} from '../../main'
+import { getNextGroupIndex, switchToContainer } from '../../main'
 import * as _ from "lodash"
 import Container from "./Container"
 import { getGroupState } from "../../main"

@@ -188,7 +188,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var getDerivedState = exports.getDerivedState = function getDerivedState() {
 	  return util.deriveState(getActions(), getZeroPage());
 	};
-	var getInitializedDerivedState = function getInitializedDerivedState() {
+	var getInitializedState = function getInitializedState() {
 	  return util.deriveInitializedState(getActions(), getZeroPage());
 	};
 	
@@ -279,7 +279,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
-	  if (!core.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
+	  if (!core.isActiveContainer(getInitializedState(), groupIndex, containerIndex)) {
 	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	  }
 	};
@@ -334,7 +334,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (state instanceof _types.InitializedState) {
 	      var group = core.getActiveGroup(state);
 	      var current = group.history.current;
-	      var steps = util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate);
+	      var steps = util.createStepsSinceUpdate(actions, zeroPage, lastUpdate);
 	      lastUpdate = new Date();
 	      window.dispatchEvent(new CustomEvent('locationChange', {
 	        detail: { location: (0, _history2.createLocation)(current.url, { id: current.id }) }
@@ -1607,7 +1607,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	exports.reducer = reducer;
-	exports.createStepsSinceLastUpdate = createStepsSinceLastUpdate;
+	exports.createStepsSinceUpdate = createStepsSinceUpdate;
 	exports.getContainerStackOrder = getContainerStackOrder;
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
 	
@@ -1773,7 +1773,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	};
 	
-	function createStepsSinceLastUpdate(actions, zeroPage, lastUpdate) {
+	function createStepsSinceUpdate(actions, zeroPage, lastUpdate) {
 	  var newState = deriveInitializedState(actions, zeroPage);
 	  var newActions = _.filter(actions, function (a) {
 	    return (0, _compare_asc2.default)(a.time, lastUpdate) === 1;
@@ -1857,11 +1857,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var getGroupState = exports.getGroupState = function getGroupState(actions, groupIndex, zeroPage) {
 	  var state = deriveInitializedState(actions, zeroPage);
 	  var currentUrl = (0, _core.getCurrentPageInGroup)(state, groupIndex).url;
-	  var activeContainer = (0, _core.getActiveContainer)(state);
-	  var activeGroup = (0, _core.getActiveGroup)(state);
+	  var activeContainer = (0, _core.getActiveContainerInGroup)(state, groupIndex);
 	  var stackOrder = getContainerStackOrder(actions, groupIndex, zeroPage);
 	  var indexedStackOrder = getIndexedContainerStackOrder(actions, groupIndex, zeroPage);
-	  return { activeContainer: activeContainer, activeGroup: activeGroup, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder };
+	  return { activeContainer: activeContainer, currentUrl: currentUrl, stackOrder: stackOrder, indexedStackOrder: indexedStackOrder };
 	};
 
 /***/ },
@@ -20069,16 +20068,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.resetState = exports.doesGroupUseDefault = exports.getContainer = exports.createContainer = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.pushUrl = exports.pushPage = exports.forward = exports.back = exports.pushToStack = undefined;
+	exports.resetState = exports.doesGroupUseDefault = exports.getContainer = exports.createContainer = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.getActivePage = exports.getCurrentPageInGroup = exports.getActiveContainer = exports.getActiveContainerInGroup = exports.pushUrl = exports.pushPage = exports.forward = exports.back = exports.pushToStack = undefined;
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
 	exports.go = go;
 	exports.switchToContainer = switchToContainer;
 	exports.getActiveGroup = getActiveGroup;
-	exports.getActiveContainer = getActiveContainer;
-	exports.getCurrentPageInGroup = getCurrentPageInGroup;
-	exports.getActivePage = getActivePage;
 	exports.assureType = assureType;
 	exports.hasSameActiveContainer = hasSameActiveContainer;
 	exports.isActiveContainer = isActiveContainer;
@@ -20187,18 +20183,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return state.groups[state.activeGroupIndex];
 	}
 	
-	function getActiveContainer(state) {
-	  var group = getActiveGroup(state);
+	var getActiveContainerInGroup = exports.getActiveContainerInGroup = function getActiveContainerInGroup(state, groupIndex) {
+	  var group = state.groups[groupIndex];
 	  return group.containers[group.history.current.containerIndex];
-	}
+	};
 	
-	function getCurrentPageInGroup(state, groupIndex) {
+	var getActiveContainer = exports.getActiveContainer = function getActiveContainer(state) {
+	  return getActiveContainerInGroup(state, state.activeGroupIndex);
+	};
+	
+	var getCurrentPageInGroup = exports.getCurrentPageInGroup = function getCurrentPageInGroup(state, groupIndex) {
 	  return state.groups[groupIndex].history.current;
-	}
+	};
 	
-	function getActivePage(state) {
+	var getActivePage = exports.getActivePage = function getActivePage(state) {
 	  return getCurrentPageInGroup(state, getActiveGroup(state).index);
-	}
+	};
 	
 	var findGroupWithCurrentUrl = exports.findGroupWithCurrentUrl = function findGroupWithCurrentUrl(state, url) {
 	  return _.find(state.groups, function (g) {
