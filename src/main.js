@@ -100,7 +100,7 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string,
 
 export const loadFromUrl = (url:string) =>
     persist(store, {whitelist: ['actions']}, () =>
-        store.dispatch(actions.loadFromUrl(url, browser.wasLoadedFromRefresh())))
+        store.dispatch(actions.loadFromUrl(url, browser.loadedFromRefresh)))
 
 export const addChangeListener = (fn:Function) =>
     store.subscribe(() => fn(getDerivedState()))

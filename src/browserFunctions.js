@@ -45,5 +45,4 @@ export const listenPromise = () : Promise => new Promise(resolve => {
   })
 })
 
-export const wasLoadedFromRefresh = () : boolean =>
-    !!window.performance && performance.navigation.type == 1
+export const loadedFromRefresh = !!window.performance && performance.navigation.type == 1

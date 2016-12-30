@@ -264,7 +264,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var loadFromUrl = exports.loadFromUrl = function loadFromUrl(url) {
 	  return (0, _store.persist)(_store2.default, { whitelist: ['actions'] }, function () {
-	    return _store2.default.dispatch(actions.loadFromUrl(url, browser.wasLoadedFromRefresh()));
+	    return _store2.default.dispatch(actions.loadFromUrl(url, browser.loadedFromRefresh));
 	  });
 	};
 	
@@ -466,7 +466,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var SET_ZERO_PAGE = exports.SET_ZERO_PAGE = 'set-zero-page';
 	var CREATE_CONTAINER = exports.CREATE_CONTAINER = 'create-container';
 	var LOAD_FROM_URL = exports.LOAD_FROM_URL = 'load-from-url';
 	var SWITCH_TO_CONTAINER = exports.SWITCH_TO_CONTAINER = 'switch-to-container';
@@ -475,6 +474,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var FORWARD = exports.FORWARD = 'forward';
 	var GO = exports.GO = 'go';
 	var POPSTATE = exports.POPSTATE = 'popstate';
+	
+	var SET_ZERO_PAGE = exports.SET_ZERO_PAGE = 'set-zero-page';
 
 /***/ },
 /* 4 */
@@ -485,7 +486,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.wasLoadedFromRefresh = exports.listenPromise = exports.listenBefore = exports.listen = exports.setHistory = exports.forward = exports.back = exports.go = exports.replace = exports.push = exports._resetHistory = exports._history = undefined;
+	exports.loadedFromRefresh = exports.listenPromise = exports.listenBefore = exports.listen = exports.setHistory = exports.forward = exports.back = exports.go = exports.replace = exports.push = exports._resetHistory = exports._history = undefined;
 	
 	var _createBrowserHistory = __webpack_require__(5);
 	
@@ -550,9 +551,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	};
 	
-	var wasLoadedFromRefresh = exports.wasLoadedFromRefresh = function wasLoadedFromRefresh() {
-	  return !!window.performance && performance.navigation.type == 1;
-	};
+	var loadedFromRefresh = exports.loadedFromRefresh = !!window.performance && performance.navigation.type == 1;
 
 /***/ },
 /* 5 */
@@ -23987,30 +23986,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = function () {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
 	  var action = arguments[1];
+	  var type = action.type,
+	      data = action.data;
 	
-	  if (action.type === _ActionTypes.SET_ZERO_PAGE) {
-	    return _extends({}, state, { zeroPage: action.zeroPage });
+	  if (type === _ActionTypes.SET_ZERO_PAGE) {
+	    return _extends({}, state, { zeroPage: data.zeroPage });
+	  } else if (_.includes(_.values(types), type)) {
+	    return addAction(state, action);
 	  }
-	  /*
-	  else if (action.type === LOAD_FROM_URL) {
-	    if (action.fromRefresh) {
-	      return state
-	    }
-	    else {
-	      const actions:Object[] = _.initial(state.actions)
-	      const index:number = _.findIndex(actions, a => a.type === LOAD_FROM_URL)
-	      if (index === -1) {
-	        addAction(state, action)
-	      }
-	      else {
-	        setActions(state, state.actions.slice(0, index))
-	      }
-	    }
-	  }
-	  */
-	  else if (_.includes(_.values(types), action.type)) {
-	      return addAction(state, action);
-	    }
 	  return state;
 	};
 	
