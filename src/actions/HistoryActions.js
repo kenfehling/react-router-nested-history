@@ -32,11 +32,13 @@ export const switchToContainer = (groupIndex:number, containerIndex:number) => (
   }
 })
 
-export const push = (url: string) => ({
+export const push = (url: string, groupIndex:number, containerIndex:number) => ({
   type: PUSH,
   time: new Date(),
   data: {
-    url
+    url,
+    groupIndex,
+    containerIndex
   }
 })
 

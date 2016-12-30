@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import * as reactRouter from 'react-router'
 import MatchProvider from 'react-router/MatchProvider'
 import matchPattern from 'react-router/matchPattern'
-import { getCurrentPageInGrouo } from '../../main'
+import { getCurrentPageInGroup } from '../../main'
 
 class RegisterMatch extends React.Component {
   static contextTypes = {

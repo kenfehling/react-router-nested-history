@@ -55,7 +55,7 @@ describe('main', () => {
         expect(index).toBe(1)
         expect(entries[0].pathname).toBe(zeroPage)
         expect(entries[1].pathname).toBe('/a')
-      }, 1)
+      })
     })
 
     it('reloads a previous page', async () => {
@@ -63,12 +63,12 @@ describe('main', () => {
         loadAction('/a'),
         switchAction(0, 1),
         loadAction('/a', 2)
-      ]).then(({entries, index}) => {
+      ], 1).then(({entries, index}) => {
         expect(entries.length).toBe(2)
         expect(index).toBe(1)
         expect(entries[0].pathname).toBe(zeroPage)
         expect(entries[1].pathname).toBe('/a')
-      }, 1)
+      })
     })
 
     it('reloads the initial page (from refresh)', async () => {
@@ -83,7 +83,7 @@ describe('main', () => {
     it('push', async () => {
       await run([
         loadAction('/a'),
-        pushAction('/a/1')
+        pushAction('/a/1', 0, 0)
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(3)
         expect(entries[0].pathname).toBe(zeroPage)
@@ -93,11 +93,25 @@ describe('main', () => {
       })
     })
 
+    it('push to different container', async () => {
+      await run([
+        loadAction('/a'),
+        pushAction('/b/1', 0, 1)
+      ]).then(({entries, index}) => {
+        expect(entries.length).toBe(4)
+        expect(entries[0].pathname).toBe(zeroPage)
+        expect(entries[1].pathname).toBe('/a')
+        expect(entries[2].pathname).toBe('/b')
+        expect(entries[3].pathname).toBe('/b/1')
+        expect(index).toBe(3)
+      })
+    })
+
     it('back', async () => {
       await run([
         loadAction('/a'),
-        pushAction('/a/1'),
-        pushAction('/a/2'),
+        pushAction('/a/1', 0, 0),
+        pushAction('/a/2', 0, 0),
         backAction()
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(4)
@@ -113,7 +127,7 @@ describe('main', () => {
       await run([
         loadAction('/a'),
         backAction(),
-        pushAction('/a/1')
+        pushAction('/a/1', 0, 0)
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(3)
         expect(entries[0].pathname).toBe(zeroPage)

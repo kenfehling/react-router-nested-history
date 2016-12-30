@@ -33,9 +33,9 @@ export default class Container extends Component {
   }
 
   constructor(props, context) {
-    super(props)
+    super(props, context)
     const patterns = this.getPatterns()
-    const {initialUrl} = this.props
+    const {initialUrl} = props
     const {groupIndex, useDefaultContainer=true} = context
     const container = getOrCreateContainer(groupIndex, initialUrl, patterns, useDefaultContainer)
     this.containerIndex = container.index

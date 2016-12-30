@@ -10,8 +10,10 @@ import ContainerGroup from '../../../src/react/components/ContainerGroup'
 import Container from '../../../src/react/components/Container'
 import HistoryRouter from '../../../src/react/components/HistoryRouter'
 import { zeroPage } from '../../fixtures'
-import {getZeroPage} from "../../../src/main";
-import {_resetHistory} from "../../../src/browserFunctions";
+import {getZeroPage, getDerivedState, getActions} from "../../../src/main"
+import {_resetHistory} from "../../../src/browserFunctions"
+import {CREATE_CONTAINER} from "../../../src/constants/ActionTypes"
+import type { Action } from '../../../src/types'
 
 describe('ContainerGroup', () => {
 
@@ -73,7 +75,8 @@ describe('ContainerGroup', () => {
             <p>Clicking on a window brings it to the front.</p>
           </div>
           <ContainerGroup currentContainerIndex={this.state.activeWindowIndex}
-                          onContainerSwitch={this.onContainerSwitch.bind(this)}>
+                          onContainerSwitch={this.onContainerSwitch.bind(this)}
+                          useDefaultContainer={false}>
             {this.renderWindow(0)}
             {this.renderWindow(1)}
           </ContainerGroup>
@@ -103,5 +106,15 @@ describe('ContainerGroup', () => {
     const zeroPage = getZeroPage()
     expect(zeroPage).toBe('/windows/1')
     app.unmount()
+  })
+
+  it('sets useDefaultContainer from props', () => {
+    const app = mount(<AppWithZeroPage />)
+    const container1 = app.find(Container).nodes[0]
+    const action1:Action = getActions()[0]
+    expect(container1.context.useDefaultContainer).toBe(false)
+    expect(action1.type).toBe(CREATE_CONTAINER)
+    expect(action1.data.useDefault).toBe(false)
+    expect(getDerivedState().groups[0].containers[0].isDefault).toBe(false)
   })
 })

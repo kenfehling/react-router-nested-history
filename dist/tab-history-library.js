@@ -131,7 +131,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.setZeroPage = exports.getCurrentPageInGrouo = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = undefined;
+	exports.setZeroPage = exports.getCurrentPageInGroup = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getDerivedState = exports.getActions = undefined;
 	exports.runSteps = runSteps;
 	exports.listenToStore = listenToStore;
 	
@@ -148,6 +148,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var util = _interopRequireWildcard(_history);
 	
 	var _core = __webpack_require__(25);
+	
+	var core = _interopRequireWildcard(_core);
 	
 	var _store = __webpack_require__(37);
 	
@@ -180,10 +182,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var unlisten = void 0,
 	    lastUpdate = new Date();
 	
-	var getActions = function getActions() {
+	var getActions = exports.getActions = function getActions() {
 	  return _store2.default.getState().actions;
 	};
-	var getDerivedState = function getDerivedState() {
+	var getDerivedState = exports.getDerivedState = function getDerivedState() {
 	  return util.deriveState(getActions(), getZeroPage());
 	};
 	var getInitializedDerivedState = function getInitializedDerivedState() {
@@ -261,7 +263,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var loadFromUrl = exports.loadFromUrl = function loadFromUrl(url) {
-	  return (0, _store.persist)(_store2.default, {}, function () {
+	  return (0, _store.persist)(_store2.default, { whitelist: ['actions'] }, function () {
 	    return _store2.default.dispatch(actions.loadFromUrl(url, browser.wasLoadedFromRefresh()));
 	  });
 	};
@@ -277,16 +279,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
-	  if (!util.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
+	  if (!core.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
 	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	  }
 	};
 	
 	var push = exports.push = function push(groupIndex, containerIndex, url) {
-	  if (!util.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
-	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
-	  }
-	  _store2.default.dispatch(actions.push(url));
+	  _store2.default.dispatch(actions.push(url, groupIndex, containerIndex));
 	};
 	
 	var go = exports.go = function go() {
@@ -302,8 +301,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.dispatch(actions.forward(n));
 	};
 	
-	var getCurrentPageInGrouo = exports.getCurrentPageInGrouo = function getCurrentPageInGrouo(groupIndex) {
-	  return (0, _core.getCurrentPageInGroup)(getDerivedState(), groupIndex);
+	var getCurrentPageInGroup = exports.getCurrentPageInGroup = function getCurrentPageInGroup(groupIndex) {
+	  return core.getCurrentPageInGroup(getDerivedState(), groupIndex);
 	};
 	
 	function runStep(step) {
@@ -333,7 +332,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var zeroPage = getZeroPage();
 	    var state = util.deriveState(actions, zeroPage);
 	    if (state instanceof _types.InitializedState) {
-	      var group = (0, _core.getActiveGroup)(state);
+	      var group = core.getActiveGroup(state);
 	      var current = group.history.current;
 	      var steps = util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate);
 	      lastUpdate = new Date();
@@ -396,12 +395,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 	
-	var push = exports.push = function push(url) {
+	var push = exports.push = function push(url, groupIndex, containerIndex) {
 	  return {
 	    type: _ActionTypes.PUSH,
 	    time: new Date(),
 	    data: {
-	      url: url
+	      url: url,
+	      groupIndex: groupIndex,
+	      containerIndex: containerIndex
 	    }
 	  };
 	};
@@ -1609,9 +1610,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.createStepsSinceLastUpdate = createStepsSinceLastUpdate;
 	exports.getContainerStackOrder = getContainerStackOrder;
 	exports.getIndexedContainerStackOrder = getIndexedContainerStackOrder;
-	exports.getContainer = getContainer;
-	exports.hasSameActiveContainer = hasSameActiveContainer;
-	exports.isActiveContainer = isActiveContainer;
 	
 	var _ActionTypes = __webpack_require__(3);
 	
@@ -1674,26 +1672,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	            groupIndex = _action$data2.groupIndex,
 	            containerIndex = _action$data2.containerIndex;
 	
-	        var newState = (0, _core.isOnZeroPage)(state) ? _.cloneDeep((0, _core.go)(state, 1, zeroPage)) : _.cloneDeep(state);
-	        var group = newState.groups[groupIndex];
-	        var oldContainerIndex = group.history.current.containerIndex;
-	        var from = group.containers[oldContainerIndex];
-	        var to = getContainer(newState, groupIndex, containerIndex);
-	        var defaulT = _.find(group.containers, function (c) {
-	          return c.isDefault;
-	        });
-	        group.history = (0, _behaviorist.switchContainer)(from, to, defaulT);
-	        newState.browserHistory = (0, _core.toBrowserHistory)(group.history, zeroPage);
-	        newState.activeGroupIndex = group.index;
-	        return newState;
+	        return (0, _core.switchToContainer)(state, groupIndex, containerIndex, zeroPage);
 	      }
 	    case _ActionTypes.PUSH:
 	      {
 	        var _ret = function () {
-	          var url = action.data.url;
+	          var _action$data3 = action.data,
+	              url = _action$data3.url,
+	              groupIndex = _action$data3.groupIndex,
+	              containerIndex = _action$data3.containerIndex;
 	
 	          var f = function f(s) {
-	            return (0, _core.pushUrl)(s, url);
+	            return (0, _core.pushUrl)(s, url, groupIndex, containerIndex, zeroPage);
 	          };
 	          return {
 	            v: (0, _core.isOnZeroPage)(state) ? f((0, _core.go)(state, 1, zeroPage)) : f(state)
@@ -1776,7 +1766,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	  if (shiftAmount !== 0) {
 	    return [{ fn: browser.go, args: [shiftAmount] }];
-	  } else if (hasSameActiveContainer(oldState, newState)) {
+	  } else if ((0, _core.hasSameActiveContainer)(oldState, newState)) {
 	    return [{ fn: browser.push, args: [h2.current] }];
 	  } else {
 	    return getHistoryReplacementSteps(h1, h2);
@@ -1838,7 +1828,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      });
 	    }
 	    if (newState instanceof _types.InitializedState && newState.activeGroupIndex === groupIndex) {
-	      if (!hasSameActiveContainer(oldState, newState)) {
+	      if (!(0, _core.hasSameActiveContainer)(oldState, newState)) {
 	        containerSwitches.push((0, _core.getActiveContainer)(newState));
 	      }
 	    }
@@ -1862,22 +1852,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }), function (s) {
 	    return s.i;
 	  });
-	}
-	
-	function getContainer(state, groupIndex, index) {
-	  return state.groups[groupIndex].containers[index];
-	}
-	
-	function hasSameActiveContainer(oldState, newState) {
-	  if (!oldState || !(oldState instanceof _types.InitializedState)) return false;
-	  var o = (0, _core.getActiveContainer)(oldState);
-	  var n = (0, _core.getActiveContainer)(newState);
-	  return o.groupIndex === n.groupIndex && o.index === n.index;
-	}
-	
-	function isActiveContainer(state, groupIndex, containerIndex) {
-	  var c = (0, _core.getActiveContainer)(state);
-	  return c.groupIndex === groupIndex && c.index === containerIndex;
 	}
 	
 	var getGroupState = exports.getGroupState = function getGroupState(actions, groupIndex, zeroPage) {
@@ -20095,22 +20069,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.resetState = exports.doesGroupUseDefault = exports.createContainer = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.replaceUrl = exports.pushUrl = exports._Url = exports.replacePage = exports.pushPage = exports.forward = exports.back = exports.replaceCurrent = exports.pushToStack = undefined;
+	exports.resetState = exports.doesGroupUseDefault = exports.getContainer = exports.createContainer = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.pushUrl = exports.pushPage = exports.forward = exports.back = exports.pushToStack = undefined;
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
 	exports.go = go;
+	exports.switchToContainer = switchToContainer;
 	exports.getActiveGroup = getActiveGroup;
 	exports.getActiveContainer = getActiveContainer;
 	exports.getCurrentPageInGroup = getCurrentPageInGroup;
 	exports.getActivePage = getActivePage;
 	exports.assureType = assureType;
+	exports.hasSameActiveContainer = hasSameActiveContainer;
+	exports.isActiveContainer = isActiveContainer;
 	
 	var _lodash = __webpack_require__(18);
 	
 	var _ = _interopRequireWildcard(_lodash);
 	
 	var _types = __webpack_require__(26);
+	
+	var _behaviorist = __webpack_require__(27);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -20122,12 +20101,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    current: page,
 	    forward: []
 	  };
-	};
-	
-	var replaceCurrent = exports.replaceCurrent = function replaceCurrent(historyStack, page) {
-	  return _extends({}, historyStack, {
-	    current: page
-	  });
 	};
 	
 	var back = exports.back = function back(historyStack) {
@@ -20168,9 +20141,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return go(state, nextN, zeroPage);
 	}
 	
-	var pushPage = exports.pushPage = function pushPage(oldState, page) {
+	function switchToContainer(state, groupIndex, containerIndex, zeroPage) {
+	  var newState = isOnZeroPage(state) ? _.cloneDeep(go(state, 1, zeroPage)) : _.cloneDeep(state);
+	  var group = newState.groups[groupIndex];
+	  var oldContainerIndex = group.history.current.containerIndex;
+	  var from = group.containers[oldContainerIndex];
+	  var to = getContainer(newState, groupIndex, containerIndex);
+	  var defaulT = _.find(group.containers, function (c) {
+	    return c.isDefault;
+	  });
+	  group.history = (0, _behaviorist.switchContainer)(from, to, defaulT);
+	  newState.browserHistory = toBrowserHistory(group.history, zeroPage);
+	  newState.activeGroupIndex = group.index;
+	  return newState;
+	}
+	
+	var pushPage = exports.pushPage = function pushPage(oldState, groupIndex, page) {
 	  var state = _.cloneDeep(oldState);
-	  var group = getActiveGroup(state);
+	  var group = state.groups[groupIndex];
 	  var container = group.containers[page.containerIndex];
 	  container.history = pushToStack(container.history, page);
 	  group.history = pushToStack(group.history, page);
@@ -20179,32 +20167,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return state;
 	};
 	
-	var replacePage = exports.replacePage = function replacePage(oldState, page) {
-	  var state = _.cloneDeep(oldState);
-	  var group = state.groups[state.activeGroupIndex];
-	  var container = group.containers[page.containerIndex];
-	  container.history = replaceCurrent(container.history, page);
-	  group.history = replaceCurrent(group.history, page);
-	  state.browserHistory = replaceCurrent(state.browserHistory, page);
-	  state.lastPageId = Math.max(state.lastPageId, page.id);
-	  return state;
-	};
-	
-	var _Url = exports._Url = function _Url(state, url, containerIndex, fn) {
-	  var id = state.lastPageId + 1;
-	  return fn(state, {
-	    url: url,
-	    id: id,
-	    containerIndex: containerIndex || getActiveContainer(state).index
-	  });
-	};
-	
-	var pushUrl = exports.pushUrl = function pushUrl(state, url, containerIndex) {
-	  return _Url(state, url, containerIndex, pushPage);
-	};
-	
-	var replaceUrl = exports.replaceUrl = function replaceUrl(state, url, containerIndex) {
-	  return _Url(state, url, containerIndex, replacePage);
+	var pushUrl = exports.pushUrl = function pushUrl(state, url, groupIndex, containerIndex, zeroPage) {
+	  var f = function f(s) {
+	    return pushPage(s, groupIndex, {
+	      url: url,
+	      id: s.lastPageId + 1,
+	      containerIndex: containerIndex
+	    });
+	  };
+	  var active = getActiveContainer(state);
+	  if (groupIndex !== active.groupIndex || containerIndex !== active.index) {
+	    return f(switchToContainer(state, groupIndex, containerIndex, zeroPage));
+	  } else {
+	    return f(state);
+	  }
 	};
 	
 	function getActiveGroup(state) {
@@ -20326,6 +20302,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    lastPageId: id
 	  }));
 	};
+	
+	var getContainer = exports.getContainer = function getContainer(state, groupIndex, index) {
+	  return state.groups[groupIndex].containers[index];
+	};
+	
+	function hasSameActiveContainer(oldState, newState) {
+	  if (!oldState || !(oldState instanceof _types.InitializedState)) return false;
+	  var o = getActiveContainer(oldState);
+	  var n = getActiveContainer(newState);
+	  return o.groupIndex === n.groupIndex && o.index === n.index;
+	}
+	
+	function isActiveContainer(state, groupIndex, containerIndex) {
+	  var c = getActiveContainer(state);
+	  return c.groupIndex === groupIndex && c.index === containerIndex;
+	}
 	
 	var doesGroupUseDefault = exports.doesGroupUseDefault = function doesGroupUseDefault(state, groupIndex) {
 	  return _.some(state.groups[groupIndex].containers, function (c) {
@@ -20534,7 +20526,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var newState = oldState.groups.reduce(function (state, group) {
 	    return loadGroupFromUrl(state, url, group.index);
 	  }, oldState);
-	
 	  var activeGroup = (0, _core.findGroupWithCurrentUrl)(newState, url);
 	  var browserHistory = (0, _core.toBrowserHistory)(activeGroup.history, zeroPage);
 	  return new _types.InitializedState({
@@ -32460,7 +32451,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function componentWillMount() {
 	      var groupIndex = (0, _main.getNextGroupIndex)();
 	      this.groupIndex = groupIndex;
-	      var location = this.props.location;
+	      var _props = this.props,
+	          location = _props.location,
+	          useDefaultContainer = _props.useDefaultContainer;
 	
 	      var G = function (_Component2) {
 	        _inherits(G, _Component2);
@@ -32477,6 +32470,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return {
 	              groupIndex: groupIndex,
 	              location: location,
+	              useDefaultContainer: useDefaultContainer,
 	              initializing: true
 	            };
 	          }
@@ -32494,11 +32488,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return G;
 	      }(_react.Component);
 	
-	      G.childContextTypes = {
-	        groupIndex: _react.PropTypes.number.isRequired,
-	        location: _react.PropTypes.object.isRequired,
+	      G.childContextTypes = _extends({}, ContainerGroup.childContextTypes, {
 	        initializing: _react.PropTypes.bool
-	      };
+	      });
 	
 	
 	      var children = getChildren(this);
@@ -32528,9 +32520,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(newProps) {
-	
-	      //console.log("CWRP", newProps)
-	
 	      this.setCurrentContainer(newProps.currentContainerIndex);
 	      this.update();
 	    }
@@ -50680,10 +50669,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  function Container(props, context) {
 	    _classCallCheck(this, Container);
 	
-	    var _this = _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
+	    var _this = _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props, context));
 	
 	    var patterns = _this.getPatterns();
-	    var initialUrl = _this.props.initialUrl;
+	    var initialUrl = props.initialUrl;
 	    var groupIndex = context.groupIndex,
 	        _context$useDefaultCo = context.useDefaultContainer,
 	        useDefaultContainer = _context$useDefaultCo === undefined ? true : _context$useDefaultCo;

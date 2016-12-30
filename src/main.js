@@ -5,7 +5,7 @@ import * as actions from './actions/HistoryActions'
 import * as browser from './browserFunctions'
 import { listen, listenPromise } from './browserFunctions'
 import * as util from './util/history'
-import { getCurrentPageInGroup, getActiveGroup } from './util/core'
+import * as core from './util/core'
 import store, { persist } from './store'
 import * as _ from 'lodash'
 import type { Step, Group, Container, Page, Action } from './types'
@@ -20,8 +20,8 @@ const queue = new Queue(maxConcurrent, maxQueue)
 const needsPopListener = canUseWindowLocation ? [browser.back, browser.forward, browser.go] : []
 let unlisten, lastUpdate = new Date()
 
-const getActions = () : Action[] => store.getState().actions
-const getDerivedState = () : State => util.deriveState(getActions(), getZeroPage())
+export const getActions = () : Action[] => store.getState().actions
+export const getDerivedState = () : State => util.deriveState(getActions(), getZeroPage())
 const getInitializedDerivedState = () : InitializedState =>
     util.deriveInitializedState(getActions(), getZeroPage())
 
@@ -89,8 +89,9 @@ export const getOrCreateContainer = (groupIndex:number, initialUrl:string, patte
   return existingContainer || create()
 }
 
-export const loadFromUrl = (url:string) => persist(store, {}, () =>
-    store.dispatch(actions.loadFromUrl(url, browser.wasLoadedFromRefresh())))
+export const loadFromUrl = (url:string) =>
+    persist(store, {whitelist: ['actions']}, () =>
+        store.dispatch(actions.loadFromUrl(url, browser.wasLoadedFromRefresh())))
 
 export const addChangeListener = (fn:Function) =>
     store.subscribe(() => fn(getDerivedState()))
@@ -99,24 +100,21 @@ export const getGroupState = (groupIndex:number) : Object =>
     util.getGroupState(getActions(), groupIndex, getZeroPage())
 
 export const switchToContainer = (groupIndex:number, containerIndex:number) => {
-  if (!util.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
+  if (!core.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
     store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
   }
 }
 
 export const push = (groupIndex:number, containerIndex:number, url:string) => {
-  if (!util.isActiveContainer(getInitializedDerivedState(), groupIndex, containerIndex)) {
-    store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
-  }
-  store.dispatch(actions.push(url))
+  store.dispatch(actions.push(url, groupIndex, containerIndex))
 }
 
 export const go = (n:number=1) => store.dispatch(actions.go(n))
 export const back = (n:number=1) => store.dispatch(actions.back(n))
 export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 
-export const getCurrentPageInGrouo = (groupIndex:number) =>
-    getCurrentPageInGroup(getDerivedState(), groupIndex)
+export const getCurrentPageInGroup = (groupIndex:number) =>
+    core.getCurrentPageInGroup(getDerivedState(), groupIndex)
 
 function runStep(step:Step) {
   const stepPromise = () => {
@@ -138,7 +136,7 @@ export function listenToStore() {
     const zeroPage:string = getZeroPage()
     const state:State = util.deriveState(actions, zeroPage)
     if (state instanceof InitializedState) {
-      const group:Group = getActiveGroup(state)
+      const group:Group = core.getActiveGroup(state)
       const current:Page = group.history.current
       const steps:Step[] =util.createStepsSinceLastUpdate(actions, zeroPage, lastUpdate)
       lastUpdate = new Date()

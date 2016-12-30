@@ -5,8 +5,8 @@ import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK,
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
 import { go, getCurrentPageInGroup, getActiveContainer, getActiveGroup,
-  filterZero, isZeroPage, isOnZeroPage, toBrowserHistory, assureType,
-  createContainer, getHistoryShiftAmountForId, pushUrl, getHistoryShiftAmount
+  filterZero, isZeroPage, isOnZeroPage, assureType,
+  createContainer, getHistoryShiftAmountForId, pushUrl, getHistoryShiftAmount, switchToContainer, hasSameActiveContainer
 } from './core'
 import * as browser from '../browserFunctions'
 import { switchContainer, loadFromUrl, reloadFromUrl} from '../behaviorist'
@@ -44,21 +44,12 @@ function _reducer(state:InitializedState, action:Action,
   switch (action.type) {
     case SWITCH_TO_CONTAINER: {
       const {groupIndex, containerIndex} = action.data
-      const newState:InitializedState = isOnZeroPage(state) ?
-          _.cloneDeep(go(state, 1, zeroPage)) : _.cloneDeep(state)
-      const group:Group = newState.groups[groupIndex]
-      const oldContainerIndex = group.history.current.containerIndex
-      const from:Container = group.containers[oldContainerIndex]
-      const to:Container = getContainer(newState, groupIndex, containerIndex)
-      const defaulT:?Container = _.find(group.containers, (c:Container) => c.isDefault)
-      group.history = switchContainer(from, to, defaulT)
-      newState.browserHistory = toBrowserHistory(group.history, zeroPage)
-      newState.activeGroupIndex = group.index
-      return newState
+      return switchToContainer(state, groupIndex, containerIndex, zeroPage)
     }
     case PUSH: {
-      const {url} = action.data
-      const f:Function = (s:InitializedState) => pushUrl(s, url)
+      const {url, groupIndex, containerIndex} = action.data
+      const f:Function = (s:InitializedState) =>
+          pushUrl(s, url, groupIndex, containerIndex, zeroPage)
       return isOnZeroPage(state) ? f(go(state, 1, zeroPage)) : f(state)
     }
     case BACK: return go(state, 0 - action.data.n || -1, zeroPage)
@@ -220,24 +211,6 @@ export function getIndexedContainerStackOrder(actions:Action[],
   const stackOrder = getContainerStackOrder(actions, groupIndex, zeroPage)
   const values = _.map(stackOrder, (s, i) => ({index: s.index, i}))
   return _.map(_.sortBy(values, s => s.index), s => s.i)
-}
-
-export function getContainer(state:State, groupIndex:number, index:number):Container {
-  return state.groups[groupIndex].containers[index]
-}
-
-export function hasSameActiveContainer(oldState:?State,
-                                       newState:InitializedState) : boolean {
-  if (!oldState || !(oldState instanceof InitializedState)) return false
-  const o:Container = getActiveContainer(oldState)
-  const n:Container = getActiveContainer(newState)
-  return o.groupIndex === n.groupIndex && o.index === n.index
-}
-
-export function isActiveContainer(state:InitializedState, groupIndex:number,
-                                  containerIndex:number) {
-  const c = getActiveContainer(state)
-  return c.groupIndex === groupIndex && c.index === containerIndex
 }
 
 export const getGroupState = (actions:Action[], groupIndex:number,

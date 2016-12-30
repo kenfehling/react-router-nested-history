@@ -2,16 +2,12 @@
 import * as _ from 'lodash'
 import type { History, Page, Container, Group } from '../types'
 import { State, InitializedState, UninitialzedState } from '../types'
+import {switchContainer} from "../behaviorist";
 
 export const pushToStack = (historyStack:History, page:Page) : History => ({
   back: [...historyStack.back, historyStack.current],
   current: page,
   forward: []
-})
-
-export const replaceCurrent = (historyStack:History, page:Page) : History => ({
-  ...historyStack,
-  current: page
 })
 
 export const back = (historyStack:History) : History => ({
@@ -46,9 +42,25 @@ export function go(oldState:InitializedState, n:number, zeroPage:string) : Initi
   return go(state, nextN, zeroPage)
 }
 
-export const pushPage = (oldState:InitializedState, page:Page) : State => {
+export function switchToContainer(state:InitializedState, groupIndex:number,
+                                  containerIndex:number,
+                                  zeroPage:string) : InitializedState {
+  const newState:InitializedState = isOnZeroPage(state) ?
+      _.cloneDeep(go(state, 1, zeroPage)) : _.cloneDeep(state)
+  const group:Group = newState.groups[groupIndex]
+  const oldContainerIndex = group.history.current.containerIndex
+  const from:Container = group.containers[oldContainerIndex]
+  const to:Container = getContainer(newState, groupIndex, containerIndex)
+  const defaulT:?Container = _.find(group.containers, (c:Container) => c.isDefault)
+  group.history = switchContainer(from, to, defaulT)
+  newState.browserHistory = toBrowserHistory(group.history, zeroPage)
+  newState.activeGroupIndex = group.index
+  return newState
+}
+
+export const pushPage = (oldState:InitializedState, groupIndex:number, page:Page) : State => {
   const state:InitializedState = _.cloneDeep(oldState)
-  const group:Group = getActiveGroup(state)
+  const group:Group = state.groups[groupIndex]
   const container:Container = group.containers[page.containerIndex]
   container.history = pushToStack(container.history, page)
   group.history = pushToStack(group.history, page)
@@ -57,35 +69,21 @@ export const pushPage = (oldState:InitializedState, page:Page) : State => {
   return state
 }
 
-export const replacePage = (oldState:InitializedState, page:Page) : State => {
-  const state:InitializedState = _.cloneDeep(oldState)
-  const group:Group = state.groups[state.activeGroupIndex]
-  const container:Container = group.containers[page.containerIndex]
-  container.history = replaceCurrent(container.history, page)
-  group.history = replaceCurrent(group.history, page)
-  state.browserHistory = replaceCurrent(state.browserHistory, page)
-  state.lastPageId = Math.max(state.lastPageId, page.id)
-  return state
-}
-
-export const _Url = (state:InitializedState, url:string,
-                     containerIndex:?number,
-                     fn:Function) : InitializedState => {
-  const id:number = state.lastPageId + 1
-  return fn(state, {
+export const pushUrl = (state:InitializedState, url:string, groupIndex:number,
+                        containerIndex:number, zeroPage:string) : InitializedState => {
+  const f:Function = (s:InitializedState) => pushPage(s, groupIndex, {
     url,
-    id,
-    containerIndex: containerIndex || getActiveContainer(state).index
+    id: s.lastPageId + 1,
+    containerIndex: containerIndex
   })
+  const active:Container = getActiveContainer(state)
+  if (groupIndex !== active.groupIndex || containerIndex !== active.index) {
+    return f(switchToContainer(state, groupIndex, containerIndex, zeroPage))
+  }
+  else {
+    return f(state)
+  }
 }
-
-export const pushUrl = (state:InitializedState, url:string,
-                        containerIndex:?number) : InitializedState =>
-    _Url(state, url, containerIndex, pushPage)
-
-export const replaceUrl = (state:InitializedState, url:string,
-                           containerIndex:?number) : InitializedState =>
-    _Url(state, url, containerIndex, replacePage)
 
 export function getActiveGroup(state:InitializedState):Group {
   return state.groups[state.activeGroupIndex]
@@ -193,6 +191,24 @@ export const createContainer = (state:?UninitialzedState,
         ] : [group],
     lastPageId: id
   })
+}
+
+export const getContainer = (state:State, groupIndex:number,
+                             index:number) : Container =>
+    state.groups[groupIndex].containers[index]
+
+export function hasSameActiveContainer(oldState:?State,
+                                       newState:InitializedState) : boolean {
+  if (!oldState || !(oldState instanceof InitializedState)) return false
+  const o:Container = getActiveContainer(oldState)
+  const n:Container = getActiveContainer(newState)
+  return o.groupIndex === n.groupIndex && o.index === n.index
+}
+
+export function isActiveContainer(state:InitializedState, groupIndex:number,
+                                  containerIndex:number) {
+  const c = getActiveContainer(state)
+  return c.groupIndex === groupIndex && c.index === containerIndex
 }
 
 export const doesGroupUseDefault = (state:State, groupIndex:number) : boolean =>

@@ -1,9 +1,7 @@
 // @flow
 import * as _ from 'lodash'
 import { patternsMatch , patternMatches} from "./util/url"
-import { pushToStack, findGroupWithCurrentUrl, toBrowserHistory, resetState, go, pushUrl,
-  getHistoryShiftAmountForUrl
-} from './util/core'
+import { pushToStack, findGroupWithCurrentUrl, toBrowserHistory, resetState} from './util/core'
 import type { Page, Group, Container, History } from './types'
 import { State, UninitialzedState, InitializedState } from './types'
 
@@ -15,7 +13,7 @@ import {KEEP_HISTORY_ON_FUTURE_VISIT} from "./constants/Settings"
 const toArray = (h:History) : Array<any> => [h.back, h.current, h.forward]
 const fromArray = ([back, current, forward]) : History => ({back, current, forward})
 
-export function switchContainer(from:Container, to:Container, defaulT:?Container) : History {
+export function switchContainer(from:Container, to:Container,defaulT:?Container) : History {
   const fromHistory = toArray(from.history)
   const toHistory = toArray(to.history)
   if (defaulT) {
@@ -45,8 +43,8 @@ function push(state:UninitialzedState, container:Container, url:string) : Page {
   return page
 }
 
-function loadGroupFromUrl(oldState:UninitialzedState, url:string,
-                          groupIndex:number) : UninitialzedState {
+function loadGroupFromUrl(oldState:State, url:string,
+                          groupIndex:number) : State {
   const state:UninitialzedState = _.cloneDeep(oldState)
   const group:Group = state.groups[groupIndex]
   const containers:Container[] = group.containers
@@ -93,12 +91,10 @@ function loadGroupFromUrl(oldState:UninitialzedState, url:string,
   return state
 }
 
-export const loadFromUrl = (oldState:UninitialzedState, url:string,
+export const loadFromUrl = (oldState:State, url:string,
                             zeroPage:string) : InitializedState => {
-  const newState:UninitialzedState =
-      oldState.groups.reduce((state:UninitialzedState, group:Group) : UninitialzedState =>
+  const newState:State = oldState.groups.reduce((state:State, group:Group) : State =>
         loadGroupFromUrl(state, url, group.index), oldState)
-
   const activeGroup:Group = findGroupWithCurrentUrl(newState, url)
   const browserHistory:History = toBrowserHistory(activeGroup.history, zeroPage)
   return new InitializedState({
