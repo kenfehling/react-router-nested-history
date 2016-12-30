@@ -14,10 +14,15 @@ import {getZeroPage, getDerivedState, getActions} from "../../../src/main"
 import {_resetHistory} from "../../../src/browserFunctions"
 import {CREATE_CONTAINER} from "../../../src/constants/ActionTypes"
 import type { Action } from '../../../src/types'
+import { setZeroPage} from "../../../src/actions/HistoryActions";
+import store from '../../../src/store'
 
 describe('ContainerGroup', () => {
 
-  beforeEach(_resetHistory)
+  beforeEach(() => {
+    _resetHistory()
+    store.dispatch(setZeroPage(null))
+  })
 
   function getWindowZIndex(indexedStackOrder, index) {
     if (indexedStackOrder.length > index) {
@@ -38,7 +43,7 @@ describe('ContainerGroup', () => {
 
   class App extends Component {
     static propTypes = {
-      zeroPage: PropTypes.string
+      customZeroPage: PropTypes.string
     }
 
     constructor(props) {
@@ -65,8 +70,8 @@ describe('ContainerGroup', () => {
     }
 
     render() {
-      const {zeroPage} = this.props
-      return (<HistoryRouter location='/windows/2' zeroPage={zeroPage}>
+      const {customZeroPage} = this.props
+      return (<HistoryRouter location='/windows/2' zeroPage={customZeroPage}>
         <div className="windows">
           <h2>Windows example</h2>
           <div className="description">
@@ -84,7 +89,7 @@ describe('ContainerGroup', () => {
     }
   }
 
-  const AppWithZeroPage = () => <App zeroPage={zeroPage} />
+  const AppWithZeroPage = () => <App customZeroPage={'MY CUBANS'} />
   const AppWithoutZeroPage = () => <App />
 
   it('provides indexedStackOrder', () => {
