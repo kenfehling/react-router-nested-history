@@ -1,6 +1,6 @@
 {
   "name": "tab-history-library",
-  "version": "1.0.0",
+  "version": "4.0.0-alpha.6",
   "description": "",
   "author": "Ken Fehling",
   "license": "ISC",
@@ -52,7 +52,7 @@
     "react": "^15.4.1",
     "react-addons-test-utils": "^15.4.1",
     "react-dom": "^15.4.1",
-    "react-router": "^4.0.0-alpha.6",
+    "react-router": "4.0.0-alpha.6",
     "react-with-context": "^1.0.2",
     "rimraf": "^2.5.4",
     "webpack": "^1.11.0"
@@ -60,6 +60,6 @@
   "peerDependencies": {
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
-    "react-router": "^4.0.0-alpha.6"
+    "react-router": "4.0.0-alpha.6"
   }
 }

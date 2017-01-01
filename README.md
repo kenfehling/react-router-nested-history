@@ -1,6 +1,12 @@
 ### react-router
 This library is built to support [react-router 4](https://github.com/ReactTraining/react-router/tree/v4).
-<br>
+It's been developed and tested against [v4.0.0-alpha.6](https://github.com/ReactTraining/react-router/releases/tag/v4.0.0-alpha.6) and
+when version 4 is officially released the library will be updated for that API.
+
+This library is very new and untested
+(except for unit tests, examples, and its use on my
+[personal webpage](http://kenfehling.com) so it's not really production ready. I
+would very much appreciate any feedback as I continue to solidify it.
 
 #### HistoryRouter
 Use this in place of react-router's `BrowserRouter` component to enable this library.
@@ -27,16 +33,12 @@ Use this in place of react-router's `BrowserRouter` component to enable this lib
         </tr>
     </tbody>
 </table>
-<br>
-<br>
 
 #### HistoryMatch
 Use this in place of react-router's `Match` component to prevent a match's previous content from disappearing.
-<br>
 
 #### HistoryLink
 Use this in place of react-router's `Link` component to enable history tracking for a link.
-<br>
 
 #### Container
 Use this component to wrap one or more `HistoryMatch` components to enable history for a container (a nested tab or window).
@@ -72,7 +74,6 @@ Use this component to wrap one or more `HistoryMatch` components to enable histo
         </tr>
     </tbody>   
 </table>
-<br>
 
 #### ContainerGroup
 Wraps one or more `Container` components that act as a group (a group of tabs, etc.)
