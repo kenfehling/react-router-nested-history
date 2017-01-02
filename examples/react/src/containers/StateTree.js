@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { addChangeListener } from '../../../../dist/react-router-nested-history'
+import { addChangeListener } from 'react-router-nested-history'
 import './StateTree.css'
 
 const HistoryTree = ({history, className}) => (

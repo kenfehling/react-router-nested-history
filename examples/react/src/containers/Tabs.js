@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react'
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs'
-import { Container, ContainerGroup, HistoryMatch } from '../../../../dist/react-router-nested-history'
+import { Container, ContainerGroup, HistoryMatch } from 'react-router-nested-history'
 import { TransitionMotion, spring } from 'react-motion'
 import './Tabs.css'
 import TabMaster1 from "../components/TabMaster1"

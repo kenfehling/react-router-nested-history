@@ -2,7 +2,7 @@ import React from 'react'
 import { Match, Miss, Redirect } from 'react-router'
 import { render } from 'react-dom'
 import App from './containers/App'
-import { HistoryRouter } from '../../../dist/react-router-nested-history'
+import { HistoryRouter } from 'react-router-nested-history'
 
 const getBasename = () => window.location.hostname === 'kenfehling.github.io' ?
     'react-router-nested-history' : ''

@@ -1,5 +1,5 @@
 import React from 'react'
-import { HistoryLink } from '../../../../dist/react-router-nested-history'
+import { HistoryLink } from 'react-router-nested-history'
 
 export default () => (
   <div>

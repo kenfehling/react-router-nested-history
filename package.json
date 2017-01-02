@@ -1,22 +1,25 @@
 {
   "name": "react-router-nested-history",
   "version": "4.0.0-alpha.6",
-  "description": "",
+  "description": "A library to help build React apps with nested tabs and other containers that have their own history, complete with automatic altering of the browser's back and forward history to make it behave as you would expect",
   "author": "Ken Fehling",
-  "license": "ISC",
+  "license": "MIT",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
+  "files": [
+    "dist",
+    "lib",
+    "src"
+  ],
   "scripts": {
     "clean": "rimraf dist",
     "lint": "eslint src tests",
     "test": "jest",
     "test:watch": "jest --watch",
     "flow": "flow",
+    "build:lib": "babel src --out-dir lib",
     "build:umd": "webpack src/index.js dist/react-router-nested-history.js --config webpack.config.development.js",
     "build:umd:min": "webpack src/index.js dist/react-router-nested-history.min.js --config webpack.config.production.js",
-    "build": "npm run build:umd && npm run build:umd:min",
+    "build": "npm run build:lib && npm run build:umd && npm run build:umd:min",
     "build:examples": "cd examples/react; npm run build",
     "publish:examples": "git subtree push --prefix examples/react/build origin gh-pages"
   },
