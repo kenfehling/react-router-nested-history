@@ -1,5 +1,5 @@
-react-tab-history
------------------
+react-router-nested-history
+---------------------------
 
 A library to help build [React](https://facebook.github.io/react) apps with nested tabs and other containers that have their own history, complete with automatic altering of the browser's back and forward history to make it behave as you would expect.
 
@@ -9,7 +9,7 @@ It's been developed and tested against [v4.0.0-alpha.6](https://github.com/React
 when version 4 is officially released the library will be updated for that API.
 
 This library is very new and untested
-(except for unit tests, [examples](https://kenfehling.github.io/react-tab-history/), and its use on my
+(except for unit tests, [examples](https://kenfehling.github.io/react-router-nested-history/), and its use on my
 [personal webpage](http://kenfehling.com) so it's not really production ready. I
 would very much appreciate any feedback as I continue to solidify it.
 
