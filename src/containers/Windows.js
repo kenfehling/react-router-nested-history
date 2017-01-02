@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Container, ContainerGroup, HistoryMatch } from '../../../../dist/react-router-nested-history'
+import { Container, ContainerGroup, HistoryMatch } from 'react-router-nested-history'
 import WindowMaster1 from '../components/WindowMaster1'
 import WindowMaster2 from '../components/WindowMaster2'
 import WindowPage from '../components/WindowPage'
