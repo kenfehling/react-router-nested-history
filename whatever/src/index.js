@@ -1,4 +1,4 @@
-import { setTabs, switchToTab, push } from '../../../dist/tab-history-library';
+import { setTabs, switchToTab, push } from '../../../dist/react-router-nested-history';
 import $ from 'jquery';
 
 $(() => {
