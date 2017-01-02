@@ -1,5 +1,5 @@
 {
-  "name": "examples",
+  "name": "experimental-examples",
   "version": "0.0.1",
   "scripts": {
     "start": "webpack-dev-server --progress --colors --history-api-fallback --no-info --content-base ./",
