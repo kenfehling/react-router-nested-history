@@ -10,8 +10,8 @@ when version 4 is officially released the library will be updated for that API.
 
 This library is very new and untested
 (except for unit tests, [examples](https://kenfehling.github.io/react-router-nested-history/), and its use on my
-[personal webpage](http://kenfehling.com) so it's not really production ready. I
-would very much appreciate any feedback as I continue to solidify it.
+[personal webpage](http://kenfehling.com)) so it's not really production ready. I
+would **very much** appreciate any feedback as I continue to solidify it.
 
 #### HistoryRouter
 Use this in place of react-router's `BrowserRouter` component to enable this library.
