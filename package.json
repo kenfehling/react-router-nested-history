@@ -1,8 +1,7 @@
 {
   "name": "examples",
-  "version": "0.0.1",
-  "private": true,
-  "homepage": "https://github.com/kenfehling/react-router-nested-history",
+  "version": "4.0.0-alpha.6",
+  "homepage": "https://kenfehling.github.io/react-router-nested-history",
   "devDependencies": {
     "react-scripts": "^0.6.0"
   },
