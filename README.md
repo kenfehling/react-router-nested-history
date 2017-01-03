@@ -13,6 +13,8 @@ This library is very new and untested
 [personal webpage](http://kenfehling.com)) so it's not really production ready. I
 would **very much** appreciate any feedback as I continue to solidify it.
 
+Right now this library only works with browserHistory (HTML5 History API, not with hash history)
+
 #### HistoryRouter
 Use this in place of react-router's `BrowserRouter` component to enable this library.
 
