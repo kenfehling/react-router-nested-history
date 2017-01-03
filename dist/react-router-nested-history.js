@@ -32490,9 +32490,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	      var children = getChildren(this);
-	      var div = document.createElement('div');
 	      children.forEach(function (c) {
 	        if (c instanceof Object) {
+	          var div = document.createElement('div');
 	          (0, _reactDom.render)(_react2.default.createElement(
 	            G,
 	            null,

@@ -83,9 +83,9 @@ class ContainerGroup extends Component {
     }
 
     const children = getChildren(this)
-    const div = document.createElement('div')
     children.forEach(c => {
       if (c instanceof Object) {
+        const div = document.createElement('div')
         render(<G>{c}</G>, div)  // Initialize the Containers in this group
       }                          // (since most tab libraries lazy load tabs)
     })
