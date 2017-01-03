@@ -270,7 +270,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var addChangeListener = exports.addChangeListener = function addChangeListener(fn) {
 	  return _store2.default.subscribe(function () {
-	    return fn(getDerivedState());
+	    var state = getDerivedState();
+	    if (state instanceof _types.InitializedState) {
+	      fn(state);
+	    }
 	  });
 	};
 	

@@ -102,8 +102,14 @@ export const loadFromUrl = (url:string) =>
     persist(store, {whitelist: ['actions']}, () =>
         store.dispatch(actions.loadFromUrl(url, browser.loadedFromRefresh)))
 
-export const addChangeListener = (fn:Function) =>
-    store.subscribe(() => fn(getDerivedState()))
+export const addChangeListener = (fn:Function) => {
+  return store.subscribe(() => {
+    const state: State = getDerivedState()
+    if (state instanceof InitializedState) {
+      fn(state)
+    }
+  })
+}
 
 export const getGroupState = (groupIndex:number) : Object =>
     util.getGroupState(getActions(), groupIndex, getZeroPage())
