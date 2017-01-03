@@ -81,3 +81,11 @@ export const setZeroPage = (zeroPage: string) => ({
     zeroPage
   }
 })
+
+export const clearZeroPage = () => ({
+  type: SET_ZERO_PAGE,
+  time: new Date(),
+  data: {
+    zeroPage: null
+  }
+})

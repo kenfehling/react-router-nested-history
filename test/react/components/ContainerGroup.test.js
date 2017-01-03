@@ -9,19 +9,18 @@ import { shallow, mount, render } from 'enzyme'
 import ContainerGroup from '../../../src/react/components/ContainerGroup'
 import Container from '../../../src/react/components/Container'
 import HistoryRouter from '../../../src/react/components/HistoryRouter'
-import { zeroPage } from '../../fixtures'
-import {getZeroPage, getDerivedState, getActions} from "../../../src/main"
+import { getZeroPage, getDerivedState, getActions } from "../../../src/main"
 import {_resetHistory} from "../../../src/browserFunctions"
-import {CREATE_CONTAINER} from "../../../src/constants/ActionTypes"
+import { CREATE_CONTAINER } from "../../../src/constants/ActionTypes"
 import type { Action } from '../../../src/types'
-import { setZeroPage} from "../../../src/actions/HistoryActions";
+import { clearZeroPage } from "../../../src/actions/HistoryActions"
 import store from '../../../src/store'
 
 describe('ContainerGroup', () => {
 
   beforeEach(() => {
     _resetHistory()
-    store.dispatch(setZeroPage(null))
+    store.dispatch(clearZeroPage())
   })
 
   function getWindowZIndex(indexedStackOrder, index) {
