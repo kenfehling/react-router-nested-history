@@ -360,7 +360,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.setZeroPage = exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToContainer = exports.loadFromUrl = exports.createContainer = undefined;
+	exports.clearZeroPage = exports.setZeroPage = exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToContainer = exports.loadFromUrl = exports.createContainer = undefined;
 	
 	var _ActionTypes = __webpack_require__(3);
 	
@@ -456,6 +456,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    time: new Date(),
 	    data: {
 	      zeroPage: zeroPage
+	    }
+	  };
+	};
+	
+	var clearZeroPage = exports.clearZeroPage = function clearZeroPage() {
+	  return {
+	    type: _ActionTypes.SET_ZERO_PAGE,
+	    time: new Date(),
+	    data: {
+	      zeroPage: null
 	    }
 	  };
 	};
