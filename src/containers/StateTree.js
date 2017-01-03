@@ -41,7 +41,11 @@ export default class extends Component {
   }
 
   componentWillMount() {
-    addChangeListener(state => this.setState(state))
+    this.unlisten = addChangeListener(state => this.setState(state))
+  }
+
+  componentWillUnmount() {
+    this.unlisten()
   }
 
   render() {

@@ -13,7 +13,7 @@ render((
       <Match pattern='/' exactly render={() => <Redirect to="/tabs/1" />} />
       <Match pattern='/tabs' exactly render={() => <Redirect to="/tabs/1" />} />
       <Match pattern='/windows' exactly render={() => <Redirect to="/windows/1" />} />
-      <Miss component={App} />
+      <App />
     </div>
   </HistoryRouter>
 ), document.getElementById('root'))
