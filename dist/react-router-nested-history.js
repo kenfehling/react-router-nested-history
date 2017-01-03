@@ -50782,29 +50782,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	var HistoryRouter = function (_Component) {
 	  _inherits(HistoryRouter, _Component);
 	
-	  function HistoryRouter(props) {
+	  function HistoryRouter() {
 	    _classCallCheck(this, HistoryRouter);
 	
-	    var _this = _possibleConstructorReturn(this, (HistoryRouter.__proto__ || Object.getPrototypeOf(HistoryRouter)).call(this, props));
-	
-	    var listenToLocation = props.listenToLocation,
-	        locationChanged = props.locationChanged,
-	        zeroPage = props.zeroPage;
-	
-	    if (zeroPage) {
-	      (0, _main.setZeroPage)(zeroPage);
-	    }
-	    (0, _main.listenToStore)();
-	    if (_location.canUseWindowLocation) {
-	      locationChanged(window.location);
-	    } else {
-	      locationChanged({ pathname: _this.props.location });
-	    }
-	    listenToLocation();
-	    return _this;
+	    return _possibleConstructorReturn(this, (HistoryRouter.__proto__ || Object.getPrototypeOf(HistoryRouter)).apply(this, arguments));
 	  }
 	
 	  _createClass(HistoryRouter, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      var _props = this.props,
+	          listenToLocation = _props.listenToLocation,
+	          locationChanged = _props.locationChanged,
+	          zeroPage = _props.zeroPage;
+	
+	      if (zeroPage) {
+	        (0, _main.setZeroPage)(zeroPage);
+	      }
+	      (0, _main.listenToStore)();
+	      if (_location.canUseWindowLocation) {
+	        locationChanged(window.location);
+	      } else {
+	        locationChanged({ pathname: this.props.location });
+	      }
+	      listenToLocation();
+	    }
+	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      if (_location.canUseWindowLocation) {
@@ -50816,12 +50819,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _props = this.props,
-	          basename = _props.basename,
-	          forceRefresh = _props.forceRefresh,
-	          getUserConfirmation = _props.getUserConfirmation,
-	          keyLength = _props.keyLength,
-	          routerProps = _objectWithoutProperties(_props, ['basename', 'forceRefresh', 'getUserConfirmation', 'keyLength']);
+	      var _props2 = this.props,
+	          basename = _props2.basename,
+	          forceRefresh = _props2.forceRefresh,
+	          getUserConfirmation = _props2.getUserConfirmation,
+	          keyLength = _props2.keyLength,
+	          routerProps = _objectWithoutProperties(_props2, ['basename', 'forceRefresh', 'getUserConfirmation', 'keyLength']);
 	
 	      return _react2.default.createElement(
 	        _History2.default,
