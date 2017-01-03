@@ -4,8 +4,11 @@ import { render } from 'react-dom'
 import App from './containers/App'
 import { HistoryRouter } from 'react-router-nested-history'
 
+const getBasename = () => window.location.hostname === "kenfehling.github.io" ?
+    '/react-router-nested-history' : undefined
+
 render((
-  <HistoryRouter>
+  <HistoryRouter basename={getBasename()}>
     <div>
       <Match pattern='/' exactly render={() => <Redirect to="/tabs/1" />} />
       <Match pattern='/tabs' exactly render={() => <Redirect to="/tabs/1" />} />
