@@ -10,8 +10,9 @@ import { canUseWindowLocation } from '../../util/location'
 import { loadFromUrl, listenToStore, setZeroPage } from "../../main"
 
 class HistoryRouter extends Component {
-  componentWillMount() {
-    const {listenToLocation, locationChanged, zeroPage} = this.props
+  constructor(props) {
+    super(props)
+    const {listenToLocation, locationChanged, zeroPage} = props
     if (zeroPage) {
       setZeroPage(zeroPage)
     }
