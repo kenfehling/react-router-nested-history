@@ -54,7 +54,7 @@ class RegisterMatch extends React.Component {
   }
 }
 
-class HistoryMatch extends reactRouter.Match {
+export default class HistoryMatch extends reactRouter.Match {
   static contextTypes = {
     ...(reactRouter.Match.contextTypes ? reactRouter.Match.contextTypes : []),
     groupIndex: PropTypes.number.isRequired,
@@ -84,7 +84,7 @@ class HistoryMatch extends reactRouter.Match {
                   render ? (
                           render(props)
                       ) : (
-                          <Component {...props}/>
+                          <Component {...props} />
                       )
               ) : null}
         </MatchProvider>
