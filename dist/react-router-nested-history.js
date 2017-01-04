@@ -131,7 +131,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.setZeroPage = exports.getCurrentPageInGroup = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getDerivedState = exports.getActions = undefined;
+	exports.setZeroPage = exports.getCurrentPageInGroup = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.getLastAction = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getDerivedState = exports.getActions = undefined;
 	exports.runSteps = runSteps;
 	exports.listenToStore = listenToStore;
 	
@@ -275,6 +275,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      fn(state);
 	    }
 	  });
+	};
+	
+	var getLastAction = exports.getLastAction = function getLastAction() {
+	  return _.last(getActions());
 	};
 	
 	var getGroupState = exports.getGroupState = function getGroupState(groupIndex) {
@@ -50924,10 +50928,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -50947,6 +50947,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _matchPattern = __webpack_require__(119);
 	
 	var _matchPattern2 = _interopRequireDefault(_matchPattern);
+	
+	var _main = __webpack_require__(1);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -51028,16 +51030,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  serverRouter: _react.PropTypes.object
 	};
 	
-	var _class = function (_reactRouter$Match) {
-	  _inherits(_class, _reactRouter$Match);
+	var HistoryMatch = function (_reactRouter$Match) {
+	  _inherits(HistoryMatch, _reactRouter$Match);
 	
-	  function _class() {
-	    _classCallCheck(this, _class);
+	  function HistoryMatch() {
+	    _classCallCheck(this, HistoryMatch);
 	
-	    return _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).apply(this, arguments));
+	    return _possibleConstructorReturn(this, (HistoryMatch.__proto__ || Object.getPrototypeOf(HistoryMatch)).apply(this, arguments));
 	  }
 	
-	  _createClass(_class, [{
+	  _createClass(HistoryMatch, [{
 	    key: 'render',
 	    value: function render() {
 	      var _props = this.props,
@@ -51052,7 +51054,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	      var parent = matchContext && matchContext.parent;
 	      var match = (0, _matchPattern2.default)(pattern, location, exactly, parent);
-	      var props = _extends({}, match, { location: location, pattern: pattern });
+	      var lastAction = (0, _main.getLastAction)().type;
+	      var props = _extends({}, match, { location: location, pattern: pattern, lastAction: lastAction });
 	      return _react2.default.createElement(
 	        RegisterMatch,
 	        { match: match },
@@ -51065,14 +51068,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }]);
 	
-	  return _class;
+	  return HistoryMatch;
 	}(reactRouter.Match);
 	
-	_class.contextTypes = _extends({}, reactRouter.Match.contextTypes ? reactRouter.Match.contextTypes : [], {
+	HistoryMatch.contextTypes = _extends({}, reactRouter.Match.contextTypes ? reactRouter.Match.contextTypes : [], {
 	  groupIndex: _react.PropTypes.number.isRequired,
 	  location: _react.PropTypes.object.isRequired
 	});
-	exports.default = _class;
 
 /***/ }
 /******/ ])

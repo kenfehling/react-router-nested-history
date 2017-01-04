@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import * as reactRouter from 'react-router'
 import MatchProvider from 'react-router/MatchProvider'
 import matchPattern from 'react-router/matchPattern'
+import { getLastAction } from '../../main'
 
 class RegisterMatch extends React.Component {
   static contextTypes = {
@@ -53,7 +54,7 @@ class RegisterMatch extends React.Component {
   }
 }
 
-export default class extends reactRouter.Match {
+class HistoryMatch extends reactRouter.Match {
   static contextTypes = {
     ...(reactRouter.Match.contextTypes ? reactRouter.Match.contextTypes : []),
     groupIndex: PropTypes.number.isRequired,
@@ -72,7 +73,8 @@ export default class extends reactRouter.Match {
     const { match:matchContext, location } = this.context
     const parent = matchContext && matchContext.parent
     const match = matchPattern(pattern, location, exactly, parent)
-    const props = { ...match, location, pattern }
+    const lastAction = getLastAction().type
+    const props = { ...match, location, pattern, lastAction }
     return (
       <RegisterMatch match={match}>
         <MatchProvider match={match}>

@@ -1,49 +1,16 @@
 import React, { PropTypes, Component } from 'react'
 import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs'
 import { Container, ContainerGroup, HistoryMatch } from 'react-router-nested-history'
-import { TransitionMotion, spring } from 'react-motion'
 import './Tabs.css'
 import TabMaster1 from "../components/TabMaster1"
 import TabMaster2 from "../components/TabMaster2"
 import TabMaster3 from "../components/TabMaster3"
 import TabPage from "../components/TabPage"
 
-const MatchWithFade = ({ component:Component, ...rest }) => {
-  const willEnter = () => ({ opacity: spring(1) })
-  const willLeave = () => ({ opacity: spring(0) })
-
-  return (
-    <HistoryMatch {...rest} children={({ matched, ...props }) => (
-      <TransitionMotion
-        willEnter={willEnter}
-        willLeave={willLeave}
-        styles={matched ? [ {
-          key: props.location.pathname,
-          style: { opacity: 1 },
-          data: props
-        } ] : []}
-      >
-        {interpolatedStyles => (
-          <div>
-            {interpolatedStyles.map(config => (
-              <div
-                key={config.key}
-                style={config.style}
-              >
-                <Component {...config.data}/>
-              </div>
-            ))}
-          </div>
-        )}
-      </TransitionMotion>
-    )}/>
-  )
-}
-
 const Tab = ({initialUrl, patterns, masterComponent}) => (
   <Container initialUrl={initialUrl} patterns={patterns}>
-    <MatchWithFade exactly pattern={patterns[0]} component={masterComponent} />
-    <MatchWithFade exactly pattern={patterns[1]} component={TabPage} />
+    <HistoryMatch exactly pattern={patterns[0]} component={masterComponent} />
+    <HistoryMatch exactly pattern={patterns[1]} component={TabPage} />
   </Container>
 )
 

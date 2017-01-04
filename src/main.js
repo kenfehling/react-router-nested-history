@@ -111,6 +111,8 @@ export const addChangeListener = (fn:Function) => {
   })
 }
 
+export const getLastAction = () : Action => _.last(getActions())
+
 export const getGroupState = (groupIndex:number) : Object =>
     util.getGroupState(getActions(), groupIndex, getZeroPage())
 

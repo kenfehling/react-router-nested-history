@@ -9,7 +9,6 @@
     "express": "^4.14.0",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
-    "react-motion": "^0.4.5",
     "react-router": "4.0.0-alpha.6",
     "react-router-nested-history": "github:kenfehling/react-router-nested-history",
     "react-tabs": "^0.8.2"
