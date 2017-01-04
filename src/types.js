@@ -8,6 +8,7 @@ export interface Action {
 
 export interface Page {
   url: string,
+  params: Object[],
   id: number,
   containerIndex: number
 }

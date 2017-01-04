@@ -13,6 +13,7 @@ import { State, InitializedState } from './types'
 import { createLocation } from "history"
 import Queue from 'promise-queue'
 import { canUseWindowLocation } from './util/location'
+import { matchPattern } from 'react-router/matchPattern'
 
 const maxConcurrent = 1
 const maxQueue = Infinity
@@ -122,8 +123,10 @@ export const switchToContainer = (groupIndex:number, containerIndex:number) => {
   }
 }
 
-export const push = (groupIndex:number, containerIndex:number, url:string) => {
-  store.dispatch(actions.push(url, groupIndex, containerIndex))
+export const push = (groupIndex:number, containerIndex:number, url:string, pattern:string) => {
+  const location = createLocation(url)
+  const {params} = matchPattern(pattern, location, false)
+  store.dispatch(actions.push(url, params, groupIndex, containerIndex))
 }
 
 export const go = (n:number=1) => store.dispatch(actions.go(n))
@@ -132,6 +135,12 @@ export const forward = (n:number=1) => store.dispatch(actions.forward(n))
 
 export const getCurrentPageInGroup = (groupIndex:number) =>
     core.getCurrentPageInGroup(getDerivedState(), groupIndex)
+
+export const getBackPage = () : Page => {
+  const state:InitializedState = getInitializedState()
+  const group:Group = core.getActiveGroup(state)
+  return _.last(group.history.back)
+}
 
 function runStep(step:Step) {
   const stepPromise = () => {

@@ -69,10 +69,12 @@ export const pushPage = (oldState:InitializedState, groupIndex:number, page:Page
   return state
 }
 
-export const pushUrl = (state:InitializedState, url:string, groupIndex:number,
-                        containerIndex:number, zeroPage:string) : InitializedState => {
+export const pushUrl = (state:InitializedState, url:string, params:Object[],
+                        groupIndex:number, containerIndex:number,
+                        zeroPage:string) : InitializedState => {
   const f:Function = (s:InitializedState) => pushPage(s, groupIndex, {
     url,
+    params,
     id: s.lastPageId + 1,
     containerIndex: containerIndex
   })

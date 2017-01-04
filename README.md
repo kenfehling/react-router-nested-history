@@ -55,6 +55,29 @@ Use this in place of react-router's `Match` component to prevent a match's previ
 ### HistoryLink
 Use this in place of react-router's `Link` component to enable history tracking for a link.
 
+### BackLink
+Use this to place a back link (which only shows if there is back history)
+
+#### props
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>required</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>nameFn</td>
+          <td>({params}) =&gt; String</td>
+          <td align="center"></td>
+          <td>A function that takes URL params and returns name to show as back link text</td>
+        </tr>
+    </tbody>
+</table>
+
 ### Container
 Use this component to wrap one or more `HistoryMatch` components to enable history for a container (a nested tab or window).
 
@@ -87,7 +110,7 @@ Use this component to wrap one or more `HistoryMatch` components to enable histo
           <td></td>
           <td>A list of path patterns that will load in this container from a URL in the address bar</td>
         </tr>
-    </tbody>   
+    </tbody>
 </table>
 
 ### ContainerGroup

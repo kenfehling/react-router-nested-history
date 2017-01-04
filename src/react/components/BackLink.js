@@ -1,9 +1,12 @@
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
-import { back } from '../../main'
+import { back, getBackPage } from '../../main'
 
 export default class BackLink extends Component {
-  static propTypes = Link.propTypes
+  static propTypes = {
+    children: Link.propTypes.children,  // TODO: Shouldn't be required
+    nameFn: func
+  }
 
   onClick(event) {
     back()
@@ -11,9 +14,16 @@ export default class BackLink extends Component {
   }
 
   render() {
-    const {to, children} = this.props
-    return (<a href={to} onClick={this.onClick.bind(this)}>
-      {children}
-    </a>)
+    const {children, nameFn} = this.props
+    const backPage = getBackPage()
+    if (backPage) {
+      return (<a href={backPage.url} onClick={this.onClick.bind(this)}>
+        {children || nameFn ? nameFn({params: backPage.params}) : 'Back'}
+      </a>)
+    }
+    else {
+      return <span> </span>
+    }
+
   }
 }
