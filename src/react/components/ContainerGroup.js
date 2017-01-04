@@ -35,7 +35,7 @@ class ContainerGroup extends Component {
   }
 
   static propTypes = {
-    currentContainerIndex: PropTypes.number.isRequired,
+    currentContainerIndex: PropTypes.number,
     onContainerSwitch: PropTypes.func,
     useDefaultContainer: PropTypes.bool
   }
@@ -92,7 +92,7 @@ class ContainerGroup extends Component {
   }
 
   setCurrentContainer(index) {
-    if (index !== this.props.currentContainerIndex) {
+    if (index != null && index !== this.props.currentContainerIndex) {
       switchToContainer(this.groupIndex, index)
     }
   }

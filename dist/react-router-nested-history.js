@@ -32504,7 +32504,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'setCurrentContainer',
 	    value: function setCurrentContainer(index) {
-	      if (index !== this.props.currentContainerIndex) {
+	      if (index != null && index !== this.props.currentContainerIndex) {
 	        (0, _main.switchToContainer)(this.groupIndex, index);
 	      }
 	    }
@@ -32539,7 +32539,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  useDefaultContainer: _react.PropTypes.bool
 	};
 	ContainerGroup.propTypes = {
-	  currentContainerIndex: _react.PropTypes.number.isRequired,
+	  currentContainerIndex: _react.PropTypes.number,
 	  onContainerSwitch: _react.PropTypes.func,
 	  useDefaultContainer: _react.PropTypes.bool
 	};
