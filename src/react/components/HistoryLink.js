@@ -3,10 +3,7 @@ import { Link } from 'react-router'
 import { push } from '../../main'
 
 export default class HistoryLink extends Component {
-  static propTypes = {
-    ...Link.propTypes,
-    children: PropTypes.node
-  }
+  static propTypes = Link.propTypes
 
   static contextTypes = {
     groupIndex: PropTypes.number.isRequired,
