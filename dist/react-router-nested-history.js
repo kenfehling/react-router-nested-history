@@ -24631,6 +24631,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _react = __webpack_require__(79);
@@ -24687,7 +24689,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return HistoryLink;
 	}(_react.Component);
 	
-	HistoryLink.propTypes = _reactRouter.Link.propTypes;
+	HistoryLink.propTypes = _extends({}, _reactRouter.Link.propTypes, {
+	  children: _react.PropTypes.node
+	});
 	HistoryLink.contextTypes = {
 	  groupIndex: _react.PropTypes.number.isRequired,
 	  containerIndex: _react.PropTypes.number.isRequired
