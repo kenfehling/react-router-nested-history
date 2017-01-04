@@ -1,11 +1,12 @@
 {
   "name": "examples",
   "version": "4.0.0-alpha.6",
-  "homepage": "https://kenfehling.github.io/react-router-nested-history",
+  "homepage": "https://react-router-nested-history.herokuapp.com",
   "devDependencies": {
     "react-scripts": "^0.6.0"
   },
   "dependencies": {
+    "express": "^4.14.0",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-motion": "^0.4.5",
