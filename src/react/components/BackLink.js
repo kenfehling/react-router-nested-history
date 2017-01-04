@@ -5,7 +5,7 @@ import { back, getBackPage } from '../../main'
 export default class BackLink extends Component {
   static propTypes = {
     children: Link.propTypes.children,  // TODO: Shouldn't be required
-    nameFn: func
+    nameFn: PropTypes.func
   }
 
   onClick(event) {

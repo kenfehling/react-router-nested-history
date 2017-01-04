@@ -32439,7 +32439,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	BackLink.propTypes = {
 	  children: _reactRouter.Link.propTypes.children, // TODO: Shouldn't be required
-	  nameFn: func
+	  nameFn: _react.PropTypes.func
 	};
 	exports.default = BackLink;
 
