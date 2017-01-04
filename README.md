@@ -3,10 +3,15 @@ react-router-nested-history
 
 A library to help build [React](https://facebook.github.io/react) apps with nested tabs and other containers that have their own history, complete with automatic altering of the browser's back and forward history to make it behave as you would expect.
 
-### Live demo
+## Live demo
 [react-router-nested-history.herokuapp.com](https://react-router-nested-history.herokuapp.com)
 
-### react-router
+## Installation
+```
+npm install --save kenfehling/react-router-nested-history
+```
+
+## react-router
 This library is built to support [react-router 4](https://github.com/ReactTraining/react-router/tree/v4).
 It's been developed and tested against [v4.0.0-alpha.6](https://github.com/ReactTraining/react-router/releases/tag/v4.0.0-alpha.6) and
 when version 4 is officially released the library will be updated for that API.
@@ -18,10 +23,10 @@ would **very much** appreciate any feedback as I continue to solidify it.
 
 Right now this library only works with browserHistory (HTML5 History API, not with hash history)
 
-#### HistoryRouter
+### HistoryRouter
 Use this in place of react-router's `BrowserRouter` component to enable this library.
 
-##### props (in addition to the existing `BrowserRouter` props)
+#### props (in addition to the existing `BrowserRouter` props)
 <table class="table table-bordered table-striped">
     <thead>
     <tr>
@@ -44,16 +49,16 @@ Use this in place of react-router's `BrowserRouter` component to enable this lib
     </tbody>
 </table>
 
-#### HistoryMatch
+### HistoryMatch
 Use this in place of react-router's `Match` component to prevent a match's previous content from disappearing.
 
-#### HistoryLink
+### HistoryLink
 Use this in place of react-router's `Link` component to enable history tracking for a link.
 
-#### Container
+### Container
 Use this component to wrap one or more `HistoryMatch` components to enable history for a container (a nested tab or window).
 
-##### props
+#### props
 <table class="table table-bordered table-striped">
     <thead>
     <tr>
@@ -85,10 +90,10 @@ Use this component to wrap one or more `HistoryMatch` components to enable histo
     </tbody>   
 </table>
 
-#### ContainerGroup
+### ContainerGroup
 Wraps one or more `Container` components that act as a group (a group of tabs, etc.)
 
-##### props
+#### props
 <table class="table table-bordered table-striped">
     <thead>
     <tr>
