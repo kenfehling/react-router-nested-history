@@ -32438,7 +32438,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	      var groupState = (0, _main.getGroupState)(this.groupIndex);
 	      if (!_.isEqual(this.indexedStackOrder, groupState.indexedStackOrder)) {
-	        onContainerSwitch(groupState);
+	        if (onContainerSwitch) {
+	          onContainerSwitch(groupState);
+	        }
 	        this.indexedStackOrder = groupState.indexedStackOrder;
 	      }
 	    }

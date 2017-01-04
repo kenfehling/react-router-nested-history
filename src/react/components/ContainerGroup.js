@@ -52,7 +52,9 @@ class ContainerGroup extends Component {
     const {onContainerSwitch} = this.props
     const groupState = getGroupState(this.groupIndex)
     if (!_.isEqual(this.indexedStackOrder, groupState.indexedStackOrder)) {
-      onContainerSwitch(groupState)
+      if (onContainerSwitch) {
+        onContainerSwitch(groupState)
+      }
       this.indexedStackOrder = groupState.indexedStackOrder
     }
   }
