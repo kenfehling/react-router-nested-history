@@ -89,7 +89,7 @@ export function getActiveGroup(state:InitializedState) : Group {
   return state.groups[state.activeGroupIndex]
 }
 
-export const getActiveContainerInGroup = (state:InitializedState,
+export const getActiveContainerInGroup = (state:State,
                                           groupIndex:number) : Container => {
   const group = state.groups[groupIndex]
   return group.containers[group.history.current.containerIndex]

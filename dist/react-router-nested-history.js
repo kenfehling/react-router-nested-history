@@ -1867,7 +1867,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	var getGroupState = exports.getGroupState = function getGroupState(actions, groupIndex, zeroPage) {
-	  var state = deriveInitializedState(actions, zeroPage);
+	  var state = deriveState(actions, zeroPage);
 	  var currentUrl = (0, _core.getCurrentPageInGroup)(state, groupIndex).url;
 	  var activeContainer = (0, _core.getActiveContainerInGroup)(state, groupIndex);
 	  var stackOrder = getContainerStackOrder(actions, groupIndex, zeroPage);
@@ -50945,8 +50945,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _matchPattern = __webpack_require__(119);
 	
 	var _matchPattern2 = _interopRequireDefault(_matchPattern);
-	
-	var _main = __webpack_require__(1);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	

@@ -215,8 +215,8 @@ export function getIndexedContainerStackOrder(actions:Action[],
 }
 
 export const getGroupState = (actions:Action[], groupIndex:number,
-                              zeroPage:string) => {
-  const state:InitializedState = deriveInitializedState(actions, zeroPage)
+                              zeroPage:string) : Object => {
+  const state:State = deriveState(actions, zeroPage)
   const currentUrl:string = getCurrentPageInGroup(state, groupIndex).url
   const activeContainer:Container = getActiveContainerInGroup(state, groupIndex)
   const stackOrder:Container[] = getContainerStackOrder(actions, groupIndex, zeroPage)
