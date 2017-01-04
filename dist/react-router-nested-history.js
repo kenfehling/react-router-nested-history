@@ -24683,7 +24683,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement(_reactRouter.Link, _extends({}, props, { onClick: this.onClick.bind(this) }));
+	      return _react2.default.createElement(_reactRouter.Link, _extends({}, this.props, { onClick: this.onClick.bind(this) }));
 	    }
 	  }]);
 	
