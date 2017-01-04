@@ -77,7 +77,7 @@ class Tabs extends Component {
       <h2>Tabs example</h2>
       <div className="description">
         <p>Each tab has its own individual history.</p>
-        <p>Clicking on an already active tab goes to the top of its history stack.</p>
+        {/* <p>Clicking on an already active tab goes to the top of its history stack.</p> */}
       </div>
       <ContainerGroup currentContainerIndex={this.state.activeTabIndex}
           onContainerSwitch={this.onContainerSwitch.bind(this)}>
