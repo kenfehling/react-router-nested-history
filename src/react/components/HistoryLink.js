@@ -18,6 +18,6 @@ export default class HistoryLink extends Component {
   }
 
   render() {
-    return <Link {...props} onClick={this.onClick.bind(this)} />
+    return <Link {...this.props} onClick={this.onClick.bind(this)} />
   }
 }
