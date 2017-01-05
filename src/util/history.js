@@ -48,9 +48,9 @@ function _reducer(state:InitializedState, action:Action,
       return switchToContainer(state, groupIndex, containerIndex, zeroPage)
     }
     case PUSH: {
-      const {url, pattern, groupIndex, containerIndex} = action.data
+      const {url, params, groupIndex, containerIndex} = action.data
       const f:Function = (s:InitializedState) =>
-          pushUrl(s, url, pattern, groupIndex, containerIndex, zeroPage)
+          pushUrl(s, url, params, groupIndex, containerIndex, zeroPage)
       return isOnZeroPage(state) ? f(go(state, 1, zeroPage)) : f(state)
     }
     case BACK: return go(state, 0 - action.data.n || -1, zeroPage)

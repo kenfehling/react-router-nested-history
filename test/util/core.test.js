@@ -28,14 +28,14 @@ describe('core utils', () => {
     const state:InitializedState = performAll([
       ...createContainers,
       loadAction('/a'),
-      pushAction('/a/1/cat', '/a/:id/:name', 0, 0),
-      pushAction('/a/2/dog', '/a/:id/:name', 0, 0)
+      pushAction('/a/1/cat', {id: 1, name: 'cat'}, 0, 0),
+      pushAction('/a/2/dog', {id: 2, name: 'dog'}, 0, 0)
     ])
     const page:?Page = getBackPage(state)
     expect(page).toBeDefined()
     if (page) {
       expect(page.url).toBe('/a/1/cat')
-      expect(page.params).toEqual({id: '1', name: 'cat'})
+      expect(page.params).toEqual({id: 1, name: 'cat'})
     }
   })
   

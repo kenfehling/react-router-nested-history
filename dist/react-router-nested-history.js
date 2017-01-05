@@ -296,8 +296,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	};
 	
-	var push = exports.push = function push(groupIndex, containerIndex, url, pattern) {
-	  _store2.default.dispatch(actions.push(url, pattern, groupIndex, containerIndex));
+	var push = exports.push = function push(groupIndex, containerIndex, url, patterns) {
+	  var params = core.parseParamsFromPatterns(patterns, url);
+	  _store2.default.dispatch(actions.push(url, params, groupIndex, containerIndex));
 	};
 	
 	var go = exports.go = function go() {
@@ -420,13 +421,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 	
-	var push = exports.push = function push(url, pattern, groupIndex, containerIndex) {
+	var push = exports.push = function push(url, params, groupIndex, containerIndex) {
 	  return {
 	    type: _ActionTypes.PUSH,
 	    time: new Date(),
 	    data: {
 	      url: url,
-	      pattern: pattern,
+	      params: params,
 	      groupIndex: groupIndex,
 	      containerIndex: containerIndex
 	    }
@@ -1710,12 +1711,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var _ret = function () {
 	          var _action$data3 = action.data,
 	              url = _action$data3.url,
-	              pattern = _action$data3.pattern,
+	              params = _action$data3.params,
 	              groupIndex = _action$data3.groupIndex,
 	              containerIndex = _action$data3.containerIndex;
 	
 	          var f = function f(s) {
-	            return (0, _core.pushUrl)(s, url, pattern, groupIndex, containerIndex, zeroPage);
+	            return (0, _core.pushUrl)(s, url, params, groupIndex, containerIndex, zeroPage);
 	          };
 	          return {
 	            v: (0, _core.isOnZeroPage)(state) ? f((0, _core.go)(state, 1, zeroPage)) : f(state)
@@ -20216,8 +20217,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  })));
 	};
 	
-	var pushUrl = exports.pushUrl = function pushUrl(state, url, pattern, groupIndex, containerIndex, zeroPage) {
-	  var params = parseParams(pattern, url);
+	var pushUrl = exports.pushUrl = function pushUrl(state, url, params, groupIndex, containerIndex, zeroPage) {
 	  var f = function f(s) {
 	    return pushPage(s, groupIndex, {
 	      url: url,
@@ -25294,9 +25294,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (this.context.containerIndex == null) {
 	        throw new Error("HistoryLink needs to be inside a Container");
 	      }
-	      if (this.context.pattern == null) {
-	        throw new Error("HistoryLink needs to be inside a HistoryMatch");
-	      }
 	    }
 	  }, {
 	    key: 'onClick',
@@ -25324,7 +25321,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	HistoryLink.contextTypes = {
 	  groupIndex: _react.PropTypes.number.isRequired,
 	  containerIndex: _react.PropTypes.number.isRequired,
-	  pattern: _reactRouter.Match.propTypes.pattern.isRequired
+	  pattern: _reactRouter.Match.propTypes.pattern
 	};
 	exports.default = HistoryLink;
 

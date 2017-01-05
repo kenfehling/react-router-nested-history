@@ -8,7 +8,7 @@ export default class HistoryLink extends Component {
   static contextTypes = {
     groupIndex: PropTypes.number.isRequired,
     containerIndex: PropTypes.number.isRequired,
-    pattern: Match.propTypes.pattern.isRequired
+    pattern: Match.propTypes.pattern
   }
 
   componentDidMount() {
@@ -17,9 +17,6 @@ export default class HistoryLink extends Component {
     }
     if (this.context.containerIndex == null) {
       throw new Error("HistoryLink needs to be inside a Container")
-    }
-    if (this.context.pattern == null) {
-      throw new Error("HistoryLink needs to be inside a HistoryMatch")
     }
   }
 

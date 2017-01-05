@@ -123,8 +123,9 @@ export const switchToContainer = (groupIndex:number, containerIndex:number) => {
 }
 
 export const push = (groupIndex:number, containerIndex:number, url:string,
-                     pattern:string) => {
-  store.dispatch(actions.push(url, pattern, groupIndex, containerIndex))
+                     patterns:string[]) => {
+  const params:Object = core.parseParamsFromPatterns(patterns, url)
+  store.dispatch(actions.push(url, params, groupIndex, containerIndex))
 }
 
 export const go = (n:number=1) => store.dispatch(actions.go(n))

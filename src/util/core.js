@@ -82,10 +82,9 @@ const parseParams = (pattern:string, url:string) : Object => {
 export const parseParamsFromPatterns = (patterns:string[], url:string) =>
     _.last(_.sortBy(patterns.map(p => parseParams(p, url), p => _.size(p))))
 
-export const pushUrl = (state:InitializedState, url:string, pattern:string,
+export const pushUrl = (state:InitializedState, url:string, params:Object,
                         groupIndex:number, containerIndex:number,
                         zeroPage:string) : InitializedState => {
-  const params = parseParams(pattern, url)
   const f:Function = (s:InitializedState) => pushPage(s, groupIndex, {
     url,
     params,
