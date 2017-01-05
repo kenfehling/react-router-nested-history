@@ -9,7 +9,7 @@ import {loadAction, pushAction, switchAction, backAction, forwardAction} from ".
 import {deriveInitializedState} from "../../src/util/history"
 import {InitializedState} from "../../src/types"
 import type {Page, Action} from '../../src/types'
-import {getBackPage} from "../../src/util/core"
+import {getBackPage, parseParamsFromPatterns} from "../../src/util/core"
 import {_resetHistory} from "../../src/browserFunctions";
 
 describe('core utils', () => {
@@ -19,18 +19,23 @@ describe('core utils', () => {
   const performAll = (actions: Action[]): InitializedState =>
       deriveInitializedState(actions, zeroPage)
 
-  it.only('gets back page', () => {
+  it('parses params from patterns', () => {
+    const patterns = ['/a', '/a/:id', '/a/:id/:name']
+    expect(parseParamsFromPatterns(patterns, '/a/1/cat')).toEqual({id: '1', name: 'cat'})
+  })
+
+  it('gets back page', () => {
     const state:InitializedState = performAll([
       ...createContainers,
       loadAction('/a'),
-      pushAction('/a/1', '/a/:id', 0, 0),
-      pushAction('/a/2', '/a/:id', 0, 0)
+      pushAction('/a/1/cat', '/a/:id/:name', 0, 0),
+      pushAction('/a/2/dog', '/a/:id/:name', 0, 0)
     ])
     const page:?Page = getBackPage(state)
     expect(page).toBeDefined()
     if (page) {
-      expect(page.url).toBe('/a/1')
-      expect(page.params).toEqual({id: '1'})
+      expect(page.url).toBe('/a/1/cat')
+      expect(page.params).toEqual({id: '1', name: 'cat'})
     }
   })
   

@@ -8,7 +8,7 @@ export const createContainers : Action[] = [{
   data: {
     groupIndex: 0,
     initialUrl: '/a',
-    urlPatterns: ['/a', '/a/:id'],
+    urlPatterns: ['/a', '/a/:id', '/a/:id/:name'],
     useDefault: true
   }
 }, {
@@ -17,7 +17,7 @@ export const createContainers : Action[] = [{
   data: {
     groupIndex: 0,
     initialUrl: '/b',
-    urlPatterns: ['/b', '/b/:id'],
+    urlPatterns: ['/b', '/b/:id', '/b/:id/:name'],
     useDefault: true
   }
 }, {
@@ -26,7 +26,7 @@ export const createContainers : Action[] = [{
   data: {
     groupIndex: 0,
     initialUrl: '/c',
-    urlPatterns: ['/c', '/c/:id'],
+    urlPatterns: ['/c', '/c/:id', '/c/:id/:name'],
     useDefault: true
   }
 }]
@@ -37,7 +37,7 @@ export const createContainers2 : Action[] = [{
   data: {
     groupIndex: 1,
     initialUrl: '/e',
-    urlPatterns: ['/e', '/e/:id'],
+    urlPatterns: ['/e', '/e/:id', '/e/:id/:name'],
     useDefault: false
   }
 }, {
@@ -46,7 +46,7 @@ export const createContainers2 : Action[] = [{
   data: {
     groupIndex: 1,
     initialUrl: '/f',
-    urlPatterns: ['/f', '/f/:id'],
+    urlPatterns: ['/f', '/f/:id', '/f/:id/:name'],
     useDefault: false
   }
 }]

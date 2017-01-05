@@ -20096,7 +20096,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.resetState = exports.doesGroupUseDefault = exports.getContainer = exports.createContainer = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.getActivePage = exports.getCurrentPageInGroup = exports.getActiveContainer = exports.getActiveContainerInGroup = exports.getBackPage = exports.pushUrl = exports.pushPage = exports.forward = exports.back = exports.pushToStack = undefined;
+	exports.resetState = exports.doesGroupUseDefault = exports.getContainer = exports.createContainer = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.getActivePage = exports.getCurrentPageInGroup = exports.getActiveContainer = exports.getActiveContainerInGroup = exports.getBackPage = exports.pushUrl = exports.parseParamsFromPatterns = exports.pushPage = exports.forward = exports.back = exports.pushToStack = undefined;
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
@@ -20204,7 +20204,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return match ? match.params || {} : {};
 	};
 	
-	var parseParamsFromPatterns = function parseParamsFromPatterns(patterns, url) {
+	var parseParamsFromPatterns = exports.parseParamsFromPatterns = function parseParamsFromPatterns(patterns, url) {
 	  return _.last(_.sortBy(patterns.map(function (p) {
 	    return parseParams(p, url);
 	  }, function (p) {
@@ -25274,6 +25274,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  _createClass(HistoryLink, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      if (this.context.groupIndex == null) {
+	        throw new Error("HistoryLink needs to be inside a ContainerGroup");
+	      }
+	      if (this.context.containerIndex == null) {
+	        throw new Error("HistoryLink needs to be inside a Container");
+	      }
+	      if (this.context.pattern == null) {
+	        throw new Error("HistoryLink needs to be inside a HistoryMatch");
+	      }
+	    }
+	  }, {
 	    key: 'onClick',
 	    value: function onClick(event) {
 	      var to = this.props.to;
@@ -25299,7 +25312,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	HistoryLink.contextTypes = {
 	  groupIndex: _react.PropTypes.number.isRequired,
 	  containerIndex: _react.PropTypes.number.isRequired,
-	  pattern: _reactRouter.Match.propTypes.pattern
+	  pattern: _reactRouter.Match.propTypes.pattern.isRequired
 	};
 	exports.default = HistoryLink;
 

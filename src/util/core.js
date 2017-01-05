@@ -76,7 +76,7 @@ const parseParams = (pattern:string, url:string) : Object => {
   return match ? match.params || {} : {}
 }
 
-const parseParamsFromPatterns = (patterns:string[], url:string) =>
+export const parseParamsFromPatterns = (patterns:string[], url:string) =>
     _.last(_.sortBy(patterns.map(p => parseParams(p, url), p => _.size(p))))
 
 export const pushUrl = (state:InitializedState, url:string, pattern:string,
