@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { getOrCreateContainer, getCurrentPage } from '../../main'
+import { getOrCreateContainer, getCurrentPage, getActivePageInContainer} from '../../main'
 import {patternsMatch} from "../../util/url";
 import {modifyLocation} from "../../util/location";
 
@@ -15,7 +15,8 @@ export default class Container extends Component {
 
   static childContextTypes = {
     containerIndex: PropTypes.number.isRequired,
-    location: PropTypes.object.isRequired
+    location: PropTypes.object.isRequired,
+    activePage: PropTypes.object.isRequired
   }
 
   static propTypes = {
@@ -25,12 +26,7 @@ export default class Container extends Component {
     patterns: PropTypes.arrayOf(PropTypes.string)
   }
 
-  static locations = {}  // Stays stored even if a Container is unmounted
-
-  getPatterns() {
-    const {pattern, patterns=[]} = this.props
-    return [...patterns, ...(pattern ? [pattern] : [])]
-  }
+  static locations = {}  // Stays stored even if Container is unmounted
 
   constructor(props, context) {
     super(props, context)
@@ -40,6 +36,20 @@ export default class Container extends Component {
     const container = getOrCreateContainer(
         groupIndex, initialUrl, patterns, useDefaultContainer)
     this.containerIndex = container.index
+  }
+
+  getChildContext() {
+    return {
+      containerIndex: this.containerIndex,
+      location: this.getFilteredLocation(),
+      activePage: getActivePageInContainer(
+          this.context.groupIndex, this.containerIndex)
+    }
+  }
+
+  getPatterns() {
+    const {pattern, patterns=[]} = this.props
+    return [...patterns, ...(pattern ? [pattern] : [])]
   }
 
   getFilteredLocation() {
@@ -53,13 +63,6 @@ export default class Container extends Component {
     }
     else {
       return Container.locations[key] || modifyLocation(location, initialUrl)
-    }
-  }
-
-  getChildContext() {
-    return {
-      containerIndex: this.containerIndex,
-      location: this.getFilteredLocation()
     }
   }
 

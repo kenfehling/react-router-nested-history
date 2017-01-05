@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.HistoryMatch = exports.HistoryRouter = exports.Container = exports.ContainerGroup = exports.BackLink = exports.HistoryLink = exports.getActivePageInGroup = exports.getActivePageInContainer = exports.addChangeListener = exports.push = exports.switchToContainer = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
+	exports.HistoryMatch = exports.HistoryRouter = exports.Container = exports.ContainerGroup = exports.BackLink = exports.HistoryLink = exports.addChangeListener = exports.push = exports.switchToContainer = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
 	
 	var _main = __webpack_require__(1);
 	
@@ -91,18 +91,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  enumerable: true,
 	  get: function get() {
 	    return _main.addChangeListener;
-	  }
-	});
-	Object.defineProperty(exports, 'getActivePageInContainer', {
-	  enumerable: true,
-	  get: function get() {
-	    return _main.getActivePageInContainer;
-	  }
-	});
-	Object.defineProperty(exports, 'getActivePageInGroup', {
-	  enumerable: true,
-	  get: function get() {
-	    return _main.getActivePageInGroup;
 	  }
 	});
 	
@@ -50804,19 +50792,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Container = function (_Component) {
 	  _inherits(Container, _Component);
 	
-	  _createClass(Container, [{
-	    key: 'getPatterns',
-	    // Stays stored even if a Container is unmounted
-	
-	    value: function getPatterns() {
-	      var _props = this.props,
-	          pattern = _props.pattern,
-	          _props$patterns = _props.patterns,
-	          patterns = _props$patterns === undefined ? [] : _props$patterns;
-	
-	      return [].concat(_toConsumableArray(patterns), _toConsumableArray(pattern ? [pattern] : []));
-	    }
-	  }]);
+	  // Stays stored even if Container is unmounted
 	
 	  function Container(props, context) {
 	    _classCallCheck(this, Container);
@@ -50835,6 +50811,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  _createClass(Container, [{
+	    key: 'getChildContext',
+	    value: function getChildContext() {
+	      return {
+	        containerIndex: this.containerIndex,
+	        location: this.getFilteredLocation(),
+	        activePage: (0, _main.getActivePageInContainer)(this.context.groupIndex, this.containerIndex)
+	      };
+	    }
+	  }, {
+	    key: 'getPatterns',
+	    value: function getPatterns() {
+	      var _props = this.props,
+	          pattern = _props.pattern,
+	          _props$patterns = _props.patterns,
+	          patterns = _props$patterns === undefined ? [] : _props$patterns;
+	
+	      return [].concat(_toConsumableArray(patterns), _toConsumableArray(pattern ? [pattern] : []));
+	    }
+	  }, {
 	    key: 'getFilteredLocation',
 	    value: function getFilteredLocation() {
 	      var patterns = this.getPatterns();
@@ -50850,14 +50845,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      } else {
 	        return Container.locations[key] || (0, _location.modifyLocation)(location, initialUrl);
 	      }
-	    }
-	  }, {
-	    key: 'getChildContext',
-	    value: function getChildContext() {
-	      return {
-	        containerIndex: this.containerIndex,
-	        location: this.getFilteredLocation()
-	      };
 	    }
 	  }, {
 	    key: 'render',
@@ -50881,7 +50868,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	Container.childContextTypes = {
 	  containerIndex: _react.PropTypes.number.isRequired,
-	  location: _react.PropTypes.object.isRequired
+	  location: _react.PropTypes.object.isRequired,
+	  activePage: _react.PropTypes.object.isRequired
 	};
 	Container.propTypes = {
 	  children: _react.PropTypes.node.isRequired,

@@ -113,6 +113,24 @@ Use this component to wrap one or more `HistoryMatch` components to enable histo
     </tbody>
 </table>
 
+#### context
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>activePage</td>
+          <td>{url:string, params:Object}</td>
+          <td>The active page of this Container</td>
+        </tr>
+    </tbody>
+</table>
+
 ### ContainerGroup
 Wraps one or more `Container` components that act as a group (a group of tabs, etc.)
 
