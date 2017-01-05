@@ -39,11 +39,12 @@ export default class Container extends Component {
   }
 
   getChildContext() {
+    const groupIndex = this.context.groupIndex
+    const activePage = getActivePageInContainer(groupIndex, this.containerIndex)
     return {
       containerIndex: this.containerIndex,
       location: this.getFilteredLocation(),
-      activePage: getActivePageInContainer(
-          this.context.groupIndex, this.containerIndex)
+      activePage
     }
   }
 

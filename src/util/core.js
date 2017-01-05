@@ -3,8 +3,7 @@ import * as _ from 'lodash'
 import type { History, Page, Container, Group } from '../types'
 import { State, InitializedState, UninitializedState } from '../types'
 import {switchContainer} from "../behaviorist"
-import {createLocation} from "history/LocationUtils"
-import matchPattern from 'react-router/matchPattern'
+import {parseParamsFromPatterns} from "./url";
 
 export const pushToStack = (historyStack:History, page:Page) : History => ({
   back: [...historyStack.back, historyStack.current],
@@ -73,14 +72,6 @@ export const pushPage = (oldState:InitializedState, groupIndex:number,
   state.lastPageId = Math.max(state.lastPageId, page.id)
   return state
 }
-
-const parseParams = (pattern:string, url:string) : Object => {
-  const match = matchPattern(pattern, createLocation(url), false)
-  return match ? match.params || {} : {}
-}
-
-export const parseParamsFromPatterns = (patterns:string[], url:string) =>
-    _.last(_.sortBy(patterns.map(p => parseParams(p, url), p => _.size(p))))
 
 export const pushUrl = (state:InitializedState, url:string, params:Object,
                         groupIndex:number, containerIndex:number,

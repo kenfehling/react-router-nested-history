@@ -11,7 +11,7 @@ type ReducerState = {
 
 export const initialState:ReducerState = {
   actions: [],
-  zeroPage: null
+  zeroPage: '/'
 }
 
 const setActions = (state:ReducerState, actions:Action[]) => ({...state, actions})

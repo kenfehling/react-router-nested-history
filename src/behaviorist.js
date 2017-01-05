@@ -1,6 +1,6 @@
 // @flow
 import * as _ from 'lodash'
-import { patternsMatch , patternMatches} from "./util/url"
+import { patternsMatch , patternMatches, parseParamsFromPatterns} from "./util/url"
 import { pushToStack, findGroupWithCurrentUrl, toBrowserHistory, resetState} from './util/core'
 import type { Page, Group, Container, History } from './types'
 import { State, UninitializedState, InitializedState } from './types'
@@ -37,7 +37,8 @@ export function switchContainer(from:Container, to:Container,defaulT:?Container)
 
 function push(state:UninitializedState, container:Container, url:string) : Page {
   const id:number = state.lastPageId + 1
-  const page:Page = {url, id, containerIndex: container.index}
+  const params:Object = parseParamsFromPatterns(container.urlPatterns, url)
+  const page:Page = {url, params, id, containerIndex: container.index}
   container.history = pushToStack(container.history, page)
   state.lastPageId = id
   return page

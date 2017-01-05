@@ -18,7 +18,7 @@ describe('Container', () => {
   it('provides activePage in context', () => {
     const container = (
       <WithContext context={{groupIndex: 0, location: {pathname: '/a/2'}}}>
-        <Container initialUrl="/a/2" pattern="/a/:id">
+        <Container initialUrl="/a/2" patterns={["/a/:id"]}>
           <MyComponent />
         </Container>
       </WithContext>)

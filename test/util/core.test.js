@@ -9,7 +9,7 @@ import {loadAction, pushAction, switchAction, backAction, forwardAction} from ".
 import {deriveInitializedState} from "../../src/util/history"
 import {InitializedState} from "../../src/types"
 import type {Page, Action} from '../../src/types'
-import {getBackPage, parseParamsFromPatterns} from "../../src/util/core"
+import {getBackPage} from "../../src/util/core"
 import {_resetHistory} from "../../src/browserFunctions";
 
 describe('core utils', () => {
@@ -18,11 +18,6 @@ describe('core utils', () => {
 
   const performAll = (actions: Action[]): InitializedState =>
       deriveInitializedState(actions, zeroPage)
-
-  it('parses params from patterns', () => {
-    const patterns = ['/a', '/a/:id', '/a/:id/:name']
-    expect(parseParamsFromPatterns(patterns, '/a/1/cat')).toEqual({id: '1', name: 'cat'})
-  })
 
   it('gets back page', () => {
     const state:InitializedState = performAll([

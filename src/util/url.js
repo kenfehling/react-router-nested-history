@@ -1,5 +1,8 @@
 import pathToRegexp from 'path-to-regexp';
 import _ from 'lodash';
+import {createLocation} from "history/LocationUtils"
+import matchPattern from 'react-router/matchPattern'
+
 
 export const addLeadingSlash = (path) => path.replace(/\/?(\?|#|$)?/, '/$1');
 
@@ -36,3 +39,11 @@ export const patternMatches = (pattern, path) => {
 export const patternsMatch = (patterns, path) => {
   return _.some(patterns, p => patternMatches(p, path));
 };
+
+const parseParams = (pattern:string, url:string) : Object => {
+  const match = matchPattern(pattern, createLocation(url), false)
+  return match ? match.params || {} : {}
+}
+
+export const parseParamsFromPatterns = (patterns:string[], url:string) =>
+    _.last(_.sortBy(patterns.map(p => parseParams(p, url), p => _.size(p))))

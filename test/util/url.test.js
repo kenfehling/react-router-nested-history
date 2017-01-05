@@ -21,4 +21,11 @@ describe('url utils', () => {
     expect(f('/a')).toBe('/a/')
     expect(f('/a/b')).toBe('/a/b/')
   })
+
+  it('parses params from patterns', () => {
+    const f = utils.parseParamsFromPatterns
+    const patterns = ['/a', '/a/:id', '/a/:id/:name']
+    expect(f(patterns, '/a/1/cat')).toEqual({id: '1', name: 'cat'})
+  })
+
 })

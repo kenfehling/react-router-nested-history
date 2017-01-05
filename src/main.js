@@ -13,6 +13,7 @@ import { State, InitializedState } from './types'
 import { createLocation } from "history"
 import Queue from 'promise-queue'
 import { canUseWindowLocation } from './util/location'
+import {parseParamsFromPatterns} from "./util/url";
 
 const maxConcurrent = 1
 const maxQueue = Infinity
@@ -124,7 +125,7 @@ export const switchToContainer = (groupIndex:number, containerIndex:number) => {
 
 export const push = (groupIndex:number, containerIndex:number, url:string,
                      patterns:string[]) => {
-  const params:Object = core.parseParamsFromPatterns(patterns, url)
+  const params:Object = parseParamsFromPatterns(patterns, url)
   store.dispatch(actions.push(url, params, groupIndex, containerIndex))
 }
 
