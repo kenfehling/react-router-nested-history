@@ -137,9 +137,14 @@ export const getCurrentPageInGroup = (groupIndex:number) =>
     core.getCurrentPageInGroup(getDerivedState(), groupIndex)
 
 export const getBackPage = () : Page => {
-  const state:InitializedState = getInitializedState()
-  const group:Group = core.getActiveGroup(state)
-  return _.last(group.history.back)
+  const state:State = getState()
+  if (state instanceof InitializedState) {
+    const group:Group = core.getActiveGroup(state)
+    return _.last(group.history.back)
+  }
+  else {
+    return null
+  }
 }
 
 function runStep(step:Step) {

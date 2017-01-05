@@ -325,9 +325,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var getBackPage = exports.getBackPage = function getBackPage() {
-	  var state = getInitializedState();
-	  var group = core.getActiveGroup(state);
-	  return _.last(group.history.back);
+	  var state = getState();
+	  if (state instanceof _types.InitializedState) {
+	    var group = core.getActiveGroup(state);
+	    return _.last(group.history.back);
+	  } else {
+	    return null;
+	  }
 	};
 	
 	function runStep(step) {
