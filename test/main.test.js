@@ -4,7 +4,7 @@ declare var describe:any
 declare var it:any
 declare var expect:any
 declare var beforeEach:any
-import { runSteps } from '../src/main'
+import { runSteps, getBackPage } from '../src/main'
 import * as util from '../src/util/history'
 import { push, back, forward, go, _history, _resetHistory } from '../src/browserFunctions'
 import { createContainers, zeroPage } from "./fixtures"
@@ -20,7 +20,7 @@ describe('main', () => {
   describe('memoryHistory tests', () => {
 
     beforeEach(_resetHistory)
-    
+
     const run = (actions:Action[], lastUpdate:number=-1) : Promise => {
       return runSteps(util.createStepsSinceUpdate(
           [...createContainers, ...actions],
@@ -83,7 +83,7 @@ describe('main', () => {
     it('push', async () => {
       await run([
         loadAction('/a'),
-        pushAction('/a/1', 0, 0)
+        pushAction('/a/1', '/a/:id', 0, 0)
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(3)
         expect(entries[0].pathname).toBe(zeroPage)
@@ -96,7 +96,7 @@ describe('main', () => {
     it('push to different container', async () => {
       await run([
         loadAction('/a'),
-        pushAction('/b/1', 0, 1)
+        pushAction('/b/1', '/b/:id', 0, 1)
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(4)
         expect(entries[0].pathname).toBe(zeroPage)
@@ -110,8 +110,8 @@ describe('main', () => {
     it('back', async () => {
       await run([
         loadAction('/a'),
-        pushAction('/a/1', 0, 0),
-        pushAction('/a/2', 0, 0),
+        pushAction('/a/1', '/a/:id', 0, 0),
+        pushAction('/a/2', '/a/:id', 0, 0),
         backAction()
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(4)
@@ -127,7 +127,7 @@ describe('main', () => {
       await run([
         loadAction('/a'),
         backAction(),
-        pushAction('/a/1', 0, 0)
+        pushAction('/a/1', '/a/:id', 0, 0)
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(3)
         expect(entries[0].pathname).toBe(zeroPage)
@@ -150,6 +150,5 @@ describe('main', () => {
         expect(index).toBe(2)
       })
     })
-    
   })
 })

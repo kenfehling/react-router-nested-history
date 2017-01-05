@@ -7,8 +7,8 @@ import { push, back, forward, go, _history } from '../src/browserFunctions'
 
 describe('browserFunctions', () => {
   it('uses memoryHistory for tests', () => {
-    push({url: '/a', id: 1, containerIndex: 0})
-    push({url: '/b', id: 2, containerIndex: 1})
+    push('/a', 1)
+    push('/b', 2)
     expect(_history.index).toBe(2)
     expect(_history.entries.length).toBe(3)
     back()

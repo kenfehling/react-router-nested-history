@@ -3,8 +3,8 @@ import {BACK, SWITCH_TO_CONTAINER, PUSH, LOAD_FROM_URL, FORWARD} from "../src/co
 export const loadAction = (url:string, time:number=0, fromRefresh:boolean=false) => ({
   type: LOAD_FROM_URL, time: new Date(time), data: {url, fromRefresh}})
 
-export const pushAction = (url:string, groupIndex:number, containerIndex:number, time:number=0) => ({
-  type: PUSH, time: new Date(time), data: {url, groupIndex, containerIndex}})
+export const pushAction = (url:string, pattern:string, groupIndex:number, containerIndex:number, time:number=0) => ({
+  type: PUSH, time: new Date(time), data: {url, pattern, groupIndex, containerIndex}})
 
 export const switchAction = (groupIndex:number, containerIndex:number, time:number=0) => ({
   type: SWITCH_TO_CONTAINER, time: new Date(time), data: {groupIndex, containerIndex}})

@@ -20,16 +20,8 @@ export const _resetHistory = () => {
   }
 }
 
-export const push = (page:Page) => {
-  const state:Object = {id: page.id}
-  _history.push(page.url, state)
-}
-
-export const replace = (page: Page) => {
-  const state:Object = {id: page.id}
-  _history.replace(page.url, state)
-}
-
+export const push = (url:string, id:number) => _history.push(url, {id})
+export const replace = (url:string, id:number) => _history.replace(url, {id})
 export const go = (n:number) => _history.go(n)
 export const back = (n:number=1) => go(0 - n)
 export const forward = (n:number=1) => go(n)

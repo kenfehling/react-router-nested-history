@@ -18,8 +18,8 @@ describe('behaviorist', () => {
     const containers:Container[] = group.containers
 
     expect(switchContainer(containers[0], containers[1], containers[0])).toEqual({
-      back: [{url: '/a', id: 1, containerIndex: 0}],
-      current: {url: '/b', id: 2, containerIndex: 1},
+      back: [{url: '/a', id: 1, params: {}, containerIndex: 0}],
+      current: {url: '/b', id: 2, params: {}, containerIndex: 1},
       forward: []
     })
   })
@@ -27,9 +27,9 @@ describe('behaviorist', () => {
   it('keeps forward history when going to non-default tab', () => {
     const containers = [{
       history: {
-        back: [{url: '/a', id: 1, containerIndex: 0}],
-        current: {url: '/a/1', id: 4, containerIndex: 0},
-        forward: [{url: '/a/2', id: 5, containerIndex: 0}],
+        back: [{url: '/a', params: {}, id: 1, containerIndex: 0}],
+        current: {url: '/a/1', params: {id: 1}, id: 4, containerIndex: 0},
+        forward: [{url: '/a/2', params: {id: 2}, id: 5, containerIndex: 0}],
       },
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
@@ -39,8 +39,8 @@ describe('behaviorist', () => {
     }, {
       history: {
         back: [],
-        current: {url: '/b', id: 2, containerIndex: 1},
-        forward: [{url: '/b/1', id: 6, containerIndex: 1}]
+        current: {url: '/b', params: {}, id: 2, containerIndex: 1},
+        forward: [{url: '/b/1', params: {id: 1}, id: 6, containerIndex: 1}]
       },
       initialUrl: '/b',
       urlPatterns: ['/b', '/b/*'],
@@ -50,20 +50,20 @@ describe('behaviorist', () => {
     }]
     expect(switchContainer(containers[0], containers[1], containers[0])).toEqual({
       back: [
-        {url: '/a', id: 1, containerIndex: 0},
-        {url: '/a/1', id: 4, containerIndex: 0}
+        {url: '/a', params: {}, id: 1, containerIndex: 0},
+        {url: '/a/1', params: {id: 1}, id: 4, containerIndex: 0}
       ],
-      current: {url: '/b', id: 2, containerIndex: 1},
-      forward: [{url: '/b/1', id: 6, containerIndex: 1}]
+      current: {url: '/b', params: {}, id: 2, containerIndex: 1},
+      forward: [{url: '/b/1', params: {id: 1}, id: 6, containerIndex: 1}]
     })
   })
 
   it('keeps forward and back history when going to default tab', () => {
     const containers = [{
       history: {
-        back: [{url: '/a', id: 1, containerIndex: 0}],
-        current: {url: '/a/1', id: 4, containerIndex: 0},
-        forward: [{url: '/a/2', id: 5, containerIndex: 0}]
+        back: [{url: '/a', params: {}, id: 1, containerIndex: 0}],
+        current: {url: '/a/1', params: {id: 1}, id: 4, containerIndex: 0},
+        forward: [{url: '/a/2', params: {id: 2}, id: 5, containerIndex: 0}]
       },
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
@@ -73,7 +73,7 @@ describe('behaviorist', () => {
     }, {
       history: {
         back: [],
-        current: {url: '/b', id: 2, containerIndex: 1},
+        current: {url: '/b', params: {}, id: 2, containerIndex: 1},
         forward: []
       },
       initialUrl: '/b',
@@ -83,9 +83,9 @@ describe('behaviorist', () => {
       index: 1
     }]
     expect(switchContainer(containers[1], containers[0], containers[0])).toEqual({
-      back: [{url: '/a', id: 1, containerIndex: 0}],
-      current: {url: '/a/1', id: 4, containerIndex: 0},
-      forward: [{url: '/a/2', id: 5, containerIndex: 0}]
+      back: [{url: '/a', params: {}, id: 1, containerIndex: 0}],
+      current: {url: '/a/1',params: {id: 1},  id: 4, containerIndex: 0},
+      forward: [{url: '/a/2', params: {id: 2}, id: 5, containerIndex: 0}]
     })
   })
 
@@ -93,7 +93,7 @@ describe('behaviorist', () => {
     const containers = [{
       history: {
         back: [],
-        current: {url: '/a', id: 1, containerIndex: 0},
+        current: {url: '/a', params: {}, id: 1, containerIndex: 0},
         forward: []
       },
       initialUrl: '/a',
@@ -104,7 +104,7 @@ describe('behaviorist', () => {
     }, {
       history: {
         back: [],
-        current: {url: '/b', id: 2, containerIndex: 1},
+        current: {url: '/b', params: {}, id: 2, containerIndex: 1},
         forward: []
       },
       initialUrl: '/b',
@@ -115,7 +115,7 @@ describe('behaviorist', () => {
     }, {
       history: {
         back: [],
-        current: {url: '/c', id: 3, containerIndex: 2},
+        current: {url: '/c', params: {}, id: 3, containerIndex: 2},
         forward: []
       },
       initialUrl: '/c',
@@ -125,8 +125,8 @@ describe('behaviorist', () => {
       index: 2
     }]
     expect(switchContainer(containers[0], containers[2], containers[0])).toEqual({
-      back: [{url: '/a', id: 1, containerIndex: 0}],
-      current: {url: '/c', id: 3, containerIndex: 2},
+      back: [{url: '/a', params: {}, id: 1, containerIndex: 0}],
+      current: {url: '/c', params: {}, id: 3, containerIndex: 2},
       forward: []
     })
   })
@@ -134,9 +134,9 @@ describe('behaviorist', () => {
   it('has default tab and its back history as back history', () => {
     const containers = [{
       history: {
-        back: [{url: '/a', id: 1, containerIndex: 0}],
-        current: {url: '/a/1', id: 4, containerIndex: 0},
-        forward: [{url: '/a/2', id: 5, containerIndex: 0}]
+        back: [{url: '/a', params: {}, id: 1, containerIndex: 0}],
+        current: {url: '/a/1', params: {id: 1}, id: 4, containerIndex: 0},
+        forward: [{url: '/a/2', params: {id: 2}, id: 5, containerIndex: 0}]
       },
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
@@ -146,7 +146,7 @@ describe('behaviorist', () => {
     }, {
       history: {
         back: [],
-        current: {url: '/b', id: 2, containerIndex: 1},
+        current: {url: '/b', id: 2, params: {}, containerIndex: 1},
         forward: []
       },
       initialUrl: '/b',
@@ -157,7 +157,7 @@ describe('behaviorist', () => {
     }, {
       history: {
         back: [],
-        current: {url: '/c', id: 3, containerIndex: 2},
+        current: {url: '/c', id: 3, params: {}, containerIndex: 2},
         forward: []
       },
       initialUrl: '/c',
@@ -168,10 +168,10 @@ describe('behaviorist', () => {
     }]
     expect(switchContainer(containers[0], containers[2], containers[0])).toEqual({
       back: [
-        {url: '/a', id: 1, containerIndex: 0},
-        {url: '/a/1', id: 4, containerIndex: 0}
+        {url: '/a', id: 1, params: {}, containerIndex: 0},
+        {url: '/a/1', id: 4, params: {id: 1}, containerIndex: 0}
       ],
-      current: {url: '/c', id: 3, containerIndex: 2},
+      current: {url: '/c', id: 3, params: {}, containerIndex: 2},
       forward: []
     })
   })

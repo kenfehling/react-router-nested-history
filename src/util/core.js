@@ -2,7 +2,9 @@
 import * as _ from 'lodash'
 import type { History, Page, Container, Group } from '../types'
 import { State, InitializedState, UninitializedState } from '../types'
-import {switchContainer} from "../behaviorist";
+import {switchContainer} from "../behaviorist"
+import {createLocation} from "history/LocationUtils"
+import matchPattern from 'react-router/matchPattern'
 
 export const pushToStack = (historyStack:History, page:Page) : History => ({
   back: [...historyStack.back, historyStack.current],
@@ -69,9 +71,18 @@ export const pushPage = (oldState:InitializedState, groupIndex:number, page:Page
   return state
 }
 
-export const pushUrl = (state:InitializedState, url:string, params:Object[],
+const parseParams = (pattern:string, url:string) : Object => {
+  const match = matchPattern(pattern, createLocation(url), false)
+  return match ? match.params || {} : {}
+}
+
+const parseParamsFromPatterns = (patterns:string[], url:string) =>
+    _.last(_.sortBy(patterns.map(p => parseParams(p, url), p => _.size(p))))
+
+export const pushUrl = (state:InitializedState, url:string, pattern:string,
                         groupIndex:number, containerIndex:number,
                         zeroPage:string) : InitializedState => {
+  const params = parseParams(pattern, url)
   const f:Function = (s:InitializedState) => pushPage(s, groupIndex, {
     url,
     params,
@@ -89,6 +100,11 @@ export const pushUrl = (state:InitializedState, url:string, params:Object[],
 
 export function getActiveGroup(state:InitializedState) : Group {
   return state.groups[state.activeGroupIndex]
+}
+
+export const getBackPage = (state:InitializedState) : ?Page => {
+  const group:Group = getActiveGroup(state)
+  return _.last(group.history.back)
 }
 
 export const getActiveContainerInGroup = (state:State,
@@ -119,7 +135,7 @@ export const filterZero = (pages:Page[]) => pages.filter(p => !!p.id)
 
 export const toBrowserHistory = (history:History, zeroPage:string) : History => ({
   ...history,
-  back: [{url: zeroPage, id: 0, containerIndex: 0}, ...history.back]
+  back: [{url: zeroPage, id: 0, params: {}, containerIndex: 0}, ...history.back]
 })
 
 export function assureType<T>(value:any, Type:Class<T>, errorMsg:string) : T {
@@ -162,10 +178,11 @@ export const createContainer = (state:?UninitializedState,
   const id = (state ? state.lastPageId : 0) + 1
   const existingGroup:?Group = state ? state.groups[groupIndex] : null
   const containerIndex = existingGroup ? existingGroup.containers.length : 0
+  const initialParams = parseParamsFromPatterns(urlPatterns, initialUrl)
 
   const history:History = {
     back: [],
-    current: {url: initialUrl, id, containerIndex},
+    current: {url: initialUrl, params: initialParams, id, containerIndex},
     forward: []
   }
 

@@ -48,9 +48,9 @@ function _reducer(state:InitializedState, action:Action,
       return switchToContainer(state, groupIndex, containerIndex, zeroPage)
     }
     case PUSH: {
-      const {url, params, groupIndex, containerIndex} = action.data
+      const {url, pattern, groupIndex, containerIndex} = action.data
       const f:Function = (s:InitializedState) =>
-          pushUrl(s, url, params, groupIndex, containerIndex, zeroPage)
+          pushUrl(s, url, pattern, groupIndex, containerIndex, zeroPage)
       return isOnZeroPage(state) ? f(go(state, 1, zeroPage)) : f(state)
     }
     case BACK: return go(state, 0 - action.data.n || -1, zeroPage)
@@ -94,15 +94,15 @@ export function reducer(state:?State, action:Action, zeroPage:string) : State {
   }
 }
 
-const pushStep = (page:Page) => ({fn: browser.push, args: [page]})
-const replaceStep = (page:Page) => ({fn: browser.replace, args: [page]})
+const pushStep = (page:Page) => ({fn: browser.push, args: [page.url, page.id]})
+const replaceStep = (page:Page) => ({fn: browser.replace, args: [page.url, page.id]})
 const backStep = (n:number) => ({fn: browser.back, args: [n]})
 
 export const getHistoryReplacementSteps = (h1:?History, h2:History) : Step[] => {
   return _.flatten([
     h1 && !isZeroPage(h1.current) ? backStep(filterZero(h1.back).length + 1) : [],
     _.isEmpty(h2.back) ? [] : _.map(filterZero(h2.back), pushStep),
-    {fn: browser.push, args: [h2.current]},
+    {fn: browser.push, args: [h2.current.url, h2.current.id]},
     _.isEmpty(h2.forward) ? [] : _.map(h2.forward, pushStep),
     _.isEmpty(h2.forward) ? [] : {fn: browser.back, args: [h2.forward.length]}
   ])
@@ -128,7 +128,7 @@ export const diffStateToSteps = (oldState:InitializedState,
     return [{fn: browser.go, args: [shiftAmount]}]
   }
   else if (hasSameActiveContainer(oldState, newState)) {
-    return [{fn: browser.push, args: [h2.current]}]
+    return [{fn: browser.push, args: [h2.current.url, h2.current.id]}]
   }
   else {
     return getHistoryReplacementSteps(h1, h2)
