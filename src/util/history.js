@@ -5,8 +5,8 @@ import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK,
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
 import { go, getCurrentPageInGroup, getActiveContainer, filterZero, isZeroPage,
-  isOnZeroPage, assureType, createContainer, getHistoryShiftAmountForId,
-  pushUrl, getHistoryShiftAmount, switchToContainer, hasSameActiveContainer,
+  isOnZeroPage, assureType, createContainer, getShiftAmountForId,
+  pushUrl, getShiftAmount, switchToContainer, hasSameActiveContainer,
   getActiveContainerInGroup
 } from './core'
 import * as browser from '../browserFunctions'
@@ -17,7 +17,7 @@ import compareAsc from 'date-fns/compare_asc'
 
 export const onpop = (state:InitializedState, id:number,
                       zeroPage:string) : InitializedState => {
-  const shiftAmount = getHistoryShiftAmountForId(state, id)
+  const shiftAmount = getShiftAmountForId(state, id)
   if (shiftAmount === 0) {
     return state
   }
@@ -123,7 +123,7 @@ export const diffStateToSteps = (oldState:InitializedState,
     return []
   }
   const shiftAmount:number =
-      getHistoryShiftAmount(oldState, p => p.id === h2.current.id)
+      getShiftAmount(oldState, p => p.id === h2.current.id)
   if (shiftAmount !== 0) {
     return [{fn: browser.go, args: [shiftAmount]}]
   }
@@ -146,7 +146,7 @@ export function createStepsSinceUpdate(actions:Action[], zeroPage:string,
       a => a.type === LOAD_FROM_URL && !a.data.fromRefresh)
   if (shouldReset || _.isEmpty(oldActions)) {
     return [
-      replaceStep({url: zeroPage, id: 0, containerIndex: 0}),
+      replaceStep({url: zeroPage, params: {}, id: 0, containerIndex: 0}),
       ...getHistoryReplacementSteps(null, newState.browserHistory)
     ]
   }

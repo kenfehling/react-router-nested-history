@@ -24,7 +24,8 @@ export const forward = (historyStack:History) : History => ({
   forward: _.tail(historyStack.forward)
 })
 
-export function go(oldState:InitializedState, n:number, zeroPage:string) : InitializedState {
+export function go(oldState:InitializedState, n:number,
+                   zeroPage:string) : InitializedState {
   if (n === 0) {
     return oldState
   }
@@ -53,14 +54,16 @@ export function switchToContainer(state:InitializedState, groupIndex:number,
   const oldContainerIndex = group.history.current.containerIndex
   const from:Container = group.containers[oldContainerIndex]
   const to:Container = getContainer(newState, groupIndex, containerIndex)
-  const defaulT:?Container = _.find(group.containers, (c:Container) => c.isDefault)
+  const defaulT:?Container =
+      _.find(group.containers, (c:Container) => c.isDefault)
   group.history = switchContainer(from, to, defaulT)
   newState.browserHistory = toBrowserHistory(group.history, zeroPage)
   newState.activeGroupIndex = group.index
   return newState
 }
 
-export const pushPage = (oldState:InitializedState, groupIndex:number, page:Page) : State => {
+export const pushPage = (oldState:InitializedState, groupIndex:number,
+                         page:Page) : State => {
   const state:InitializedState = _.cloneDeep(oldState)
   const group:Group = state.groups[groupIndex]
   const container:Container = group.containers[page.containerIndex]
@@ -113,6 +116,13 @@ export const getActiveContainerInGroup = (state:State,
   return group.containers[group.history.current.containerIndex]
 }
 
+export const getActivePageInGroup = (state:State, groupIndex:number) : Page =>
+  state.groups[groupIndex].history.current
+
+export const getActivePageInContainer = (state:State, groupIndex:number,
+                                         containerIndex:number) : Page =>
+  state.groups[groupIndex].containers[containerIndex].history.current
+
 export const getActiveContainer = (state:InitializedState) : Container =>
   getActiveContainerInGroup(state, state.activeGroupIndex)
 
@@ -147,7 +157,8 @@ export function assureType<T>(value:any, Type:Class<T>, errorMsg:string) : T {
   }
 }
 
-export const getHistoryShiftAmount = (oldState:InitializedState, pageEquals:Function) : number => {
+export const getShiftAmount = (oldState:InitializedState,
+                               pageEquals:Function) : number => {
   const group:Group = oldState.groups[oldState.activeGroupIndex]
   const oldHistory = group.history
   if (!_.isEmpty(oldHistory.back)) {
@@ -165,16 +176,16 @@ export const getHistoryShiftAmount = (oldState:InitializedState, pageEquals:Func
   return 0
 }
 
-export const getHistoryShiftAmountForId = (oldState:InitializedState, id:number) : number =>
-    getHistoryShiftAmount(oldState, (p:Page) => p.id === id)
+export const getShiftAmountForId = (state:InitializedState, id:number) : number =>
+    getShiftAmount(state, (p:Page) => p.id === id)
 
-export const getHistoryShiftAmountForUrl = (oldState:InitializedState, url:string) : number =>
-    getHistoryShiftAmount(oldState, (p:Page) => p.url === url)
+export const getShiftAmountForUrl = (state:InitializedState, url:string) : number =>
+    getShiftAmount(state, (p:Page) => p.url === url)
 
 export const createContainer = (state:?UninitializedState,
     {groupIndex, initialUrl, useDefault, urlPatterns} :
         {groupIndex:number} & {initialUrl:string} &
-            {urlPatterns:string[]} & {useDefault:boolean}) : UninitializedState => {
+        {urlPatterns:string[]} & {useDefault:boolean}) : UninitializedState => {
   const id = (state ? state.lastPageId : 0) + 1
   const existingGroup:?Group = state ? state.groups[groupIndex] : null
   const containerIndex = existingGroup ? existingGroup.containers.length : 0
@@ -237,8 +248,8 @@ export const doesGroupUseDefault = (state:State, groupIndex:number) : boolean =>
     _.some(state.groups[groupIndex].containers, (c:Container) => c.isDefault)
 
 export const resetState = (state:InitializedState) : UninitializedState => {
-  const containers:Container[] = _.flatMap(state.groups, (g:Group) => g.containers)
-  return containers.reduce((newState:?UninitializedState, container:Container) => {
+  const cs:Container[] = _.flatMap(state.groups, (g:Group) => g.containers)
+  return cs.reduce((newState:?UninitializedState, container:Container) => {
     const useDefault:boolean = doesGroupUseDefault(state, container.groupIndex)
     return createContainer(newState, {...container, useDefault})
   }, null)

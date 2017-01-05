@@ -1,4 +1,6 @@
-export { getOrCreateContainer, getNextGroupIndex, switchToContainer, push, addChangeListener } from './main'
+export { getOrCreateContainer, getNextGroupIndex, switchToContainer, push,
+  addChangeListener, getActivePageInContainer,
+  getActivePageInGroup } from './main'
 export HistoryLink from './react/components/HistoryLink'
 export BackLink from './react/components/BackLink'
 export ContainerGroup from './react/components/ContainerGroup'

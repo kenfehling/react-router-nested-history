@@ -13,7 +13,7 @@ import type { Step, Action} from '../../src/types'
 import { State, InitializedState, UninitializedState } from '../../src/types'
 import fp from 'lodash/fp'
 import { createContainers, createContainers2, zeroPage} from "../fixtures"
-import {getHistoryShiftAmountForId} from "../../src/util/core";
+import {getShiftAmountForId} from "../../src/util/core";
 import {loadAction, pushAction, switchAction, backAction, forwardAction} from "../helpers"
 
 describe('history utils', () => {
@@ -48,7 +48,7 @@ describe('history utils', () => {
       loadAction('/a'),
       pushAction('/a/1', '/a/:id', 0, 0)
     ])
-    expect(getHistoryShiftAmountForId(state, 1)).toEqual(-1)
+    expect(getShiftAmountForId(state, 1)).toEqual(-1)
   })
 
   it('gets container stack order (default)', () => {

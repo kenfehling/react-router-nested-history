@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.HistoryMatch = exports.HistoryRouter = exports.Container = exports.ContainerGroup = exports.BackLink = exports.HistoryLink = exports.addChangeListener = exports.push = exports.switchToContainer = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
+	exports.HistoryMatch = exports.HistoryRouter = exports.Container = exports.ContainerGroup = exports.BackLink = exports.HistoryLink = exports.getActivePageInGroup = exports.getActivePageInContainer = exports.addChangeListener = exports.push = exports.switchToContainer = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
 	
 	var _main = __webpack_require__(1);
 	
@@ -91,6 +91,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  enumerable: true,
 	  get: function get() {
 	    return _main.addChangeListener;
+	  }
+	});
+	Object.defineProperty(exports, 'getActivePageInContainer', {
+	  enumerable: true,
+	  get: function get() {
+	    return _main.getActivePageInContainer;
+	  }
+	});
+	Object.defineProperty(exports, 'getActivePageInGroup', {
+	  enumerable: true,
+	  get: function get() {
+	    return _main.getActivePageInGroup;
 	  }
 	});
 	
@@ -136,7 +148,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.setZeroPage = exports.getBackPage = exports.getCurrentPageInGroup = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.getLastAction = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getDerivedState = exports.getActions = undefined;
+	exports.setZeroPage = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getBackPage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.getLastAction = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getDerivedState = exports.getActions = undefined;
 	exports.runSteps = runSteps;
 	exports.listenToStore = listenToStore;
 	
@@ -313,10 +325,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.dispatch(actions.forward(n));
 	};
 	
-	var getCurrentPageInGroup = exports.getCurrentPageInGroup = function getCurrentPageInGroup(groupIndex) {
-	  return core.getCurrentPageInGroup(getDerivedState(), groupIndex);
-	};
-	
 	var getBackPage = exports.getBackPage = function getBackPage() {
 	  var state = getDerivedState();
 	  if (state instanceof _types.InitializedState) {
@@ -324,6 +332,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  } else {
 	    return null;
 	  }
+	};
+	
+	var getActivePageInGroup = exports.getActivePageInGroup = function getActivePageInGroup(groupIndex) {
+	  return core.getActivePageInGroup(getDerivedState(), groupIndex);
+	};
+	
+	var getActivePageInContainer = exports.getActivePageInContainer = function getActivePageInContainer(groupIndex, containerIndex) {
+	  return core.getActivePageInContainer(getDerivedState(), groupIndex, containerIndex);
 	};
 	
 	function runStep(step) {
@@ -1669,7 +1685,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
 	var onpop = exports.onpop = function onpop(state, id, zeroPage) {
-	  var shiftAmount = (0, _core.getHistoryShiftAmountForId)(state, id);
+	  var shiftAmount = (0, _core.getShiftAmountForId)(state, id);
 	  if (shiftAmount === 0) {
 	    return state;
 	  } else {
@@ -1789,7 +1805,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (_.isEqual(h1, h2)) {
 	    return [];
 	  }
-	  var shiftAmount = (0, _core.getHistoryShiftAmount)(oldState, function (p) {
+	  var shiftAmount = (0, _core.getShiftAmount)(oldState, function (p) {
 	    return p.id === h2.current.id;
 	  });
 	  if (shiftAmount !== 0) {
@@ -1813,7 +1829,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return a.type === _ActionTypes.LOAD_FROM_URL && !a.data.fromRefresh;
 	  });
 	  if (shouldReset || _.isEmpty(oldActions)) {
-	    return [replaceStep({ url: zeroPage, id: 0, containerIndex: 0 })].concat(_toConsumableArray(getHistoryReplacementSteps(null, newState.browserHistory)));
+	    return [replaceStep({ url: zeroPage, params: {}, id: 0, containerIndex: 0 })].concat(_toConsumableArray(getHistoryReplacementSteps(null, newState.browserHistory)));
 	  } else {
 	    var oldState = deriveInitializedState(oldActions, zeroPage);
 	    return diffStateToSteps(oldState, newState);
@@ -20096,7 +20112,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.resetState = exports.doesGroupUseDefault = exports.getContainer = exports.createContainer = exports.getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForId = exports.getHistoryShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.getActivePage = exports.getCurrentPageInGroup = exports.getActiveContainer = exports.getActiveContainerInGroup = exports.getBackPage = exports.pushUrl = exports.parseParamsFromPatterns = exports.pushPage = exports.forward = exports.back = exports.pushToStack = undefined;
+	exports.resetState = exports.doesGroupUseDefault = exports.getContainer = exports.createContainer = exports.getShiftAmountForUrl = exports.getShiftAmountForId = exports.getShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.getActivePage = exports.getCurrentPageInGroup = exports.getActiveContainer = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getActiveContainerInGroup = exports.getBackPage = exports.pushUrl = exports.parseParamsFromPatterns = exports.pushPage = exports.forward = exports.back = exports.pushToStack = undefined;
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
@@ -20244,6 +20260,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return group.containers[group.history.current.containerIndex];
 	};
 	
+	var getActivePageInGroup = exports.getActivePageInGroup = function getActivePageInGroup(state, groupIndex) {
+	  return state.groups[groupIndex].history.current;
+	};
+	
+	var getActivePageInContainer = exports.getActivePageInContainer = function getActivePageInContainer(state, groupIndex, containerIndex) {
+	  return state.groups[groupIndex].containers[containerIndex].history.current;
+	};
+	
 	var getActiveContainer = exports.getActiveContainer = function getActiveContainer(state) {
 	  return getActiveContainerInGroup(state, state.activeGroupIndex);
 	};
@@ -20290,7 +20314,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}
 	
-	var getHistoryShiftAmount = exports.getHistoryShiftAmount = function getHistoryShiftAmount(oldState, pageEquals) {
+	var getShiftAmount = exports.getShiftAmount = function getShiftAmount(oldState, pageEquals) {
 	  var group = oldState.groups[oldState.activeGroupIndex];
 	  var oldHistory = group.history;
 	  if (!_.isEmpty(oldHistory.back)) {
@@ -20308,14 +20332,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return 0;
 	};
 	
-	var getHistoryShiftAmountForId = exports.getHistoryShiftAmountForId = function getHistoryShiftAmountForId(oldState, id) {
-	  return getHistoryShiftAmount(oldState, function (p) {
+	var getShiftAmountForId = exports.getShiftAmountForId = function getShiftAmountForId(state, id) {
+	  return getShiftAmount(state, function (p) {
 	    return p.id === id;
 	  });
 	};
 	
-	var getHistoryShiftAmountForUrl = exports.getHistoryShiftAmountForUrl = function getHistoryShiftAmountForUrl(oldState, url) {
-	  return getHistoryShiftAmount(oldState, function (p) {
+	var getShiftAmountForUrl = exports.getShiftAmountForUrl = function getShiftAmountForUrl(state, url) {
+	  return getShiftAmount(state, function (p) {
 	    return p.url === url;
 	  });
 	};
@@ -20383,10 +20407,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var resetState = exports.resetState = function resetState(state) {
-	  var containers = _.flatMap(state.groups, function (g) {
+	  var cs = _.flatMap(state.groups, function (g) {
 	    return g.containers;
 	  });
-	  return containers.reduce(function (newState, container) {
+	  return cs.reduce(function (newState, container) {
 	    var useDefault = doesGroupUseDefault(state, container.groupIndex);
 	    return createContainer(newState, _extends({}, container, { useDefault: useDefault }));
 	  }, null);

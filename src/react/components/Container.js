@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { getOrCreateContainer } from '../../main'
+import { getOrCreateContainer, getCurrentPage } from '../../main'
 import {patternsMatch} from "../../util/url";
 import {modifyLocation} from "../../util/location";
 
@@ -37,7 +37,8 @@ export default class Container extends Component {
     const patterns = this.getPatterns()
     const {initialUrl} = props
     const {groupIndex, useDefaultContainer=true} = context
-    const container = getOrCreateContainer(groupIndex, initialUrl, patterns, useDefaultContainer)
+    const container = getOrCreateContainer(
+        groupIndex, initialUrl, patterns, useDefaultContainer)
     this.containerIndex = container.index
   }
 

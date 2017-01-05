@@ -122,16 +122,14 @@ export const switchToContainer = (groupIndex:number, containerIndex:number) => {
   }
 }
 
-export const push = (groupIndex:number, containerIndex:number, url:string, pattern:string) => {
+export const push = (groupIndex:number, containerIndex:number, url:string,
+                     pattern:string) => {
   store.dispatch(actions.push(url, pattern, groupIndex, containerIndex))
 }
 
 export const go = (n:number=1) => store.dispatch(actions.go(n))
 export const back = (n:number=1) => store.dispatch(actions.back(n))
 export const forward = (n:number=1) => store.dispatch(actions.forward(n))
-
-export const getCurrentPageInGroup = (groupIndex:number) =>
-    core.getCurrentPageInGroup(getDerivedState(), groupIndex)
 
 export const getBackPage = () : ?Page => {
   const state:State = getDerivedState()
@@ -142,6 +140,13 @@ export const getBackPage = () : ?Page => {
     return null
   }
 }
+
+export const getActivePageInGroup = (groupIndex:number) : Page =>
+    core.getActivePageInGroup(getDerivedState(), groupIndex)
+
+export const getActivePageInContainer = (groupIndex:number,
+                                         containerIndex:number) : Page =>
+  core.getActivePageInContainer(getDerivedState(), groupIndex, containerIndex)
 
 function runStep(step:Step) {
   const stepPromise = () => {
@@ -166,7 +171,8 @@ export function listenToStore() {
     if (state instanceof InitializedState) {
       const group:Group = core.getActiveGroup(state)
       const current:Page = group.history.current
-      const steps:Step[] = util.createStepsSinceUpdate(actions, zeroPage, lastUpdate)
+      const steps:Step[] =
+          util.createStepsSinceUpdate(actions, zeroPage, lastUpdate)
       lastUpdate = new Date()
       window.dispatchEvent(new CustomEvent('locationChange', {
         detail: {location: createLocation(current.url, {id: current.id})}
