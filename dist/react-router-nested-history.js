@@ -50819,6 +50819,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        containerIndex: this.containerIndex,
 	        location: this.getFilteredLocation(),
 	        patterns: this.getPatterns(),
+	        lastAction: (0, _main.getLastAction)().type,
 	        activePage: activePage
 	      };
 	    }
@@ -50873,7 +50874,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  containerIndex: _react.PropTypes.number.isRequired,
 	  location: _react.PropTypes.object.isRequired,
 	  activePage: _react.PropTypes.object.isRequired,
-	  patterns: _react.PropTypes.arrayOf(_react.PropTypes.string).isRequired
+	  patterns: _react.PropTypes.arrayOf(_react.PropTypes.string).isRequired,
+	  lastAction: _react.PropTypes.string.isRequired
 	};
 	Container.propTypes = {
 	  children: _react.PropTypes.node.isRequired,
@@ -51094,8 +51096,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _matchPattern2 = _interopRequireDefault(_matchPattern);
 	
-	var _main = __webpack_require__(1);
-	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -51207,8 +51207,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	      var parent = matchContext && matchContext.parent;
 	      var match = (0, _matchPattern2.default)(pattern, location, exactly, parent);
-	      var lastAction = (0, _main.getLastAction)().type;
-	      var props = _extends({}, match, { location: location, pattern: pattern, lastAction: lastAction });
+	      var props = _extends({}, match, { location: location, pattern: pattern });
 	      return _react2.default.createElement(
 	        RegisterMatch,
 	        { match: match },

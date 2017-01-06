@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react'
-import { getOrCreateContainer, getCurrentPage, getActivePageInContainer} from '../../main'
-import {patternsMatch} from "../../util/url";
-import {modifyLocation} from "../../util/location";
+import { getOrCreateContainer, getLastAction, getActivePageInContainer } from '../../main'
+import {patternsMatch} from "../../util/url"
+import {modifyLocation} from "../../util/location"
 
 const getKey = (groupIndex, locationIndex) => groupIndex + '_' + locationIndex
 
@@ -17,7 +17,8 @@ export default class Container extends Component {
     containerIndex: PropTypes.number.isRequired,
     location: PropTypes.object.isRequired,
     activePage: PropTypes.object.isRequired,
-    patterns: PropTypes.arrayOf(PropTypes.string).isRequired
+    patterns: PropTypes.arrayOf(PropTypes.string).isRequired,
+    lastAction: PropTypes.string.isRequired
   }
 
   static propTypes = {
@@ -46,6 +47,7 @@ export default class Container extends Component {
       containerIndex: this.containerIndex,
       location: this.getFilteredLocation(),
       patterns: this.getPatterns(),
+      lastAction: getLastAction().type,
       activePage
     }
   }
