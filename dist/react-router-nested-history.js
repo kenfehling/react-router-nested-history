@@ -25305,9 +25305,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var _context = this.context,
 	          containerIndex = _context.containerIndex,
 	          groupIndex = _context.groupIndex,
-	          pattern = _context.pattern;
+	          patterns = _context.patterns;
 	
-	      (0, _main.push)(groupIndex, containerIndex, to, pattern);
+	      (0, _main.push)(groupIndex, containerIndex, to, patterns);
 	      event.preventDefault();
 	    }
 	  }, {
@@ -25324,7 +25324,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	HistoryLink.contextTypes = {
 	  groupIndex: _react.PropTypes.number.isRequired,
 	  containerIndex: _react.PropTypes.number.isRequired,
-	  pattern: _reactRouter.Match.propTypes.pattern
+	  patterns: _react.PropTypes.arrayOf(_react.PropTypes.string)
 	};
 	exports.default = HistoryLink;
 
@@ -50818,6 +50818,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return {
 	        containerIndex: this.containerIndex,
 	        location: this.getFilteredLocation(),
+	        patterns: this.getPatterns(),
 	        activePage: activePage
 	      };
 	    }
@@ -50871,7 +50872,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	Container.childContextTypes = {
 	  containerIndex: _react.PropTypes.number.isRequired,
 	  location: _react.PropTypes.object.isRequired,
-	  activePage: _react.PropTypes.object.isRequired
+	  activePage: _react.PropTypes.object.isRequired,
+	  patterns: _react.PropTypes.arrayOf(_react.PropTypes.string).isRequired
 	};
 	Container.propTypes = {
 	  children: _react.PropTypes.node.isRequired,

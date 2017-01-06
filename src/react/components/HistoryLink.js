@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { Link, Match } from 'react-router'
+import { Link } from 'react-router'
 import { push } from '../../main'
 
 export default class HistoryLink extends Component {
@@ -8,7 +8,7 @@ export default class HistoryLink extends Component {
   static contextTypes = {
     groupIndex: PropTypes.number.isRequired,
     containerIndex: PropTypes.number.isRequired,
-    pattern: Match.propTypes.pattern
+    patterns: PropTypes.arrayOf(PropTypes.string)
   }
 
   componentDidMount() {
@@ -22,8 +22,8 @@ export default class HistoryLink extends Component {
 
   onClick(event) {
     const {to} = this.props
-    const {containerIndex, groupIndex, pattern} = this.context
-    push(groupIndex, containerIndex, to, pattern)
+    const {containerIndex, groupIndex, patterns} = this.context
+    push(groupIndex, containerIndex, to, patterns)
     event.preventDefault()
   }
 

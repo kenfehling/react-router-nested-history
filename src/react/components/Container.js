@@ -16,7 +16,8 @@ export default class Container extends Component {
   static childContextTypes = {
     containerIndex: PropTypes.number.isRequired,
     location: PropTypes.object.isRequired,
-    activePage: PropTypes.object.isRequired
+    activePage: PropTypes.object.isRequired,
+    patterns: PropTypes.arrayOf(PropTypes.string).isRequired
   }
 
   static propTypes = {
@@ -44,6 +45,7 @@ export default class Container extends Component {
     return {
       containerIndex: this.containerIndex,
       location: this.getFilteredLocation(),
+      patterns: this.getPatterns(),
       activePage
     }
   }
