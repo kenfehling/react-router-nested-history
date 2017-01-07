@@ -32689,6 +32689,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	      var children = getChildren(this);
+	
+	      console.log('Found containers', children);
+	
 	      children.forEach(function (c) {
 	        if (c instanceof Object) {
 	          var div = document.createElement('div');

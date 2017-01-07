@@ -148,7 +148,7 @@ describe('ContainerGroup', () => {
     })
 
     it.only('provides lastAction', () => {
-      const container = (
+      const router = (
           <HistoryRouter>
             <ContainerGroup>
               <WithContext context={{groupIndex: 0, location: {pathname: '/a/2'}}}>
@@ -158,7 +158,7 @@ describe('ContainerGroup', () => {
               </WithContext>
             </ContainerGroup>
           </HistoryRouter>)
-      const myComponent = mount(container).find(MyComponent)
+      const myComponent = mount(router).find(MyComponent)
       expect(myComponent.node.context.lastAction).toBeDefined()
       expect(myComponent.node.context.lastAction).toBe(CREATE_CONTAINER)
     })
