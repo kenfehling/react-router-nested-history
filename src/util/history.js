@@ -1,12 +1,12 @@
 // @flow
 
-import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK,
+import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, TOP,
   FORWARD, GO, POPSTATE} from "../constants/ActionTypes"
 import * as _ from 'lodash'
 import fp from 'lodash/fp'
 import { go, getCurrentPageInGroup, getActiveContainer, filterZero, isZeroPage,
   isOnZeroPage, assureType, createContainer, getShiftAmountForId,
-  pushUrl, getShiftAmount, switchToContainer, hasSameActiveContainer,
+  pushUrl, top, getShiftAmount, switchToContainer, hasSameActiveContainer,
   getActiveContainerInGroup
 } from './core'
 import * as browser from '../browserFunctions'
@@ -52,6 +52,10 @@ function _reducer(state:InitializedState, action:Action,
       const f:Function = (s:InitializedState) =>
           pushUrl(s, url, params, groupIndex, containerIndex, zeroPage)
       return isOnZeroPage(state) ? f(go(state, 1, zeroPage)) : f(state)
+    }
+    case TOP: {
+      const {groupIndex, containerIndex} = action.data
+      return top(state, groupIndex, containerIndex, zeroPage)
     }
     case BACK: return go(state, 0 - action.data.n || -1, zeroPage)
     case FORWARD:

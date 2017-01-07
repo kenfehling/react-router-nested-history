@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.HistoryMatch = exports.HistoryRouter = exports.Container = exports.ContainerGroup = exports.BackLink = exports.HistoryLink = exports.addChangeListener = exports.push = exports.switchToContainer = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
+	exports.HistoryMatch = exports.HistoryRouter = exports.Container = exports.ContainerGroup = exports.BackLink = exports.HistoryLink = exports.addChangeListener = exports.switchToContainer = exports.getNextGroupIndex = exports.getOrCreateContainer = undefined;
 	
 	var _main = __webpack_require__(1);
 	
@@ -79,12 +79,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  enumerable: true,
 	  get: function get() {
 	    return _main.switchToContainer;
-	  }
-	});
-	Object.defineProperty(exports, 'push', {
-	  enumerable: true,
-	  get: function get() {
-	    return _main.push;
 	  }
 	});
 	Object.defineProperty(exports, 'addChangeListener', {
@@ -136,7 +130,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.setZeroPage = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getBackPage = exports.forward = exports.back = exports.go = exports.push = exports.switchToContainer = exports.getGroupState = exports.getLastAction = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getDerivedState = exports.getActions = undefined;
+	exports.setZeroPage = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getBackPage = exports.forward = exports.back = exports.go = exports.top = exports.push = exports.switchToContainer = exports.getGroupState = exports.getLastAction = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getDerivedState = exports.getActions = undefined;
 	exports.runSteps = runSteps;
 	exports.listenToStore = listenToStore;
 	
@@ -244,15 +238,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	};
 	
-	var createContainer = function createContainer(groupIndex, initialUrl, patterns, useDefault) {
-	  _store2.default.dispatch(actions.createContainer(groupIndex, initialUrl, patterns, useDefault));
+	var createContainer = function createContainer(groupIndex, initialUrl, patterns, useDefault, keepHistory) {
+	  _store2.default.dispatch(actions.createContainer(groupIndex, initialUrl, patterns, useDefault, keepHistory));
 	  var state = getDerivedState();
 	  return _.last(state.groups[groupIndex].containers);
 	};
 	
-	var getOrCreateContainer = exports.getOrCreateContainer = function getOrCreateContainer(groupIndex, initialUrl, patterns, useDefault) {
+	var getOrCreateContainer = exports.getOrCreateContainer = function getOrCreateContainer(groupIndex, initialUrl, patterns, useDefault, keepHistory) {
 	  var create = function create() {
-	    return createContainer(groupIndex, initialUrl, patterns, useDefault);
+	    return createContainer(groupIndex, initialUrl, patterns, useDefault, keepHistory);
 	  };
 	  var actions = getActions();
 	  if (_.isEmpty(actions)) {
@@ -301,6 +295,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var push = exports.push = function push(groupIndex, containerIndex, url, patterns) {
 	  var params = (0, _url.parseParamsFromPatterns)(patterns, url);
 	  _store2.default.dispatch(actions.push(url, params, groupIndex, containerIndex));
+	};
+	
+	var top = exports.top = function top(groupIndex, containerIndex) {
+	  return _store2.default.dispatch(actions.top(groupIndex, containerIndex));
 	};
 	
 	var go = exports.go = function go() {
@@ -385,11 +383,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.clearZeroPage = exports.setZeroPage = exports.popstate = exports.go = exports.forward = exports.back = exports.push = exports.switchToContainer = exports.loadFromUrl = exports.createContainer = undefined;
+	exports.clearZeroPage = exports.setZeroPage = exports.popstate = exports.go = exports.forward = exports.back = exports.top = exports.push = exports.switchToContainer = exports.loadFromUrl = exports.createContainer = undefined;
 	
 	var _ActionTypes = __webpack_require__(3);
 	
 	var createContainer = exports.createContainer = function createContainer(groupIndex, initialUrl, urlPatterns, useDefault) {
+	  var keepHistory = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
 	  return {
 	    type: _ActionTypes.CREATE_CONTAINER,
 	    time: new Date(),
@@ -397,17 +396,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	      groupIndex: groupIndex,
 	      initialUrl: initialUrl,
 	      urlPatterns: urlPatterns,
-	      useDefault: useDefault
+	      useDefault: useDefault,
+	      keepHistory: keepHistory
 	    }
 	  };
 	};
-	var loadFromUrl = exports.loadFromUrl = function loadFromUrl(url, fromRefresh) {
+	var loadFromUrl = exports.loadFromUrl = function loadFromUrl(url) {
+	  var fromRefresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	  return {
 	    type: _ActionTypes.LOAD_FROM_URL,
 	    time: new Date(),
 	    data: {
 	      url: url,
-	      fromRefresh: fromRefresh || false
+	      fromRefresh: fromRefresh
 	    }
 	  };
 	};
@@ -430,6 +431,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    data: {
 	      url: url,
 	      params: params,
+	      groupIndex: groupIndex,
+	      containerIndex: containerIndex
+	    }
+	  };
+	};
+	
+	var top = exports.top = function top(groupIndex, containerIndex) {
+	  return {
+	    type: _ActionTypes.TOP,
+	    time: new Date(),
+	    data: {
 	      groupIndex: groupIndex,
 	      containerIndex: containerIndex
 	    }
@@ -509,6 +521,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var LOAD_FROM_URL = exports.LOAD_FROM_URL = 'load-from-url';
 	var SWITCH_TO_CONTAINER = exports.SWITCH_TO_CONTAINER = 'switch-to-container';
 	var PUSH = exports.PUSH = 'push';
+	var TOP = exports.TOP = 'top';
 	var BACK = exports.BACK = 'back';
 	var FORWARD = exports.FORWARD = 'forward';
 	var GO = exports.GO = 'go';
@@ -1726,6 +1739,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }();
 	
 	        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	      }
+	    case _ActionTypes.TOP:
+	      {
+	        var _action$data4 = action.data,
+	            _groupIndex = _action$data4.groupIndex,
+	            _containerIndex = _action$data4.containerIndex;
+	
+	        return (0, _core.top)(state, _groupIndex, _containerIndex, zeroPage);
 	      }
 	    case _ActionTypes.BACK:
 	      return (0, _core.go)(state, 0 - action.data.n || -1, zeroPage);
@@ -20103,7 +20124,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.resetState = exports.doesGroupUseDefault = exports.getContainer = exports.createContainer = exports.getShiftAmountForUrl = exports.getShiftAmountForId = exports.getShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.getActivePage = exports.getCurrentPageInGroup = exports.getActiveContainer = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getActiveContainerInGroup = exports.getBackPage = exports.pushUrl = exports.pushPage = exports.forward = exports.back = exports.pushToStack = undefined;
+	exports.resetState = exports.doesGroupUseDefault = exports.getContainer = exports.createContainer = exports.getShiftAmountForUrl = exports.getShiftAmountForId = exports.getShiftAmount = exports.toBrowserHistory = exports.filterZero = exports.isOnZeroPage = exports.isZeroPage = exports.findGroupWithCurrentUrl = exports.getActivePage = exports.getCurrentPageInGroup = exports.getActiveContainer = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getActiveContainerInGroup = exports.getBackPage = exports.pushUrl = exports.pushPage = exports.top = exports.gotoTopOfStack = exports.forward = exports.back = exports.pushToStack = undefined;
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
@@ -20152,13 +20173,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 	
+	var gotoTopOfStack = exports.gotoTopOfStack = function gotoTopOfStack(historyStack) {
+	  return {
+	    back: [],
+	    current: historyStack.back[0],
+	    forward: []
+	  };
+	};
+	
 	function go(oldState, n, zeroPage) {
 	  if (n === 0) {
 	    return oldState;
 	  }
 	  var state = _.cloneDeep(oldState);
-	  var group = state.groups[state.activeGroupIndex];
-	  var container = group.containers[group.history.current.containerIndex];
+	  var group = getActiveGroup(state);
+	  var container = getActiveContainerInGroup(state, group.index);
 	  var f = n < 0 ? back : forward;
 	  var getStack = function getStack(h) {
 	    return n < 0 ? h.back : h.forward;
@@ -20174,6 +20203,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return go(state, nextN, zeroPage);
 	}
 	
+	var top = exports.top = function top(oldState, groupIndex, containerIndex, zeroPage) {
+	  var state = _.cloneDeep(oldState);
+	  var group = state.groups[groupIndex];
+	  var container = getContainer(state, groupIndex, containerIndex);
+	  container.history = gotoTopOfStack(container.history);
+	  group.history = gotoTopOfStack(group.history);
+	  state.browserHistory = toBrowserHistory(group.history, zeroPage);
+	  return state;
+	};
+	
 	function switchToContainer(state, groupIndex, containerIndex, zeroPage) {
 	  var newState = isOnZeroPage(state) ? _.cloneDeep(go(state, 1, zeroPage)) : _.cloneDeep(state);
 	  var group = newState.groups[groupIndex];
@@ -20186,7 +20225,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  group.history = (0, _behaviorist.switchContainer)(from, to, defaulT);
 	  newState.browserHistory = toBrowserHistory(group.history, zeroPage);
 	  newState.activeGroupIndex = group.index;
-	  return newState;
+	  if (!from.keepHistory) {
+	    return top(newState, groupIndex, oldContainerIndex, zeroPage);
+	  } else {
+	    return newState;
+	  }
 	}
 	
 	var pushPage = exports.pushPage = function pushPage(oldState, groupIndex, page) {
@@ -20319,6 +20362,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var groupIndex = _ref.groupIndex,
 	      initialUrl = _ref.initialUrl,
 	      useDefault = _ref.useDefault,
+	      keepHistory = _ref.keepHistory,
 	      urlPatterns = _ref.urlPatterns;
 	
 	  var id = (state ? state.lastPageId : 0) + 1;
@@ -20335,6 +20379,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var container = {
 	    initialUrl: initialUrl,
 	    urlPatterns: urlPatterns,
+	    keepHistory: keepHistory,
 	    history: history,
 	    groupIndex: groupIndex,
 	    index: containerIndex,
@@ -32452,7 +32497,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _createClass(BackLink, [{
 	    key: 'shouldComponentUpdate',
 	    value: function shouldComponentUpdate() {
-	      return false;
+	      return false; // Don't disappear when transitioning back to previous page
 	    }
 	  }, {
 	    key: 'onClick',
@@ -50805,12 +50850,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _this = _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props, context));
 	
 	    var patterns = _this.getPatterns();
-	    var initialUrl = props.initialUrl;
+	    var initialUrl = props.initialUrl,
+	        keepHistory = props.keepHistory;
 	    var groupIndex = context.groupIndex,
 	        _context$useDefaultCo = context.useDefaultContainer,
 	        useDefaultContainer = _context$useDefaultCo === undefined ? true : _context$useDefaultCo;
 	
-	    var container = (0, _main.getOrCreateContainer)(groupIndex, initialUrl, patterns, useDefaultContainer);
+	    var container = (0, _main.getOrCreateContainer)(groupIndex, initialUrl, patterns, useDefaultContainer, keepHistory);
 	    _this.containerIndex = container.index;
 	    return _this;
 	  }
@@ -50886,7 +50932,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  children: _react.PropTypes.node.isRequired,
 	  initialUrl: _react.PropTypes.string.isRequired,
 	  pattern: _react.PropTypes.string,
-	  patterns: _react.PropTypes.arrayOf(_react.PropTypes.string)
+	  patterns: _react.PropTypes.arrayOf(_react.PropTypes.string),
+	  keepHistory: _react.PropTypes.bool
 	};
 	Container.locations = {};
 	exports.default = Container;

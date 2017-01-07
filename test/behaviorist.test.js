@@ -34,6 +34,7 @@ describe('behaviorist', () => {
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
       isDefault: true,
+      keepHistory: true,
       groupIndex: 0,
       index: 0
     }, {
@@ -45,6 +46,7 @@ describe('behaviorist', () => {
       initialUrl: '/b',
       urlPatterns: ['/b', '/b/*'],
       isDefault: false,
+      keepHistory: true,
       groupIndex: 0,
       index: 1
     }]
@@ -68,6 +70,7 @@ describe('behaviorist', () => {
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
       isDefault: true,
+      keepHistory: true,
       groupIndex: 0,
       index: 0
     }, {
@@ -79,6 +82,7 @@ describe('behaviorist', () => {
       initialUrl: '/b',
       urlPatterns: ['/b', '/b/*'],
       isDefault: false,
+      keepHistory: true,
       groupIndex: 0,
       index: 1
     }]
@@ -99,6 +103,7 @@ describe('behaviorist', () => {
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
       isDefault: true,
+      keepHistory: true,
       groupIndex: 0,
       index: 0
     }, {
@@ -110,6 +115,7 @@ describe('behaviorist', () => {
       initialUrl: '/b',
       urlPatterns: ['/b', '/b/*'],
       isDefault: false,
+      keepHistory: true,
       groupIndex: 0,
       index: 1
     }, {
@@ -121,6 +127,7 @@ describe('behaviorist', () => {
       initialUrl: '/c',
       urlPatterns: ['/c', '/c/*'],
       isDefault: false,
+      keepHistory: true,
       groupIndex: 0,
       index: 2
     }]
@@ -141,6 +148,7 @@ describe('behaviorist', () => {
       initialUrl: '/a',
       urlPatterns: ['/a', '/a/*'],
       isDefault: true,
+      keepHistory: true,
       groupIndex: 0,
       index: 0
     }, {
@@ -152,6 +160,7 @@ describe('behaviorist', () => {
       initialUrl: '/b',
       urlPatterns: ['/b', '/b/*'],
       isDefault: false,
+      keepHistory: true,
       groupIndex: 0,
       index: 1
     }, {
@@ -163,6 +172,7 @@ describe('behaviorist', () => {
       initialUrl: '/c',
       urlPatterns: ['/c', '/c/*'],
       isDefault: false,
+      keepHistory: true,
       groupIndex: 0,
       index: 2
     }]

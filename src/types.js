@@ -24,6 +24,7 @@ export interface Container {
   initialUrl: string,
   urlPatterns: string[],
   isDefault: boolean,
+  keepHistory: boolean,
   history: History,
   groupIndex: number
 }

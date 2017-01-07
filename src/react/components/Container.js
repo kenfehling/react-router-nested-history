@@ -25,7 +25,8 @@ export default class Container extends Component {
     children: PropTypes.node.isRequired,
     initialUrl: PropTypes.string.isRequired,
     pattern: PropTypes.string,
-    patterns: PropTypes.arrayOf(PropTypes.string)
+    patterns: PropTypes.arrayOf(PropTypes.string),
+    keepHistory: PropTypes.bool
   }
 
   static locations = {}  // Stays stored even if Container is unmounted
@@ -33,10 +34,10 @@ export default class Container extends Component {
   constructor(props, context) {
     super(props, context)
     const patterns = this.getPatterns()
-    const {initialUrl} = props
+    const {initialUrl, keepHistory} = props
     const {groupIndex, useDefaultContainer=true} = context
     const container = getOrCreateContainer(
-        groupIndex, initialUrl, patterns, useDefaultContainer)
+        groupIndex, initialUrl, patterns, useDefaultContainer, keepHistory)
     this.containerIndex = container.index
   }
 

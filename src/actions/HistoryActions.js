@@ -1,29 +1,32 @@
 // @flow
-import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK,
+import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, TOP,
   FORWARD, GO, POPSTATE, SET_ZERO_PAGE } from "../constants/ActionTypes"
 
 export const createContainer = (groupIndex:number, initialUrl:string,
-                                urlPatterns:string[], useDefault:boolean) => ({
+                                urlPatterns:string[], useDefault:boolean,
+                                keepHistory:boolean=true) => ({
   type: CREATE_CONTAINER,
   time: new Date(),
   data: {
     groupIndex,
     initialUrl,
     urlPatterns,
-    useDefault
+    useDefault,
+    keepHistory
   },
 })
 
-export const loadFromUrl = (url:string, fromRefresh:boolean) => ({
+export const loadFromUrl = (url:string, fromRefresh:boolean=false) => ({
   type: LOAD_FROM_URL,
   time: new Date(),
   data: {
     url,
-    fromRefresh: fromRefresh || false
+    fromRefresh
   }
 })
 
-export const switchToContainer = (groupIndex:number, containerIndex:number) => ({
+export const switchToContainer = (groupIndex:number,
+                                  containerIndex:number) => ({
   type: SWITCH_TO_CONTAINER,
   time: new Date(),
   data: {
@@ -32,12 +35,22 @@ export const switchToContainer = (groupIndex:number, containerIndex:number) => (
   }
 })
 
-export const push = (url: string, params:Object, groupIndex:number, containerIndex:number) => ({
+export const push = (url: string, params:Object, groupIndex:number,
+                     containerIndex:number) => ({
   type: PUSH,
   time: new Date(),
   data: {
     url,
     params,
+    groupIndex,
+    containerIndex
+  }
+})
+
+export const top = (groupIndex:number, containerIndex:number) => ({
+  type: TOP,
+  time: new Date(),
+  data: {
     groupIndex,
     containerIndex
   }

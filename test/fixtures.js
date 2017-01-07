@@ -9,7 +9,8 @@ export const createContainers : Action[] = [{
     groupIndex: 0,
     initialUrl: '/a',
     urlPatterns: ['/a', '/a/:id', '/a/:id/:name'],
-    useDefault: true
+    useDefault: true,
+    keepHistory: true
   }
 }, {
   type: CREATE_CONTAINER,
@@ -18,7 +19,8 @@ export const createContainers : Action[] = [{
     groupIndex: 0,
     initialUrl: '/b',
     urlPatterns: ['/b', '/b/:id', '/b/:id/:name'],
-    useDefault: true
+    useDefault: true,
+    keepHistory: true
   }
 }, {
   type: CREATE_CONTAINER,
@@ -27,7 +29,8 @@ export const createContainers : Action[] = [{
     groupIndex: 0,
     initialUrl: '/c',
     urlPatterns: ['/c', '/c/:id', '/c/:id/:name'],
-    useDefault: true
+    useDefault: true,
+    keepHistory: true
   }
 }]
 
@@ -38,7 +41,8 @@ export const createContainers2 : Action[] = [{
     groupIndex: 1,
     initialUrl: '/e',
     urlPatterns: ['/e', '/e/:id', '/e/:id/:name'],
-    useDefault: false
+    useDefault: false,
+    keepHistory: true
   }
 }, {
   type: CREATE_CONTAINER,
@@ -47,7 +51,8 @@ export const createContainers2 : Action[] = [{
     groupIndex: 1,
     initialUrl: '/f',
     urlPatterns: ['/f', '/f/:id', '/f/:id/:name'],
-    useDefault: false
+    useDefault: false,
+    keepHistory: true
   }
 }]
 

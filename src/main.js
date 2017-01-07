@@ -72,19 +72,19 @@ export const getNextGroupIndex = () => {
 }
 
 const createContainer = (groupIndex:number, initialUrl:string,
-                         patterns:string[],
-                         useDefault:boolean) : Container => {
+                         patterns:string[], useDefault:boolean,
+                         keepHistory:boolean) : Container => {
   store.dispatch(actions.createContainer(
-      groupIndex, initialUrl, patterns, useDefault))
+      groupIndex, initialUrl, patterns, useDefault, keepHistory))
   const state:State = getDerivedState()
   return _.last(state.groups[groupIndex].containers)
 }
 
 export const getOrCreateContainer = (groupIndex:number, initialUrl:string,
-                                     patterns:string[],
-                                     useDefault:boolean) : Container => {
+                                     patterns:string[], useDefault:boolean,
+                                     keepHistory:boolean) : Container => {
   const create = () : Container =>
-      createContainer(groupIndex, initialUrl, patterns, useDefault)
+      createContainer(groupIndex, initialUrl, patterns, useDefault, keepHistory)
   const actions:Action[] = getActions()
   if (_.isEmpty(actions)) {
     return create()
@@ -128,6 +128,9 @@ export const push = (groupIndex:number, containerIndex:number, url:string,
   const params:Object = parseParamsFromPatterns(patterns, url)
   store.dispatch(actions.push(url, params, groupIndex, containerIndex))
 }
+
+export const top = (groupIndex:number, containerIndex:number) =>
+  store.dispatch(actions.top(groupIndex, containerIndex))
 
 export const go = (n:number=1) => store.dispatch(actions.go(n))
 export const back = (n:number=1) => store.dispatch(actions.back(n))

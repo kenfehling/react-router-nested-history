@@ -23,14 +23,20 @@ export const forward = (historyStack:History) : History => ({
   forward: _.tail(historyStack.forward)
 })
 
+export const gotoTopOfStack = (historyStack:History) : History => ({
+  back: [],
+  current: historyStack.back[0],
+  forward: []
+})
+
 export function go(oldState:InitializedState, n:number,
                    zeroPage:string) : InitializedState {
   if (n === 0) {
     return oldState
   }
   const state:InitializedState = _.cloneDeep(oldState)
-  const group = state.groups[state.activeGroupIndex]
-  const container = group.containers[group.history.current.containerIndex]
+  const group = getActiveGroup(state)
+  const container:Container = getActiveContainerInGroup(state, group.index)
   const f = n < 0 ? back : forward
   const getStack = (h:History) : Page[] => n < 0 ? h.back : h.forward
   const nextN = n < 0 ? n + 1 : n - 1
@@ -42,6 +48,17 @@ export function go(oldState:InitializedState, n:number,
     state.browserHistory = toBrowserHistory(group.history, zeroPage)
   }
   return go(state, nextN, zeroPage)
+}
+
+export const top = (oldState:InitializedState, groupIndex:number,
+                    containerIndex:number, zeroPage) : InitializedState => {
+  const state:InitializedState = _.cloneDeep(oldState)
+  const group:Group = state.groups[groupIndex]
+  const container:Container = getContainer(state, groupIndex, containerIndex)
+  container.history = gotoTopOfStack(container.history)
+  group.history = gotoTopOfStack(group.history)
+  state.browserHistory = toBrowserHistory(group.history, zeroPage)
+  return state
 }
 
 export function switchToContainer(state:InitializedState, groupIndex:number,
@@ -58,7 +75,12 @@ export function switchToContainer(state:InitializedState, groupIndex:number,
   group.history = switchContainer(from, to, defaulT)
   newState.browserHistory = toBrowserHistory(group.history, zeroPage)
   newState.activeGroupIndex = group.index
-  return newState
+  if (!from.keepHistory) {
+    return top(newState, groupIndex, oldContainerIndex, zeroPage)
+  }
+  else {
+    return newState
+  }
 }
 
 export const pushPage = (oldState:InitializedState, groupIndex:number,
@@ -173,9 +195,9 @@ export const getShiftAmountForUrl = (state:InitializedState, url:string) : numbe
     getShiftAmount(state, (p:Page) => p.url === url)
 
 export const createContainer = (state:?UninitializedState,
-    {groupIndex, initialUrl, useDefault, urlPatterns} :
-        {groupIndex:number} & {initialUrl:string} &
-        {urlPatterns:string[]} & {useDefault:boolean}) : UninitializedState => {
+    {groupIndex, initialUrl, useDefault, keepHistory, urlPatterns} :
+        {groupIndex:number} & {initialUrl:string} & {urlPatterns:string[]} &
+        {useDefault:boolean} & {keepHistory:boolean}) : UninitializedState => {
   const id = (state ? state.lastPageId : 0) + 1
   const existingGroup:?Group = state ? state.groups[groupIndex] : null
   const containerIndex = existingGroup ? existingGroup.containers.length : 0
@@ -190,6 +212,7 @@ export const createContainer = (state:?UninitializedState,
   const container:Container = {
     initialUrl,
     urlPatterns,
+    keepHistory,
     history,
     groupIndex,
     index: containerIndex,
