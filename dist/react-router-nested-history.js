@@ -50866,7 +50866,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _context$useDefaultCo = context.useDefaultContainer,
 	        useDefaultContainer = _context$useDefaultCo === undefined ? true : _context$useDefaultCo;
 	
+	
+	    console.log("Creating container", "groupIndex: " + groupIndex);
+	
 	    var container = (0, _main.getOrCreateContainer)(groupIndex, initialUrl, patterns, useDefaultContainer, keepHistory);
+	
+	    console.log("Container", container);
+	
 	    _this.containerIndex = container.index;
 	    return _this;
 	  }
