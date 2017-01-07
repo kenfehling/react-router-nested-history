@@ -5,6 +5,7 @@ declare var it:any
 declare var expect:any
 declare var beforeEach:any
 import React, { Component, PropTypes } from 'react'
+import WithContext from 'react-with-context'
 import { shallow, mount, render } from 'enzyme'
 import ContainerGroup from '../../../src/react/components/ContainerGroup'
 import Container from '../../../src/react/components/Container'
@@ -119,5 +120,47 @@ describe('ContainerGroup', () => {
     expect(action1.type).toBe(CREATE_CONTAINER)
     expect(action1.data.useDefault).toBe(false)
     expect(getDerivedState().groups[0].containers[0].isDefault).toBe(false)
+  })
+
+  describe('context', () => {
+    class MyComponent extends Component {
+      static contextTypes = {
+        activePage: PropTypes.object.isRequired,
+        lastAction: PropTypes.string.isRequired
+      }
+      render() {
+        const {activePage:{params:{id}}} = this.context
+        return <div>{id}</div>
+      }
+    }
+
+    it('provides activePage', () => {
+      const container = (
+          <WithContext context={{groupIndex: 0, location: {pathname: '/a/2'}}}>
+            <Container initialUrl="/a/2" patterns={["/a/:id"]}>
+              <MyComponent />
+            </Container>
+          </WithContext>)
+      const myComponent = mount(container).find(MyComponent)
+      expect(myComponent.node.context.activePage).toBeDefined()
+      expect(myComponent.node.context.activePage.url).toBe('/a/2')
+      expect(myComponent.node.context.activePage.params).toEqual({id: '2'})
+    })
+
+    it.only('provides lastAction', () => {
+      const container = (
+          <HistoryRouter>
+            <ContainerGroup>
+              <WithContext context={{groupIndex: 0, location: {pathname: '/a/2'}}}>
+                <Container initialUrl="/a/2" patterns={["/a/:id"]}>
+                  <MyComponent />
+                </Container>
+              </WithContext>
+            </ContainerGroup>
+          </HistoryRouter>)
+      const myComponent = mount(container).find(MyComponent)
+      expect(myComponent.node.context.lastAction).toBeDefined()
+      expect(myComponent.node.context.lastAction).toBe(CREATE_CONTAINER)
+    })
   })
 })
