@@ -32450,6 +32450,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  _createClass(BackLink, [{
+	    key: 'shouldComponentUpdate',
+	    value: function shouldComponentUpdate() {
+	      return false;
+	    }
+	  }, {
 	    key: 'onClick',
 	    value: function onClick(event) {
 	      (0, _main.back)();

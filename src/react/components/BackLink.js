@@ -8,6 +8,10 @@ export default class BackLink extends Component {
     nameFn: PropTypes.func
   }
 
+  shouldComponentUpdate() {
+    return false  // Don't disappear when transitioning back to previous page
+  }
+
   onClick(event) {
     back()
     event.preventDefault()
