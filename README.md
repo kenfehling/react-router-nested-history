@@ -167,5 +167,12 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td></td>
           <td>Consider the first container in the group as the default</td>
         </tr>
+        <tr>
+          <td>keepHistory</td>
+          <td>boolean</td>
+          <td>true</td>
+          <td></td>
+          <td>Keep container's history when switching to another container</td>
+        </tr>
     </tbody>   
 </table>
