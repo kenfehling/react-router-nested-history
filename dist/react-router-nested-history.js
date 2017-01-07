@@ -32620,7 +32620,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return {
 	        groupIndex: this.groupIndex,
 	        location: this.props.location,
-	        useDefaultContainer: this.props.useDefaultContainer
+	        useDefaultContainer: this.props.useDefaultContainer,
+	        activePage: (0, _main.getActivePageInGroup)(this.groupIndex),
+	        lastAction: (0, _main.getLastAction)().type
 	      };
 	    }
 	  }, {
@@ -32678,9 +32680,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return G;
 	      }(_react.Component);
 	
-	      G.childContextTypes = _extends({}, ContainerGroup.childContextTypes, {
+	      G.childContextTypes = {
+	        groupIndex: _react.PropTypes.number.isRequired,
+	        location: _react.PropTypes.object.isRequired,
+	        useDefaultContainer: _react.PropTypes.bool,
 	        initializing: _react.PropTypes.bool
-	      });
+	      };
 	
 	
 	      var children = getChildren(this);
@@ -32730,7 +32735,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	ContainerGroup.childContextTypes = {
 	  groupIndex: _react.PropTypes.number.isRequired,
 	  location: _react.PropTypes.object.isRequired,
-	  useDefaultContainer: _react.PropTypes.bool
+	  useDefaultContainer: _react.PropTypes.bool,
+	  activePage: _react.PropTypes.object.isRequired,
+	  lastAction: _react.PropTypes.string.isRequired
 	};
 	ContainerGroup.propTypes = {
 	  currentContainerIndex: _react.PropTypes.number,
@@ -50864,14 +50871,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _createClass(Container, [{
 	    key: 'getChildContext',
 	    value: function getChildContext() {
-	      var groupIndex = this.context.groupIndex;
-	      var activePage = (0, _main.getActivePageInContainer)(groupIndex, this.containerIndex);
 	      return {
 	        containerIndex: this.containerIndex,
 	        location: this.getFilteredLocation(),
-	        patterns: this.getPatterns(),
-	        lastAction: (0, _main.getLastAction)().type,
-	        activePage: activePage
+	        patterns: this.getPatterns()
 	      };
 	    }
 	  }, {
@@ -50924,9 +50927,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Container.childContextTypes = {
 	  containerIndex: _react.PropTypes.number.isRequired,
 	  location: _react.PropTypes.object.isRequired,
-	  activePage: _react.PropTypes.object.isRequired,
-	  patterns: _react.PropTypes.arrayOf(_react.PropTypes.string).isRequired,
-	  lastAction: _react.PropTypes.string.isRequired
+	  patterns: _react.PropTypes.arrayOf(_react.PropTypes.string).isRequired
 	};
 	Container.propTypes = {
 	  children: _react.PropTypes.node.isRequired,

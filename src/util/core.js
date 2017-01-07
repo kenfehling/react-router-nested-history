@@ -51,7 +51,7 @@ export function go(oldState:InitializedState, n:number,
 }
 
 export const top = (oldState:InitializedState, groupIndex:number,
-                    containerIndex:number, zeroPage) : InitializedState => {
+                    containerIndex:number, zeroPage:string) : InitializedState => {
   const state:InitializedState = _.cloneDeep(oldState)
   const group:Group = state.groups[groupIndex]
   const container:Container = getContainer(state, groupIndex, containerIndex)

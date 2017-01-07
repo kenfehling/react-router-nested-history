@@ -2,7 +2,7 @@ import React, { Component, PropTypes, Children, cloneElement } from 'react'
 import { render } from 'react-dom'
 import { connect } from "react-redux";
 import store from '../store'
-import { getNextGroupIndex, switchToContainer } from '../../main'
+import { getNextGroupIndex, switchToContainer, getLastAction, getActivePageInGroup } from '../../main'
 import * as _ from "lodash"
 import Container from "./Container"
 import { getGroupState } from "../../main"
@@ -31,7 +31,9 @@ class ContainerGroup extends Component {
   static childContextTypes = {
     groupIndex: PropTypes.number.isRequired,
     location: PropTypes.object.isRequired,
-    useDefaultContainer: PropTypes.bool
+    useDefaultContainer: PropTypes.bool,
+    activePage: PropTypes.object.isRequired,
+    lastAction: PropTypes.string.isRequired
   }
 
   static propTypes = {
@@ -44,7 +46,9 @@ class ContainerGroup extends Component {
     return {
       groupIndex: this.groupIndex,
       location: this.props.location,
-      useDefaultContainer: this.props.useDefaultContainer
+      useDefaultContainer: this.props.useDefaultContainer,
+      activePage: getActivePageInGroup(this.groupIndex),
+      lastAction: getLastAction().type
     }
   }
 
@@ -66,7 +70,9 @@ class ContainerGroup extends Component {
 
     class G extends Component {
       static childContextTypes = {
-        ...ContainerGroup.childContextTypes,
+        groupIndex: PropTypes.number.isRequired,
+        location: PropTypes.object.isRequired,
+        useDefaultContainer: PropTypes.bool,
         initializing: PropTypes.bool
       }
 
@@ -75,7 +81,7 @@ class ContainerGroup extends Component {
           groupIndex,
           location,
           useDefaultContainer,
-          initializing: true
+          initializing: true,
         }
       }
 
