@@ -25,7 +25,7 @@ export const forward = (historyStack:History) : History => ({
 
 export const gotoTopOfStack = (historyStack:History) : History => ({
   back: [],
-  current: historyStack.back[0],
+  current: historyStack.back[0] || historyStack.current,
   forward: []
 })
 

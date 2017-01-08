@@ -20176,7 +20176,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var gotoTopOfStack = exports.gotoTopOfStack = function gotoTopOfStack(historyStack) {
 	  return {
 	    back: [],
-	    current: historyStack.back[0],
+	    current: historyStack.back[0] || historyStack.current,
 	    forward: []
 	  };
 	};
