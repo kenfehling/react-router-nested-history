@@ -91,9 +91,6 @@ class ContainerGroup extends Component {
     }
 
     const children = getChildren(this)
-
-    console.log('Found containers', children)
-
     children.forEach(c => {
       if (c instanceof Object) {
         const div = document.createElement('div')

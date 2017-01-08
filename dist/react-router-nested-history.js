@@ -20729,11 +20729,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var parseParamsFromPatterns = exports.parseParamsFromPatterns = function parseParamsFromPatterns(patterns, url) {
-	  return _lodash2.default.last(_lodash2.default.sortBy(patterns.map(function (p) {
+	  var paramResults = patterns.map(function (p) {
 	    return parseParams(p, url);
-	  }, function (p) {
+	  });
+	  return _lodash2.default.last(_lodash2.default.sortBy(paramResults, function (p) {
 	    return _lodash2.default.size(p);
-	  })));
+	  }));
 	};
 
 /***/ },
@@ -32689,9 +32690,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	      var children = getChildren(this);
-	
-	      console.log('Found containers', children);
-	
 	      children.forEach(function (c) {
 	        if (c instanceof Object) {
 	          var div = document.createElement('div');
@@ -50866,13 +50864,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _context$useDefaultCo = context.useDefaultContainer,
 	        useDefaultContainer = _context$useDefaultCo === undefined ? true : _context$useDefaultCo;
 	
-	
-	    console.log("Creating container", "groupIndex: " + groupIndex);
-	
 	    var container = (0, _main.getOrCreateContainer)(groupIndex, initialUrl, patterns, useDefaultContainer, keepHistory);
-	
-	    console.log("Container", container);
-	
 	    _this.containerIndex = container.index;
 	    return _this;
 	  }

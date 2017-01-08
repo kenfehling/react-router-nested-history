@@ -45,5 +45,7 @@ const parseParams = (pattern:string, url:string) : Object => {
   return match ? match.params || {} : {}
 }
 
-export const parseParamsFromPatterns = (patterns:string[], url:string) =>
-    _.last(_.sortBy(patterns.map(p => parseParams(p, url), p => _.size(p))))
+export const parseParamsFromPatterns = (patterns:string[], url:string) => {
+  const paramResults:Object[] = patterns.map(p => parseParams(p, url))
+  return _.last(_.sortBy(paramResults, p => _.size(p)))
+}
