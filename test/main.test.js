@@ -5,7 +5,7 @@ declare var it:any
 declare var expect:any
 declare var beforeEach:any
 import { runSteps, getBackPage } from '../src/main'
-import * as util from '../src/util/history'
+import * as util from '../src/util/actions'
 import { push, back, forward, go, _history, _resetHistory } from '../src/browserFunctions'
 import { createContainers, zeroPage } from "./fixtures"
 import type { Step, Page, Action } from "../src/types"

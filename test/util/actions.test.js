@@ -4,7 +4,7 @@ declare var describe:any
 declare var it:any
 declare var expect:any
 declare var beforeEach:any
-import * as util from '../../src/util/history'
+import * as util from '../../src/util/actions'
 import { push, back, forward, go, replace,
   _resetHistory } from '../../src/browserFunctions'
 import { LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, FORWARD,

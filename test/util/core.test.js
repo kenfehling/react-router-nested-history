@@ -6,7 +6,7 @@ declare var expect:any
 declare var beforeEach:any
 import { createContainers, createContainers2, zeroPage} from "../fixtures"
 import {loadAction, pushAction, switchAction, backAction, forwardAction} from "../helpers"
-import {deriveInitializedState} from "../../src/util/history"
+import {deriveInitializedState} from "../../src/util/actions"
 import {InitializedState} from "../../src/types"
 import type {Page, Action} from '../../src/types'
 import {getBackPage} from "../../src/util/core"

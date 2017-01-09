@@ -3,7 +3,7 @@
 declare var describe:any
 declare var it:any
 declare var expect:any
-import { deriveUninitializedState } from '../src/util/history'
+import { deriveUninitializedState } from '../src/util/actions'
 import { switchContainer, loadFromUrl } from '../src/behaviorist'
 import type {Group, Container } from '../src/types'
 import { State, InitializedState, UninitializedState } from '../src/types'

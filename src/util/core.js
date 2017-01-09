@@ -2,42 +2,18 @@
 import * as _ from 'lodash'
 import type { History, Page, Container, Group } from '../types'
 import { State, InitializedState, UninitializedState } from '../types'
-import {switchContainer} from "../behaviorist"
-import {parseParamsFromPatterns} from "./url";
+import { switchContainer } from "../behaviorist"
+import { parseParamsFromPatterns } from "./url";
+import * as historyUtil from './history'
 
-export const pushToStack = (historyStack:History, page:Page) : History => ({
-  back: [...historyStack.back, historyStack.current],
-  current: page,
-  forward: []
-})
-
-export const back = (historyStack:History) : History => ({
-  back: _.initial(historyStack.back),
-  current: _.last(historyStack.back),
-  forward: [historyStack.current, ...historyStack.forward]
-})
-
-export const forward = (historyStack:History) : History => ({
-  back: [...historyStack.back, historyStack.current],
-  current: _.head(historyStack.forward),
-  forward: _.tail(historyStack.forward)
-})
-
-export const gotoTopOfStack = (historyStack:History) : History => ({
-  back: [],
-  current: historyStack.back[0] || historyStack.current,
-  forward: []
-})
-
-export function go(oldState:InitializedState, n:number,
-                   zeroPage:string) : InitializedState {
+export function go(oldState:InitializedState, n:number) : InitializedState {
   if (n === 0) {
     return oldState
   }
   const state:InitializedState = _.cloneDeep(oldState)
   const group = getActiveGroup(state)
   const container:Container = getActiveContainerInGroup(state, group.index)
-  const f = n < 0 ? back : forward
+  const f = n < 0 ? historyUtil.back : historyUtil.forward
   const getStack = (h:History) : Page[] => n < 0 ? h.back : h.forward
   const nextN = n < 0 ? n + 1 : n - 1
   if (getStack(group.history).length > 0) {
@@ -45,9 +21,19 @@ export function go(oldState:InitializedState, n:number,
     if (getStack(container.history).length > 0) {
       container.history = f(container.history)
     }
-    state.browserHistory = toBrowserHistory(group.history, zeroPage)
+    state.browserHistory = f(state.browserHistory)
   }
-  return go(state, nextN, zeroPage)
+  return go(state, nextN)
+}
+
+export const shiftToId = (state:InitializedState, id:number) : InitializedState => {
+  const shiftAmount = getShiftAmountForId(state, id)
+  if (shiftAmount === 0) {
+    return state
+  }
+  else {
+    return go(state, shiftAmount)
+  }
 }
 
 export const top = (oldState:InitializedState, groupIndex:number,
@@ -55,8 +41,20 @@ export const top = (oldState:InitializedState, groupIndex:number,
   const state:InitializedState = _.cloneDeep(oldState)
   const group:Group = state.groups[groupIndex]
   const container:Container = getContainer(state, groupIndex, containerIndex)
-  container.history = gotoTopOfStack(container.history)
-  group.history = gotoTopOfStack(group.history)
+  const newCurrentPage:Page = _.find(
+      [...container.history.back, container.history.current],
+      (p:Page) => p.url === container.initialUrl)
+  container.history = {
+    back: [],
+    current: newCurrentPage,
+    forward: []
+  }
+  group.history = {
+    back: historyUtil.getPagesBefore(group.history, newCurrentPage),
+    current: newCurrentPage,
+    forward: []
+  }
+
   state.browserHistory = toBrowserHistory(group.history, zeroPage)
   return state
 }
@@ -88,9 +86,9 @@ export const pushPage = (oldState:InitializedState, groupIndex:number,
   const state:InitializedState = _.cloneDeep(oldState)
   const group:Group = state.groups[groupIndex]
   const container:Container = group.containers[page.containerIndex]
-  container.history = pushToStack(container.history, page)
-  group.history = pushToStack(group.history, page)
-  state.browserHistory = pushToStack(state.browserHistory, page)
+  container.history = historyUtil.push(container.history, page)
+  group.history = historyUtil.push(group.history, page)
+  state.browserHistory = historyUtil.push(state.browserHistory, page)
   state.lastPageId = Math.max(state.lastPageId, page.id)
   return state
 }
@@ -169,30 +167,14 @@ export function assureType<T>(value:any, Type:Class<T>, errorMsg:string) : T {
   }
 }
 
-export const getShiftAmount = (oldState:InitializedState,
-                               pageEquals:Function) : number => {
-  const group:Group = oldState.groups[oldState.activeGroupIndex]
-  const oldHistory = group.history
-  if (!_.isEmpty(oldHistory.back)) {
-    const i = _.findIndex(oldHistory.back, pageEquals)
-    if (i !== -1) {
-      return 0 - (_.size(oldHistory.back) - i)
-    }
-  }
-  if (!_.isEmpty(oldHistory.forward)) {
-    const i = _.findIndex(oldHistory.forward, pageEquals)
-    if (i !== -1) {
-      return i + 1
-    }
-  }
-  return 0
-}
+export const getShiftAmount = (s:InitializedState, pageEq:Function) : number =>
+    historyUtil.getShiftAmount(getActiveGroup(s).history, pageEq)
 
-export const getShiftAmountForId = (state:InitializedState, id:number) : number =>
-    getShiftAmount(state, (p:Page) => p.id === id)
+export const getShiftAmountForId = (s:InitializedState, id:number) : number =>
+    historyUtil.getShiftAmountForId(getActiveGroup(s).history, id)
 
-export const getShiftAmountForUrl = (state:InitializedState, url:string) : number =>
-    getShiftAmount(state, (p:Page) => p.url === url)
+export const getShiftAmountForUrl = (s:InitializedState, url:string) : number =>
+    historyUtil.getShiftAmountForUrl(getActiveGroup(s).history, url)
 
 export const createContainer = (state:?UninitializedState,
     {groupIndex, initialUrl, useDefault, keepHistory, urlPatterns} :

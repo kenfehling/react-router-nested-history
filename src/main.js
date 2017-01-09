@@ -4,7 +4,7 @@ declare var CustomEvent:any
 import * as actions from './actions/HistoryActions'
 import * as browser from './browserFunctions'
 import { listen, listenPromise } from './browserFunctions'
-import * as util from './util/history'
+import * as util from './util/actions'
 import * as core from './util/core'
 import store, { persist } from './store'
 import * as _ from 'lodash'

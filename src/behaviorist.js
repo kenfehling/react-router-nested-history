@@ -1,7 +1,8 @@
 // @flow
 import * as _ from 'lodash'
-import { patternsMatch , patternMatches, parseParamsFromPatterns} from "./util/url"
-import { pushToStack, findGroupWithCurrentUrl, toBrowserHistory, resetState} from './util/core'
+import { patternsMatch , patternMatches, parseParamsFromPatterns } from "./util/url"
+import { findGroupWithCurrentUrl, toBrowserHistory, resetState } from './util/core'
+import * as historyUtil from './util/history'
 import type { Page, Group, Container, History } from './types'
 import { State, UninitializedState, InitializedState } from './types'
 
@@ -39,7 +40,7 @@ function push(state:UninitializedState, container:Container, url:string) : Page 
   const id:number = state.lastPageId + 1
   const params:Object = parseParamsFromPatterns(container.urlPatterns, url)
   const page:Page = {url, params, id, containerIndex: container.index}
-  container.history = pushToStack(container.history, page)
+  container.history = historyUtil.push(container.history, page)
   state.lastPageId = id
   return page
 }
