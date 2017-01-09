@@ -28,7 +28,7 @@ describe('url utils', () => {
     expect(f(patterns, '/a/1/cat')).toEqual({id: '1', name: 'cat'})
   })
 
-  it.only('parses params from patterns with regex', () => {
+  it('parses params from patterns with regex', () => {
     const f = utils.parseParamsFromPatterns
     const patterns = ['/a', '/a/:category(cat)', '/a/:category(cat)/:tool']
     expect(f(patterns, '/a/cat')).toEqual({category: 'cat'})

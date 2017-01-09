@@ -25,6 +25,12 @@ export const forward = (h:History, n:number=1) : History =>
 export const go = (h:History, n:number) : History =>
   n === 0 ? h : n < 0 ? back(h, 0 - n) : forward(h, n)
 
+export const top = (h:History) : History => ({
+  back: [],
+  current: h.back[0] || h.current,
+  forward: []
+})
+
 export const getShiftAmount = (h:History, pageEq:Function) : number => {
   if (!_.isEmpty(h.back)) {
     const i = _.findIndex(h.back, pageEq)

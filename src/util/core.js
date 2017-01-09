@@ -37,25 +37,24 @@ export const shiftToId = (state:InitializedState, id:number) : InitializedState 
 }
 
 export const top = (oldState:InitializedState, groupIndex:number,
-                    containerIndex:number, zeroPage:string) : InitializedState => {
+                    containerIndex:number) : InitializedState => {
   const state:InitializedState = _.cloneDeep(oldState)
   const group:Group = state.groups[groupIndex]
   const container:Container = getContainer(state, groupIndex, containerIndex)
   const newCurrentPage:Page = _.find(
       [...container.history.back, container.history.current],
       (p:Page) => p.url === container.initialUrl)
-  container.history = {
-    back: [],
-    current: newCurrentPage,
-    forward: []
-  }
+  container.history = historyUtil.top(container.history)
   group.history = {
     back: historyUtil.getPagesBefore(group.history, newCurrentPage),
     current: newCurrentPage,
     forward: []
   }
-
-  state.browserHistory = toBrowserHistory(group.history, zeroPage)
+  state.browserHistory = {
+    back: historyUtil.getPagesBefore(state.browserHistory, newCurrentPage),
+    current: newCurrentPage,
+    forward: []
+  }
   return state
 }
 
@@ -68,17 +67,15 @@ export function switchToContainer(state:InitializedState, groupIndex:number,
   const oldContainerIndex = group.history.current.containerIndex
   const from:Container = group.containers[oldContainerIndex]
   const to:Container = getContainer(newState, groupIndex, containerIndex)
+  if (!from.keepHistory) {
+    from.history = historyUtil.top(from.history)
+  }
   const defaulT:?Container =
       _.find(group.containers, (c:Container) => c.isDefault)
   group.history = switchContainer(from, to, defaulT)
   newState.browserHistory = toBrowserHistory(group.history, zeroPage)
   newState.activeGroupIndex = group.index
-  if (!from.keepHistory) {
-    return top(newState, groupIndex, oldContainerIndex, zeroPage)
-  }
-  else {
-    return newState
-  }
+  return newState
 }
 
 export const pushPage = (oldState:InitializedState, groupIndex:number,

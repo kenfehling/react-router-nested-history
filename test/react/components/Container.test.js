@@ -18,7 +18,7 @@ describe('Container', () => {
     _resetHistory()
   })
 
-  it.only('initializes even inside a loop', () => {
+  it('initializes even inside a loop', () => {
     const group = (
       <HistoryRouter>
         <ContainerGroup>

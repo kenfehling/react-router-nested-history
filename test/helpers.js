@@ -1,4 +1,4 @@
-import {BACK, SWITCH_TO_CONTAINER, PUSH, LOAD_FROM_URL, FORWARD} from "../src/constants/ActionTypes"
+import {BACK, SWITCH_TO_CONTAINER, PUSH, LOAD_FROM_URL, FORWARD, TOP} from "../src/constants/ActionTypes"
 
 export const loadAction = (url:string, time:number=0, fromRefresh:boolean=false) => ({
   type: LOAD_FROM_URL, time: new Date(time), data: {url, fromRefresh}})
@@ -14,3 +14,6 @@ export const backAction = (n:number=1, time:number=0) =>
 
 export const forwardAction = (n:number=1, time:number=0) =>
     ({type: FORWARD, time: new Date(time), data: {n}})
+
+export const topAction = (groupIndex:number, containerIndex:number, time:number=0) =>
+    ({type: TOP, time: new Date(time), data: {groupIndex, containerIndex}})

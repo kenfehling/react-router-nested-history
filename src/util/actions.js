@@ -43,7 +43,7 @@ function _reducer(state:InitializedState, action:Action,
     }
     case TOP: {
       const {groupIndex, containerIndex} = action.data
-      return top(state, groupIndex, containerIndex, zeroPage)
+      return top(state, groupIndex, containerIndex)
     }
     case BACK: return go(state, 0 - action.data.n || -1, zeroPage)
     case FORWARD:

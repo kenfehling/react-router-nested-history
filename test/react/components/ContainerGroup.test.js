@@ -147,7 +147,7 @@ describe('ContainerGroup', () => {
       expect(myComponent.node.context.activePage.params).toEqual({id: '2'})
     })
 
-    it.only('provides lastAction', () => {
+    it('provides lastAction', () => {
       const router = (
           <HistoryRouter>
             <ContainerGroup>

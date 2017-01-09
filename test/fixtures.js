@@ -56,4 +56,26 @@ export const createContainers2 : Action[] = [{
   }
 }]
 
+export const createContainers3 : Action[] = [{
+  type: CREATE_CONTAINER,
+  time: new Date(0),
+  data: {
+    groupIndex: 0,
+    initialUrl: '/j',
+    urlPatterns: ['/j', '/j/:id', '/j/:id/:name'],
+    useDefault: true,
+    keepHistory: false
+  }
+}, {
+  type: CREATE_CONTAINER,
+  time: new Date(0),
+  data: {
+    groupIndex: 0,
+    initialUrl: '/k',
+    urlPatterns: ['/k', '/k/:id', '/k/:id/:name'],
+    useDefault: true,
+    keepHistory: false
+  }
+}]
+
 export const zeroPage:string = '/zero'

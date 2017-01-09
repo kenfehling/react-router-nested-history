@@ -1737,7 +1737,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _groupIndex = _action$data4.groupIndex,
 	            _containerIndex = _action$data4.containerIndex;
 	
-	        return (0, _core.top)(state, _groupIndex, _containerIndex, zeroPage);
+	        return (0, _core.top)(state, _groupIndex, _containerIndex);
 	      }
 	    case _ActionTypes.BACK:
 	      return (0, _core.go)(state, 0 - action.data.n || -1, zeroPage);
@@ -20175,25 +20175,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	};
 	
-	var top = exports.top = function top(oldState, groupIndex, containerIndex, zeroPage) {
+	var top = exports.top = function top(oldState, groupIndex, containerIndex) {
 	  var state = _.cloneDeep(oldState);
 	  var group = state.groups[groupIndex];
 	  var container = getContainer(state, groupIndex, containerIndex);
 	  var newCurrentPage = _.find([].concat(_toConsumableArray(container.history.back), [container.history.current]), function (p) {
 	    return p.url === container.initialUrl;
 	  });
-	  container.history = {
-	    back: [],
-	    current: newCurrentPage,
-	    forward: []
-	  };
+	  container.history = historyUtil.top(container.history);
 	  group.history = {
 	    back: historyUtil.getPagesBefore(group.history, newCurrentPage),
 	    current: newCurrentPage,
 	    forward: []
 	  };
-	
-	  state.browserHistory = toBrowserHistory(group.history, zeroPage);
+	  state.browserHistory = {
+	    back: historyUtil.getPagesBefore(state.browserHistory, newCurrentPage),
+	    current: newCurrentPage,
+	    forward: []
+	  };
 	  return state;
 	};
 	
@@ -20203,17 +20202,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var oldContainerIndex = group.history.current.containerIndex;
 	  var from = group.containers[oldContainerIndex];
 	  var to = getContainer(newState, groupIndex, containerIndex);
+	  if (!from.keepHistory) {
+	    from.history = historyUtil.top(from.history);
+	  }
 	  var defaulT = _.find(group.containers, function (c) {
 	    return c.isDefault;
 	  });
 	  group.history = (0, _behaviorist.switchContainer)(from, to, defaulT);
 	  newState.browserHistory = toBrowserHistory(group.history, zeroPage);
 	  newState.activeGroupIndex = group.index;
-	  if (!from.keepHistory) {
-	    return top(newState, groupIndex, oldContainerIndex, zeroPage);
-	  } else {
-	    return newState;
-	  }
+	  return newState;
 	}
 	
 	var pushPage = exports.pushPage = function pushPage(oldState, groupIndex, page) {
@@ -21725,7 +21723,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.getPagesBefore = exports.shiftToId = exports.getShiftAmountForUrl = exports.getShiftAmountForId = exports.getShiftAmount = exports.go = exports.forward = exports.back = exports.push = undefined;
+	exports.getPagesBefore = exports.shiftToId = exports.getShiftAmountForUrl = exports.getShiftAmountForId = exports.getShiftAmount = exports.top = exports.go = exports.forward = exports.back = exports.push = undefined;
 	
 	var _lodash = __webpack_require__(18);
 	
@@ -21763,6 +21761,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var go = exports.go = function go(h, n) {
 	  return n === 0 ? h : n < 0 ? back(h, 0 - n) : forward(h, n);
+	};
+	
+	var top = exports.top = function top(h) {
+	  return {
+	    back: [],
+	    current: h.back[0] || h.current,
+	    forward: []
+	  };
 	};
 	
 	var getShiftAmount = exports.getShiftAmount = function getShiftAmount(h, pageEq) {
