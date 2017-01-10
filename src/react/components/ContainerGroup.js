@@ -110,6 +110,9 @@ class ContainerGroup extends Component {
   }
 
   componentWillReceiveProps(newProps) {
+
+    console.log('CWRP', newProps)
+
     this.setCurrentContainer(newProps.currentContainerIndex)
     this.update()
   }
