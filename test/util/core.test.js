@@ -61,7 +61,7 @@ describe('core utils', () => {
     expect(state.browserHistory.forward.length).toBe(0)
   })
 
-  it('switches to container with keepHistory=true', () => {
+  it('switches to container', () => {
     const state:InitializedState = performAll([
       ...createContainers,
       loadAction('/a'),
@@ -84,31 +84,4 @@ describe('core utils', () => {
     expect(state.browserHistory.current.id).toBe(2);
     expect(state.browserHistory.forward.length).toBe(0)
   })
-
-  it.only('switches to container with keepHistory=false', () => {
-    const state:InitializedState = performAll([
-      ...createContainers3,
-      loadAction('/j'),
-      pushAction('/j/1/cat', {id: 1, name: 'cat'}, 0, 0),
-      pushAction('/j/2/dog', {id: 2, name: 'dog'}, 0, 0),
-      switchAction(0, 1)
-    ])
-    
-    expect(state.groups[0].containers[0].history.back.length).toBe(0);
-    expect(state.groups[0].containers[0].history.current.url).toBe('/j');
-    expect(state.groups[0].containers[0].history.current.id).toBe(1);
-    expect(state.groups[0].containers[0].history.forward.length).toBe(0)
-
-    expect(state.groups[0].history.back.length).toBe(1);
-    expect(state.groups[0].history.back[0].url).toBe('/j');
-    expect(state.groups[0].history.current.url).toBe('/k');
-    expect(state.groups[0].history.current.id).toBe(2);
-    expect(state.groups[0].history.forward.length).toBe(0)
-
-    expect(state.browserHistory.back.length).toBe(2);
-    expect(state.browserHistory.current.url).toBe('/k');
-    expect(state.browserHistory.current.id).toBe(2);
-    expect(state.browserHistory.forward.length).toBe(0)
-  })
-  
 })

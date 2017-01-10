@@ -5,7 +5,7 @@ import StaticRouter from 'react-router/StaticRouter'
 import History from 'react-router/History'
 import createBrowserHistory from 'history/createBrowserHistory'
 import createMemoryHistory from "history/createMemoryHistory"
-import { listenToLocation, locationChanged } from "../actions/LocationActions"
+import { listenToLocation, unlistenToLocation, locationChanged } from "../actions/LocationActions"
 import { canUseWindowLocation } from '../../util/location'
 import { loadFromUrl, listenToStore, setZeroPage } from "../../main"
 
@@ -16,7 +16,7 @@ class HistoryRouter extends Component {
     if (zeroPage) {
       setZeroPage(zeroPage)
     }
-    listenToStore()
+    this.unlistenToStore = listenToStore()
     if (canUseWindowLocation) {
       locationChanged(window.location)
     }
@@ -33,6 +33,12 @@ class HistoryRouter extends Component {
     else {
       loadFromUrl(this.props.location)
     }
+  }
+
+  componentWillUnmount() {
+    const {unlistenToLocation} = this.props
+    this.unlistenToStore()
+    unlistenToLocation()
   }
 
   render() {
@@ -85,7 +91,7 @@ if (!canUseWindowLocation) {  // allow passing location in non-browser enviromen
 
 const ConnectedHistoryRouter = connect(
   state => ({}),
-  { listenToLocation, locationChanged }
+  { listenToLocation, unlistenToLocation, locationChanged }
 )(HistoryRouter)
 
 export default props => <ConnectedHistoryRouter store={store} {...props} />

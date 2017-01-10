@@ -67,9 +67,6 @@ export function switchToContainer(state:InitializedState, groupIndex:number,
   const oldContainerIndex = group.history.current.containerIndex
   const from:Container = group.containers[oldContainerIndex]
   const to:Container = getContainer(newState, groupIndex, containerIndex)
-  if (!from.keepHistory) {
-    from.history = historyUtil.top(from.history)
-  }
   const defaulT:?Container =
       _.find(group.containers, (c:Container) => c.isDefault)
   group.history = switchContainer(from, to, defaulT)
