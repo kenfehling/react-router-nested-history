@@ -14,6 +14,5 @@ export const listenToLocation = () => {
 
 export const unlistenToLocation = () => {
   return (dispatch) =>
-      window.removeEventListener('locationChange', locTrigger.bind({}, dispatch))
-
+    window.removeEventListener('locationChange', locTrigger.bind({}, dispatch))
 }

@@ -50844,7 +50844,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -50858,6 +50858,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  switch (action.type) {
 	    case _ActionTypes.LOCATION_CHANGED:
+	      console.log("Location changed", action.location);
 	      return _extends({}, state, { location: action.location });
 	  }
 	  return state;
