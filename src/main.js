@@ -117,8 +117,8 @@ export const getLastAction = () : Action => _.last(getActions())
 export const getGroupState = (groupIndex:number) : Object =>
     actionsUtil.getGroupState(getActions(), groupIndex, getZeroPage())
 
-export async function switchToContainer(groupIndex:number,
-                                        containerIndex:number) : Promise {
+export const switchToContainer = (groupIndex:number,
+                                  containerIndex:number) : Promise => {
   const state:InitializedState = getInitializedState()
   const from:Container = core.getActiveContainerInGroup(state, groupIndex)
   const switchFn:Function = () => {
