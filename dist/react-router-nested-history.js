@@ -366,6 +366,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var current = group.history.current;
 	      var steps = actionsUtil.createStepsSinceUpdate(actions, zeroPage, lastUpdate);
 	      lastUpdate = new Date();
+	
+	      console.log('current', current);
+	
 	      window.dispatchEvent(new CustomEvent('locationChange', {
 	        detail: { location: (0, _history.createLocation)(current.url, { id: current.id }) }
 	      }));

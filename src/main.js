@@ -183,6 +183,9 @@ export const listenToStore = () => store.subscribe(() => {
     const steps:Step[] =
         actionsUtil.createStepsSinceUpdate(actions, zeroPage, lastUpdate)
     lastUpdate = new Date()
+
+    console.log('current', current)
+
     window.dispatchEvent(new CustomEvent('locationChange', {
       detail: {location: createLocation(current.url, {id: current.id})}
     }))
