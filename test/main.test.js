@@ -21,7 +21,7 @@ describe('main', () => {
   describe('function tests', () => {
     const performAll = (actions: Action[]) => actions.forEach(store.dispatch)
 
-    it('switches to container with keepHistory=false', () => {
+    it('switches to container with keepHistory=false', async () => {
       performAll([
         ...createContainers3,
         loadAction('/j'),
@@ -29,24 +29,24 @@ describe('main', () => {
         pushAction('/j/2/dog', {id: 2, name: 'dog'}, 0, 0)
       ])
 
-      switchToContainer(0, 1)
-      const state:InitializedState = getInitializedState()
+      await switchToContainer(0, 1).then(() => {
+        const state:InitializedState = getInitializedState()
+        expect(state.groups[0].containers[0].history.back.length).toBe(0);
+        expect(state.groups[0].containers[0].history.current.url).toBe('/j');
+        expect(state.groups[0].containers[0].history.current.id).toBe(1);
+        expect(state.groups[0].containers[0].history.forward.length).toBe(0)
 
-      expect(state.groups[0].containers[0].history.back.length).toBe(0);
-      expect(state.groups[0].containers[0].history.current.url).toBe('/j');
-      expect(state.groups[0].containers[0].history.current.id).toBe(1);
-      expect(state.groups[0].containers[0].history.forward.length).toBe(0)
+        expect(state.groups[0].history.back.length).toBe(1);
+        expect(state.groups[0].history.back[0].url).toBe('/j');
+        expect(state.groups[0].history.current.url).toBe('/k');
+        expect(state.groups[0].history.current.id).toBe(2);
+        expect(state.groups[0].history.forward.length).toBe(0)
 
-      expect(state.groups[0].history.back.length).toBe(1);
-      expect(state.groups[0].history.back[0].url).toBe('/j');
-      expect(state.groups[0].history.current.url).toBe('/k');
-      expect(state.groups[0].history.current.id).toBe(2);
-      expect(state.groups[0].history.forward.length).toBe(0)
-
-      expect(state.browserHistory.back.length).toBe(2);
-      expect(state.browserHistory.current.url).toBe('/k');
-      expect(state.browserHistory.current.id).toBe(2);
-      expect(state.browserHistory.forward.length).toBe(0)
+        expect(state.browserHistory.back.length).toBe(2);
+        expect(state.browserHistory.current.url).toBe('/k');
+        expect(state.browserHistory.current.id).toBe(2);
+        expect(state.browserHistory.forward.length).toBe(0)
+      })
     })
   })
 

@@ -7,7 +7,6 @@ const initialState = {
 export default function(state=initialState, action) {
   switch (action.type) {
     case LOCATION_CHANGED:
-      console.log("Location changed", action.location)
       return {...state, location: action.location}
   }
   return state

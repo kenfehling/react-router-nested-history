@@ -117,14 +117,25 @@ export const getLastAction = () : Action => _.last(getActions())
 export const getGroupState = (groupIndex:number) : Object =>
     actionsUtil.getGroupState(getActions(), groupIndex, getZeroPage())
 
-export const switchToContainer = (groupIndex:number, containerIndex:number) => {
+export async function switchToContainer(groupIndex:number,
+                                        containerIndex:number) : Promise {
   const state:InitializedState = getInitializedState()
   const from:Container = core.getActiveContainerInGroup(state, groupIndex)
-  if (!from.keepHistory) {
-    store.dispatch(actions.top(groupIndex, from.index))
+  const switchFn:Function = () => {
+    if (!core.isActiveContainer(state, groupIndex, containerIndex)) {
+      store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
+    }
   }
-  if (!core.isActiveContainer(state, groupIndex, containerIndex)) {
-    store.dispatch(actions.switchToContainer(groupIndex, containerIndex))
+  const topFn:Function = () : Promise => new Promise((resolve) => {
+    store.dispatch(actions.top(groupIndex, from.index))
+    return resolve()
+  })
+  if (from.keepHistory) {
+    switchFn()
+    return Promise.resolve()
+  }
+  else {
+    return topFn().then(switchFn)
   }
 }
 
@@ -183,9 +194,6 @@ export const listenToStore = () => store.subscribe(() => {
     const steps:Step[] =
         actionsUtil.createStepsSinceUpdate(actions, zeroPage, lastUpdate)
     lastUpdate = new Date()
-
-    console.log('current', current)
-
     window.dispatchEvent(new CustomEvent('locationChange', {
       detail: {location: createLocation(current.url, {id: current.id})}
     }))
