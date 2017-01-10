@@ -5,7 +5,10 @@ import reducer, {initialState} from './reducers'
 import { canUseWindowLocation } from './util/location'
 
 export default canUseWindowLocation ?
-    createStore(reducer, initialState, compose(autoRehydrate, applyMiddleware(thunk))) :
+    compose(
+        applyMiddleware(thunk),
+        autoRehydrate()
+    )(createStore)(reducer) :
     createStore(reducer, applyMiddleware(thunk))
 
 export const persist = (store, persistorConfig, onComplete) => {
