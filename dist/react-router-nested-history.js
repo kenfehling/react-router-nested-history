@@ -359,6 +359,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var listenToStore = exports.listenToStore = function listenToStore() {
 	  return _store2.default.subscribe(function () {
 	    var actions = getActions();
+	
+	    console.log("actions", actions);
+	
 	    var zeroPage = getZeroPage();
 	    var state = actionsUtil.deriveState(actions, zeroPage);
 	    if (state instanceof _types.InitializedState) {

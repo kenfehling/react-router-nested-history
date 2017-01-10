@@ -175,6 +175,9 @@ export function runSteps(steps:Step[]) {
 
 export const listenToStore = () => store.subscribe(() => {
   const actions:Action[] = getActions()
+
+  console.log("actions", actions)
+
   const zeroPage:string = getZeroPage()
   const state:State = actionsUtil.deriveState(actions, zeroPage)
   if (state instanceof InitializedState) {
