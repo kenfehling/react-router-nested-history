@@ -130,9 +130,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.setZeroPage = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getBackPage = exports.forward = exports.back = exports.go = exports.top = exports.push = exports.switchToContainer = exports.getGroupState = exports.getLastAction = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getDerivedState = exports.getActions = undefined;
+	exports.setZeroPage = exports.listenToStore = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getBackPage = exports.forward = exports.back = exports.go = exports.top = exports.push = exports.switchToContainer = exports.getGroupState = exports.getLastAction = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getInitializedState = exports.getDerivedState = exports.getActions = undefined;
 	exports.runSteps = runSteps;
-	exports.listenToStore = listenToStore;
 	
 	var _HistoryActions = __webpack_require__(2);
 	
@@ -144,7 +143,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _actions = __webpack_require__(17);
 	
-	var util = _interopRequireWildcard(_actions);
+	var actionsUtil = _interopRequireWildcard(_actions);
 	
 	var _core = __webpack_require__(25);
 	
@@ -187,10 +186,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.getState().actions;
 	};
 	var getDerivedState = exports.getDerivedState = function getDerivedState() {
-	  return util.deriveState(getActions(), getZeroPage());
+	  return actionsUtil.deriveState(getActions(), getZeroPage());
 	};
-	var getInitializedState = function getInitializedState() {
-	  return util.deriveInitializedState(getActions(), getZeroPage());
+	var getInitializedState = exports.getInitializedState = function getInitializedState() {
+	  return actionsUtil.deriveInitializedState(getActions(), getZeroPage());
 	};
 	
 	var getZeroPage = exports.getZeroPage = function getZeroPage() {
@@ -198,7 +197,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (all.zeroPage) {
 	    return all.zeroPage;
 	  } else {
-	    var state = util.deriveState(all.actions, 'whatever');
+	    var state = actionsUtil.deriveState(all.actions, 'whatever');
 	    return state.groups[0].containers[0].initialUrl;
 	  }
 	};
@@ -233,7 +232,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (_.isEmpty(actions)) {
 	    return 0;
 	  } else {
-	    var state = util.deriveState(actions, getZeroPage());
+	    var state = actionsUtil.deriveState(actions, getZeroPage());
 	    return state.groups.length;
 	  }
 	};
@@ -252,7 +251,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (_.isEmpty(actions)) {
 	    return create();
 	  }
-	  var state = util.deriveState(actions, getZeroPage());
+	  var state = actionsUtil.deriveState(actions, getZeroPage());
 	  var group = state.groups[groupIndex];
 	  if (!group) {
 	    return create();
@@ -283,11 +282,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var getGroupState = exports.getGroupState = function getGroupState(groupIndex) {
-	  return util.getGroupState(getActions(), groupIndex, getZeroPage());
+	  return actionsUtil.getGroupState(getActions(), groupIndex, getZeroPage());
 	};
 	
 	var switchToContainer = exports.switchToContainer = function switchToContainer(groupIndex, containerIndex) {
-	  if (!core.isActiveContainer(getInitializedState(), groupIndex, containerIndex)) {
+	  var state = getInitializedState();
+	  var from = core.getActiveContainerInGroup(state, groupIndex);
+	  if (!from.keepHistory) {
+	    _store2.default.dispatch(actions.top(groupIndex, from.index));
+	  }
+	  if (!core.isActiveContainer(state, groupIndex, containerIndex)) {
 	    _store2.default.dispatch(actions.switchToContainer(groupIndex, containerIndex));
 	  }
 	};
@@ -352,15 +356,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, Promise.resolve());
 	}
 	
-	function listenToStore() {
-	  _store2.default.subscribe(function () {
+	var listenToStore = exports.listenToStore = function listenToStore() {
+	  return _store2.default.subscribe(function () {
 	    var actions = getActions();
 	    var zeroPage = getZeroPage();
-	    var state = util.deriveState(actions, zeroPage);
+	    var state = actionsUtil.deriveState(actions, zeroPage);
 	    if (state instanceof _types.InitializedState) {
 	      var group = core.getActiveGroup(state);
 	      var current = group.history.current;
-	      var steps = util.createStepsSinceUpdate(actions, zeroPage, lastUpdate);
+	      var steps = actionsUtil.createStepsSinceUpdate(actions, zeroPage, lastUpdate);
 	      lastUpdate = new Date();
 	      window.dispatchEvent(new CustomEvent('locationChange', {
 	        detail: { location: (0, _history.createLocation)(current.url, { id: current.id }) }
@@ -368,7 +372,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      runSteps(steps);
 	    }
 	  });
-	}
+	};
 	
 	var setZeroPage = exports.setZeroPage = function setZeroPage(zeroPage) {
 	  return _store2.default.dispatch(actions.setZeroPage(zeroPage));
@@ -20202,9 +20206,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var oldContainerIndex = group.history.current.containerIndex;
 	  var from = group.containers[oldContainerIndex];
 	  var to = getContainer(newState, groupIndex, containerIndex);
-	  if (!from.keepHistory) {
-	    from.history = historyUtil.top(from.history);
-	  }
 	  var defaulT = _.find(group.containers, function (c) {
 	    return c.isDefault;
 	  });
@@ -51073,7 +51074,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (zeroPage) {
 	      (0, _main.setZeroPage)(zeroPage);
 	    }
-	    (0, _main.listenToStore)();
+	    _this.unlistenToStore = (0, _main.listenToStore)();
 	    if (_location.canUseWindowLocation) {
 	      locationChanged(window.location);
 	    } else {
@@ -51091,6 +51092,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	      } else {
 	        (0, _main.loadFromUrl)(this.props.location);
 	      }
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      var unlistenToLocation = this.props.unlistenToLocation;
+	
+	      this.unlistenToStore();
+	      unlistenToLocation();
 	    }
 	  }, {
 	    key: 'render',
@@ -51148,7 +51157,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var ConnectedHistoryRouter = (0, _reactRedux.connect)(function (state) {
 	  return {};
-	}, { listenToLocation: _LocationActions.listenToLocation, locationChanged: _LocationActions.locationChanged })(HistoryRouter);
+	}, { listenToLocation: _LocationActions.listenToLocation, unlistenToLocation: _LocationActions.unlistenToLocation, locationChanged: _LocationActions.locationChanged })(HistoryRouter);
 	
 	exports.default = function (props) {
 	  return _react2.default.createElement(ConnectedHistoryRouter, _extends({ store: _store2.default }, props));
@@ -51163,7 +51172,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.listenToLocation = exports.locationChanged = undefined;
+	exports.unlistenToLocation = exports.listenToLocation = exports.locationChanged = undefined;
 	
 	var _ActionTypes = __webpack_require__(305);
 	
@@ -51174,11 +51183,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 	
+	var locTrigger = function locTrigger(dispatch, e) {
+	  return dispatch(locationChanged(e.detail.location));
+	};
+	
 	var listenToLocation = exports.listenToLocation = function listenToLocation() {
 	  return function (dispatch) {
-	    return window.addEventListener('locationChange', function (event) {
-	      return dispatch(locationChanged(event.detail.location));
-	    });
+	    return window.addEventListener('locationChange', locTrigger.bind({}, dispatch));
+	  };
+	};
+	
+	var unlistenToLocation = exports.unlistenToLocation = function unlistenToLocation() {
+	  return function (dispatch) {
+	    return window.removeEventListener('locationChange', locTrigger.bind({}, dispatch));
 	  };
 	};
 
