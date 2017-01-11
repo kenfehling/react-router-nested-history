@@ -32828,11 +32828,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        this.props.children
-	      );
+	      return this.props.children;
 	    }
 	  }]);
 	
@@ -50986,11 +50982,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        this.context.initializing ? '' : this.props.children
-	      );
+	      return this.context.initializing ? _react2.default.createElement('div', null) : this.props.children;
 	    }
 	  }]);
 	
