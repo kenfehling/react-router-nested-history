@@ -32828,7 +32828,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return this.props.children;
+	      return this.props.children || _react2.default.createElement('div', null);
 	    }
 	  }]);
 	
