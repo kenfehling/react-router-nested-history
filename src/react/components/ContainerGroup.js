@@ -116,6 +116,9 @@ class ContainerGroup extends Component {
   }
 
   render() {
+
+    console.log('ContainerGroup', this.props.children)
+
     return this.props.children || <div></div>
   }
 }
