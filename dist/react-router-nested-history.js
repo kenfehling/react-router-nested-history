@@ -32831,7 +32831,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return Array.isArray(this.props.children) ? _react2.default.createElement(
 	        'div',
 	        null,
-	        'this.props.children'
+	        this.props.children
 	      ) : this.props.children;
 	    }
 	  }]);
@@ -50990,7 +50990,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return this.context.initializing ? _react2.default.createElement('div', null) : Array.isArray(this.props.children) ? _react2.default.createElement(
 	        'div',
 	        null,
-	        'this.props.children'
+	        this.props.children
 	      ) : this.props.children;
 	    }
 	  }]);

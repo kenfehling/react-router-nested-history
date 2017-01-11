@@ -69,7 +69,7 @@ export default class Container extends Component {
   render() {
     return this.context.initializing ? <div></div> :
         Array.isArray(this.props.children) ?
-            <div>this.props.children</div> :
+            <div>{this.props.children}</div> :
             this.props.children
   }
 }
