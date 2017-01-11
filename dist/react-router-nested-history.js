@@ -32845,7 +32845,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	ContainerGroup.propTypes = {
 	  currentContainerIndex: _react.PropTypes.number,
 	  onContainerSwitch: _react.PropTypes.func,
-	  useDefaultContainer: _react.PropTypes.bool
+	  useDefaultContainer: _react.PropTypes.bool,
+	  children: _react.PropTypes.node.isRequired
 	};
 	
 	
