@@ -39,7 +39,8 @@ class ContainerGroup extends Component {
   static propTypes = {
     currentContainerIndex: PropTypes.number,
     onContainerSwitch: PropTypes.func,
-    useDefaultContainer: PropTypes.bool
+    useDefaultContainer: PropTypes.bool,
+    children: PropTypes.node.isRequired
   }
 
   getChildContext() {
