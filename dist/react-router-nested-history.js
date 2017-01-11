@@ -32828,10 +32828,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	
-	      console.log('ContainerGroup', this.props.children);
-	
-	      return this.props.children || _react2.default.createElement('div', null);
+	      return Array.isArray(this.props.children) ? _react2.default.createElement(
+	        'div',
+	        null,
+	        'this.props.children'
+	      ) : this.props.children;
 	    }
 	  }]);
 	
@@ -50986,10 +50987,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	
-	      if (!this.context.initializing) console.log('Container', this.props.children);
-	
-	      return this.context.initializing ? _react2.default.createElement('div', null) : this.props.children || _react2.default.createElement('div', null);
+	      return this.context.initializing ? _react2.default.createElement('div', null) : Array.isArray(this.props.children) ? _react2.default.createElement(
+	        'div',
+	        null,
+	        'this.props.children'
+	      ) : this.props.children;
 	    }
 	  }]);
 	
