@@ -50983,7 +50983,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return this.context.initializing ? _react2.default.createElement('div', null) : this.props.children;
+	      return this.context.initializing ? _react2.default.createElement('div', null) : this.props.children || _react2.default.createElement('div', null);
 	    }
 	  }]);
 	

@@ -67,6 +67,7 @@ export default class Container extends Component {
   }
 
   render() {
-    return this.context.initializing ? <div></div> : this.props.children
+    return this.context.initializing ? <div></div> :
+        this.props.children || <div></div>
   }
 }
