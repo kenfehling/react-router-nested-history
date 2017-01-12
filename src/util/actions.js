@@ -21,7 +21,12 @@ function _loadReducer(state:State, action:Action,
     return loadFromUrl(state, url, zeroPage)
   }
   else if (state instanceof InitializedState) {
-    return fromRefresh ? state : reloadFromUrl(state, url, zeroPage)
+    if (fromRefresh) {
+      return state
+    }
+    else {
+      return loadFromUrl(state, url, zeroPage)
+    }
   }
   else {
     throw new Error('state is unknown type')

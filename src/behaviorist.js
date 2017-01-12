@@ -1,7 +1,7 @@
 // @flow
 import * as _ from 'lodash'
 import { patternsMatch , patternMatches, parseParamsFromPatterns } from "./util/url"
-import { findGroupWithCurrentUrl, toBrowserHistory, resetState } from './util/core'
+import { findGroupWithCurrentUrl, toBrowserHistory } from './util/core'
 import * as historyUtil from './util/history'
 import type { Page, Group, Container, History } from './types'
 import { State, UninitializedState, InitializedState } from './types'
@@ -9,7 +9,6 @@ import { State, UninitializedState, InitializedState } from './types'
 // TODO: Pass this in dynamically
 import * as defaultBehavior from './behaviors/defaultBehavior'
 import * as nonDefaultBehavior from './behaviors/nonDefaultBehavior'
-import {KEEP_HISTORY_ON_FUTURE_VISIT} from "./constants/Settings"
 
 const toArray = (h:History) : Array<any> => [h.back, h.current, h.forward]
 const fromArray = ([back, current, forward]) : History => ({back, current, forward})
@@ -107,14 +106,4 @@ export const loadFromUrl = (oldState:State, url:string,
     lastUpdate: new Date(0)
   })
   // TODO: Remove lastUpdate field and make a new more specific State type?
-}
-
-export const reloadFromUrl = (oldState:InitializedState, url:string,
-                              zeroPage:string) : InitializedState => {
-  if (KEEP_HISTORY_ON_FUTURE_VISIT) {
-    return loadFromUrl(resetState(oldState), url, zeroPage)
-  }
-  else {
-    return loadFromUrl(oldState, url, zeroPage)
-  }
 }
