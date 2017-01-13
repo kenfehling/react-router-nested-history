@@ -148,8 +148,13 @@ export function createStepsSinceUpdate(actions:Action[], zeroPage:string,
     ]
   }
   else {
-    const oldState:InitializedState = deriveInitializedState(oldActions, zeroPage)
-    return diffStateToSteps(oldState, newState)
+    const oldState:State = deriveState(oldActions, zeroPage)
+    if (oldState instanceof InitializedState) {
+      return diffStateToSteps(oldState, newState)
+    }
+    else {
+      return getHistoryReplacementSteps(null, newState.browserHistory)
+    }
   }
 }
 
