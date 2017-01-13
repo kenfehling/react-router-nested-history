@@ -20,9 +20,10 @@ const maxQueue = Infinity
 const queue = new Queue(maxConcurrent, maxQueue)
 const needsPopListener = canUseWindowLocation ?
     [browser.back, browser.forward, browser.go] : []
-let unlisten, lastUpdate = new Date(0)
+let unlisten
 
 export const getActions = () : Action[] => store.getState().actions
+export const getLastUpdate = () : Date => store.getState().lastUpdate
 export const getDerivedState = () : State =>
     actionsUtil.deriveState(getActions(), getZeroPage())
 export const getInitializedState = () : InitializedState =>
@@ -187,13 +188,13 @@ export function runSteps(steps:Step[]) {
 export const listenToStore = () => store.subscribe(() => {
   const actions:Action[] = getActions()
   const zeroPage:string = getZeroPage()
+  const lastUpdate = getLastUpdate()
   const state:State = actionsUtil.deriveState(actions, zeroPage)
   if (state instanceof InitializedState) {
     const group:Group = core.getActiveGroup(state)
     const current:Page = group.history.current
     const steps:Step[] =
         actionsUtil.createStepsSinceUpdate(actions, zeroPage, lastUpdate)
-    lastUpdate = new Date()
     window.dispatchEvent(new CustomEvent('locationChange', {
       detail: {location: createLocation(current.url, {id: current.id})}
     }))

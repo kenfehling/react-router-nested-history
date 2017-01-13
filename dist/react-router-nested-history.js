@@ -130,7 +130,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.setZeroPage = exports.listenToStore = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getBackPage = exports.forward = exports.back = exports.go = exports.top = exports.push = exports.switchToContainer = exports.getGroupState = exports.getLastAction = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getInitializedState = exports.getDerivedState = exports.getActions = undefined;
+	exports.setZeroPage = exports.listenToStore = exports.getActivePageInContainer = exports.getActivePageInGroup = exports.getBackPage = exports.forward = exports.back = exports.go = exports.top = exports.push = exports.switchToContainer = exports.getGroupState = exports.getLastAction = exports.addChangeListener = exports.loadFromUrl = exports.getOrCreateContainer = exports.getNextGroupIndex = exports.getZeroPage = exports.getInitializedState = exports.getDerivedState = exports.getLastUpdate = exports.getActions = undefined;
 	exports.runSteps = runSteps;
 	
 	var _HistoryActions = __webpack_require__(2);
@@ -179,11 +179,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	var maxQueue = Infinity;
 	var queue = new _promiseQueue2.default(maxConcurrent, maxQueue);
 	var needsPopListener = _location.canUseWindowLocation ? [browser.back, browser.forward, browser.go] : [];
-	var unlisten = void 0,
-	    lastUpdate = new Date(0);
+	var unlisten = void 0;
 	
 	var getActions = exports.getActions = function getActions() {
 	  return _store2.default.getState().actions;
+	};
+	var getLastUpdate = exports.getLastUpdate = function getLastUpdate() {
+	  return _store2.default.getState().lastUpdate;
 	};
 	var getDerivedState = exports.getDerivedState = function getDerivedState() {
 	  return actionsUtil.deriveState(getActions(), getZeroPage());
@@ -371,12 +373,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _store2.default.subscribe(function () {
 	    var actions = getActions();
 	    var zeroPage = getZeroPage();
+	    var lastUpdate = getLastUpdate();
 	    var state = actionsUtil.deriveState(actions, zeroPage);
 	    if (state instanceof _types.InitializedState) {
 	      var group = core.getActiveGroup(state);
 	      var current = group.history.current;
 	      var steps = actionsUtil.createStepsSinceUpdate(actions, zeroPage, lastUpdate);
-	      lastUpdate = new Date();
 	      window.dispatchEvent(new CustomEvent('locationChange', {
 	        detail: { location: (0, _history.createLocation)(current.url, { id: current.id }) }
 	      }));
@@ -1828,7 +1830,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Get the difference between oldState and newState and return a list of
 	 * browser functions to transform the browser history from oldState to newState
-	 * @param oldState {?State} The original historyStore state
+	 * @param oldState {InitializedState} The original historyStore state
 	 * @param newState {InitializedState} The new historyStore state
 	 * @returns {Step[]} An array of steps to get from old state to new state
 	 */
@@ -24786,7 +24788,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (_.includes(_.values(types), type)) {
 	          var shouldClean = type === _ActionTypes.LOAD_FROM_URL && !action.fromRefresh && !_Settings.KEEP_HISTORY_ON_FUTURE_VISIT;
 	          var newState = shouldClean ? cleanUpActions(state) : state;
-	          return addAction(newState, action);
+	          return _extends({}, addAction(newState, action), { lastUpdate: new Date() });
 	        }
 	      }
 	  }
@@ -24809,7 +24811,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var initialState = exports.initialState = {
 	  actions: [],
-	  zeroPage: '/'
+	  zeroPage: '/',
+	  lastUpdate: new Date(0)
 	};
 	
 	var setActions = function setActions(state, actions) {
@@ -24821,11 +24824,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var cleanUpActions = function cleanUpActions(state) {
-	  var index = _.findIndex(state.actions, function (a) {
+	  var actions = state.actions;
+	  var index = _.findIndex(actions, function (a) {
 	    return a.type === _ActionTypes.LOAD_FROM_URL;
 	  });
 	  if (index > 0) {
-	    return setActions(state, state.actions.slice(0, index));
+	    return _extends({}, state, { actions: actions.slice(0, index), lastUpdate: new Date(0) });
 	  } else {
 	    return state;
 	  }

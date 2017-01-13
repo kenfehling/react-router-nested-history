@@ -7,12 +7,14 @@ import type { Action } from '../types'
 
 type ReducerState = {
   actions: Action[],
-  zeroPage: string
+  zeroPage: string,
+  lastUpdate: Date
 }
 
 export const initialState:ReducerState = {
   actions: [],
-  zeroPage: '/'
+  zeroPage: '/',
+  lastUpdate: new Date(0)
 }
 
 const setActions = (state:ReducerState, actions:Action[]) : ReducerState =>
@@ -22,9 +24,10 @@ const addAction = (state:ReducerState, action:Action) : ReducerState =>
     setActions(state, [...state.actions, action])
 
 const cleanUpActions = (state:ReducerState)  : ReducerState => {
-  const index:number = _.findIndex(state.actions, a => a.type === LOAD_FROM_URL)
+  const actions:Action[] = state.actions
+  const index:number = _.findIndex(actions, a => a.type === LOAD_FROM_URL)
   if (index > 0) {
-    return setActions(state, state.actions.slice(0, index))
+    return {...state, actions: actions.slice(0, index), lastUpdate: new Date(0)}
   }
   else {
     return state
@@ -41,7 +44,7 @@ export default function(state:ReducerState=initialState, action:Action) {
         const shouldClean:boolean = type === LOAD_FROM_URL &&
             !action.fromRefresh && !KEEP_HISTORY_ON_FUTURE_VISIT
         const newState = shouldClean ? cleanUpActions(state) : state
-        return addAction(newState, action)
+        return {...addAction(newState, action), lastUpdate: new Date()}
       }
     }
   }

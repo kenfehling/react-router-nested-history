@@ -108,7 +108,7 @@ export const getHistoryReplacementSteps = (h1:?History, h2:History) : Step[] => 
 /**
  * Get the difference between oldState and newState and return a list of
  * browser functions to transform the browser history from oldState to newState
- * @param oldState {?State} The original historyStore state
+ * @param oldState {InitializedState} The original historyStore state
  * @param newState {InitializedState} The new historyStore state
  * @returns {Step[]} An array of steps to get from old state to new state
  */
