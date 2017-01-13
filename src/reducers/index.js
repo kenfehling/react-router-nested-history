@@ -24,7 +24,7 @@ const addAction = (state:ReducerState, action:Action) : ReducerState =>
 const cleanUpActions = (state:ReducerState)  : ReducerState => {
   const index:number = _.findIndex(state.actions, LOAD_FROM_URL)
   if (index > 0) {
-    return setActions(state, state.actions.slice(index))
+    return setActions(state, state.actions.slice(0, index))
   }
   else {
     return state

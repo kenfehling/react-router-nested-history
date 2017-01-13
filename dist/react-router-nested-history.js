@@ -24805,7 +24805,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var cleanUpActions = function cleanUpActions(state) {
 	  var index = _.findIndex(state.actions, _ActionTypes.LOAD_FROM_URL);
 	  if (index > 0) {
-	    return setActions(state, state.actions.slice(index));
+	    return setActions(state, state.actions.slice(0, index));
 	  } else {
 	    return state;
 	  }
