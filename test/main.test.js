@@ -1,10 +1,13 @@
 // @flow
-/* globals describe, it, expect, beforeEach, Promise */
+/* globals describe, it, expect, beforeEach, afterEach, Promise */
 declare var describe:any
 declare var it:any
 declare var expect:any
 declare var beforeEach:any
-import { runSteps, getBackPage, switchToContainer, getInitializedState} from '../src/main'
+declare var afterEach:any
+import { runSteps, getBackPage, switchToContainer, getInitializedState,
+  getActions
+} from '../src/main'
 import * as actionUtil from '../src/util/actions'
 import { push, back, forward, go, _history, _resetHistory } from '../src/browserFunctions'
 import { createContainers, zeroPage, createContainers3} from "./fixtures"
@@ -13,13 +16,25 @@ import { InitializedState } from '../src/types'
 import * as _ from "lodash"
 import { loadAction, switchAction, pushAction, backAction, topAction } from "./helpers";
 import store from '../src/store'
+import {_clearActions} from "../src/actions/HistoryActions";
 
 describe('main', () => {
 
-  beforeEach(_resetHistory)
+  afterEach(() => store.dispatch(_clearActions()))
 
   describe('function tests', () => {
     const performAll = (actions: Action[]) => actions.forEach(store.dispatch)
+
+    it('cleans history when reloading', () => {
+      performAll([
+        ...createContainers,
+        loadAction('/a'),
+        pushAction('/a/1'),
+        pushAction('/a/2'),
+        loadAction('/a')
+      ])
+      expect(getActions().length).toBe(4)
+    })
 
     it('switches to container with keepHistory=false', async () => {
       performAll([
@@ -54,6 +69,9 @@ describe('main', () => {
    * Using memoryHistory we can examine the history entries
    */
   describe('memoryHistory tests', () => {
+
+    afterEach(_resetHistory)
+
     const run = (actions:Action[], lastUpdate:number=-1) : Promise => {
       return runSteps(actionUtil.createStepsSinceUpdate(
           actions,

@@ -398,7 +398,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.clearZeroPage = exports.setZeroPage = exports.popstate = exports.go = exports.forward = exports.back = exports.top = exports.push = exports.switchToContainer = exports.loadFromUrl = exports.createContainer = undefined;
+	exports._clearActions = exports._clearZeroPage = exports.setZeroPage = exports.popstate = exports.go = exports.forward = exports.back = exports.top = exports.push = exports.switchToContainer = exports.loadFromUrl = exports.createContainer = undefined;
 	
 	var _ActionTypes = __webpack_require__(3);
 	
@@ -513,13 +513,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	};
 	
-	var clearZeroPage = exports.clearZeroPage = function clearZeroPage() {
+	/** For testing **/
+	var _clearZeroPage = exports._clearZeroPage = function _clearZeroPage() {
 	  return {
 	    type: _ActionTypes.SET_ZERO_PAGE,
 	    time: new Date(),
 	    data: {
 	      zeroPage: null
 	    }
+	  };
+	};
+	
+	/** For testing **/
+	var _clearActions = exports._clearActions = function _clearActions() {
+	  return {
+	    type: _ActionTypes.CLEAR_ACTIONS,
+	    time: new Date(),
+	    data: {}
 	  };
 	};
 
@@ -543,6 +553,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var POPSTATE = exports.POPSTATE = 'popstate';
 	
 	var SET_ZERO_PAGE = exports.SET_ZERO_PAGE = 'set-zero-page';
+	var CLEAR_ACTIONS = exports.CLEAR_ACTIONS = 'clear-actions';
 
 /***/ },
 /* 4 */
@@ -24765,12 +24776,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var type = action.type,
 	      data = action.data;
 	
-	  if (type === _ActionTypes.SET_ZERO_PAGE) {
-	    return _extends({}, state, { zeroPage: data.zeroPage });
-	  } else if (_.includes(_.values(types), type)) {
-	    var shouldClean = type === _ActionTypes.LOAD_FROM_URL && !action.fromRefresh && !_Settings.KEEP_HISTORY_ON_FUTURE_VISIT;
-	    var newState = shouldClean ? cleanUpActions(state) : state;
-	    return addAction(newState, action);
+	  switch (type) {
+	    case _ActionTypes.CLEAR_ACTIONS:
+	      return _extends({}, state, { actions: [] });
+	    case _ActionTypes.SET_ZERO_PAGE:
+	      return _extends({}, state, { zeroPage: data.zeroPage });
+	    default:
+	      {
+	        if (_.includes(_.values(types), type)) {
+	          var shouldClean = type === _ActionTypes.LOAD_FROM_URL && !action.fromRefresh && !_Settings.KEEP_HISTORY_ON_FUTURE_VISIT;
+	          var newState = shouldClean ? cleanUpActions(state) : state;
+	          return addAction(newState, action);
+	        }
+	      }
 	  }
 	  return state;
 	};
@@ -24803,7 +24821,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var cleanUpActions = function cleanUpActions(state) {
-	  var index = _.findIndex(state.actions, _ActionTypes.LOAD_FROM_URL);
+	  var index = _.findIndex(state.actions, function (a) {
+	    return a.type === _ActionTypes.LOAD_FROM_URL;
+	  });
 	  if (index > 0) {
 	    return setActions(state, state.actions.slice(0, index));
 	  } else {

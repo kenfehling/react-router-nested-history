@@ -9,3 +9,4 @@ export const GO = 'go'
 export const POPSTATE = 'popstate'
 
 export const SET_ZERO_PAGE = 'set-zero-page'
+export const CLEAR_ACTIONS = 'clear-actions'

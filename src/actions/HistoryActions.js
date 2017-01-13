@@ -1,6 +1,7 @@
 // @flow
 import { CREATE_CONTAINER, LOAD_FROM_URL, SWITCH_TO_CONTAINER, PUSH, BACK, TOP,
-  FORWARD, GO, POPSTATE, SET_ZERO_PAGE } from "../constants/ActionTypes"
+  FORWARD, GO, POPSTATE, SET_ZERO_PAGE, CLEAR_ACTIONS
+} from "../constants/ActionTypes"
 
 export const createContainer = (groupIndex:number, initialUrl:string,
                                 urlPatterns:string[], useDefault:boolean,
@@ -96,10 +97,18 @@ export const setZeroPage = (zeroPage: string) => ({
   }
 })
 
-export const clearZeroPage = () => ({
+/** For testing **/
+export const _clearZeroPage = () => ({
   type: SET_ZERO_PAGE,
   time: new Date(),
   data: {
     zeroPage: null
   }
+})
+
+/** For testing **/
+export const _clearActions = () => ({
+  type: CLEAR_ACTIONS,
+  time: new Date(),
+  data: {}
 })
