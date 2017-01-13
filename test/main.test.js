@@ -36,6 +36,17 @@ describe('main', () => {
       expect(getActions().length).toBe(4)
     })
 
+    it('still has initialized state after clean', () => {
+      performAll([
+        ...createContainers,
+        loadAction('/a'),
+        pushAction('/a/1'),
+        pushAction('/a/2'),
+        loadAction('/a')
+      ])
+
+    })
+
     it('switches to container with keepHistory=false', async () => {
       performAll([
         ...createContainers3,

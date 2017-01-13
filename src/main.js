@@ -20,7 +20,7 @@ const maxQueue = Infinity
 const queue = new Queue(maxConcurrent, maxQueue)
 const needsPopListener = canUseWindowLocation ?
     [browser.back, browser.forward, browser.go] : []
-let unlisten, lastUpdate = new Date()
+let unlisten, lastUpdate = new Date(0)
 
 export const getActions = () : Action[] => store.getState().actions
 export const getDerivedState = () : State =>

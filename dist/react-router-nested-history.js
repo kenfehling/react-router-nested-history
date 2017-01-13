@@ -180,7 +180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var queue = new _promiseQueue2.default(maxConcurrent, maxQueue);
 	var needsPopListener = _location.canUseWindowLocation ? [browser.back, browser.forward, browser.go] : [];
 	var unlisten = void 0,
-	    lastUpdate = new Date();
+	    lastUpdate = new Date(0);
 	
 	var getActions = exports.getActions = function getActions() {
 	  return _store2.default.getState().actions;
