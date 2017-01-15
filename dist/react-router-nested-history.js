@@ -32848,7 +32848,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	          ), div); // Initialize the Containers in this group
 	        } // (since most tab libraries lazy load tabs)
 	      });
-	      this.update();
 	    }
 	  }, {
 	    key: 'setCurrentContainer',
@@ -32861,6 +32860,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
+	      this.update();
 	      this.setCurrentContainer(this.state.currentContainerIndex);
 	    }
 	  }, {

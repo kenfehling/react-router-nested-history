@@ -106,7 +106,6 @@ class ContainerGroup extends Component {
         render(<G>{c}</G>, div)  // Initialize the Containers in this group
       }                          // (since most tab libraries lazy load tabs)
     })
-    this.update()
   }
 
   setCurrentContainer(index) {
@@ -117,6 +116,7 @@ class ContainerGroup extends Component {
   }
 
   componentDidMount() {
+    this.update()
     this.setCurrentContainer(this.state.currentContainerIndex)
   }
 
