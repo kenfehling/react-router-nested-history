@@ -112,7 +112,7 @@ class ContainerGroup extends Component {
 
   shouldComponentUpdate(newProps) {
     return this.props.location.pathname !== newProps.location.pathname ||
-        (newProps.currentContainerIndex &&
+        (newProps.currentContainerIndex != null &&
          newProps.currentContainerIndex !== this.props.currentContainerIndex)
   }
 

@@ -32858,7 +32858,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'shouldComponentUpdate',
 	    value: function shouldComponentUpdate(newProps) {
-	      return this.props.location.pathname !== newProps.location.pathname || newProps.currentContainerIndex && newProps.currentContainerIndex !== this.props.currentContainerIndex;
+	      return this.props.location.pathname !== newProps.location.pathname || newProps.currentContainerIndex != null && newProps.currentContainerIndex !== this.props.currentContainerIndex;
 	    }
 	  }, {
 	    key: 'componentWillReceiveProps',
