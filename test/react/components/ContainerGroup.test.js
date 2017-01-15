@@ -91,7 +91,7 @@ describe('ContainerGroup', () => {
 
   const AppWithZeroPage = () => <App customZeroPage={'MY CUBANS'} />
   const AppWithoutZeroPage = () => <App />
-  
+
   it('provides indexedStackOrder', () => {
     const app = mount(<AppWithZeroPage />)
     const group = app.find(ContainerGroup)

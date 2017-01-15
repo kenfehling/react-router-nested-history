@@ -67,6 +67,7 @@ class ContainerGroup extends Component {
       if (onContainerSwitch) {
         onContainerSwitch(groupState)
       }
+      this.setState({currentContainerIndex: groupState.activeContainer.index})
       this.indexedStackOrder = groupState.indexedStackOrder
     }
   }

@@ -32783,6 +32783,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (onContainerSwitch) {
 	          onContainerSwitch(groupState);
 	        }
+	        this.setState({ currentContainerIndex: groupState.activeContainer.index });
 	        this.indexedStackOrder = groupState.indexedStackOrder;
 	      }
 	    }
