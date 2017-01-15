@@ -32848,6 +32848,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          ), div); // Initialize the Containers in this group
 	        } // (since most tab libraries lazy load tabs)
 	      });
+	      this.update();
 	    }
 	  }, {
 	    key: 'setCurrentContainer',
