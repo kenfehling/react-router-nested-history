@@ -101,7 +101,7 @@ class ContainerGroup extends Component {
   }
 
   setCurrentContainer(index) {
-    if (index != null && index !== this.props.currentContainerIndex) {
+    if (index !== this.props.currentContainerIndex) {
       switchToContainer(this.groupIndex, index)
     }
   }
@@ -110,8 +110,16 @@ class ContainerGroup extends Component {
     this.setCurrentContainer(this.props.currentContainerIndex)
   }
 
+  shouldComponentUpdate(newProps) {
+    return this.props.location.pathname !== newProps.location.pathname ||
+        (newProps.currentContainerIndex &&
+         newProps.currentContainerIndex !== this.props.currentContainerIndex)
+  }
+
   componentWillReceiveProps(newProps) {
-    this.setCurrentContainer(newProps.currentContainerIndex)
+    if (newProps.currentContainerIndex) {
+      this.setCurrentContainer(newProps.currentContainerIndex)
+    }
     if (!_.isEqual(this.props, newProps)) {
       this.update()
     }

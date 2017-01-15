@@ -32846,7 +32846,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'setCurrentContainer',
 	    value: function setCurrentContainer(index) {
-	      if (index != null && index !== this.props.currentContainerIndex) {
+	      if (index !== this.props.currentContainerIndex) {
 	        (0, _main.switchToContainer)(this.groupIndex, index);
 	      }
 	    }
@@ -32856,9 +32856,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.setCurrentContainer(this.props.currentContainerIndex);
 	    }
 	  }, {
+	    key: 'shouldComponentUpdate',
+	    value: function shouldComponentUpdate(newProps) {
+	      return this.props.location.pathname !== newProps.location.pathname || newProps.currentContainerIndex && newProps.currentContainerIndex !== this.props.currentContainerIndex;
+	    }
+	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(newProps) {
-	      this.setCurrentContainer(newProps.currentContainerIndex);
+	      if (newProps.currentContainerIndex) {
+	        this.setCurrentContainer(newProps.currentContainerIndex);
+	      }
 	      if (!_.isEqual(this.props, newProps)) {
 	        this.update();
 	      }
