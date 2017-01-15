@@ -112,7 +112,9 @@ class ContainerGroup extends Component {
 
   componentWillReceiveProps(newProps) {
     this.setCurrentContainer(newProps.currentContainerIndex)
-    this.update()
+    if (!_.isEqual(this.props, newProps)) {
+      this.update()
+    }
   }
 
   render() {

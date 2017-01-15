@@ -32859,7 +32859,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(newProps) {
 	      this.setCurrentContainer(newProps.currentContainerIndex);
-	      this.update();
+	      if (!_.isEqual(this.props, newProps)) {
+	        this.update();
+	      }
 	    }
 	  }, {
 	    key: 'render',
