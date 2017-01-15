@@ -32751,10 +32751,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ContainerGroup = function (_Component) {
 	  _inherits(ContainerGroup, _Component);
 	
-	  function ContainerGroup() {
+	  function ContainerGroup(props) {
 	    _classCallCheck(this, ContainerGroup);
 	
-	    return _possibleConstructorReturn(this, (ContainerGroup.__proto__ || Object.getPrototypeOf(ContainerGroup)).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, (ContainerGroup.__proto__ || Object.getPrototypeOf(ContainerGroup)).call(this, props));
+	
+	    _this.state = {
+	      currentContainerIndex: props.currentContainerIndex || 0
+	    };
+	    return _this;
 	  }
 	
 	  _createClass(ContainerGroup, [{
@@ -32846,29 +32851,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'setCurrentContainer',
 	    value: function setCurrentContainer(index) {
-	      if (index !== this.props.currentContainerIndex) {
+	      if (index !== this.state.currentContainerIndex) {
+	        this.setState({ currentContainerIndex: index });
 	        (0, _main.switchToContainer)(this.groupIndex, index);
 	      }
 	    }
 	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      this.setCurrentContainer(this.props.currentContainerIndex);
-	    }
-	  }, {
-	    key: 'shouldComponentUpdate',
-	    value: function shouldComponentUpdate(newProps) {
-	      return this.props.location.pathname !== newProps.location.pathname || newProps.currentContainerIndex != null && newProps.currentContainerIndex !== this.props.currentContainerIndex;
+	      this.setCurrentContainer(this.state.currentContainerIndex);
 	    }
 	  }, {
 	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(newProps) {
-	      if (newProps.currentContainerIndex) {
-	        this.setCurrentContainer(newProps.currentContainerIndex);
+	    value: function componentWillReceiveProps(nextProps) {
+	      var currentContainerIndex = nextProps.currentContainerIndex;
+	
+	      if (currentContainerIndex != null) {
+	        this.setCurrentContainer(currentContainerIndex);
 	      }
-	      if (!_.isEqual(this.props, newProps)) {
+	      if (!_.isEqual(this.props, nextProps)) {
 	        this.update();
 	      }
+	    }
+	  }, {
+	    key: 'shouldComponentUpdate',
+	    value: function shouldComponentUpdate(nextProps, nextState) {
+	      return this.props.location.pathname !== nextProps.location.pathname || this.state.currentContainerIndex !== nextState.currentContainerIndex;
 	    }
 	  }, {
 	    key: 'render',

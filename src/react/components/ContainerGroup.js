@@ -43,6 +43,13 @@ class ContainerGroup extends Component {
     children: PropTypes.node.isRequired
   }
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      currentContainerIndex: props.currentContainerIndex || 0
+    }
+  }
+
   getChildContext() {
     return {
       groupIndex: this.groupIndex,
@@ -101,28 +108,30 @@ class ContainerGroup extends Component {
   }
 
   setCurrentContainer(index) {
-    if (index !== this.props.currentContainerIndex) {
+    if (index !== this.state.currentContainerIndex) {
+      this.setState({currentContainerIndex: index})
       switchToContainer(this.groupIndex, index)
     }
   }
 
   componentDidMount() {
-    this.setCurrentContainer(this.props.currentContainerIndex)
+    this.setCurrentContainer(this.state.currentContainerIndex)
   }
 
-  shouldComponentUpdate(newProps) {
-    return this.props.location.pathname !== newProps.location.pathname ||
-        (newProps.currentContainerIndex != null &&
-         newProps.currentContainerIndex !== this.props.currentContainerIndex)
-  }
-
-  componentWillReceiveProps(newProps) {
-    if (newProps.currentContainerIndex) {
-      this.setCurrentContainer(newProps.currentContainerIndex)
+  componentWillReceiveProps(nextProps) {
+    const {currentContainerIndex} = nextProps
+    if (currentContainerIndex != null) {
+      this.setCurrentContainer(currentContainerIndex)
     }
-    if (!_.isEqual(this.props, newProps)) {
+    if (!_.isEqual(this.props, nextProps)) {
       this.update()
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.location.pathname !== nextProps.location.pathname ||
+        this.state.currentContainerIndex !== nextState.currentContainerIndex
+
   }
 
   render() {
