@@ -8,6 +8,7 @@ import React, { Component, PropTypes } from 'react'
 import WithContext from 'react-with-context'
 import { shallow, mount, render } from 'enzyme'
 import ContainerGroup from '../../../src/react/components/ContainerGroup'
+import DumbContainerGroup from '../../../src/react/components/DumbContainerGroup'
 import Container from '../../../src/react/components/Container'
 import HistoryRouter from '../../../src/react/components/HistoryRouter'
 import { getZeroPage, getDerivedState, getActions } from "../../../src/main"
@@ -121,6 +122,22 @@ describe('ContainerGroup', () => {
     expect(action1.data.useDefault).toBe(false)
     expect(getDerivedState().groups[0].containers[0].isDefault).toBe(false)
     app.unmount()
+  })
+
+  it.only('loads correctly from url', () => {
+    const g = (
+        <DumbContainerGroup location={{pathname: '/a/2'}}>
+          <Container initialUrl="/a/1" patterns={["/a/1"]}>
+            <div></div>
+          </Container>
+          <Container initialUrl="/a/2" patterns={["/a/2"]}>
+            <div></div>
+          </Container>
+        </DumbContainerGroup>
+    )
+    const group = mount(g)
+    expect(group.state().currentContainerIndex).toBe(1)
+    group.unmount()
   })
 
   describe('context', () => {
