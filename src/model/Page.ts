@@ -5,6 +5,7 @@ import * as R from 'ramda'
 @Serializable
 export default class Page implements Comparable {
   static readonly type: string = 'Page'
+  readonly type: string = Page.type
   readonly url: string
   readonly params: Object
   readonly groupName: string

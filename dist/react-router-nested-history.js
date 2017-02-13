@@ -16312,6 +16312,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Page = Page_1 = (function () {
 	    function Page(_a) {
 	        var url = _a.url, params = _a.params, groupName = _a.groupName, containerName = _a.containerName, _b = _a.firstVisited, firstVisited = _b === void 0 ? 0 : _b, _c = _a.lastVisited, lastVisited = _c === void 0 ? 0 : _c, _d = _a.isZeroPage, isZeroPage = _d === void 0 ? false : _d;
+	        this.type = Page_1.type;
 	        this.url = url;
 	        this.params = params;
 	        this.firstVisited = firstVisited;
