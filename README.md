@@ -29,6 +29,8 @@ Right now this library only works with browserHistory (HTML5 History API, not wi
 - [x] Support for title libraries like [react-helmet](https://github.com/nfl/react-helmet)
 - [ ] Support for server rendering
 
+## API
+
 ### HistoryRouter
 Use this in place of react-router's `BrowserRouter` component to enable this library.
 
@@ -45,7 +47,7 @@ Use this in place of react-router's `BrowserRouter` component to enable this lib
     <tbody>
         <tr>
           <td>zeroPage</td>
-          <td>String</td>
+          <td>string</td>
           <td align="center"></td>
           <td>
             Specify the page at the beginning of the history stack.
@@ -112,7 +114,7 @@ Use this to place a back link (which only shows if there is back history)
     <tbody>
         <tr>
           <td>nameFn</td>
-          <td>({params}) =&gt; String</td>
+          <td>({params}) =&gt; string</td>
           <td align="center"></td>
           <td>A function that takes URL params and returns name to show as back link text</td>
         </tr>
@@ -141,13 +143,13 @@ Use this component to wrap one or more `HistoryMatch` components to enable histo
         </tr>
         <tr>
           <td>initialUrl</td>
-          <td>String</td>
+          <td>string</td>
           <td align="center">✓</td>
           <td>The path that the container starts on</td>
         </tr>
         <tr>
           <td>patterns</td>
-          <td>Array&lt;String&gt;</td>
+          <td>string[]</td>
           <td align="center">✓</td>
           <td>A list of path patterns that will load in this container from a URL in the address bar</td>
         </tr>
