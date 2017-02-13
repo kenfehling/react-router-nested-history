@@ -15,15 +15,12 @@ module.exports = Object.assign({}, base, {
         unsafe: true,
         unsafe_comps: true,
         warnings: false,
-        screw_ie8: false
-      },
-      mangle: {
         screw_ie8: false,
-        keep_fnames: true
       },
       output: {
         screw_ie8: false
-      }
+      },
+      mangle: false
     })
   ]
 });
