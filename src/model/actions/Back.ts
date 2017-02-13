@@ -1,11 +1,11 @@
 import Action from '../Action'
 import State from '../State'
-import Step from '../interfaces/Step'
-import BackStep from '../steps/BackStep'
 import {Serializable} from '../../util/serializer'
 
 @Serializable
 export default class Back extends Action {
+  static readonly type: string = 'Back'
+  readonly type: string = Back.type
   readonly n: number
 
   constructor({time, n=1}:{time?:number, n?:number}={}) {

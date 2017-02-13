@@ -4,6 +4,8 @@ import {Serializable} from '../../util/serializer'
 
 @Serializable
 export default class Top extends Action {
+  static readonly type: string = 'Top'
+  readonly type: string = Top.type
   readonly groupName: string
   readonly reset: boolean
 

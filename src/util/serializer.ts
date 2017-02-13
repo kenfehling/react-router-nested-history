@@ -1,9 +1,14 @@
 import R = require('ramda')
 
+export interface ISerializable {
+  type: string
+}
+
 // For internal use. All class objects automatically ahdhere to this interface
-interface ISerializable {
-  name?: string
-  constructor: Function
+interface ISerializableClass {
+  type: string
+  new (...args: any[]): ISerializable
+  bind: Function
 }
 
 // A plain object with a type attribute added (the name of the original class)
@@ -12,18 +17,18 @@ export interface ISerialized {
 }
 
 // @Serializable decorator for a class
-export function Serializable(target:ISerializable) {
-  if (target.name) {
-    serializables.set(target.name, target)  // Use the class name as a type
+export function Serializable(target:ISerializableClass) {
+  if (target.type) {
+    serializables.set(target.type, target)  // Use the class name as a type
   }
   else {
-    throw new Error(`target ${target} has no name`)
+    throw new Error(`target ${target} has no type`)
   }
 }
 
 // Map to store all classes with @Serializable decorator
-const serializables:Map<string, ISerializable> =
-    new Map<string, ISerializable>()
+const serializables:Map<string, ISerializableClass> =
+    new Map<string, ISerializableClass>()
 
 /**
  * @param classObject - An object of a class with a @Serializable decorator
@@ -49,7 +54,7 @@ export function serialize(classObject:ISerializable):ISerialized {
  * @returns an object of the original @Serializable class
  */
 export function deserialize(obj:ISerialized):any {
-  const ser:Function = serializables.get(obj.type) as Function
+  const ser:ISerializableClass|undefined = serializables.get(obj.type)
   if (!ser) {
     console.log(serializables)
     throw new Error(obj.type + ' not found in serializables')
@@ -85,6 +90,6 @@ export function isSerializable(obj:Object):boolean {
 }
 
 // Mostly just for unit tests
-export function getSerializables():Map<string, ISerializable> {
+export function getSerializables():Map<string, ISerializableClass> {
   return serializables
 }

@@ -4,6 +4,8 @@ import {Serializable} from '../../util/serializer'
 
 @Serializable
 export default class SwitchToContainer extends Action {
+  static readonly type: string = 'SwitchToContainer'
+  readonly type: string = SwitchToContainer.type
   readonly groupName: string
   readonly containerName: string
 

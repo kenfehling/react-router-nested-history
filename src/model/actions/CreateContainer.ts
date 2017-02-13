@@ -4,6 +4,8 @@ import {Serializable} from '../../util/serializer'
 
 @Serializable
 export default class CreateContainer extends Action {
+  static readonly type: string = 'CreateContainer'
+  readonly type: string = CreateContainer.type
   readonly name: string
   readonly groupName: string
   readonly initialUrl: string

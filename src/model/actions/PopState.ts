@@ -6,6 +6,8 @@ import {diffHistoryToSteps} from '../../util/reconciler'
 
 @Serializable
 export default class PopState extends PageAction {
+  static readonly type: string = 'PopState'
+  readonly type: string = PopState.type
 
   reduce(state:State):State {
     return state.shiftTo(this.page, this.time)

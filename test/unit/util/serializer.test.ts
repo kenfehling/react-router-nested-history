@@ -12,6 +12,8 @@ describe('serializer', () => {
 
   @Serializable
   class ABC {
+    static readonly type: string = 'ABC'
+    readonly type: string = ABC.type
     readonly x:number
     constructor(x:number) {
       this.x = x
@@ -20,6 +22,8 @@ describe('serializer', () => {
 
   @Serializable
   class DEF {
+    static readonly type: string = 'DEF'
+    readonly type: string = DEF.type
     readonly x:number
     constructor({x}:{x:number}) {
       this.x = x
@@ -28,6 +32,8 @@ describe('serializer', () => {
 
   @Serializable
   class GHI {
+    static readonly type: string = 'GHI'
+    readonly type: string = GHI.type
     readonly abc:ABC
     constructor(abc:ABC) {
       this.abc = abc

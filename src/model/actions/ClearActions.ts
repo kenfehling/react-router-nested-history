@@ -7,6 +7,8 @@ import {Serializable} from '../../util/serializer'
  */
 @Serializable
 export default class ClearActions extends NonStepAction {
+  static readonly type: string = 'ClearActions'
+  readonly type: string = ClearActions.type
 
   constructor({time}:{time?:number}={}) {
     super({time})

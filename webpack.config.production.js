@@ -14,10 +14,7 @@ module.exports = Object.assign({}, base, {
       compressor: {
         screw_ie8: true,
         warnings: false
-      },
-      mangle: {
-        keep_fnames: true
-      },
+      }
     })
   ]
 });

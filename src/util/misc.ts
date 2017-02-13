@@ -1,7 +1,7 @@
 import * as R from 'ramda'
 
 type IError = Function & {
-  new (...params: any[]): Error;
+  new (...params: any[]): Error
 }
 
 export function catchType<R>(error:Error, type:IError, callback:(()=>R)|R):R {

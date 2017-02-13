@@ -5,6 +5,8 @@ import {Serializable} from '../../util/serializer'
 
 @Serializable
 export default class SetZeroPage extends NonStepAction {
+  static readonly type: string = 'SetZeroPage'
+  readonly type: string = SetZeroPage.type
   readonly url: string|null
 
   constructor({time, url}:{time?:number, url:string|null}) {

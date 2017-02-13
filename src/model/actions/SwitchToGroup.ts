@@ -4,6 +4,8 @@ import {Serializable} from '../../util/serializer'
 
 @Serializable
 export default class SwitchToGroup extends Action {
+  static readonly type: string = 'SwitchToGroup'
+  readonly type: string = SwitchToGroup.type
   readonly groupName: string
 
   constructor({time, groupName}:{time?:number, groupName:string}) {

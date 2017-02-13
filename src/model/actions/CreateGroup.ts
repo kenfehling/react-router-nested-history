@@ -4,6 +4,8 @@ import NonStepAction from './NonStepAction'
 
 @Serializable
 export default class CreateGroup extends NonStepAction {
+  static readonly type: string = 'CreateGroup'
+  readonly type: string = CreateGroup.type
   readonly name: string
   readonly parentGroupName: string|null
   readonly parentUsesDefault: boolean|null

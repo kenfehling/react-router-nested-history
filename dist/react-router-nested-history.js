@@ -496,11 +496,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	var R = __webpack_require__(5);
 	// @Serializable decorator for a class
 	function Serializable(target) {
-	    if (target.name) {
-	        serializables.set(target.name, target); // Use the class name as a type
+	    if (target.type) {
+	        serializables.set(target.type, target); // Use the class name as a type
 	    }
 	    else {
-	        throw new Error("target " + target + " has no name");
+	        throw new Error("target " + target + " has no type");
 	    }
 	}
 	exports.Serializable = Serializable;
@@ -16352,6 +16352,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return Page;
 	}());
+	Page.type = 'Page';
 	Page = Page_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
@@ -18630,21 +18631,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	var State_1 = __webpack_require__(366);
 	var NonStepAction_1 = __webpack_require__(388);
 	var serializer_1 = __webpack_require__(4);
-	var UpdateBrowser = (function (_super) {
+	var UpdateBrowser = UpdateBrowser_1 = (function (_super) {
 	    __extends(UpdateBrowser, _super);
 	    function UpdateBrowser() {
-	        return _super !== null && _super.apply(this, arguments) || this;
+	        var _this = _super !== null && _super.apply(this, arguments) || this;
+	        _this.type = UpdateBrowser_1.type;
+	        return _this;
 	    }
 	    UpdateBrowser.prototype.reduce = function (state) {
 	        return new State_1.default(__assign({}, state, { lastUpdate: this.time }));
 	    };
 	    return UpdateBrowser;
 	}(NonStepAction_1.default));
-	UpdateBrowser = __decorate([
+	UpdateBrowser.type = 'UpdateBrowser';
+	UpdateBrowser = UpdateBrowser_1 = __decorate([
 	    serializer_1.Serializable
 	], UpdateBrowser);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = UpdateBrowser;
+	var UpdateBrowser_1;
 
 
 /***/ },
@@ -18954,11 +18959,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var Action_1 = __webpack_require__(389);
 	var serializer_1 = __webpack_require__(4);
-	var LoadFromUrl = (function (_super) {
+	var LoadFromUrl = LoadFromUrl_1 = (function (_super) {
 	    __extends(LoadFromUrl, _super);
 	    function LoadFromUrl(_a) {
 	        var time = _a.time, url = _a.url, _b = _a.fromRefresh, fromRefresh = _b === void 0 ? false : _b;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = LoadFromUrl_1.type;
 	        _this.url = url;
 	        _this.fromRefresh = fromRefresh;
 	        return _this;
@@ -18971,12 +18977,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return LoadFromUrl;
 	}(Action_1.default));
-	LoadFromUrl = __decorate([
+	LoadFromUrl.type = 'LoadFromUrl';
+	LoadFromUrl = LoadFromUrl_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], LoadFromUrl);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = LoadFromUrl;
+	var LoadFromUrl_1;
 
 
 /***/ },
@@ -19000,11 +19008,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var Action_1 = __webpack_require__(389);
 	var serializer_1 = __webpack_require__(4);
-	var Go = (function (_super) {
+	var Go = Go_1 = (function (_super) {
 	    __extends(Go, _super);
 	    function Go(_a) {
 	        var time = _a.time, n = _a.n;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = Go_1.type;
 	        _this.n = n;
 	        return _this;
 	    }
@@ -19013,12 +19022,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return Go;
 	}(Action_1.default));
-	Go = __decorate([
+	Go.type = 'Go';
+	Go = Go_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], Go);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = Go;
+	var Go_1;
 
 
 /***/ },
@@ -19042,11 +19053,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var Action_1 = __webpack_require__(389);
 	var serializer_1 = __webpack_require__(4);
-	var Back = (function (_super) {
+	var Back = Back_1 = (function (_super) {
 	    __extends(Back, _super);
 	    function Back(_a) {
 	        var _b = _a === void 0 ? {} : _a, time = _b.time, _c = _b.n, n = _c === void 0 ? 1 : _c;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = Back_1.type;
 	        _this.n = n;
 	        return _this;
 	    }
@@ -19055,12 +19067,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return Back;
 	}(Action_1.default));
-	Back = __decorate([
+	Back.type = 'Back';
+	Back = Back_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], Back);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = Back;
+	var Back_1;
 
 
 /***/ },
@@ -19084,11 +19098,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var Action_1 = __webpack_require__(389);
 	var serializer_1 = __webpack_require__(4);
-	var Forward = (function (_super) {
+	var Forward = Forward_1 = (function (_super) {
 	    __extends(Forward, _super);
 	    function Forward(_a) {
 	        var _b = _a === void 0 ? {} : _a, time = _b.time, _c = _b.n, n = _c === void 0 ? 1 : _c;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = Forward_1.type;
 	        _this.n = n;
 	        return _this;
 	    }
@@ -19097,12 +19112,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return Forward;
 	}(Action_1.default));
-	Forward = __decorate([
+	Forward.type = 'Forward';
+	Forward = Forward_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], Forward);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = Forward;
+	var Forward_1;
 
 
 /***/ },
@@ -19136,11 +19153,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var State_1 = __webpack_require__(366);
 	var Page_1 = __webpack_require__(367);
 	var serializer_1 = __webpack_require__(4);
-	var SetZeroPage = (function (_super) {
+	var SetZeroPage = SetZeroPage_1 = (function (_super) {
 	    __extends(SetZeroPage, _super);
 	    function SetZeroPage(_a) {
 	        var time = _a.time, url = _a.url;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = SetZeroPage_1.type;
 	        _this.url = url;
 	        return _this;
 	    }
@@ -19149,12 +19167,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return SetZeroPage;
 	}(NonStepAction_1.default));
-	SetZeroPage = __decorate([
+	SetZeroPage.type = 'SetZeroPage';
+	SetZeroPage = SetZeroPage_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], SetZeroPage);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = SetZeroPage;
+	var SetZeroPage_1;
 
 
 /***/ },
@@ -19175,21 +19195,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var serializer_1 = __webpack_require__(4);
 	var PageAction_1 = __webpack_require__(402);
-	var Push = (function (_super) {
+	var Push = Push_1 = (function (_super) {
 	    __extends(Push, _super);
 	    function Push() {
-	        return _super !== null && _super.apply(this, arguments) || this;
+	        var _this = _super !== null && _super.apply(this, arguments) || this;
+	        _this.type = Push_1.type;
+	        return _this;
 	    }
 	    Push.prototype.reduce = function (state) {
 	        return state.push(this.page);
 	    };
 	    return Push;
 	}(PageAction_1.default));
-	Push = __decorate([
+	Push.type = 'Push';
+	Push = Push_1 = __decorate([
 	    serializer_1.Serializable
 	], Push);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = Push;
+	var Push_1;
 
 
 /***/ },
@@ -19238,11 +19262,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var Action_1 = __webpack_require__(389);
 	var serializer_1 = __webpack_require__(4);
-	var SwitchToContainer = (function (_super) {
+	var SwitchToContainer = SwitchToContainer_1 = (function (_super) {
 	    __extends(SwitchToContainer, _super);
 	    function SwitchToContainer(_a) {
 	        var time = _a.time, groupName = _a.groupName, containerName = _a.containerName;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = SwitchToContainer_1.type;
 	        _this.groupName = groupName;
 	        _this.containerName = containerName;
 	        return _this;
@@ -19256,12 +19281,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return SwitchToContainer;
 	}(Action_1.default));
-	SwitchToContainer = __decorate([
+	SwitchToContainer.type = 'SwitchToContainer';
+	SwitchToContainer = SwitchToContainer_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], SwitchToContainer);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = SwitchToContainer;
+	var SwitchToContainer_1;
 
 
 /***/ },
@@ -19283,10 +19310,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var serializer_1 = __webpack_require__(4);
 	var PageAction_1 = __webpack_require__(402);
 	var reconciler_1 = __webpack_require__(390);
-	var PopState = (function (_super) {
+	var PopState = PopState_1 = (function (_super) {
 	    __extends(PopState, _super);
 	    function PopState() {
-	        return _super !== null && _super.apply(this, arguments) || this;
+	        var _this = _super !== null && _super.apply(this, arguments) || this;
+	        _this.type = PopState_1.type;
+	        return _this;
 	    }
 	    PopState.prototype.reduce = function (state) {
 	        return state.shiftTo(this.page, this.time);
@@ -19304,11 +19333,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return PopState;
 	}(PageAction_1.default));
-	PopState = __decorate([
+	PopState.type = 'PopState';
+	PopState = PopState_1 = __decorate([
 	    serializer_1.Serializable
 	], PopState);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = PopState;
+	var PopState_1;
 
 
 /***/ },
@@ -19332,11 +19363,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var Action_1 = __webpack_require__(389);
 	var serializer_1 = __webpack_require__(4);
-	var SwitchToGroup = (function (_super) {
+	var SwitchToGroup = SwitchToGroup_1 = (function (_super) {
 	    __extends(SwitchToGroup, _super);
 	    function SwitchToGroup(_a) {
 	        var time = _a.time, groupName = _a.groupName;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = SwitchToGroup_1.type;
 	        _this.groupName = groupName;
 	        return _this;
 	    }
@@ -19348,12 +19380,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return SwitchToGroup;
 	}(Action_1.default));
-	SwitchToGroup = __decorate([
+	SwitchToGroup.type = 'SwitchToGroup';
+	SwitchToGroup = SwitchToGroup_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], SwitchToGroup);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = SwitchToGroup;
+	var SwitchToGroup_1;
 
 
 /***/ },
@@ -19387,11 +19421,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var serializer_1 = __webpack_require__(4);
 	var NonStepAction_1 = __webpack_require__(388);
 	var SetZeroPage_1 = __webpack_require__(400);
-	var Startup = (function (_super) {
+	var Startup = Startup_1 = (function (_super) {
 	    __extends(Startup, _super);
 	    function Startup(_a) {
 	        var _b = _a === void 0 ? {} : _a, time = _b.time, _c = _b.fromRefresh, fromRefresh = _c === void 0 ? false : _c;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = Startup_1.type;
 	        _this.fromRefresh = fromRefresh;
 	        return _this;
 	    }
@@ -19423,12 +19458,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return Startup;
 	}(NonStepAction_1.default));
-	Startup = __decorate([
+	Startup.type = 'Startup';
+	Startup = Startup_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], Startup);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = Startup;
+	var Startup_1;
 
 
 /***/ },
@@ -41021,11 +41058,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var Action_1 = __webpack_require__(389);
 	var serializer_1 = __webpack_require__(4);
-	var CreateContainer = (function (_super) {
+	var CreateContainer = CreateContainer_1 = (function (_super) {
 	    __extends(CreateContainer, _super);
 	    function CreateContainer(_a) {
 	        var time = _a.time, name = _a.name, groupName = _a.groupName, initialUrl = _a.initialUrl, patterns = _a.patterns, _b = _a.useDefault, useDefault = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = CreateContainer_1.type;
 	        _this.name = name;
 	        _this.groupName = groupName;
 	        _this.initialUrl = initialUrl;
@@ -41046,12 +41084,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return CreateContainer;
 	}(Action_1.default));
-	CreateContainer = __decorate([
+	CreateContainer.type = 'CreateContainer';
+	CreateContainer = CreateContainer_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], CreateContainer);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = CreateContainer;
+	var CreateContainer_1;
 
 
 /***/ },
@@ -41075,11 +41115,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var serializer_1 = __webpack_require__(4);
 	var NonStepAction_1 = __webpack_require__(388);
-	var CreateGroup = (function (_super) {
+	var CreateGroup = CreateGroup_1 = (function (_super) {
 	    __extends(CreateGroup, _super);
 	    function CreateGroup(_a) {
 	        var time = _a.time, name = _a.name, _b = _a.parentGroupName, parentGroupName = _b === void 0 ? null : _b, _c = _a.parentUsesDefault, parentUsesDefault = _c === void 0 ? parentGroupName ? true : null : _c, _d = _a.resetOnLeave, resetOnLeave = _d === void 0 ? false : _d, _e = _a.gotoTopOnSelectActive, gotoTopOnSelectActive = _e === void 0 ? false : _e;
 	        var _this = _super.call(this, { time: time }) || this;
+	        _this.type = CreateGroup_1.type;
 	        _this.name = name;
 	        _this.parentGroupName = parentGroupName;
 	        _this.parentUsesDefault = parentUsesDefault;
@@ -41107,12 +41148,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return CreateGroup;
 	}(NonStepAction_1.default));
-	CreateGroup = __decorate([
+	CreateGroup.type = 'CreateGroup';
+	CreateGroup = CreateGroup_1 = __decorate([
 	    serializer_1.Serializable,
 	    __metadata("design:paramtypes", [Object])
 	], CreateGroup);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = CreateGroup;
+	var CreateGroup_1;
 
 
 /***/ },

@@ -6,6 +6,8 @@ import {Serializable} from '../../util/serializer'
 
 @Serializable
 export default class LoadFromUrl extends Action {
+  static readonly type: string = 'LoadFromUrl'
+  readonly type: string = LoadFromUrl.type
   readonly url: string
   readonly fromRefresh: boolean
 

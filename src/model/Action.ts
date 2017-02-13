@@ -3,9 +3,10 @@ import ReduxState from './interfaces/ReduxState'
 import Comparable from './interfaces/Comparable'
 import Step from './interfaces/Step'
 import {diffStateToSteps} from '../util/reconciler'
-import {serialize} from '../util/serializer'
+import {serialize, ISerializable} from '../util/serializer'
 
-abstract class Action implements Comparable {
+abstract class Action implements Comparable, ISerializable {
+  abstract readonly type: string
   readonly time: number
 
   constructor({time=new Date().getTime()}:{time?:number}={}) {

@@ -1,11 +1,11 @@
 import Action from '../Action'
 import State from '../State'
-import Step from '../interfaces/Step'
-import GoStep from '../steps/GoStep'
 import {Serializable} from '../../util/serializer'
 
 @Serializable
 export default class Go extends Action {
+  static readonly type: string = 'Go'
+  readonly type: string = Go.type
   readonly n: number
 
   constructor({time, n}:{time?:number, n:number}) {

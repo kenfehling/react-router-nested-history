@@ -1,11 +1,11 @@
 import Action from '../Action'
 import State from '../State'
-import ForwardStep from '../steps/ForwardStep'
-import Step from '../interfaces/Step'
 import {Serializable} from '../../util/serializer'
 
 @Serializable
 export default class Forward extends Action {
+  static readonly type: string = 'Forward'
+  readonly type: string = Forward.type
   readonly n: number
 
   constructor({time, n=1}:{time?:number, n?:number}={}) {

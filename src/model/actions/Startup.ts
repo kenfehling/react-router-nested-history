@@ -10,6 +10,8 @@ import SetZeroPage from './SetZeroPage'
 
 @Serializable
 export default class Startup extends NonStepAction {
+  static readonly type: string = 'Startup'
+  readonly type: string = Startup.type
   readonly fromRefresh: boolean
 
   constructor({time, fromRefresh=false}:{time?:number, fromRefresh?:boolean}={}) {
