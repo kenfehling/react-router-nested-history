@@ -1,0 +1,34 @@
+.nested-window {
+  width: 320px;
+  height: 240px;
+}
+
+.nested-window.foods {
+  top: 0;
+  left: 0;
+}
+
+.nested-window.notes {
+  top: 80px;
+  left: 120px;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.header-item, .active-header-item {
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+
+.active-header-item {
+  background-color: #DDD;
+}
+
+.header-item:hover {
+  text-decoration: underline;
+}
