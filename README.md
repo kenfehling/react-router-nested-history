@@ -3,15 +3,15 @@ react-router-nested-history
 
 A library to help build [React](https://facebook.github.io/react) apps with nested tabs and other containers that have their own history, complete with automatic altering of the browser's back and forward history to make it behave as you would expect.
 
-## Live demo
+### Live demo
 [react-router-nested-history.herokuapp.com](https://react-router-nested-history.herokuapp.com)
 
-## Installation
+### Installation
 ```
 npm install --save kenfehling/react-router-nested-history
 ```
 
-## react-router
+### react-router
 This library is built to support [react-router 4](https://github.com/ReactTraining/react-router/tree/v4).
 It's been developed and tested against [v4.0.0-alpha.6](https://github.com/ReactTraining/react-router/releases/tag/v4.0.0-alpha.6) and
 when version 4 is officially released the library will be updated for that API.
