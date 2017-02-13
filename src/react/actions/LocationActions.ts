@@ -15,13 +15,13 @@ const locTrigger = (dispatch, e) => dispatch(locationChanged(e.detail.location))
 
 export const listenToLocation = () : (d:Dispatch<LocationState>) => void => {
   return (dispatch) => {
-    window.addEventListener('locationChange', locTrigger.bind({}, dispatch))
+    window.addEventListener('locationChange', (e) => locTrigger(dispatch, e))
   }
 }
 
 export const unlistenToLocation = () : (d:Dispatch<LocationState>) => void => {
   return (dispatch) => {
-    window.removeEventListener('locationChange', locTrigger.bind({}, dispatch))
+    window.removeEventListener('locationChange', (e) => locTrigger(dispatch, e))
   }
 }
 

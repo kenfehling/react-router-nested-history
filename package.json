@@ -19,7 +19,7 @@
     "lint": "eslint src tests",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:e2e-setup": "cd test/e2e; e2e-setup",
+    "test:e2e-setup": "cd test/e2e; npm run e2e-setup; npm start",
     "test:e2e": "cd test/e2e; npm test",
     "build:umd": "webpack src/index.js dist/react-router-nested-history.js --config webpack.config.development.js",
     "build:umd:min": "webpack src/index.js dist/react-router-nested-history.min.js --config webpack.config.production.js",

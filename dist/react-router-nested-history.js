@@ -496,7 +496,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        return [4 /*yield*/, store.dispatch(obj)];
 	                    case 1:
 	                        _a.sent();
-	                        return [2 /*return*/, Promise.resolve(this.getState.bind(this))];
+	                        return [2 /*return*/, Promise.resolve(this.getState())];
 	                }
 	            });
 	        });
@@ -41029,12 +41029,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var locTrigger = function (dispatch, e) { return dispatch(exports.locationChanged(e.detail.location)); };
 	exports.listenToLocation = function () {
 	    return function (dispatch) {
-	        window.addEventListener('locationChange', locTrigger.bind({}, dispatch));
+	        window.addEventListener('locationChange', function (e) { return locTrigger(dispatch, e); });
 	    };
 	};
 	exports.unlistenToLocation = function () {
 	    return function (dispatch) {
-	        window.removeEventListener('locationChange', locTrigger.bind({}, dispatch));
+	        window.removeEventListener('locationChange', function (e) { return locTrigger(dispatch, e); });
 	    };
 	};
 	exports.addTitle = function (title) { return (__assign({ type: ActionTypes_1.ADD_LOCATION_TITLE }, title)); };
