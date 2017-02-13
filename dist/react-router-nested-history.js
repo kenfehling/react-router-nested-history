@@ -42595,7 +42595,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  location: _react.PropTypes.object.isRequired
 	});
 	HistoryMatch.childContextTypes = {
-	  pattern: reactRouter.Match.propTypes.pattern
+	  pattern: _react.PropTypes.string
 	};
 	exports.default = HistoryMatch;
 

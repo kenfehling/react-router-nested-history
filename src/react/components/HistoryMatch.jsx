@@ -61,7 +61,7 @@ export default class HistoryMatch extends reactRouter.Match {
   }
 
   static childContextTypes = {
-    pattern: reactRouter.Match.propTypes.pattern
+    pattern: PropTypes.string
   }
 
   getChildContext() {
