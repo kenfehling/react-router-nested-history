@@ -7,24 +7,27 @@ import TabMaster2 from "../components/TabMaster2"
 import TabMaster3 from "../components/TabMaster3"
 import TabPage from "../components/TabPage"
 
-const Tab = ({initialUrl, patterns, masterComponent}) => (
-  <Container initialUrl={initialUrl} patterns={patterns}>
+const Tab = ({name, initialUrl, patterns, masterComponent}) => (
+  <Container name={name} initialUrl={initialUrl} patterns={patterns}>
     <HistoryMatch exactly pattern={patterns[0]} component={masterComponent} />
     <HistoryMatch exactly pattern={patterns[1]} component={TabPage} />
   </Container>
 )
 
-const Tab1 = () => <Tab initialUrl="/tabs/1"
-                        patterns={['/tabs/1', '/tabs/1/:page']}
-                        masterComponent={TabMaster1} />
+export const Tab1 = () => <Tab name='tab1'
+                               initialUrl="/tabs/1"
+                               patterns={['/tabs/1', '/tabs/1/:page']}
+                               masterComponent={TabMaster1} />
 
-const Tab2 = () => <Tab initialUrl="/tabs/2"
-                        patterns={['/tabs/2', '/tabs/2/:page']}
-                        masterComponent={TabMaster2} />
+export const Tab2 = () => <Tab name='tab2'
+                               initialUrl="/tabs/2"
+                               patterns={['/tabs/2', '/tabs/2/:page']}
+                               masterComponent={TabMaster2} />
 
-const Tab3 = () => <Tab initialUrl="/tabs/3"
-                        patterns={['/tabs/3', '/tabs/3/:page']}
-                        masterComponent={TabMaster3} />
+export const Tab3 = () => <Tab name='tab3'
+                               initialUrl="/tabs/3"
+                               patterns={['/tabs/3', '/tabs/3/:page']}
+                               masterComponent={TabMaster3} />
 
 class Tabs extends Component {
 
@@ -35,8 +38,8 @@ class Tabs extends Component {
     }
   }
 
-  onContainerSwitch({activeContainer:{index}}) {
-    this.setState({activeTabIndex: index})
+  onContainerActivate({currentContainerIndex}) {
+    this.setState({activeTabIndex: currentContainerIndex})
   }
 
   render() {
@@ -44,10 +47,14 @@ class Tabs extends Component {
       <h2>Tabs example</h2>
       <div className="description">
         <p>Each tab has its own individual history.</p>
+        <p>Tab 1 is considered a default tab.</p>
         {/* <p>Clicking on an already active tab goes to the top of its history stack.</p> */}
       </div>
-      <ContainerGroup currentContainerIndex={this.state.activeTabIndex}
-          onContainerSwitch={this.onContainerSwitch.bind(this)}>
+      <ContainerGroup name='tabs'
+                      currentContainerIndex={this.state.activeTabIndex}
+                      onContainerActivate={this.onContainerActivate.bind(this)}
+                      gotoTopOnSelectActive={true}
+      >
         <ReactTabs onSelect={activeTabIndex => this.setState({activeTabIndex})}
                    selectedIndex={this.state.activeTabIndex}>
           <TabList>
