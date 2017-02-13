@@ -1,7 +1,11 @@
 react-router-nested-history
 ---------------------------
 
-A library to help build [React](https://facebook.github.io/react) apps with nested tabs and other containers that have their own history, complete with automatic altering of the browser's back and forward history to make it behave as you would expect.
+A library to help build [React](https://facebook.github.io/react) apps
+with nested tabs and other containers that have their own history, complete
+with automatic altering of the browser's back and forward history to
+make it behave as you would expect a mobile app like Facebook or
+Twitter to behave.
 
 ### Live demo
 [react-router-nested-history.herokuapp.com](https://react-router-nested-history.herokuapp.com)
@@ -12,13 +16,15 @@ npm install --save kenfehling/react-router-nested-history
 ```
 
 ### react-router
-This library is built to support [react-router 4](https://github.com/ReactTraining/react-router/tree/v4).
-It's been developed and tested against [v4.0.0-alpha.6](https://github.com/ReactTraining/react-router/releases/tag/v4.0.0-alpha.6) and
-when version 4 is officially released the library will be updated for that API.
+This library is built to support
+[react-router 4](https://github.com/ReactTraining/react-router/tree/v4). It's
+been developed and tested against
+[v4.0.0-alpha.6](https://github.com/ReactTraining/react-router/releases/tag/v4.0.0-alpha.6). When
+version 4 is officially released the library will be updated for that API.
 
-This library is very new and untested
-(except for unit tests, [examples](https://react-router-nested-history.herokuapp.com), and its use on my
-[personal webpage](http://kenfehling.com)) so it's not really production ready. I
+This library is very new and not battle-tested, although it does have
+unit tests, end-to-end tests, [examples](https://react-router-nested-history.herokuapp.com),
+and is used on my [personal webpage](http://kenfehling.com)). I
 would **very much** appreciate any feedback as I continue to solidify it.
 
 Right now this library only works with browserHistory (HTML5 History API, not with hash history)
