@@ -496,7 +496,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        return [4 /*yield*/, store.dispatch(obj)];
 	                    case 1:
 	                        _a.sent();
-	                        return [2 /*return*/, Promise.resolve(this.getState())];
+	                        return [2 /*return*/, Promise.resolve(this.getState.bind(this))];
 	                }
 	            });
 	        });

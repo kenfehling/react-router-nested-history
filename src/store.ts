@@ -53,7 +53,7 @@ class S {
   async dispatch(action:Action):Promise<State> {
     const obj:ISerialized = serialize(action)
     await store.dispatch(obj)
-    return Promise.resolve(this.getState())
+    return Promise.resolve(this.getState.bind(this))
   }
 
   persist(persistorConfig):Promise<any> {
