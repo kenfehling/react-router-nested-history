@@ -1,0 +1,27 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "End to end tests",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --host 0.0.0.0 --progress --colors --history-api-fallback --content-base ./",
+    "e2e-setup": "selenium-standalone install",
+    "test": "nightwatch"
+  },
+  "author": "Ken Fehling",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.22.1",
+    "babel-jest": "^18.0.0",
+    "babel-loader": "^6.2.10",
+    "css-loader": "^0.26.1",
+    "nightwatch": "^0.9.12",
+    "selenium-standalone": "^5.11.2",
+    "source-map-loader": "^0.1.6",
+    "style-loader": "^0.13.1",
+    "typescript": "^2.1.5",
+    "webpack": "^2.2.0",
+    "webpack-dev-server": "^2.2.0"
+  },
+  "dependencies": {}
+}

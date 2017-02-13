@@ -55,6 +55,41 @@ Use this in place of react-router's `Match` component to prevent a match's previ
 ### HistoryLink
 Use this in place of react-router's `Link` component to enable history tracking for a link.
 
+### HeaderLink
+Use this for a container's header link (typically a tab-like thing)
+
+#### props
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>required</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>toContainer</td>
+          <td>string</td>
+          <td align="center">✓</td>
+          <td>The name of the container this links to</td>
+        </tr>
+        <tr>
+          <td>className</td>
+          <td>string</td>
+          <td align="center"></td>
+          <td>The CSS class for styling this element</td>
+        </tr>
+        <tr>
+          <td>activeClassName</td>
+          <td>string</td>
+          <td align="center"></td>
+          <td>An alternate CSS class for styling the active item</td>
+        </tr>
+    </tbody>
+</table>
+
 ### BackLink
 Use this to place a back link (which only shows if there is back history)
 
@@ -93,22 +128,28 @@ Use this component to wrap one or more `HistoryMatch` components to enable histo
     </thead>
     <tbody>
         <tr>
+          <td>name</td>
+          <td>string</td>
+          <td align="center">✓</td>
+          <td>The name of this container (must be unique)</td>
+        </tr>
+        <tr>
           <td>initialUrl</td>
           <td>String</td>
           <td align="center">✓</td>
           <td>The path that the container starts on</td>
         </tr>
         <tr>
-          <td>pattern</td>
-          <td>String</td>
-          <td></td>
-          <td>A pattern of paths that will load in this container from a URL in the address bar</td>
-        </tr>
-        <tr>
           <td>patterns</td>
           <td>Array&lt;String&gt;</td>
-          <td></td>
+          <td align="center">✓</td>
           <td>A list of path patterns that will load in this container from a URL in the address bar</td>
+        </tr>
+        <tr>
+          <td>className</td>
+          <td>string</td>
+          <td align="center"></td>
+          <td>The CSS class for styling this element</td>
         </tr>
     </tbody>
 </table>
@@ -129,6 +170,13 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
     </thead>
     <tbody>
         <tr>
+          <td>name</td>
+          <td>string</td>
+          <td></td>
+          <td align="center">✓</td>
+          <td>The name of this group (must be unique)</td>
+        </tr>
+        <tr>
           <td>currentContainerIndex</td>
           <td>number</td>
           <td></td>
@@ -136,11 +184,11 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>Allows you to set the index of the active container</td>
         </tr>
         <tr>
-          <td>onContainerSwitch</td>
+          <td>onContainerActivate</td>
           <td>Function</td>
           <td></td>
           <td></td>
-          <td>Runs when a container is switched (typically useful when loading from a URL (deep link/bookmark)</td>
+          <td>Runs when a new container is activated via the system, by the user switching the tab, etc.</td>
         </tr>
         <tr>
           <td>useDefaultContainer</td>
@@ -150,11 +198,25 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>Consider the first container in the group as the default</td>
         </tr>
         <tr>
-          <td>keepHistory</td>
+          <td>gotoTopOnSelectActive</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Go to the top of a tab if it's selected while already active</td>
+        </tr>
+        <tr>
+          <td>hideInactiveContainers</td>
           <td>boolean</td>
           <td>true</td>
           <td></td>
-          <td>Keep container's history when switching to another container</td>
+          <td>Don't show the content of inactive containers</td>
+        </tr>
+        <tr>
+          <td>resetOnLeave=false, </td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Reset container's history when switching to another container</td>
         </tr>
     </tbody>   
 </table>
@@ -180,4 +242,92 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>The type of the last action performed</td>
         </tr>
     </tbody>
+</table>
+
+### WindowGroup
+A convenience component that wraps a `ContainerGroup` and is meant for creating a group of windows (see also the `Window` component)
+
+#### props
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>default</th>
+        <th>required</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>name</td>
+          <td>string</td>
+          <td></td>
+          <td align="center">✓</td>
+          <td>The name of this group (must be unique)</td>
+        </tr>
+        <tr>
+          <td>useDefaultContainer</td>
+          <td>boolean</td>
+          <td>true</td>
+          <td></td>
+          <td>Consider the first container in the group as the default</td>
+        </tr>
+        <tr>
+          <td>gotoTopOnSelectActive</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Go to the top of a tab if it's selected while already active</td>
+        </tr>
+        <tr>
+          <td>hideInactiveContainers</td>
+          <td>boolean</td>
+          <td>true</td>
+          <td></td>
+          <td>Don't show the content of inactive containers</td>
+        </tr>
+        <tr>
+          <td>resetOnLeave=false, </td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Reset container's history when switching to another container</td>
+        </tr>
+    </tbody>   
+</table>
+
+### Window
+A single window inside a `WindowGroup`
+
+#### props
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>required</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>top</td>
+          <td>number</td>
+          <td></td>
+          <td>The top of the window in px</td>
+        </tr>
+        <tr>
+          <td>left</td>
+          <td>number</td>
+          <td></td>
+          <td>The left of the window in px</td>
+        </tr>
+        <tr>
+          <td>className</td>
+          <td>string</td>
+          <td></td>
+          <td>The CSS class used to style this window</td>
+        </tr>
+    </tbody>   
 </table>

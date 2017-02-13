@@ -1,0 +1,162 @@
+import CreateContainer from '../../src/model/actions/CreateContainer'
+import CreateGroup from '../../src/model/actions/CreateGroup'
+import Group from '../../src/model/Group'
+import Container from '../../src/model/Container'
+import State from '../../src/model/State'
+import ISubGroup from '../../src/model/interfaces/ISubGroup'
+
+const TIME:number = 1000
+
+const createCreateGroup = (name:string):CreateGroup =>
+    new CreateGroup({name, time: TIME})
+
+const createCreateSubGroup =
+  ({name, parentGroupName, parentUsesDefault}:
+  {name:string, parentGroupName:string, parentUsesDefault}):CreateGroup =>
+    new CreateGroup({name, parentGroupName, parentUsesDefault, time: TIME})
+
+const createCreateContainers =
+  ({groupName, initialUrls, useDefault, resetOnLeave}:
+  {groupName:string, initialUrls:string[], useDefault:boolean,
+  resetOnLeave:boolean}):CreateContainer[] =>
+    initialUrls.map((initialUrl:string, i:number) => new CreateContainer({
+      groupName,
+      name: 'Container ' + (i + 1),
+      initialUrl,
+      patterns: [initialUrl, `${initialUrl}/:id`, `${initialUrl}/:id/:name`],
+      useDefault,
+      resetOnLeave,
+      time: TIME
+    }))
+
+export const createGroup1:CreateGroup = createCreateGroup('Group 1')
+export const createGroup2:CreateGroup = createCreateGroup('Group 2')
+export const createGroup3:CreateGroup = createCreateGroup('Group 3')
+
+export const createSubGroup1:CreateGroup = createCreateSubGroup({
+  name: 'SubGroup 1',
+  parentGroupName: 'Group 1',
+  parentUsesDefault: true
+})
+
+export const createSubGroup2:CreateGroup = createCreateSubGroup({
+  name: 'SubGroup 2',
+  parentGroupName: 'Group 1',
+  parentUsesDefault: false
+})
+
+export const createContainers:CreateContainer[] = createCreateContainers({
+  groupName: 'Group 1',
+  initialUrls: ['/a', '/b', '/c'],
+  useDefault: true,
+  resetOnLeave: false
+})
+
+export const createContainers2:CreateContainer[] = createCreateContainers({
+  groupName: 'Group 2',
+  initialUrls: ['/e', '/f'],
+  useDefault: false,
+  resetOnLeave: false
+})
+
+export const createContainers3:CreateContainer[] = createCreateContainers({
+  groupName: 'Group 3',
+  initialUrls: ['/j', '/k'],
+  useDefault: true,
+  resetOnLeave: true
+})
+
+const group1:Group = new Group({
+  name: 'Group 1',
+  containers: [
+    new Container({
+      name: 'Container 1',
+      groupName: 'Group 1',
+      initialUrl: '/a',
+      patterns: ['/a', '/a/:id'],
+      isDefault: true
+    }),
+    new Container({
+      name: 'Container 2',
+      groupName: 'Group 1',
+      initialUrl: '/b',
+      patterns: ['/b', '/b/:id'],
+      isDefault: false
+    }),
+    new Container({
+      name: 'Container 3',
+      groupName: 'Group 1',
+      initialUrl: '/c',
+      patterns: ['/c', '/c/:id'],
+      isDefault: false
+    })
+  ]
+})
+
+const group2:Group = new Group({
+  name: 'Group 2',
+  containers: [
+    new Container({
+      name: 'Container 1',
+      groupName: 'Group 2',
+      initialUrl: '/e',
+      patterns: ['/e', '/e/:id'],
+      isDefault: false
+    }),
+    new Container({
+      name: 'Container 2',
+      groupName: 'Group 2',
+      initialUrl: '/f',
+      patterns: ['/f', '/f/:id'],
+      isDefault: false
+    }),
+  ]
+})
+
+const group3:Group = new Group({
+  name: 'Group 3',
+  containers: [
+    new Container({
+      name: 'Container 1',
+      groupName: 'Group 3',
+      initialUrl: '/g',
+      patterns: ['/g', '/a/:id'],
+      isDefault: true
+    }),
+    new Container({
+      name: 'Container 2',
+      groupName: 'Group 3',
+      initialUrl: '/h',
+      patterns: ['/h', '/a/1'],
+      isDefault: false
+    })
+  ]
+})
+
+export const simpleState = new State({
+  groups: [group1, group2, group3]
+})
+
+const nestedGroup1 = new Group({
+  ...Object(group1),
+  parentGroupName: 'Nested Group 1',
+  isDefault: true
+})
+
+const nestedGroup2 = new Group({
+  ...Object(group2),
+  parentGroupName: 'Nested Group 1'
+})
+
+export const nestedState = new State({
+  groups: [
+    new Group({
+      name: 'Nested Group 1',
+      containers: [
+        nestedGroup1 as ISubGroup,
+        nestedGroup2 as ISubGroup
+      ]
+    }),
+    group3
+  ]
+})

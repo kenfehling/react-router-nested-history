@@ -1,1 +1,0 @@
-export const LOCATION_CHANGED = 'location-changed'

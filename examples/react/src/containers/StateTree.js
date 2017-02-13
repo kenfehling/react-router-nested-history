@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { addChangeListener } from 'react-router-nested-history'
+import React, {Component} from 'react'
+import {addChangeListener} from 'react-router-nested-history'
 import './StateTree.css'
 
 const HistoryTree = ({history, className}) => (
@@ -16,32 +16,44 @@ const HistoryTree = ({history, className}) => (
   </div>
 )
 
-const StateTree = ({state}) => (
-  <div className="history-tree">
-    {state.groups ? state.groups.map(group =>
-      <div key={group.index}>
-        <div>{'Group ' + group.index}</div>
-          <HistoryTree history={group.history} className="group" />
-          <div>
-            {group.containers.map(container =>
-              <div key={container.index}>
-                <div>{'Container ' + container.index}</div>
-                <HistoryTree history={container.history} className="container" />
-              </div>
-            )}
-          </div>
-      </div>) : ''}
+const GroupTree = ({group}) => (
+  <div>
+    <div>{'Group: ' + group.name}</div>
+    <HistoryTree history={group.history} className="group" />
+    <div>
+      {group.containers.map(container =>
+        <div key={group.name + ' ' + container.name}>
+          {container.isGroup ? <GroupTree group={container} /> : (
+            <div>
+              <div>{'Container: ' + container.name}</div>
+              <HistoryTree history={container.history}
+                   className={`container ${group.activeContainerName === container.name ? 'active' : ''}`} />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+)
+
+const StateTree = ({groups}) => (
+  <div className="state-tree">
+    {groups.map(group => <GroupTree key={group.name} group={group} />)}
   </div>
 )
 
 export default class extends Component {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = {
+      groups: []
+    }
   }
 
   componentWillMount() {
-    this.unlisten = addChangeListener(state => this.setState(state))
+    this.unlisten = addChangeListener(state => {
+      this.setState({groups: state.groups})
+    })
   }
 
   componentWillUnmount() {
@@ -49,6 +61,6 @@ export default class extends Component {
   }
 
   render() {
-    return <StateTree state={this.state} />
+    return <StateTree groups={this.state.groups} />
   }
 }

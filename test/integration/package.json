@@ -1,0 +1,54 @@
+{
+  "name": "integration",
+  "version": "1.0.0",
+  "description": "Integration tests",
+  "author": "Ken Fehling",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack index.test.js --config webpack.config.js ",
+    "start": "jest",
+    "watch": "jest --watch"
+  },
+  "devDependencies": {
+    "babel-core": "^6.22.1",
+    "babel-jest": "^18.0.0",
+    "babel-loader": "^6.2.10",
+    "css-loader": "^0.26.1",
+    "enzyme": "^2.7.1",
+    "jest": "^18.1.0",
+    "jest-cli": "^18.1.0",
+    "jest-css-modules": "^1.1.0",
+    "jestpack": "^0.2.0",
+    "source-map-loader": "^0.1.6",
+    "style-loader": "^0.13.1",
+    "ts-jest": "^18.0.2",
+    "typescript": "^2.1.5",
+    "webpack": "^1.14.0"
+  },
+  "dependencies": {
+    "react": "^15.4.2",
+    "react-router": "^4.0.0-alpha.6"
+  },
+  "jest": {
+    "testPathDirs": [
+      "."
+    ],
+    "testRegex": "/*.test.(js|jsx|ts|tsx)$",
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "ts",
+      "tsx",
+      "json"
+    ],
+    "moduleNameMapper": {
+      "\\.(css)$": "<rootDir>/node_modules/jest-css-modules",
+      "react-router-nested-history": "<rootDir>/../../src/index.js"
+    },
+    "transform": {
+      "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest",
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    }
+  }
+}

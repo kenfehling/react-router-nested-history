@@ -1,0 +1,29 @@
+{
+  "version": "2.1.5",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["dom", "es6"],
+    "jsx": "react",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "test/**/*.tsx"
+  ],
+  "exclude": [
+    "dist",
+    "lib",
+    "node_modules",
+    "src/react/components/HistoryMatch.jsx",
+    "src/index.js"
+  ]
+}

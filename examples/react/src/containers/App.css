@@ -1,3 +1,11 @@
+html, body, div#root {
+  height: 100%;
+}
+
+div#root {
+  overflow: auto;
+}
+
 a {
   color: blue;
   text-decoration: underline;
@@ -5,14 +13,26 @@ a {
 }
 
 .app-container {
-  display: flex;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   color: #333;
-  margin-top: 20px;
+  margin: 20px 0;
+  display: flex;
 }
 
-.tabs-container, .windows-container, .state-tree-container {
+.left-container {
+  float: left;
+  flex: 1;
+}
+
+.top-container {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.tabs-container,
+.windows-container,
+.nested-group-container {
   margin: 0 auto;
 }
 
@@ -22,13 +42,18 @@ a {
 
 .windows-container {
   width: 360px;
-  height: 436px;
+  height: 435px;
+}
+
+.nested-group-container {
+  width: 600px;
+  height: 500px;
 }
 
 .state-tree-container {
   margin-top: 12px;
   padding-right: 3%;
-  width: 160px;
+  width: 220px;
 }
 
 .description {
