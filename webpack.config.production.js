@@ -18,7 +18,8 @@ module.exports = Object.assign({}, base, {
         screw_ie8: false
       },
       mangle: {
-        screw_ie8: false
+        screw_ie8: false,
+        keep_fnames: true
       },
       output: {
         screw_ie8: false
