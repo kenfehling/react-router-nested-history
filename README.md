@@ -23,6 +23,12 @@ would **very much** appreciate any feedback as I continue to solidify it.
 
 Right now this library only works with browserHistory (HTML5 History API, not with hash history)
 
+### Roadmap
+- [x] Nested container groups
+- [x] End to end tests using [Nightwatch.js](http://nightwatchjs.org)
+- [x] Support for title libraries like [react-helmet](https://github.com/nfl/react-helmet)
+- [ ] Support for server rendering
+
 ### HistoryRouter
 Use this in place of react-router's `BrowserRouter` component to enable this library.
 
@@ -245,7 +251,9 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
 </table>
 
 ### WindowGroup
-A convenience component that wraps a `ContainerGroup` and is meant for creating a group of windows (see also the `Window` component)
+A convenience component that wraps a `ContainerGroup` and is meant for
+creating a group of `Window` components that overlap and are layered in
+the order that they were last accessed.
 
 #### props
 <table class="table table-bordered table-striped">
