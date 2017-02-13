@@ -50,6 +50,10 @@ export function serialize(classObject:ISerializable):ISerialized {
  */
 export function deserialize(obj:ISerialized):any {
   const ser:Function = serializables.get(obj.type) as Function
+  if (!ser) {
+    console.log(serializables)
+    throw new Error(obj.type + ' not found in serializables')
+  }
   const constructor:ObjectConstructor = ser.bind(ser)
   const data:Object = R.omit(['type'], obj)
   const keys:string[] = Object.keys(data)
