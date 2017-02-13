@@ -32,6 +32,7 @@ import PopState from './model/actions/PopState'
 import CreateContainer from './model/actions/CreateContainer'
 import SwitchToGroup from './model/actions/SwitchToGroup'
 import Startup from './model/actions/Startup'
+import Container from './model/Container'
 
 const queue = new Queue(1, Infinity)  // maxConcurrent = 1, maxQueue = Infinity
 let unlisten
@@ -79,7 +80,7 @@ export const removeLocationChangeListener = (fn:(location:Location)=>void) => {
   window.removeEventListener('locationChange', listenToLocation(fn))
 }
 
-const getGroupByName = (name:string):Group => {
+export const getGroupByName = (name:string):Group => {
   return store.getState().getGroupByName(name)
 }
 

@@ -11,13 +11,11 @@ import {_resetHistory} from '../../../../src/browserFunctions'
 import {TestComponent} from '../fixtures'
 import CreateContainer from '../../../../src/model/actions/CreateContainer'
 import Page from '../../../../src/model/Page'
-import {
-  getOrCreateGroup,
-  getActiveContainerNameInGroup,
-} from '../../../../src/main'
+import {getOrCreateGroup, getGroupByName} from '../../../../src/main'
 import CreateGroup from '../../../../src/model/actions/CreateGroup'
 import ClearActions from '../../../../src/model/actions/ClearActions'
 import SetZeroPage from '../../../../src/model/actions/SetZeroPage'
+import Group from '../../../../src/model/Group'
 
 declare const describe:any
 declare const it:any
@@ -78,7 +76,8 @@ describe('ContainerGroup', () => {
         </Container>
       </DumbContainerGroup>)
       const renderedGroup = mount(g)
-      expect(getActiveContainerNameInGroup(groupName)).toBe('Container 1')
+      const group:Group = getGroupByName(groupName)
+      expect(group.activeContainerName).toBe('Container 1')
       renderedGroup.unmount()
     })
   })

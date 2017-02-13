@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {PropTypes} from 'react'
 import {shallow, mount, render} from 'enzyme'
-import {getOrCreateGroup, getActiveContainerInGroup} from '../../../../src/main'
+import {getOrCreateGroup, getGroupByName} from '../../../../src/main'
 import {_resetHistory} from '../../../../src/browserFunctions'
 import store from '../../../../src/store'
 import Container from '../../../../src/react/components/Container'
@@ -12,6 +12,7 @@ import {TestComponent} from '../fixtures'
 import IContainer from '../../../../src/model/interfaces/IContainer'
 import ClearActions from '../../../../src/model/actions/ClearActions'
 import CreateGroup from '../../../../src/model/actions/CreateGroup'
+import Group from '../../../../src/model/Group'
 declare const describe:any
 declare const it:any
 declare const expect:any
@@ -43,7 +44,8 @@ describe('Container', () => {
     )
 
     const container = mount(c, mountOptions)
-    const activeContainer:IContainer = getActiveContainerInGroup(groupName)
+    const group:Group = getGroupByName(groupName)
+    const activeContainer:IContainer = group.activeContainer
     expect(activeContainer.name).toBe('Container 1')
     expect(activeContainer.groupName).toBe(groupName)
     expect(activeContainer.initialUrl).toBe('/a/3')
