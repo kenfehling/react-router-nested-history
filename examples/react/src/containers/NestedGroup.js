@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import { Container, ContainerGroup, WindowGroup, Window, HistoryMatch } from 'react-router-nested-history'
+import {
+  Container, ContainerGroup, WindowGroup, Window, HistoryMatch, HeaderLink,
+  HistoryLink
+} from 'react-router-nested-history'
 import './NestedGroup.css'
-import HeaderLink from '../../../../src/react/components/HeaderLink'
-import HistoryLink from '../../../../src/react/components/HistoryLink'
 import Helmet from 'react-helmet'
 
 const regex = c => `:category(${c})`
