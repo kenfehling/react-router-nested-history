@@ -9,23 +9,21 @@
     "url": "https://github.com/kenfehling/react-router-nested-history"
   },
   "bugs": "https://github.com/kenfehling/react-router-nested-history/issues",
-  "main": "lib/index.js",
+  "main": "dist/react-router-nested-history.min.js",
   "files": [
     "dist",
-    "lib",
     "src"
   ],
   "scripts": {
-    "clean": "rimraf dist lib",
+    "clean": "rimraf dist",
     "lint": "eslint src tests",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e-setup": "cd test/e2e; e2e-setup",
     "test:e2e": "cd test/e2e; npm test",
-    "build:lib": "babel src --out-dir lib",
     "build:umd": "webpack src/index.js dist/react-router-nested-history.js --config webpack.config.development.js",
     "build:umd:min": "webpack src/index.js dist/react-router-nested-history.min.js --config webpack.config.production.js",
-    "build": "npm run build:lib && npm run build:umd && npm run build:umd:min",
+    "build": "npm run build:umd && npm run build:umd:min",
     "build:examples": "cd examples/react; npm run build",
     "publish:examples": "git subtree push --prefix examples/react origin heroku"
   },

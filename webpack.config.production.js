@@ -2,9 +2,8 @@
 
 var webpack = require('webpack');
 var base = require('./webpack.config.base');
-var _ = require("lodash");
 
-module.exports = _.merge(base, {
+module.exports = Object.assign({}, base, {
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.optimize.DedupePlugin(),
