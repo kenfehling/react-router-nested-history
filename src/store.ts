@@ -50,10 +50,11 @@ class S {
 
   // Convert into a plain object for Redux
   // It gets converted back to an Action object in the reducer
-  async dispatch(action:Action):Promise<State> {
+  dispatch(action:Action):Promise<State> {
     const obj:ISerialized = serialize(action)
-    await store.dispatch(obj)
-    return Promise.resolve(this.getState())
+    store.dispatch(obj)
+    const state:State = this.getState()
+    return new Promise(resolve => resolve(state))
   }
 
   persist(persistorConfig):Promise<any> {
