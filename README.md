@@ -226,7 +226,7 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>Don't show the content of inactive containers</td>
         </tr>
         <tr>
-          <td>resetOnLeave=false, </td>
+          <td>resetOnLeave</td>
           <td>boolean</td>
           <td>false</td>
           <td></td>
