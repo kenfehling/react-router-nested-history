@@ -264,54 +264,7 @@ creating a group of `Window` components that overlap and are layered in
 the order that they were last accessed.
 
 #### props
-<table class="table table-bordered table-striped">
-    <thead>
-    <tr>
-        <th>name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>required</th>
-        <th>description</th>
-    </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>name</td>
-          <td>string</td>
-          <td></td>
-          <td align="center">✓</td>
-          <td>The name of this group (must be unique)</td>
-        </tr>
-        <tr>
-          <td>useDefaultContainer</td>
-          <td>boolean</td>
-          <td>true</td>
-          <td></td>
-          <td>Consider the first container in the group as the default</td>
-        </tr>
-        <tr>
-          <td>gotoTopOnSelectActive</td>
-          <td>boolean</td>
-          <td>false</td>
-          <td></td>
-          <td>Go to the top of a tab if it's selected while already active</td>
-        </tr>
-        <tr>
-          <td>hideInactiveContainers</td>
-          <td>boolean</td>
-          <td>true</td>
-          <td></td>
-          <td>Don't show the content of inactive containers</td>
-        </tr>
-        <tr>
-          <td>resetOnLeave=false, </td>
-          <td>boolean</td>
-          <td>false</td>
-          <td></td>
-          <td>Reset container's history when switching to another container</td>
-        </tr>
-    </tbody>   
-</table>
+Same as `ContainerGroup`
 
 ### Window
 A single window inside a `WindowGroup`

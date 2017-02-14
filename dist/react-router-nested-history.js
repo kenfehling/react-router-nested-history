@@ -41177,6 +41177,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return t;
 	};
+	var __rest = (this && this.__rest) || function (s, e) {
+	    var t = {};
+	    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+	        t[p] = s[p];
+	    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+	        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+	            t[p[i]] = s[p[i]];
+	    return t;
+	};
 	var React = __webpack_require__(408);
 	var react_1 = __webpack_require__(408);
 	var ContainerGroup_1 = __webpack_require__(440);
@@ -41204,12 +41213,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            activeWindowIndex: currentContainerIndex,
 	            indexedStackOrder: indexedStackOrder
 	        });
+	        if (this.props.onContainerActivate) {
+	            this.props.onContainerActivate({ currentContainerIndex: currentContainerIndex, indexedStackOrder: indexedStackOrder });
+	        }
 	    };
 	    WindowGroup.prototype.render = function () {
 	        var _this = this;
-	        var children = this.props.children;
+	        var _a = this.props, children = _a.children, groupProps = __rest(_a, ["children"]);
+	        var currentContainerIndex = this.props.currentContainerIndex != null ?
+	            this.props.currentContainerIndex : this.state.activeWindowIndex;
 	        var indexedStackOrder = this.state.indexedStackOrder;
-	        return (React.createElement(ContainerGroup_1.default, __assign({}, this.props, { currentContainerIndex: this.state.activeWindowIndex, onContainerActivate: this.onContainerActivate.bind(this) }),
+	        return (React.createElement(ContainerGroup_1.default, __assign({}, groupProps, { currentContainerIndex: currentContainerIndex || this.state.activeWindowIndex, onContainerActivate: this.onContainerActivate.bind(this) }),
 	            React.createElement("div", { style: { position: 'relative' } }, react_1.Children.map(children, function (child, i) { return (React.createElement("div", { key: i, onClick: function () { return _this.setState({ activeWindowIndex: i }); }, className: 'rrnh-window-wrapper-' + (i + 1), style: {
 	                    zIndex: getWindowZIndex(indexedStackOrder, i),
 	                    position: 'absolute'
