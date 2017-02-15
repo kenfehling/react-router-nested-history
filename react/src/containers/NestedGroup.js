@@ -7,6 +7,7 @@ import './NestedGroup.css'
 import Helmet from 'react-helmet'
 
 const regex = c => `:category(${c})`
+
 const foods = {
   'Fruits': ['Apple', 'Orange', 'Pear', 'Banana'],
   'Vegetables': ['Carrot', 'Celery', 'Cucumber', 'Pepper'],
@@ -15,7 +16,7 @@ const foods = {
 }
 const categories = Object.keys(foods)
 
-const ToolsHeader = () => (
+const FoodsHeader = () => (
   <div className='header'>
     {categories.map(c => (
       <HeaderLink key={c}
@@ -28,14 +29,14 @@ const ToolsHeader = () => (
   </div>
 )
 
-const ToolsDetail = ({params:{food, category}, className}) => (
+const FoodsDetail = ({params:{food, category}, className}) => (
   <div>
     {category} > {food}
     <Helmet title={category + ' - ' + food} />
   </div>
 )
 
-const ToolsMaster = ({params:{category}}) => (
+const FoodsMaster = ({params:{category}}) => (
   <div>
     <div>Category: {category}</div>
     <ul>
@@ -70,7 +71,7 @@ export default () =>(
                  useDefaultContainer={false}>
       <Window className='window nested-window foods'>
         <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
-          <ToolsHeader />
+          <FoodsHeader />
           {categories.map(c => (
             <Container
               name={c}
@@ -81,9 +82,9 @@ export default () =>(
             >
               <div>
                 <HistoryMatch pattern={`/foods/${regex(c)}`} exactly
-                              component={ToolsMaster} />
+                              component={FoodsMaster} />
                 <HistoryMatch pattern={`/foods/${regex(c)}/:food`}
-                              component={ToolsDetail} />
+                              component={FoodsDetail} />
               </div>
             </Container>
           ))}
