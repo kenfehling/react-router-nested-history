@@ -366,13 +366,7 @@ export default class Group implements Comparable, IContainer {
   }
 
   hasContainerWithName(name:string):boolean {
-    try {
-      this.getContainerByName(name)
-      return true
-    }
-    catch(e) {
-      return catchType(e, ContainerNotFound, () => false)
-    }
+    return R.any(c => c.name === name, this.containers)
   }
 
   hasNestedContainerWithName(name:string):boolean {

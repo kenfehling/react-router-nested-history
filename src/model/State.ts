@@ -151,6 +151,7 @@ export default class State {
     catch (Error) {
       return false
     }
+    //return this.groups.length > 0 && R.all(g => g.isInitialized, this.groups)
   }
 
   get groupStackOrder():Group[] {
@@ -186,7 +187,12 @@ export default class State {
   }
 
   isContainerActive(groupName:string, containerName:string):boolean {
-    return this.getGroupByName(groupName).isContainerActive(containerName)
+    if (this.hasGroupWithName(groupName)) {
+      return this.getGroupByName(groupName).isContainerActive(containerName)
+    }
+    else {
+      return false
+    }
   }
 
   get activeUrl():string {
@@ -291,10 +297,20 @@ export default class State {
   }
 
   getIndexedContainerStackOrderForGroup(groupName:string):number[] {
-    return this.getGroupByName(groupName).indexedContainerStackOrder
+    if (this.hasGroupWithName(groupName)) {
+      return this.getGroupByName(groupName).indexedContainerStackOrder
+    }
+    else {
+      return []
+    }
   }
 
   getGroupByName(name:string):Group {
+
+    if (this.groups.length === 0) {
+      throw new Error("dn")
+    }
+
     const g:Group = R.find(g => g.name === name, this.groups)
     if (g) {
       return g
@@ -319,14 +335,8 @@ export default class State {
     }
   }
 
-  hasGroup(name:string):boolean {
-    try {
-      this.getGroupByName(name)
-      return true
-    }
-    catch(e) {
-      return catchType(e, GroupNotFound, () => false)
-    }
+  hasGroupWithName(name:string):boolean {
+    return R.any(g => g.name === name, this.groups)
   }
 
   getRootGroupOfGroupByName(name:string):Group {

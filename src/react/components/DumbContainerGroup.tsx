@@ -4,15 +4,26 @@ import {switchToContainerIndex} from '../../main'
 import Page from '../../model/Page'
 import Action from '../../model/Action'
 import * as R from 'ramda'
+import ReactElement = React.ReactElement
 
-export type OnContainerSwitch =
-    (data:{currentContainerIndex:number, indexedStackOrder:number[]}) => void
+export type OnContainerSwitchArgs = {
+  currentContainerIndex:number,
+  indexedStackOrder:number[]
+}
+
+export type OnContainerSwitch = (args:OnContainerSwitchArgs) => void
+
+export type ChildrenFunctionArgs = OnContainerSwitchArgs & {
+  setCurrentContainerIndex: (index:number) => void
+}
+
+export type ChildrenType = ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
 
 export interface DumbContainerGroupProps {
   name: string,
   storedIndexedStackOrder: number[]
   storedCurrentContainerIndex: number,
-  children?: ReactNode,
+  children?: ChildrenType,
   currentContainerIndex?: number,  // from user
   onContainerActivate?: OnContainerSwitch,  // from user
   useDefaultContainer?: boolean,
@@ -24,6 +35,7 @@ export interface DumbContainerGroupProps {
 
 export default class DumbContainerGroup extends
     Component<DumbContainerGroupProps, undefined> {
+  switchContainer: (index:number) => void
 
   static childContextTypes = {
     groupName: PropTypes.string.isRequired,
@@ -31,6 +43,11 @@ export default class DumbContainerGroup extends
     hideInactiveContainers: PropTypes.bool,
     activePage: PropTypes.object.isRequired,
     lastAction: PropTypes.object.isRequired
+  }
+
+  constructor(props:DumbContainerGroupProps) {
+    super(props)
+    this.switchContainer = R.curry(switchToContainerIndex)(props.name)
   }
 
   getChildContext() {
@@ -62,7 +79,6 @@ export default class DumbContainerGroup extends
   }
 
   componentWillReceiveProps(nextProps) {
-    const {name} = this.props
     const oldInput:number|undefined = this.props.currentContainerIndex
     const oldStored:number = this.props.storedCurrentContainerIndex
     const newInput:number = nextProps.currentContainerIndex
@@ -74,18 +90,27 @@ export default class DumbContainerGroup extends
       this.update(newStored, newIndexedStackOrder)
     }
     else if (newInput != null && newInput !== oldInput && newInput !== newStored) {
-      switchToContainerIndex(name, newInput)
+      this.switchContainer(newInput)
     }
   }
 
   render() {
-    /*
-     return Array.isArray(this.props.children) ?
-     <div>{this.props.children}</div> :
-     this.props.children
-     */
-    return <div>{this.props.children}</div>
-    // TODO: Does wrapping in a div mess up styling?
-    // TODO: Maybe allow for custom className and/or component (div, etc.)
+    const {
+      children,
+      storedCurrentContainerIndex,
+      storedIndexedStackOrder
+    } = this.props
+
+    if (children instanceof Function) {
+      const args:ChildrenFunctionArgs = {
+        currentContainerIndex: storedCurrentContainerIndex,
+        indexedStackOrder: storedIndexedStackOrder,
+        setCurrentContainerIndex: this.switchContainer
+      }
+      return <div>{children(args)}</div>
+    }
+    else {
+      return <div>{this.props.children}</div>
+    }
   }
 }

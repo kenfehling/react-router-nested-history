@@ -25,8 +25,23 @@ declare const afterEach:any
 declare const jest:any
 declare const Promise:any
 
+const groupName:string = 'Group 1'
+
+const createContainerAction:CreateContainer = new CreateContainer({
+  groupName,
+  name: 'Container 1',
+  initialUrl: '/b/1',
+  patterns: ['/a/:id']
+})
+
+const activePage:Page = new Page({
+  url: '/a/1',
+  params: {id: '1'},
+  groupName,
+  containerName: 'Container 1'
+})
+
 describe('ContainerGroup', () => {
-  const groupName:string = 'Group 1'
 
   beforeEach(async () => {
     await getOrCreateGroup(new CreateGroup({name: groupName}))
@@ -41,18 +56,6 @@ describe('ContainerGroup', () => {
 
   describe('currentContainerIndex', () => {
     it('can be set by user', () => {
-      const createContainerAction:CreateContainer = new CreateContainer({
-        groupName,
-        name: 'Container 1',
-        initialUrl: '/b/1',
-        patterns: ['/a/:id']
-      })
-      const activePage:Page = new Page({
-            url: '/a/1',
-            params: {id: '1'},
-            groupName,
-            containerName: 'Container 1'
-          })
       const g = (<DumbContainerGroup
           name={groupName}
           storedLastAction={createContainerAction}
@@ -149,6 +152,44 @@ describe('ContainerGroup', () => {
 
     it('fires when container is first activated', () => {
       expect(onContainerActivate.mock.calls.length).toBe(1)
+    })
+  })
+
+  describe('children', () => {
+    it('can be a function', () => {
+      const g = (
+        <DumbContainerGroup
+          name={groupName}
+          storedLastAction={createContainerAction}
+          storedActivePage={activePage}
+          storedIndexedStackOrder={[0]}
+          storedCurrentContainerIndex={0}
+          children={({
+            currentContainerIndex,
+            indexedStackOrder,
+            setCurrentContainerIndex}) => (
+            <div>
+              <Container groupName={groupName}
+                         name='Container 1'
+                         initialUrl='/a/1'
+                         patterns={['/a/:id']}
+               >
+                <TestComponent />
+              </Container>
+              <Container groupName={groupName}
+                         name='Container 2'
+                         initialUrl='/b/1'
+                         patterns={['/b/:id']}
+              >
+                <TestComponent />
+              </Container>
+            </div>
+          )}
+        />
+      )
+      const renderedGroup = mount(g)
+
+      renderedGroup.unmount()
     })
   })
 

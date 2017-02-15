@@ -2,11 +2,7 @@ import * as React from 'react'
 import {Component, Children, ReactNode, ReactElement} from 'react'
 import ContainerGroup from './ContainerGroup'
 import {ContainerGroupProps} from './ContainerGroup'
-
-interface WindowGroupState {
-  activeWindowIndex: number,
-  indexedStackOrder: number[]
-}
+import {ChildrenFunctionArgs} from './DumbContainerGroup'
 
 function getWindowZIndex(indexedStackOrder, index) {
   if (indexedStackOrder.length > index) {
@@ -17,43 +13,22 @@ function getWindowZIndex(indexedStackOrder, index) {
   }
 }
 
-export default class WindowGroup extends Component<ContainerGroupProps, WindowGroupState> {
-  constructor(props) {
-    super(props)
-    this.state = {
-      activeWindowIndex: 0,
-      indexedStackOrder: []
-    }
-  }
+export default ({children, ...groupProps}:ContainerGroupProps) => (
+  <ContainerGroup
+    {...groupProps}
+    children={(props:ChildrenFunctionArgs) => {
 
-  onContainerActivate({currentContainerIndex, indexedStackOrder}) {
-    this.setState({
-      activeWindowIndex: currentContainerIndex,
-      indexedStackOrder
-    })
-    if (this.props.onContainerActivate) {
-      this.props.onContainerActivate({currentContainerIndex, indexedStackOrder})
-    }
-  }
+      const c:ReactNode = children instanceof Function ?
+            children(props).props.children : children
 
-  render() {
-    const {children, ...groupProps} = this.props
-    const currentContainerIndex:number = this.props.currentContainerIndex != null ?
-        this.props.currentContainerIndex : this.state.activeWindowIndex
-    const {indexedStackOrder} = this.state
-    return (
-      <ContainerGroup
-        {...groupProps}
-        currentContainerIndex={currentContainerIndex || this.state.activeWindowIndex}
-        onContainerActivate={this.onContainerActivate.bind(this)}
-      >
+      return (
         <div style={{position: 'relative'}}>
-          {Children.map(children, (child:ReactElement<any>, i:number) => (
+          {Children.map(c, (child:ReactElement<any>, i:number) => (
             <div key={i}
-                 onClick={() => this.setState({activeWindowIndex: i})}
+                 onClick={() => props.setCurrentContainerIndex(i)}
                  className={'rrnh-window-wrapper-' + (i + 1)}
                  style={{
-                    zIndex: getWindowZIndex(indexedStackOrder, i),
+                    zIndex: getWindowZIndex(props.indexedStackOrder, i),
                     position: 'absolute'
                  }}
             >
@@ -61,7 +36,7 @@ export default class WindowGroup extends Component<ContainerGroupProps, WindowGr
             </div>
           ))}
         </div>
-      </ContainerGroup>
-    )
-  }
-}
+      )}
+    }
+  />
+)

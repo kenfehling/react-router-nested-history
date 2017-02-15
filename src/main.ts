@@ -1,13 +1,11 @@
 import {createStepsSince} from './util/actions'
-declare const window
-declare const CustomEvent
 import * as browser from './browserFunctions'
 import { Location } from 'history'
 import store from './store'
-import { createLocation } from 'history'
+import {createLocation} from 'history'
 import * as Queue from 'promise-queue'
-import { canUseWindowLocation } from './util/location'
-import { parseParamsFromPatterns } from './util/url'
+import {canUseWindowLocation} from './util/location'
+import {parseParamsFromPatterns} from './util/url'
 import * as R from 'ramda'
 import State from './model/State'
 import Group from './model/Group'
@@ -33,6 +31,8 @@ import CreateContainer from './model/actions/CreateContainer'
 import SwitchToGroup from './model/actions/SwitchToGroup'
 import Startup from './model/actions/Startup'
 import Container from './model/Container'
+declare const window
+declare const CustomEvent
 
 const queue = new Queue(1, Infinity)  // maxConcurrent = 1, maxQueue = Infinity
 let unlisten
@@ -80,9 +80,11 @@ export const removeLocationChangeListener = (fn:(location:Location)=>void) => {
   window.removeEventListener('locationChange', listenToLocation(fn))
 }
 
-export const getGroupByName = (name:string):Group => {
-  return store.getState().getGroupByName(name)
-}
+export const getGroupByName = (name:string):Group =>
+    store.getState().getGroupByName(name)
+
+export const hasGroupWithName = (name:string):boolean =>
+    store.getState().hasGroupWithName(name)
 
 const createGroup = (action:CreateGroup):Promise<Group> => {
   return store.dispatch(action).then(
@@ -90,12 +92,11 @@ const createGroup = (action:CreateGroup):Promise<Group> => {
 }
 
 export const getOrCreateGroup = (action:CreateGroup):Promise<Group> => {
-  try {
-    const group:Group = getGroupByName(action.name)
-    return Promise.resolve(group)
+  if (hasGroupWithName(action.name)) {
+    return Promise.resolve(getGroupByName(action.name))
   }
-  catch(e) {
-    return catchType(e, GroupNotFound, () => createGroup(action))
+  else {
+    return createGroup(action)
   }
 }
 
@@ -107,12 +108,11 @@ const createContainer = (action:CreateContainer):Promise<IContainer> => {
 export const getOrCreateContainer = (action:CreateContainer):Promise<IContainer> => {
   const state:State = store.getState()
   const group:Group = state.getGroupByName(action.groupName)
-  try {
-    const container = group.getContainerByName(action.name)
-    return Promise.resolve(container)
+  if (group.hasContainerWithName(action.name)) {
+    return Promise.resolve(group.getContainerByName(action.name))
   }
-  catch (e) {
-    return catchType(e, ContainerNotFound, () => createContainer(action))
+  else {
+    return createContainer(action)
   }
 }
 
@@ -212,14 +212,8 @@ export const getContainerLinkUrl = (groupName:string,
 }
 
 export const isContainerActive = (groupName:string,
-                               containerName:string):boolean => {
-  try {
-    return store.getState().isContainerActive(groupName, containerName)
-  }
-  catch(e) {
-    return catchType(e, GroupNotFound, false)
-  }
-}
+                               containerName:string):boolean =>
+  store.getState().isContainerActive(groupName, containerName)
 
 export const getIndexedContainerStackOrder = (groupName:string) : number[] =>
     store.getState().getIndexedContainerStackOrderForGroup(groupName)

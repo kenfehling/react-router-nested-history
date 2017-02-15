@@ -2,8 +2,8 @@ import * as React from 'react'
 import { Component, Children, ReactNode, ReactElement, cloneElement } from 'react'
 
 interface WindowProps {
-  top: number,
-  left: number,
+  top?: number,
+  left?: number,
   children?: ReactNode,
   className?: string
   style?: Object
