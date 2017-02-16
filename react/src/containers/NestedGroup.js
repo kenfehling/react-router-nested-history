@@ -66,9 +66,7 @@ export default () =>(
       <p>{categories[0]} is considered a default tab.</p>
       <p>When selecting an already active tab, it will go to the top of that tree.</p>
     </div>
-    <WindowGroup name='nested'
-                 hideInactiveContainers={false}
-                 useDefaultContainer={false}>
+    <WindowGroup name='nested'>
       <Window className='window nested-window foods'>
         <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
           <FoodsHeader />
