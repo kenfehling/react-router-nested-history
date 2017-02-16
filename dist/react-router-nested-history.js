@@ -19056,7 +19056,7 @@ var React = __webpack_require__(3);
 var react_1 = __webpack_require__(3);
 var ContainerGroup_1 = __webpack_require__(145);
 var getWindowZIndex = function (iOrder, index) {
-    return iOrder.length === 0 ? 1 : iOrder.length - iOrder[index] + 1;
+    return iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1;
 };
 var defaultToFalse = function (p) { return p == null ? false : p; };
 var changeDefaults = function (props) { return (__assign({}, props, { useDefaultContainer: defaultToFalse(props.useDefaultContainer), hideInactiveContainers: defaultToFalse(props.hideInactiveContainers) })); };

@@ -5,7 +5,8 @@ import {ContainerGroupProps} from './ContainerGroup'
 import {ChildrenFunctionArgs} from './DumbContainerGroup'
 
 const getWindowZIndex = (iOrder, index) =>
-    iOrder.length === 0 ? 1 : iOrder.length - iOrder[index] + 1
+    iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1
+
 const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
 
 const changeDefaults = (props:ContainerGroupProps):ContainerGroupProps => ({
