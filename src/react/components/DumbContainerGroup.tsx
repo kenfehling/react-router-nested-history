@@ -18,7 +18,8 @@ export type ChildrenFunctionArgs = OnContainerSwitchArgs & {
   setCurrentContainerName: (name:string) => void
 }
 
-export type ChildrenType = ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
+export type ChildrenType =
+  ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
 
 export interface DumbContainerGroupProps {
   name: string,

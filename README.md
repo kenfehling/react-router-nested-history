@@ -389,5 +389,30 @@ A single window inside a `WindowGroup`
           <td></td>
           <td>The CSS class used to style this window</td>
         </tr>
+        <tr>
+          <td>children</td>
+          <td>ReactNode or function</td>
+          <td></td>
+          <td></td>
+          <td>The children of this ContainerGroup</td>
+        </tr>
     </tbody>   
+</table>
+
+#### `children` function params
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>isOnTop/td>
+          <td>boolean</td>
+          <td>Is this window on the top of the stack in its `WindowGroup`</td>
+        </tr>
+    </tbody>
 </table>

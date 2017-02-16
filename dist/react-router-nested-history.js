@@ -18986,13 +18986,14 @@ var Window = (function (_super) {
     }
     Window.prototype.render = function () {
         var _a = this.props, top = _a.top, left = _a.left, children = _a.children, className = _a.className, style = _a.style;
-        var zIndex = this.context.zIndex;
-        return (React.createElement("div", { className: className, style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }, children));
+        var _b = this.context, zIndex = _b.zIndex, isOnTop = _b.isOnTop;
+        return (React.createElement("div", { className: className, style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }, children instanceof Function ? children({ isOnTop: isOnTop }) : children));
     };
     return Window;
 }(react_1.Component));
 Window.contextTypes = {
-    zIndex: react_1.PropTypes.number.isRequired
+    zIndex: react_1.PropTypes.number.isRequired,
+    isOnTop: react_1.PropTypes.bool.isRequired
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Window;

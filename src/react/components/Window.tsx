@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
+import ReactElement = React.ReactElement
 
 interface WindowProps {
   top?: number,
@@ -9,14 +10,22 @@ interface WindowProps {
   style?: Object
 }
 
+interface ChildrenFunctionArgs {
+  isOnTop: boolean
+}
+
+export type ChildrenType =
+  ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
+
 export default class Window extends Component<WindowProps, undefined> {
   static contextTypes = {
-    zIndex: PropTypes.number.isRequired
+    zIndex: PropTypes.number.isRequired,
+    isOnTop: PropTypes.bool.isRequired
   }
 
   render() {
     const {top, left, children, className, style} = this.props
-    const {zIndex} = this.context
+    const {zIndex, isOnTop} = this.context
     return (<div className={className}
          style={{
          ...style,
@@ -26,7 +35,7 @@ export default class Window extends Component<WindowProps, undefined> {
          left: left ? left + 'px' : ''
        }}
     >
-      {children}
+      {children instanceof Function ? children({isOnTop}) : children}
     </div>)
   }
 }
