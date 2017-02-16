@@ -3,6 +3,7 @@ import {Component, PropTypes, Children, ReactNode, ReactElement} from 'react'
 import ContainerGroup from './ContainerGroup'
 import {ContainerGroupProps} from './ContainerGroup'
 import {ChildrenFunctionArgs} from './DumbContainerGroup'
+import * as R from 'ramda'
 
 const getWindowZIndex = (iOrder, index) =>
     iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1
@@ -17,18 +18,18 @@ const changeDefaults = (props:ContainerGroupProps):ContainerGroupProps => ({
 
 interface WindowWrapperProps {
   zIndex: number,
+  isOnTop: boolean,
   onClick: () => void
 }
 
 class WindowWrapper extends Component<WindowWrapperProps, undefined> {
   static childContextTypes = {
-    zIndex: PropTypes.number.isRequired
+    zIndex: PropTypes.number.isRequired,
+    isOnTop: PropTypes.bool.isRequired
   }
 
   getChildContext() {
-    return {
-      zIndex: this.props.zIndex
-    }
+    return R.pick(['zIndex', 'isOnTop'], this.props)
   }
 
   render() {
@@ -50,6 +51,7 @@ export default ({children, ...groupProps}:ContainerGroupProps) => (
             <WindowWrapper key={i}
                            onClick = {() => props.setCurrentContainerIndex(i)}
                            zIndex={getWindowZIndex(props.indexedStackOrder, i)}
+                           isOnTop={props.indexedStackOrder[i] === 0}
             >
               {child}
             </WindowWrapper>
