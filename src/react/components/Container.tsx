@@ -127,6 +127,4 @@ const ConnectedContainer = connect(
   {addTitle}
 )(Container)
 
-export default props => (
-  <ConnectedContainer store={store} {...props} />
-)
+export default props => <ConnectedContainer store={store} {...props} />

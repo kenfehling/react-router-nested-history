@@ -26,16 +26,18 @@ export default class Window extends Component<WindowProps, undefined> {
   render() {
     const {top, left, children, className, style} = this.props
     const {zIndex, isOnTop} = this.context
-    return (<div className={className}
-         style={{
+    return (
+      <div className={className}
+        style={{
          ...style,
          zIndex,
          position: 'absolute',
          top: top ? top + 'px' : '',
          left: left ? left + 'px' : ''
-       }}
-    >
-      {children instanceof Function ? children({isOnTop}) : children}
-    </div>)
+        }}
+      >
+        {children instanceof Function ? children({isOnTop}) : children}
+      </div>
+    )
   }
 }

@@ -11903,7 +11903,7 @@ var mapStateToProps = function (state, ownProps) {
 };
 var ConnectedContainer = react_redux_1.connect(mapStateToProps, { addTitle: LocationActions_1.addTitle })(Container);
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = function (props) { return (React.createElement(ConnectedContainer, __assign({ store: store_1.default }, props))); };
+exports.default = function (props) { return React.createElement(ConnectedContainer, __assign({ store: store_1.default }, props)); };
 
 
 /***/ }),
@@ -12698,6 +12698,14 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 var React = __webpack_require__(3);
 var react_1 = __webpack_require__(3);
 var main_1 = __webpack_require__(21);
@@ -12785,7 +12793,7 @@ var DumbContainer = (function (_super) {
     DumbContainer.prototype.render = function () {
         var _a = this.props, hideInactiveContainers = _a.hideInactiveContainers, className = _a.className, style = _a.style;
         if (!hideInactiveContainers || this.matchesLocation(this.props)) {
-            return (React.createElement("div", { onClick: this.onClick.bind(this), className: className, style: style }, this.props.children));
+            return (React.createElement("div", { onClick: this.onClick.bind(this), className: className, style: __assign({}, style, { width: '100%', height: '100%', position: 'inherit' }) }, this.props.children));
         }
         else {
             return React.createElement("div", null);

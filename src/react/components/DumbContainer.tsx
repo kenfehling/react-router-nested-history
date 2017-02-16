@@ -118,7 +118,8 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
     const {hideInactiveContainers, className, style} = this.props
     if (!hideInactiveContainers || this.matchesLocation(this.props)) {
       return (
-        <div onClick={this.onClick.bind(this)} className={className} style={style}>
+        <div onClick={this.onClick.bind(this)} className={className}
+             style={{...style, width: '100%', height: '100%', position: 'inherit'}}>
           {this.props.children}
         </div>
       )
