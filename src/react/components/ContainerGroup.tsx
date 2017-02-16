@@ -46,6 +46,7 @@ export interface ContainerGroupProps {
   name: string,
   children?: ChildrenType,
   currentContainerIndex?: number
+  currentContainerName?: string
   onContainerActivate?: OnContainerSwitch
   useDefaultContainer?: boolean
   resetOnLeave?: boolean

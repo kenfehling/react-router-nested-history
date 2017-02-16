@@ -15,6 +15,7 @@ export type OnContainerSwitch = (args:OnContainerSwitchArgs) => void
 
 export type ChildrenFunctionArgs = OnContainerSwitchArgs & {
   setCurrentContainerIndex: (index:number) => void
+  setCurrentContainerName: (name:string) => void
 }
 
 export type ChildrenType = ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
@@ -25,6 +26,7 @@ export interface DumbContainerGroupProps {
   storedCurrentContainerIndex: number,
   children?: ChildrenType,
   currentContainerIndex?: number,  // from user
+  currentContainerName?: string,   // from user
   onContainerActivate?: OnContainerSwitch,  // from user
   useDefaultContainer?: boolean,
   hideInactiveContainers?: boolean,
@@ -35,7 +37,8 @@ export interface DumbContainerGroupProps {
 
 export default class DumbContainerGroup extends
     Component<DumbContainerGroupProps, undefined> {
-  switchContainer: (index:number) => void
+  switchContainerIndex: (index:number) => void
+  switchContainerName: (name:string) => void
 
   static childContextTypes = {
     groupName: PropTypes.string.isRequired,
@@ -47,7 +50,7 @@ export default class DumbContainerGroup extends
 
   constructor(props:DumbContainerGroupProps) {
     super(props)
-    this.switchContainer = R.curry(switchToContainerIndex)(props.name)
+    this.switchContainerIndex = R.curry(switchToContainerIndex)(props.name)
   }
 
   getChildContext() {
@@ -90,7 +93,7 @@ export default class DumbContainerGroup extends
       this.update(newStored, newIndexedStackOrder)
     }
     else if (newInput != null && newInput !== oldInput && newInput !== newStored) {
-      this.switchContainer(newInput)
+      this.switchContainerIndex(newInput)
     }
   }
 
@@ -105,7 +108,8 @@ export default class DumbContainerGroup extends
       const args:ChildrenFunctionArgs = {
         currentContainerIndex: storedCurrentContainerIndex,
         indexedStackOrder: storedIndexedStackOrder,
-        setCurrentContainerIndex: this.switchContainer
+        setCurrentContainerIndex: this.switchContainerIndex,
+        setCurrentContainerName: this.switchContainerName
       }
       return <div>{children(args)}</div>
     }

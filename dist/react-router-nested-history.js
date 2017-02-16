@@ -20430,7 +20430,7 @@ var DumbContainerGroup = (function (_super) {
     __extends(DumbContainerGroup, _super);
     function DumbContainerGroup(props) {
         var _this = _super.call(this, props) || this;
-        _this.switchContainer = R.curry(main_1.switchToContainerIndex)(props.name);
+        _this.switchContainerIndex = R.curry(main_1.switchToContainerIndex)(props.name);
         return _this;
     }
     DumbContainerGroup.prototype.getChildContext = function () {
@@ -20464,7 +20464,7 @@ var DumbContainerGroup = (function (_super) {
             this.update(newStored, newIndexedStackOrder);
         }
         else if (newInput != null && newInput !== oldInput && newInput !== newStored) {
-            this.switchContainer(newInput);
+            this.switchContainerIndex(newInput);
         }
     };
     DumbContainerGroup.prototype.render = function () {
@@ -20473,7 +20473,8 @@ var DumbContainerGroup = (function (_super) {
             var args = {
                 currentContainerIndex: storedCurrentContainerIndex,
                 indexedStackOrder: storedIndexedStackOrder,
-                setCurrentContainerIndex: this.switchContainer
+                setCurrentContainerIndex: this.switchContainerIndex,
+                setCurrentContainerName: this.switchContainerName
             };
             return React.createElement("div", null, children(args));
         }

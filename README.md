@@ -202,7 +202,7 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>Function</td>
           <td></td>
           <td></td>
-          <td>Runs when a new container is activated via the system, by the user switching the tab, etc.</td>
+          <td>Runs when a new container is activated</td>
         </tr>
         <tr>
           <td>useDefaultContainer</td>
@@ -232,6 +232,13 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td></td>
           <td>Reset container's history when switching to another container</td>
         </tr>
+        <tr>
+          <td>children</td>
+          <td>ReactNode or function</td>
+          <td></td>
+          <td></td>
+          <td>The children of this ContainerGroup</td>
+        </tr>
     </tbody>   
 </table>
 
@@ -257,6 +264,63 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
         </tr>
     </tbody>
 </table>
+
+#### `onContainerActivate` params
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>currentContainerIndex</td>
+          <td>number</td>
+          <td>The index of the current container</td>
+        </tr>
+        <tr>
+          <td>indexedStackOrder</td>
+          <td>number[]</td>
+          <td>The indexed stack order of the containers</td>
+        </tr>
+    </tbody>
+</table>
+
+#### `children` function params
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>currentContainerIndex</td>
+          <td>number</td>
+          <td>The index of the current container</td>
+        </tr>
+        <tr>
+          <td>indexedStackOrder</td>
+          <td>number[]</td>
+          <td>The indexed stack order of the containers</td>
+        </tr>
+        <tr>
+          <td>setCurrentContainerIndex</td>
+          <td>(number)=>void</td>
+          <td>Switch the current container by index</td>
+        </tr>
+        <tr>
+          <td>setCurrentContainerName</td>
+          <td>(string)=>void</td>
+          <td>Switch the current container by name</td>
+        </tr>
+    </tbody>
+</table>
+
 
 ### WindowGroup
 A convenience component that wraps a `ContainerGroup` and is meant for
