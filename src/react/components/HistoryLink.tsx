@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { Component, PropTypes } from 'react'
-import { LinkProps } from 'react-router'
-import { createPath } from 'history/PathUtils'
-import { push } from '../../main'
+import {Component, PropTypes} from 'react'
+import {LinkProps} from 'react-router'
+import {createPath} from 'history/PathUtils'
+import {push} from '../../main'
 
 export default class HistoryLink extends Component<LinkProps, undefined> {
   static contextTypes = {

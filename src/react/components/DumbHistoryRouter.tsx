@@ -4,7 +4,7 @@ import {History, Location} from 'history'
 import StaticRouter from 'react-router/StaticRouter'
 import ReactRouterHistory from 'react-router/History'
 import {
-  setZeroPage, loadFromUrl, startup, listenToStore, hasLoadedFromUrl
+  setZeroPage, loadFromUrl, startup, listenToStore, isInitialized
 } from '../../main'
 import {locationToString, stringToLocation} from '../../util/location'
 declare const window:any
@@ -57,7 +57,7 @@ export default class DumbHistoryRouter extends
   }
 
   componentDidUpdate() {
-    if (this.state.started && !hasLoadedFromUrl()) {
+    if (this.state.started && !isInitialized()) {
       loadFromUrl(locationToString(this.props.location))
     }
   }

@@ -7,8 +7,17 @@ import ISubGroup from '../../src/model/interfaces/ISubGroup'
 import UninitializedState from '../../src/model/UninitializedState'
 import InitializedState from '../../src/model/InitializedState'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
+import Page from '../../src/model/Page'
 
 const TIME:number = 1000
+
+export const createPage = (url:string) => new Page({
+  url,
+  params: {},
+  groupName: 'Group 1',
+  containerName: 'Container 1',
+  firstVisited: 1000
+})
 
 const createCreateGroup = (name:string):CreateGroup =>
     new CreateGroup({name, time: TIME})

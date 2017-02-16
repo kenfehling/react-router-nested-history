@@ -209,9 +209,6 @@ export const getActiveGroupName = (): string => store.getState().activeGroupName
 export const isInitialized = (): boolean =>
     store.getState() instanceof InitializedState
 
-export const hasLoadedFromUrl = (): boolean =>
-    R.any(a => a instanceof LoadFromUrl, store.getActions())
-
 function runStep(step:Step) {
   const stepPromise = ():Promise<any> => {
     const currentUrl = browser.getLocation().pathname

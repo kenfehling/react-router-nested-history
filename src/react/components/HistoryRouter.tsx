@@ -43,11 +43,13 @@ class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
     const onStep = (currentUrl:string) => {
       const {titles} = this.props
       const title = getTitleForUrl(titles, currentUrl)
-      if (title) {
-        document.title = title
-      }
-      else {
-        console.warn('Cannot find title for ' + currentUrl)
+      if (canUseWindowLocation) {
+        if (title) {
+          document.title = title
+        }
+        else {
+          console.warn('Cannot find title for ' + currentUrl)
+        }
       }
     }
     addStepListener({before: onStep, after: onStep})
@@ -63,7 +65,7 @@ class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
         return stringToLocation(location)
       }
       else {
-        console.warn('You should pass _location when testing')
+        console.warn('You should pass location when testing')
         return stringToLocation('/')
       }
     }

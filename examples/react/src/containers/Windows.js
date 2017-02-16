@@ -35,9 +35,7 @@ export default () => (
       <p>Each window has its own individual history.</p>
       <p>Clicking on a window brings it to the front.</p>
     </div>
-    <WindowGroup name='windows'
-                 hideInactiveContainers={false}
-                 useDefaultContainer={false}>
+    <WindowGroup name='windows'>
       <ExampleWindow index={0} masterComponent={WindowMaster1} />
       <ExampleWindow index={1} masterComponent={WindowMaster2} />
     </WindowGroup>

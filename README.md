@@ -264,7 +264,34 @@ creating a group of `Window` components that overlap and are layered in
 the order that they were last accessed.
 
 #### props
-Same as `ContainerGroup`
+Same as `WindowGroup` but with some changes in defaults.
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>default</th>
+        <th>required</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>useDefaultContainer</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Consider the first container in the group as the default</td>
+        </tr>
+        <tr>
+          <td>hideInactiveContainers</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Don't show the content of inactive containers</td>
+        </tr>
+    </tbody>
+</table>
 
 ### Window
 A single window inside a `WindowGroup`

@@ -526,7 +526,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 // @Serializable decorator for a class
 function Serializable(target) {
     if (target.type) {
@@ -909,6 +909,71 @@ module.exports = function _has(prop, obj) {
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var _curry2 = __webpack_require__(0);
+var _dispatchable = __webpack_require__(8);
+var _map = __webpack_require__(77);
+var _reduce = __webpack_require__(17);
+var _xmap = __webpack_require__(422);
+var curryN = __webpack_require__(13);
+var keys = __webpack_require__(24);
+
+
+/**
+ * Takes a function and
+ * a [functor](https://github.com/fantasyland/fantasy-land#functor),
+ * applies the function to each of the functor's values, and returns
+ * a functor of the same shape.
+ *
+ * Ramda provides suitable `map` implementations for `Array` and `Object`,
+ * so this function may be applied to `[1, 2, 3]` or `{x: 1, y: 2, z: 3}`.
+ *
+ * Dispatches to the `map` method of the second argument, if present.
+ *
+ * Acts as a transducer if a transformer is given in list position.
+ *
+ * Also treats functions as functors and will compose them together.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category List
+ * @sig Functor f => (a -> b) -> f a -> f b
+ * @param {Function} fn The function to be called on every element of the input `list`.
+ * @param {Array} list The list to be iterated over.
+ * @return {Array} The new list.
+ * @see R.transduce, R.addIndex
+ * @example
+ *
+ *      var double = x => x * 2;
+ *
+ *      R.map(double, [1, 2, 3]); //=> [2, 4, 6]
+ *
+ *      R.map(double, {x: 1, y: 2, z: 3}); //=> {x: 2, y: 4, z: 6}
+ * @symb R.map(f, [a, b]) = [f(a), f(b)]
+ * @symb R.map(f, { x: a, y: b }) = { x: f(a), y: f(b) }
+ * @symb R.map(f, functor_o) = functor_o.map(f)
+ */
+module.exports = _curry2(_dispatchable(['map'], _xmap, function map(fn, functor) {
+  switch (Object.prototype.toString.call(functor)) {
+    case '[object Function]':
+      return curryN(functor.length, function() {
+        return fn.call(this, functor.apply(this, arguments));
+      });
+    case '[object Object]':
+      return _reduce(function(acc, key) {
+        acc[key] = fn(functor[key]);
+        return acc;
+      }, {}, keys(functor));
+    default:
+      return _map(fn, functor);
+  }
+}));
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
 module.exports = {
   F: __webpack_require__(335),
   T: __webpack_require__(336),
@@ -1023,7 +1088,7 @@ module.exports = {
   liftN: __webpack_require__(202),
   lt: __webpack_require__(440),
   lte: __webpack_require__(441),
-  map: __webpack_require__(16),
+  map: __webpack_require__(15),
   mapAccum: __webpack_require__(442),
   mapAccumRight: __webpack_require__(443),
   mapObjIndexed: __webpack_require__(444),
@@ -1149,71 +1214,6 @@ module.exports = {
   zipObj: __webpack_require__(527),
   zipWith: __webpack_require__(528)
 };
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _curry2 = __webpack_require__(0);
-var _dispatchable = __webpack_require__(8);
-var _map = __webpack_require__(77);
-var _reduce = __webpack_require__(17);
-var _xmap = __webpack_require__(422);
-var curryN = __webpack_require__(13);
-var keys = __webpack_require__(24);
-
-
-/**
- * Takes a function and
- * a [functor](https://github.com/fantasyland/fantasy-land#functor),
- * applies the function to each of the functor's values, and returns
- * a functor of the same shape.
- *
- * Ramda provides suitable `map` implementations for `Array` and `Object`,
- * so this function may be applied to `[1, 2, 3]` or `{x: 1, y: 2, z: 3}`.
- *
- * Dispatches to the `map` method of the second argument, if present.
- *
- * Acts as a transducer if a transformer is given in list position.
- *
- * Also treats functions as functors and will compose them together.
- *
- * @func
- * @memberOf R
- * @since v0.1.0
- * @category List
- * @sig Functor f => (a -> b) -> f a -> f b
- * @param {Function} fn The function to be called on every element of the input `list`.
- * @param {Array} list The list to be iterated over.
- * @return {Array} The new list.
- * @see R.transduce, R.addIndex
- * @example
- *
- *      var double = x => x * 2;
- *
- *      R.map(double, [1, 2, 3]); //=> [2, 4, 6]
- *
- *      R.map(double, {x: 1, y: 2, z: 3}); //=> {x: 2, y: 4, z: 6}
- * @symb R.map(f, [a, b]) = [f(a), f(b)]
- * @symb R.map(f, { x: a, y: b }) = { x: f(a), y: f(b) }
- * @symb R.map(f, functor_o) = functor_o.map(f)
- */
-module.exports = _curry2(_dispatchable(['map'], _xmap, function map(fn, functor) {
-  switch (Object.prototype.toString.call(functor)) {
-    case '[object Function]':
-      return curryN(functor.length, function() {
-        return fn.call(this, functor.apply(this, arguments));
-      });
-    case '[object Object]':
-      return _reduce(function(acc, key) {
-        acc[key] = fn(functor[key]);
-        return acc;
-      }, {}, keys(functor));
-    default:
-      return _map(fn, functor);
-  }
-}));
 
 
 /***/ }),
@@ -1402,7 +1402,6 @@ var history_1 = __webpack_require__(99);
 var Queue = __webpack_require__(331);
 var location_1 = __webpack_require__(33);
 var url_1 = __webpack_require__(68);
-var R = __webpack_require__(15);
 var Page_1 = __webpack_require__(66);
 var UpdateBrowser_1 = __webpack_require__(286);
 var LoadFromUrl_1 = __webpack_require__(149);
@@ -1573,9 +1572,6 @@ exports.getActiveGroup = function () { return store_1.default.getState().activeG
 exports.getActiveGroupName = function () { return store_1.default.getState().activeGroupName; };
 exports.isInitialized = function () {
     return store_1.default.getState() instanceof InitializedState_1.default;
-};
-exports.hasLoadedFromUrl = function () {
-    return R.any(function (a) { return a instanceof LoadFromUrl_1.default; }, store_1.default.getActions());
 };
 function runStep(step) {
     var stepPromise = function () {
@@ -4446,7 +4442,7 @@ module.exports = _curry2(function path(paths, obj) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 var prop = __webpack_require__(112);
 
 
@@ -5543,7 +5539,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 /**
  * Not really a stack in the strictest definition, rather two arrays and a value,
  * but the name History is already built-in type in TypeScript
@@ -5758,7 +5754,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var serializer_1 = __webpack_require__(10);
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 var Page = Page_1 = (function () {
     function Page(_a) {
         var url = _a.url, params = _a.params, groupName = _a.groupName, containerName = _a.containerName, _b = _a.firstVisited, firstVisited = _b === void 0 ? 0 : _b, _c = _a.lastVisited, lastVisited = _c === void 0 ? 0 : _c, _d = _a.isZeroPage, isZeroPage = _d === void 0 ? false : _d;
@@ -5848,7 +5844,7 @@ exports.default = NonStepAction;
 var pathToRegexp = __webpack_require__(330);
 var LocationUtils_1 = __webpack_require__(50);
 var matchPattern_1 = __webpack_require__(89);
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 exports.addLeadingSlash = function (path) { return path.replace(/\/?(\?|#|$)?/, '/$1'); };
 exports.addTrailingSlash = function (path) { return path.replace(/\/?(\?|#|$)/, '/$1'); };
 exports.stripLeadingSlash = function (path) { return path.charAt(0) === '/' ? path.substr(1) : path; };
@@ -6143,7 +6139,7 @@ module.exports = function _map(fn, functor) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 
 
 /**
@@ -7266,7 +7262,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 var IState_1 = __webpack_require__(147);
 var HistoryStack_1 = __webpack_require__(65);
 var InitializedState = (function (_super) {
@@ -7496,7 +7492,7 @@ var redux_thunk_1 = __webpack_require__(258);
 var redux_persist_1 = __webpack_require__(634);
 var reducers_1 = __webpack_require__(294);
 var location_1 = __webpack_require__(33);
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 var LoadFromUrl_1 = __webpack_require__(149);
 var InitializedState_1 = __webpack_require__(93);
 var UninitializedState_1 = __webpack_require__(148);
@@ -8411,7 +8407,7 @@ function isPlainObject(value) {
 var _concat = __webpack_require__(19);
 var _curry2 = __webpack_require__(0);
 var _reduce = __webpack_require__(17);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 
 
 /**
@@ -8455,7 +8451,7 @@ var _curry2 = __webpack_require__(0);
 var _dispatchable = __webpack_require__(8);
 var _makeFlat = __webpack_require__(194);
 var _xchain = __webpack_require__(412);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 
 
 /**
@@ -11936,7 +11932,7 @@ var main_1 = __webpack_require__(21);
 var Container_1 = __webpack_require__(144);
 var DumbContainer_1 = __webpack_require__(154);
 var server_1 = __webpack_require__(246);
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 var CreateGroup_1 = __webpack_require__(279);
 /**
  * Recursively gets the children of a component for simlated rendering
@@ -12209,7 +12205,7 @@ exports.default = Container;
 
 var Page_1 = __webpack_require__(66);
 var Container_1 = __webpack_require__(146);
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 var Group_1 = __webpack_require__(275);
 var IState = (function () {
     function IState(_a) {
@@ -12884,7 +12880,7 @@ exports.default = store;
 
 "use strict";
 
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 exports.getTitleForUrl = function (titles, url) {
     var found = R.find(function (t) { return t.url === url; }, titles);
     return found ? found.title : null;
@@ -12898,7 +12894,7 @@ exports.getTitleForUrl = function (titles, url) {
 "use strict";
 
 var BackStep_1 = __webpack_require__(287);
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 var PushStep_1 = __webpack_require__(289);
 var HistoryDiff_1 = __webpack_require__(276);
 var ReplaceStep_1 = __webpack_require__(290);
@@ -13498,7 +13494,7 @@ module.exports = _curry2(function bind(fn, thisObj) {
 
 var chain = __webpack_require__(103);
 var compose = __webpack_require__(104);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 
 
 /**
@@ -14472,7 +14468,7 @@ var _curry2 = __webpack_require__(0);
 var _reduce = __webpack_require__(17);
 var ap = __webpack_require__(102);
 var curryN = __webpack_require__(13);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 
 
 /**
@@ -14967,7 +14963,7 @@ module.exports = _curry3(function reduceRight(fn, acc, list) {
 
 var _curry2 = __webpack_require__(0);
 var ap = __webpack_require__(102);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 var prepend = __webpack_require__(213);
 var reduceRight = __webpack_require__(214);
 
@@ -18968,11 +18964,13 @@ var HistoryRouter = (function (_super) {
         var onStep = function (currentUrl) {
             var titles = _this.props.titles;
             var title = titles_1.getTitleForUrl(titles, currentUrl);
-            if (title) {
-                document.title = title;
-            }
-            else {
-                console.warn('Cannot find title for ' + currentUrl);
+            if (location_1.canUseWindowLocation) {
+                if (title) {
+                    document.title = title;
+                }
+                else {
+                    console.warn('Cannot find title for ' + currentUrl);
+                }
             }
         };
         main_1.addStepListener({ before: onStep, after: onStep });
@@ -18987,7 +18985,7 @@ var HistoryRouter = (function (_super) {
                 return location_1.stringToLocation(location_2);
             }
             else {
-                console.warn('You should pass _location when testing');
+                console.warn('You should pass location when testing');
                 return location_1.stringToLocation('/');
             }
         }
@@ -19057,18 +19055,15 @@ var __rest = (this && this.__rest) || function (s, e) {
 var React = __webpack_require__(3);
 var react_1 = __webpack_require__(3);
 var ContainerGroup_1 = __webpack_require__(145);
-function getWindowZIndex(indexedStackOrder, index) {
-    if (indexedStackOrder.length > index) {
-        return indexedStackOrder.length - indexedStackOrder[index] + 1;
-    }
-    else {
-        return 1;
-    }
-}
+var getWindowZIndex = function (iOrder, index) {
+    return iOrder.length === 0 ? 1 : iOrder.length - iOrder[index] + 1;
+};
+var defaultToFalse = function (p) { return p == null ? false : p; };
+var changeDefaults = function (props) { return (__assign({}, props, { useDefaultContainer: defaultToFalse(props.useDefaultContainer), hideInactiveContainers: defaultToFalse(props.hideInactiveContainers) })); };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (_a) {
     var children = _a.children, groupProps = __rest(_a, ["children"]);
-    return (React.createElement(ContainerGroup_1.default, __assign({}, groupProps, { children: function (props) {
+    return (React.createElement(ContainerGroup_1.default, __assign({}, changeDefaults(groupProps), { children: function (props) {
             var c = children instanceof Function ?
                 children(props).props.children : children;
             return (React.createElement("div", { style: { position: 'relative' } }, react_1.Children.map(c, function (child, i) { return (React.createElement("div", { key: i, onClick: function () { return props.setCurrentContainerIndex(i); }, className: 'rrnh-window-wrapper-' + (i + 1), style: {
@@ -19312,7 +19307,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 var defaultBehavior = __webpack_require__(272);
 var nonDefaultBehavior = __webpack_require__(274);
 var keepFwdTabBehavior = __webpack_require__(273);
@@ -20391,7 +20386,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var React = __webpack_require__(3);
 var react_1 = __webpack_require__(3);
 var main_1 = __webpack_require__(21);
-var R = __webpack_require__(15);
+var R = __webpack_require__(16);
 var DumbContainerGroup = (function (_super) {
     __extends(DumbContainerGroup, _super);
     function DumbContainerGroup(props) {
@@ -20521,7 +20516,7 @@ var DumbHistoryRouter = (function (_super) {
         }
     };
     DumbHistoryRouter.prototype.componentDidUpdate = function () {
-        if (this.state.started && !main_1.hasLoadedFromUrl()) {
+        if (this.state.started && !main_1.isInitialized()) {
             main_1.loadFromUrl(location_1.locationToString(this.props.location));
         }
     };
@@ -23396,7 +23391,7 @@ module.exports = _curry2(function append(el, list) {
 var _curry1 = __webpack_require__(1);
 var apply = __webpack_require__(170);
 var curryN = __webpack_require__(13);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 var max = __webpack_require__(43);
 var pluck = __webpack_require__(56);
 var reduce = __webpack_require__(25);
@@ -23799,7 +23794,7 @@ module.exports = function composeP() {
 
 var _arity = __webpack_require__(23);
 var _curry1 = __webpack_require__(1);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 var max = __webpack_require__(43);
 var reduce = __webpack_require__(25);
 
@@ -25940,7 +25935,7 @@ module.exports = (function() {
 
 var _curry2 = __webpack_require__(0);
 var _flatCat = __webpack_require__(398);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 
 
 module.exports = _curry2(function _xchain(f, xf) {
@@ -29445,7 +29440,7 @@ module.exports = _curry1(function transpose(outerlist) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry3 = __webpack_require__(2);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 var sequence = __webpack_require__(215);
 
 
@@ -30019,7 +30014,7 @@ module.exports = _curry3(function when(pred, whenTrueFn, x) {
 
 var _curry2 = __webpack_require__(0);
 var equals = __webpack_require__(22);
-var map = __webpack_require__(16);
+var map = __webpack_require__(15);
 var where = __webpack_require__(223);
 
 

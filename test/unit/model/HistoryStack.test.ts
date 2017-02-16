@@ -1,5 +1,5 @@
 import HistoryStack from '../../../src/model/HistoryStack'
-import {createPage} from '../helpers'
+import {createPage} from '../fixtures'
 import Page from '../../../src/model/Page'
 declare const describe:any
 declare const it:any

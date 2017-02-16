@@ -1,23 +1,23 @@
 import * as React from 'react'
-import {Component, Children, ReactNode, ReactElement} from 'react'
+import {Children, ReactNode, ReactElement} from 'react'
 import ContainerGroup from './ContainerGroup'
 import {ContainerGroupProps} from './ContainerGroup'
 import {ChildrenFunctionArgs} from './DumbContainerGroup'
 
-function getWindowZIndex(indexedStackOrder, index) {
-  if (indexedStackOrder.length > index) {
-    return indexedStackOrder.length - indexedStackOrder[index] + 1
-  }
-  else {
-    return 1
-  }
-}
+const getWindowZIndex = (iOrder, index) =>
+    iOrder.length === 0 ? 1 : iOrder.length - iOrder[index] + 1
+const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
+
+const changeDefaults = (props:ContainerGroupProps):ContainerGroupProps => ({
+  ...props,
+  useDefaultContainer: defaultToFalse(props.useDefaultContainer),
+  hideInactiveContainers: defaultToFalse(props.hideInactiveContainers)
+})
 
 export default ({children, ...groupProps}:ContainerGroupProps) => (
   <ContainerGroup
-    {...groupProps}
+    {...changeDefaults(groupProps)}
     children={(props:ChildrenFunctionArgs) => {
-
       const c:ReactNode = children instanceof Function ?
             children(props).props.children : children
 

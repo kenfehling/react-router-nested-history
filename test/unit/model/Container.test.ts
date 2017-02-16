@@ -1,6 +1,6 @@
 import History from '../../../src/model/HistoryStack'
 import Container from '../../../src/model/Container'
-import {createPage} from '../helpers'
+import {createPage} from '../fixtures'
 declare const describe:any
 declare const it:any
 declare const expect:any
