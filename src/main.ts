@@ -203,6 +203,9 @@ export const getIndexedContainerStackOrder = (groupName:string) : number[] =>
 export const getActiveContainerIndexInGroup = (groupName:string): number =>
     store.getState().getActiveContainerIndexInGroup(groupName)
 
+export const getActiveContainerNameInGroup = (groupName:string): string =>
+    store.getState().getActiveContainerNameInGroup(groupName)
+
 export const getActiveGroup = (): Group => store.getState().activeGroup
 export const getActiveGroupName = (): string => store.getState().activeGroupName
 

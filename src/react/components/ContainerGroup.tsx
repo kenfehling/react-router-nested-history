@@ -9,7 +9,7 @@ import DumbContainerGroup, {
 } from './DumbContainerGroup'
 import {
   getIndexedContainerStackOrder, getActivePageInGroup, getOrCreateGroup,
-  getActiveContainerIndexInGroup, isInitialized,
+  getActiveContainerIndexInGroup, isInitialized, getActiveContainerNameInGroup,
 } from '../../main'
 import Container from './Container'
 import DumbContainer from './DumbContainer'
@@ -61,11 +61,13 @@ type CreatedGroupProps = ContainerGroupProps & {
 const mapStateToProps = (state:ReduxState,
                          ownProps:CreatedGroupProps):DumbContainerGroupProps => {
   const {name} = ownProps
+  const initialized:boolean = isInitialized()
   return {
     name,
     storedCurrentContainerIndex: getActiveContainerIndexInGroup(name),
+    storedCurrentContainerName: initialized ? getActiveContainerNameInGroup(name) : null,
     storedIndexedStackOrder: getIndexedContainerStackOrder(name),
-    storedActivePage: isInitialized() ? getActivePageInGroup(name) : null,
+    storedActivePage: initialized ? getActivePageInGroup(name) : null,
     storedLastAction: store.getLastAction()
   }
 }

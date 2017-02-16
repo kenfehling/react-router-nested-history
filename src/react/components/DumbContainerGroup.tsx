@@ -22,17 +22,18 @@ export type ChildrenType = ReactNode | ((args:ChildrenFunctionArgs) => ReactElem
 
 export interface DumbContainerGroupProps {
   name: string,
-  storedIndexedStackOrder: number[]
-  storedCurrentContainerIndex: number,
   children?: ChildrenType,
-  currentContainerIndex?: number,  // from user
-  currentContainerName?: string,   // from user
+  currentContainerIndex?: number,           // from user
+  currentContainerName?: string,            // from user
   onContainerActivate?: OnContainerSwitch,  // from user
   useDefaultContainer?: boolean,
   hideInactiveContainers?: boolean,
   gotoTopOnSelectActive?: boolean,
   storedActivePage: Page|null,
-  storedLastAction: Action
+  storedLastAction: Action,
+  storedIndexedStackOrder: number[]
+  storedCurrentContainerIndex: number,
+  storedCurrentContainerName: string|null,
 }
 
 export default class DumbContainerGroup extends
@@ -82,18 +83,25 @@ export default class DumbContainerGroup extends
   }
 
   componentWillReceiveProps(nextProps) {
-    const oldInput:number|undefined = this.props.currentContainerIndex
-    const oldStored:number = this.props.storedCurrentContainerIndex
-    const newInput:number = nextProps.currentContainerIndex
-    const newStored:number = nextProps.storedCurrentContainerIndex
+    const oldII:number|undefined = this.props.currentContainerIndex
+    const oldSI:number = this.props.storedCurrentContainerIndex
+    const newII:number = nextProps.currentContainerIndex
+    const newSI:number = nextProps.storedCurrentContainerIndex
+    const oldIN:string|undefined = this.props.currentContainerName
+    const oldSN:string|null = this.props.storedCurrentContainerName
+    const newIN:string = nextProps.currentContainerName
+    const newSN:string = nextProps.storedCurrentContainerName
     const oldIndexedStackOrder:number[]|null = this.props.storedIndexedStackOrder
     const newIndexedStackOrder:number[] = nextProps.storedIndexedStackOrder
-    if (newStored !== oldStored ||
+    if (newSI !== oldSI || newSN !== oldSN ||
         !R.equals(oldIndexedStackOrder, newIndexedStackOrder)) {
-      this.update(newStored, newIndexedStackOrder)
+      this.update(newSI, newIndexedStackOrder)
     }
-    else if (newInput != null && newInput !== oldInput && newInput !== newStored) {
-      this.switchContainerIndex(newInput)
+    else if (newII != null && newII !== oldII && newII !== newSI) {
+      this.switchContainerIndex(newII)
+    }
+    else if (newIN && newIN !== oldIN && newIN !== newSN) {
+      this.switchContainerName(newIN)
     }
   }
 

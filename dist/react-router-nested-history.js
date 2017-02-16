@@ -1568,6 +1568,9 @@ exports.getIndexedContainerStackOrder = function (groupName) {
 exports.getActiveContainerIndexInGroup = function (groupName) {
     return store_1.default.getState().getActiveContainerIndexInGroup(groupName);
 };
+exports.getActiveContainerNameInGroup = function (groupName) {
+    return store_1.default.getState().getActiveContainerNameInGroup(groupName);
+};
 exports.getActiveGroup = function () { return store_1.default.getState().activeGroup; };
 exports.getActiveGroupName = function () { return store_1.default.getState().activeGroupName; };
 exports.isInitialized = function () {
@@ -11960,11 +11963,13 @@ function getChildren(component, depth) {
 }
 var mapStateToProps = function (state, ownProps) {
     var name = ownProps.name;
+    var initialized = main_1.isInitialized();
     return {
         name: name,
         storedCurrentContainerIndex: main_1.getActiveContainerIndexInGroup(name),
+        storedCurrentContainerName: initialized ? main_1.getActiveContainerNameInGroup(name) : null,
         storedIndexedStackOrder: main_1.getIndexedContainerStackOrder(name),
-        storedActivePage: main_1.isInitialized() ? main_1.getActivePageInGroup(name) : null,
+        storedActivePage: initialized ? main_1.getActivePageInGroup(name) : null,
         storedLastAction: store_1.default.getLastAction()
     };
 };
@@ -20453,18 +20458,25 @@ var DumbContainerGroup = (function (_super) {
         this.update(storedCurrentContainerIndex, storedIndexedStackOrder);
     };
     DumbContainerGroup.prototype.componentWillReceiveProps = function (nextProps) {
-        var oldInput = this.props.currentContainerIndex;
-        var oldStored = this.props.storedCurrentContainerIndex;
-        var newInput = nextProps.currentContainerIndex;
-        var newStored = nextProps.storedCurrentContainerIndex;
+        var oldII = this.props.currentContainerIndex;
+        var oldSI = this.props.storedCurrentContainerIndex;
+        var newII = nextProps.currentContainerIndex;
+        var newSI = nextProps.storedCurrentContainerIndex;
+        var oldIN = this.props.currentContainerName;
+        var oldSN = this.props.storedCurrentContainerName;
+        var newIN = nextProps.currentContainerName;
+        var newSN = nextProps.storedCurrentContainerName;
         var oldIndexedStackOrder = this.props.storedIndexedStackOrder;
         var newIndexedStackOrder = nextProps.storedIndexedStackOrder;
-        if (newStored !== oldStored ||
+        if (newSI !== oldSI || newSN !== oldSN ||
             !R.equals(oldIndexedStackOrder, newIndexedStackOrder)) {
-            this.update(newStored, newIndexedStackOrder);
+            this.update(newSI, newIndexedStackOrder);
         }
-        else if (newInput != null && newInput !== oldInput && newInput !== newStored) {
-            this.switchContainerIndex(newInput);
+        else if (newII != null && newII !== oldII && newII !== newSI) {
+            this.switchContainerIndex(newII);
+        }
+        else if (newIN && newIN !== oldIN && newIN !== newSN) {
+            this.switchContainerName(newIN);
         }
     };
     DumbContainerGroup.prototype.render = function () {
