@@ -9,14 +9,19 @@
 
 .state-tree .current-page {
   padding: 0 8px;
-  border: thin solid #a1ff9d;
+  border: thin solid #ffca90;
   border-radius: 4px;
 }
 
-.state-tree .current-page.active {
-  background-color: #e2ffe8;
+.state-tree .current-page.container {
+  background-color: #ffe5d5;
 }
 
 .state-tree .current-page.group {
-  background-color: #a1ff9d;
+  background-color: #ffca90;
+}
+
+.state-tree .current-page.browser {
+  border: thin solid #ff7c70;
+  background-color: #ff7c70;
 }
