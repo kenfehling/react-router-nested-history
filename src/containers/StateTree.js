@@ -16,18 +16,18 @@ const HistoryTree = ({history, className}) => (
   </div>
 )
 
-const GroupTree = ({group}) => (
+const GroupTree = ({group, activeGroup}) => (
   <div>
     <div>{'Group: ' + group.name}</div>
-    <HistoryTree history={group.history} className="group" />
+    <HistoryTree history={group.history}
+                 className={activeGroup === group.name ? 'browser' : 'group'} />
     <div>
       {group.containers.map(container =>
         <div key={group.name + ' ' + container.name}>
           {container.isGroup ? <GroupTree group={container} /> : (
             <div>
               <div>{'Container: ' + container.name}</div>
-              <HistoryTree history={container.history}
-                   className={`container ${group.activeContainerName === container.name ? 'active' : ''}`} />
+              <HistoryTree history={container.history} className={`container`} />
             </div>
           )}
         </div>
@@ -36,9 +36,14 @@ const GroupTree = ({group}) => (
   </div>
 )
 
-const StateTree = ({groups}) => (
+const StateTree = ({groups, activeGroup}) => (
   <div className="state-tree">
-    {groups.map(group => <GroupTree key={group.name} group={group} />)}
+    {groups.map(group => (
+      <GroupTree key={group.name}
+                 group={group}
+                 activeGroup={activeGroup}
+      />
+    ))}
   </div>
 )
 
@@ -52,7 +57,10 @@ export default class extends Component {
 
   componentWillMount() {
     this.unlisten = addChangeListener(state => {
-      this.setState({groups: state.groups})
+      this.setState({
+        groups: state.groups,
+        activeGroup: state.activeGroupName
+      })
     })
   }
 
@@ -61,6 +69,6 @@ export default class extends Component {
   }
 
   render() {
-    return <StateTree groups={this.state.groups} />
+    return <StateTree {...this.state} />
   }
 }
