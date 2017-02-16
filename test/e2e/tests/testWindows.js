@@ -2,7 +2,7 @@ const path = (p) => 'http://localhost:8080' + p
 
 const checkWindowZIndex = (client, windowNumber, expected) => {
   return client
-    .getCssProperty('.rrnh-window-wrapper-' + windowNumber, 'z-index', r => {
+    .getCssProperty('.window' + windowNumber, 'z-index', r => {
       console.log(r.value)
       client.assert.equal(r.value, expected)
     })

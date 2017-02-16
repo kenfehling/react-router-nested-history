@@ -19013,6 +19013,11 @@ exports.default = function (props) { return (React.createElement(ConnectedHistor
 
 "use strict";
 
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
@@ -19022,11 +19027,24 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 var React = __webpack_require__(3);
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = function (_a) {
-    var top = _a.top, left = _a.left, children = _a.children, className = _a.className, style = _a.style;
-    return (React.createElement("div", { className: className, style: __assign({}, style, { position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }, children));
+var react_1 = __webpack_require__(3);
+var Window = (function (_super) {
+    __extends(Window, _super);
+    function Window() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Window.prototype.render = function () {
+        var _a = this.props, top = _a.top, left = _a.left, children = _a.children, className = _a.className, style = _a.style;
+        var zIndex = this.context.zIndex;
+        return (React.createElement("div", { className: className, style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }, children));
+    };
+    return Window;
+}(react_1.Component));
+Window.contextTypes = {
+    zIndex: react_1.PropTypes.number.isRequired
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = Window;
 
 
 /***/ }),
@@ -19035,6 +19053,11 @@ exports.default = function (_a) {
 
 "use strict";
 
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
@@ -19060,16 +19083,32 @@ var getWindowZIndex = function (iOrder, index) {
 };
 var defaultToFalse = function (p) { return p == null ? false : p; };
 var changeDefaults = function (props) { return (__assign({}, props, { useDefaultContainer: defaultToFalse(props.useDefaultContainer), hideInactiveContainers: defaultToFalse(props.hideInactiveContainers) })); };
+var WindowWrapper = (function (_super) {
+    __extends(WindowWrapper, _super);
+    function WindowWrapper() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    WindowWrapper.prototype.getChildContext = function () {
+        return {
+            zIndex: this.props.zIndex
+        };
+    };
+    WindowWrapper.prototype.render = function () {
+        var _a = this.props, onClick = _a.onClick, children = _a.children;
+        return React.createElement("div", { onClick: onClick }, children);
+    };
+    return WindowWrapper;
+}(react_1.Component));
+WindowWrapper.childContextTypes = {
+    zIndex: react_1.PropTypes.number.isRequired
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (_a) {
     var children = _a.children, groupProps = __rest(_a, ["children"]);
     return (React.createElement(ContainerGroup_1.default, __assign({}, changeDefaults(groupProps), { children: function (props) {
             var c = children instanceof Function ?
                 children(props).props.children : children;
-            return (React.createElement("div", { style: { position: 'relative' } }, react_1.Children.map(c, function (child, i) { return (React.createElement("div", { key: i, onClick: function () { return props.setCurrentContainerIndex(i); }, className: 'rrnh-window-wrapper-' + (i + 1), style: {
-                    zIndex: getWindowZIndex(props.indexedStackOrder, i),
-                    position: 'absolute'
-                } }, child)); })));
+            return (React.createElement("div", { style: { position: 'relative' } }, react_1.Children.map(c, function (child, i) { return (React.createElement(WindowWrapper, { key: i, onClick: function () { return props.setCurrentContainerIndex(i); }, zIndex: getWindowZIndex(props.indexedStackOrder, i) }, child)); })));
         } })));
 };
 
