@@ -7,7 +7,7 @@ import * as Queue from 'promise-queue'
 import {canUseWindowLocation} from './util/location'
 import {parseParamsFromPatterns} from './util/url'
 import * as R from 'ramda'
-import State from './model/State'
+import IState from './model/IState'
 import Group from './model/Group'
 import Page from './model/Page'
 import Step from './model/interfaces/Step'
@@ -15,9 +15,6 @@ import Action from './model/Action'
 import UpdateBrowser from './model/actions/UpdateBrowser'
 import LoadFromUrl from './model/actions/LoadFromUrl'
 import IContainer from './model/interfaces/IContainer'
-import GroupNotFound from './model/errors/GroupNotFound'
-import ContainerNotFound from './model/errors/ContainerNotFound'
-import {catchTypes, catchType} from './util/misc'
 import CreateGroup from './model/actions/CreateGroup'
 import Go from './model/actions/Go'
 import Back from './model/actions/Back'
@@ -31,6 +28,7 @@ import CreateContainer from './model/actions/CreateContainer'
 import SwitchToGroup from './model/actions/SwitchToGroup'
 import Startup from './model/actions/Startup'
 import Container from './model/Container'
+import InitializedState from './model/InitializedState'
 declare const window
 declare const CustomEvent
 
@@ -59,10 +57,10 @@ const startListeningPromise = () => new Promise(resolve => {
   return resolve()
 })
 
-export const addChangeListener = (callback:(state:State)=>void) => {
+export const addChangeListener = (callback:(state:IState)=>void) => {
   const fn:Function = () => {
-    const state:State = store.getState()
-    if (state.isInitialized) {
+    const state:IState = store.getState()
+    if (state instanceof InitializedState) {
       callback(state)
     }
   }
@@ -88,7 +86,7 @@ export const hasGroupWithName = (name:string):boolean =>
 
 const createGroup = (action:CreateGroup):Promise<Group> => {
   return store.dispatch(action).then(
-    (state:State) => Promise.resolve(state.getGroupByName(action.name)))
+    (state:IState) => Promise.resolve(state.getGroupByName(action.name)))
 }
 
 export const getOrCreateGroup = (action:CreateGroup):Promise<Group> => {
@@ -101,12 +99,12 @@ export const getOrCreateGroup = (action:CreateGroup):Promise<Group> => {
 }
 
 const createContainer = (action:CreateContainer):Promise<IContainer> => {
-  return store.dispatch(action).then((state:State) =>
+  return store.dispatch(action).then((state:IState) =>
          state.getGroupByName(action.groupName).getContainerByName(action.name))
 }
 
 export const getOrCreateContainer = (action:CreateContainer):Promise<IContainer> => {
-  const state:State = store.getState()
+  const state:IState = store.getState()
   const group:Group = state.getGroupByName(action.groupName)
   if (group.hasContainerWithName(action.name)) {
     return Promise.resolve(group.getContainerByName(action.name))
@@ -116,15 +114,15 @@ export const getOrCreateContainer = (action:CreateContainer):Promise<IContainer>
   }
 }
 
-export const switchToGroup = (groupName:string):Promise<State> =>
+export const switchToGroup = (groupName:string):Promise<IState> =>
     store.dispatch(new SwitchToGroup({groupName}))
 
-export const switchToContainerName = (act:SwitchToContainer):Promise<State> => {
+export const switchToContainerName = (act:SwitchToContainer):Promise<IState> => {
   return store.dispatch(act)
 }
 
 export const switchToContainerIndex = (groupName:string,
-                                       index:number):Promise<State> => {
+                                       index:number):Promise<IState> => {
   const group:Group = getGroupByName(groupName)
   const container:IContainer = group.containers[index]
   if (container) {
@@ -138,7 +136,7 @@ export const switchToContainerIndex = (groupName:string,
 }
 
 export const push = (groupName:string, containerName:string, url:string,
-                     patterns:string[]):Promise<State> => {
+                     patterns:string[]):Promise<IState> => {
   const params:Object = parseParamsFromPatterns(patterns, url)
   const page:Page = new Page({
     url,
@@ -150,66 +148,50 @@ export const push = (groupName:string, containerName:string, url:string,
   return store.dispatch(new Push({page}))
 }
 
-export const startup = ():Promise<State> =>
+export const startup = ():Promise<IState> =>
     store.persist({whitelist: ['actions']}).then(() =>
     store.dispatch(new Startup({fromRefresh: browser.wasLoadedFromRefresh})))
 
-export const loadFromUrl = (url:string):Promise<State> =>
+export const loadFromUrl = (url:string):Promise<IState> =>
     store.dispatch(new LoadFromUrl({
       url,
       fromRefresh: browser.wasLoadedFromRefresh
     }))
 
-export const setZeroPage = (url:string|null):Promise<State> =>
+export const setZeroPage = (url:string|null):Promise<IState> =>
     store.dispatch(new SetZeroPage({url}))
 
-export const top = (action:Top):Promise<State> => store.dispatch(action)
+export const top = (action:Top):Promise<IState> => store.dispatch(action)
 
-export const go = (n:number=1):Promise<State> => store.dispatch(new Go({n}))
+export const go = (n:number=1):Promise<IState> => store.dispatch(new Go({n}))
 
-export const back = (n:number=1):Promise<State> => store.dispatch(new Back({n}))
+export const back = (n:number=1):Promise<IState> => store.dispatch(new Back({n}))
 
-export const forward = (n:number=1):Promise<State> =>
+export const forward = (n:number=1):Promise<IState> =>
     store.dispatch(new Forward({n}))
 
 export const getBackPage = ():Page => store.getState().backPage
 
-export const getActivePageInGroup = (groupName:string):Page|null =>
+export const getActivePageInGroup = (groupName:string):Page =>
     store.getState().getActivePageInGroup(groupName)
 
-export const getActiveUrlInGroup = (groupName:string):string|null => {
-  const page:Page|null = getActivePageInGroup(groupName)
-  return page ? page.url : null
-}
+export const getActiveUrlInGroup = (groupName:string):string =>
+    store.getState().getActivePageInGroup(groupName).url
 
-export const urlMatchesGroup = (url:string, groupName:string):boolean => {
-  return getGroupByName(groupName).patternsMatch(url)
-}
+export const urlMatchesGroup = (url:string, groupName:string):boolean =>
+    getGroupByName(groupName).patternsMatch(url)
 
 export const getActivePageInContainer = (groupName:string,
                                          containerName:string):Page =>
     store.getState().getActivePageInContainer(groupName, containerName)
 
 export const getActiveUrlInContainer = (groupName:string,
-                                        containerName:string):string|null => {
-  try {
-    const page:Page|null = getActivePageInContainer(groupName, containerName)
-    return page ? page.url : null
-  }
-  catch(e) {
-    return catchTypes(e, [GroupNotFound, ContainerNotFound], null)
-  }
-}
+                                        containerName:string):string =>
+  store.getState().getActiveUrlInContainer(groupName, containerName)
 
 export const getContainerLinkUrl = (groupName:string,
-                                    containerName:string):string => {
-  try {
-    return store.getState().getContainerLinkUrl(groupName, containerName)
-  }
-  catch(e) {
-    return catchTypes(e, [GroupNotFound, ContainerNotFound], '')
-  }
-}
+                                    containerName:string):string =>
+  store.getState().getContainerLinkUrl(groupName, containerName)
 
 export const isContainerActive = (groupName:string,
                                containerName:string):boolean =>
@@ -223,7 +205,9 @@ export const getActiveContainerIndexInGroup = (groupName:string): number =>
 
 export const getActiveGroup = (): Group => store.getState().activeGroup
 export const getActiveGroupName = (): string => store.getState().activeGroupName
-export const isInitialized = (): boolean => store.getState().isInitialized
+
+export const isInitialized = (): boolean =>
+    store.getState() instanceof InitializedState
 
 export const hasLoadedFromUrl = (): boolean =>
     R.any(a => a instanceof LoadFromUrl, store.getActions())
@@ -250,9 +234,9 @@ export function runSteps(steps:Step[]):Promise<void> {
 }
 
 export const listenToStore = () : () => void => store.subscribe(() => {
-  if (isInitialized() && hasLoadedFromUrl()) {
+  if (isInitialized()) {
     const actions:Action[] = store.getActions()
-    const state:State = store.deriveState(actions)
+    const state:IState = store.deriveState(actions)
     const lastUpdate: number = state.lastUpdate
     const current = state.activePage
     const steps: Step[] = createStepsSince(actions, lastUpdate)

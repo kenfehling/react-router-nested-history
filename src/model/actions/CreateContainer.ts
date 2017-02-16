@@ -1,5 +1,5 @@
 import Action from '../Action'
-import State from '../State'
+import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 
 @Serializable
@@ -26,7 +26,7 @@ export default class CreateContainer extends Action {
     this.resetOnLeave = resetOnLeave
   }
 
-  reduce(state:State):State {
+  reduce(state:IState):IState {
     return state.addContainer({
       name: this.name,
       groupName: this.groupName,

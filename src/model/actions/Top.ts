@@ -1,5 +1,5 @@
 import Action from '../Action'
-import State from '../State'
+import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 
 @Serializable
@@ -16,7 +16,7 @@ export default class Top extends Action {
     this.reset = reset
   }
 
-  reduce(state:State):State {
+  reduce(state:IState):IState {
     return state.top({
       groupName: this.groupName,
       reset: this.reset,

@@ -20,6 +20,10 @@ declare const Promise:any
 describe('WindowGroup', () => {
   const groupName:string = 'Group 1'
 
+  beforeEach(async () => {
+
+  })
+
   afterEach(async () => {
     _resetHistory()
     await store.dispatch(new SetZeroPage({url: null}))

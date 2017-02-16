@@ -1,6 +1,7 @@
-import State from '../../../../src/model/State'
+import IState from '../../../../src/model/IState'
 import * as fixtures from '../../fixtures'
 import PopState from '../../../../src/model/actions/PopState'
+import HistoryStack from '../../../../src/model/HistoryStack'
 declare const describe:any
 declare const it:any
 declare const expect:any
@@ -8,7 +9,7 @@ declare const beforeEach: any
 declare const afterEach:any
 
 describe('PopState action', () => {
-  const baseState:State = fixtures.simpleState
+  const baseState:IState = fixtures.loadedSimpleState
 
   describe('reduce', () => {
     it('shifts the state to reflect the new browser history', () => {
@@ -16,11 +17,13 @@ describe('PopState action', () => {
         page: baseState.getZeroPage(),
         time: 10
       })
-      const newState:State = action.reduce(baseState)
-      expect(newState.browserHistory.back.length).toBe(0)
-      expect(newState.browserHistory.current).toEqual(newState.getZeroPage())
-      expect(newState.browserHistory.forward.length).toBe(1)
-      expect(newState.browserHistory.forward[0].url).toBe('/a')
+      const newState:IState = action.reduce(baseState)
+      const h:HistoryStack = newState.browserHistory
+
+      expect(h.back.length).toBe(0)
+      expect(h.current).toEqual(newState.getZeroPage())
+      expect(h.forward.length).toBe(1)
+      expect(h.forward[0].url).toBe('/a')
     })
   })
 

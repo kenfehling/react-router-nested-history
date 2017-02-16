@@ -18693,7 +18693,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    /**
 	     * Reducer for this action
 	     * @param state - The original state
-	     * @returns {State} - The new state
+	     * @returns {IState} - The new state
 	     */
 	    Action.prototype.reduce = function (state) {
 	        return state;
@@ -18800,8 +18800,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Get the difference between oldState and newState and return a list of
 	 * browser functions to transform the browser history from oldState to newState
-	 * @param oldState {State} The original historyStore state
-	 * @param newState {State} The new historyStore state
+	 * @param oldState {IState} The original historyStore state
+	 * @param newState {IState} The new historyStore state
 	 * @returns {Step[]} An array of steps to get from old state to new state
 	 */
 	exports.diffStateToSteps = function (oldState, newState) {

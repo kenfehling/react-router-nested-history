@@ -1,5 +1,5 @@
 import Action from '../Action'
-import State from '../State'
+import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 
 @Serializable
@@ -13,7 +13,7 @@ export default class SwitchToGroup extends Action {
     this.groupName = groupName
   }
 
-  reduce(state:State):State {
+  reduce(state:IState):IState {
     return state.switchToGroup({
       groupName: this.groupName,
       time: this.time

@@ -1,4 +1,4 @@
-import State from '../State'
+import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 import Step from '../interfaces/Step'
 import PageAction from './PageAction'
@@ -9,12 +9,12 @@ export default class PopState extends PageAction {
   static readonly type: string = 'PopState'
   readonly type: string = PopState.type
 
-  reduce(state:State):State {
+  reduce(state:IState):IState {
     return state.shiftTo(this.page, this.time)
   }
 
-  addSteps(steps:Step[], state:State):Step[] {
-    const newState:State = this.reduce(state)
+  addSteps(steps:Step[], state:IState):Step[] {
+    const newState:IState = this.reduce(state)
     const h1 = newState.browserHistoryWithFwdMaintained
     if (h1.current.isZeroPage) {
       return steps
