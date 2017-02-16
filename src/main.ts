@@ -117,8 +117,9 @@ export const getOrCreateContainer = (action:CreateContainer):Promise<IContainer>
 export const switchToGroup = (groupName:string):Promise<IState> =>
     store.dispatch(new SwitchToGroup({groupName}))
 
-export const switchToContainerName = (act:SwitchToContainer):Promise<IState> => {
-  return store.dispatch(act)
+export const switchToContainerName = (groupName:string,
+                                      containerName:string):Promise<IState> => {
+  return store.dispatch(new SwitchToContainer({groupName, containerName}))
 }
 
 export const switchToContainerIndex = (groupName:string,
@@ -126,8 +127,7 @@ export const switchToContainerIndex = (groupName:string,
   const group:Group = getGroupByName(groupName)
   const container:IContainer = group.containers[index]
   if (container) {
-    const a = new SwitchToContainer({groupName, containerName: container.name})
-    return switchToContainerName(a)
+    return switchToContainerName(groupName, container.name)
   }
   else {
     throw new Error(`No container found at index ${index} in '${groupName}' ` +

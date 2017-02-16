@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {switchToContainerIndex} from '../../main'
+import {switchToContainerIndex, switchToContainerName} from '../../main'
 import Page from '../../model/Page'
 import Action from '../../model/Action'
 import * as R from 'ramda'
@@ -52,6 +52,7 @@ export default class DumbContainerGroup extends
   constructor(props:DumbContainerGroupProps) {
     super(props)
     this.switchContainerIndex = R.curry(switchToContainerIndex)(props.name)
+    this.switchContainerName = R.curry(switchToContainerName)(props.name)
   }
 
   getChildContext() {

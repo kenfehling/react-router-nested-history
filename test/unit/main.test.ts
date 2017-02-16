@@ -4,9 +4,7 @@ declare const it:any
 declare const expect:any
 declare const beforeEach:any
 declare const afterEach:any
-import {
-  runSteps, switchToContainerName, switchToContainerIndex
-} from '../../src/main'
+import {runSteps} from '../../src/main'
 import {push, back, _history, _resetHistory} from '../../src/browserFunctions'
 import {
   createContainers, createContainers3, createGroup1,
@@ -16,7 +14,7 @@ import store from '../../src/store'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
 import Push from '../../src/model/actions/Push'
 import Page from '../../src/model/Page'
-import State from '../../src/model/State'
+import IState from '../../src/model/IState'
 import Step from '../../src/model/interfaces/Step'
 import {MemoryHistory} from 'history'
 import * as R from 'ramda'
@@ -77,7 +75,7 @@ describe('main', () => {
         })
       ])
 
-      const state:State = store.getState()
+      const state:IState = store.getState()
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).toBe(1);
@@ -111,7 +109,7 @@ describe('main', () => {
         })
       ])
 
-      const state:State = store.getState()
+      const state:IState = store.getState()
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).toBe(1);
@@ -171,7 +169,7 @@ describe('main', () => {
         })
       ])
 
-      const state:State = store.getState()
+      const state:IState = store.getState()
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).toBe(0);
@@ -218,7 +216,7 @@ describe('main', () => {
         })
       ])
 
-      const state:State = store.getState()
+      const state:IState = store.getState()
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).toBe(1);

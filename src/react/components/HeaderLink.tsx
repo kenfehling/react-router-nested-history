@@ -27,8 +27,7 @@ export default class HeaderLink extends Component<HeaderLinkProps, undefined> {
   onClick(event):void {
     const {groupName} = this.context
     const {toContainer} = this.props
-    const action = new SwitchToContainer({groupName, containerName: toContainer})
-    switchToContainerName(action)
+    switchToContainerName(groupName, toContainer)
     event.preventDefault()
   }
 
