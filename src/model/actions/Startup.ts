@@ -1,5 +1,5 @@
 import Action from '../Action'
-import State from '../State'
+import IState from '../IState'
 import {
   Serializable, deserialize, serialize,
   ISerialized
@@ -19,9 +19,8 @@ export default class Startup extends NonStepAction {
     this.fromRefresh = fromRefresh
   }
 
-  reduce(state:State):State {
-    return new State({
-      ...Object(state),
+  reduce(state:IState):IState {
+    return state.assign({
       loadedFromRefresh: this.fromRefresh,
       lastUpdate: this.fromRefresh ? this.time : state.lastUpdate
     })

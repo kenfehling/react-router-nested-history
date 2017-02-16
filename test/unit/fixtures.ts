@@ -2,8 +2,11 @@ import CreateContainer from '../../src/model/actions/CreateContainer'
 import CreateGroup from '../../src/model/actions/CreateGroup'
 import Group from '../../src/model/Group'
 import Container from '../../src/model/Container'
-import State from '../../src/model/State'
+import IState from '../../src/model/IState'
 import ISubGroup from '../../src/model/interfaces/ISubGroup'
+import UninitializedState from '../../src/model/UninitializedState'
+import InitializedState from '../../src/model/InitializedState'
+import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
 
 const TIME:number = 1000
 
@@ -133,7 +136,7 @@ const group3:Group = new Group({
   ]
 })
 
-export const simpleState = new State({
+export const simpleState = new UninitializedState({
   groups: [group1, group2, group3]
 })
 
@@ -148,7 +151,7 @@ const nestedGroup2 = new Group({
   parentGroupName: 'Nested Group 1'
 })
 
-export const nestedState = new State({
+export const nestedState = new UninitializedState({
   groups: [
     new Group({
       name: 'Nested Group 1',
@@ -160,3 +163,9 @@ export const nestedState = new State({
     group3
   ]
 })
+
+export const loadedSimpleState:InitializedState =
+  new LoadFromUrl({url: '/a', time: TIME}).reduce(simpleState)
+
+export const loadedNestedState:InitializedState =
+    new LoadFromUrl({url: '/a', time: TIME}).reduce(nestedState)

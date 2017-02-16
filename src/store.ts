@@ -1,5 +1,4 @@
 import {serialize, ISerialized, deserialize} from './util/serializer'
-declare const setTimeout
 import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
 import { autoRehydrate, persistStore } from 'redux-persist'
@@ -7,9 +6,13 @@ import reducer from './reducers'
 import { canUseWindowLocation } from './util/location'
 import {Store} from 'react-redux'
 import ReduxState from './model/interfaces/ReduxState'
-import State from './model/State'
 import Action from './model/Action'
 import * as R from 'ramda'
+import LoadFromUrl from './model/actions/LoadFromUrl'
+import InitializedState from './model/InitializedState'
+import UninitializedState from './model/UninitializedState'
+import IState from './model/IState'
+declare const setTimeout
 
 const store:Store<ReduxState> = canUseWindowLocation ?
     compose(
@@ -31,13 +34,16 @@ class S {
     return this.getReduxState().actions.map(obj => deserialize(obj))
   }
 
-  deriveState(actions:Action[]):State {
-    const state:State = new State()
-    return actions.reduce((s:State, a:Action):State => a.reduce(s), state)
+  deriveState(actions:Action[], initialized:boolean=false):IState {
+    const State = initialized ? InitializedState : UninitializedState
+    const state:IState = new State()
+    return actions.reduce((s:IState, a:Action):IState => a.reduce(s), state)
   }
 
-  getState():State {
-    return this.deriveState(this.getActions())
+  getState():IState {
+    const actions:Action[] = this.getActions()
+    const initialized:boolean = R.any(a => a instanceof LoadFromUrl, actions)
+    return this.deriveState(actions, initialized)
   }
 
   getLastAction():Action {
@@ -50,10 +56,10 @@ class S {
 
   // Convert into a plain object for Redux
   // It gets converted back to an Action object in the reducer
-  dispatch(action:Action):Promise<State> {
+  dispatch(action:Action):Promise<IState> {
     const obj:ISerialized = serialize(action)
     store.dispatch(obj)
-    const state:State = this.getState()
+    const state:IState = this.getState()
     return new Promise(resolve => resolve(state))
   }
 

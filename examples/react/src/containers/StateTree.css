@@ -13,10 +13,15 @@
   border-radius: 4px;
 }
 
-.state-tree .current-page.active {
+.state-tree .current-page.container {
   background-color: #e2ffe8;
 }
 
 .state-tree .current-page.group {
   background-color: #a1ff9d;
+}
+
+.state-tree .current-page.browser {
+  border: thin solid #a4e4ff;
+  background-color: #a4e4ff;
 }

@@ -1,4 +1,4 @@
-import State from '../State'
+import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 import NonStepAction from './NonStepAction'
 
@@ -27,7 +27,7 @@ export default class CreateGroup extends NonStepAction {
     this.gotoTopOnSelectActive = gotoTopOnSelectActive
   }
 
-  reduce(state:State):State {
+  reduce(state:IState):IState {
     if (this.parentGroupName && this.parentUsesDefault != null) {
       return state.addSubGroup({
         name: this.name,

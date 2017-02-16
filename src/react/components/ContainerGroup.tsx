@@ -5,7 +5,7 @@ import {connect, Store} from 'react-redux'
 import store from '../../store'
 import DumbContainerGroup, {
   OnContainerSwitch,
-  DumbContainerGroupProps
+  DumbContainerGroupProps, ChildrenType
 } from './DumbContainerGroup'
 import {
   getIndexedContainerStackOrder, getActivePageInGroup, getOrCreateGroup,
@@ -44,7 +44,7 @@ function getChildren(component, depth:number=0) {
 
 export interface ContainerGroupProps {
   name: string,
-  children?: ReactNode,
+  children?: ChildrenType,
   currentContainerIndex?: number
   onContainerActivate?: OnContainerSwitch
   useDefaultContainer?: boolean
@@ -60,12 +60,11 @@ type CreatedGroupProps = ContainerGroupProps & {
 const mapStateToProps = (state:ReduxState,
                          ownProps:CreatedGroupProps):DumbContainerGroupProps => {
   const {name} = ownProps
-  const initialized = isInitialized()
   return {
     name,
     storedCurrentContainerIndex: getActiveContainerIndexInGroup(name),
     storedIndexedStackOrder: getIndexedContainerStackOrder(name),
-    storedActivePage: initialized ? getActivePageInGroup(name) : null,
+    storedActivePage: isInitialized() ? getActivePageInGroup(name) : null,
     storedLastAction: store.getLastAction()
   }
 }

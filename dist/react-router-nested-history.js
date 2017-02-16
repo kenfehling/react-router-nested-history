@@ -18693,7 +18693,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    /**
 	     * Reducer for this action
 	     * @param state - The original state
-	     * @returns {State} - The new state
+	     * @returns {IState} - The new state
 	     */
 	    Action.prototype.reduce = function (state) {
 	        return state;
@@ -18800,8 +18800,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Get the difference between oldState and newState and return a list of
 	 * browser functions to transform the browser history from oldState to newState
-	 * @param oldState {State} The original historyStore state
-	 * @param newState {State} The new historyStore state
+	 * @param oldState {IState} The original historyStore state
+	 * @param newState {IState} The new historyStore state
 	 * @returns {Step[]} An array of steps to get from old state to new state
 	 */
 	exports.diffStateToSteps = function (oldState, newState) {
@@ -41164,11 +41164,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
 	var __assign = (this && this.__assign) || Object.assign || function(t) {
 	    for (var s, i = 1, n = arguments.length; i < n; i++) {
 	        s = arguments[i];
@@ -41186,6 +41181,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            t[p[i]] = s[p[i]];
 	    return t;
 	};
+	var _this = this;
 	var React = __webpack_require__(408);
 	var react_1 = __webpack_require__(408);
 	var ContainerGroup_1 = __webpack_require__(440);
@@ -41197,42 +41193,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return 1;
 	    }
 	}
-	var WindowGroup = (function (_super) {
-	    __extends(WindowGroup, _super);
-	    function WindowGroup(props) {
-	        var _this = _super.call(this, props) || this;
-	        _this.state = {
-	            activeWindowIndex: 0,
-	            indexedStackOrder: []
-	        };
-	        return _this;
-	    }
-	    WindowGroup.prototype.onContainerActivate = function (_a) {
-	        var currentContainerIndex = _a.currentContainerIndex, indexedStackOrder = _a.indexedStackOrder;
-	        this.setState({
-	            activeWindowIndex: currentContainerIndex,
-	            indexedStackOrder: indexedStackOrder
-	        });
-	        if (this.props.onContainerActivate) {
-	            this.props.onContainerActivate({ currentContainerIndex: currentContainerIndex, indexedStackOrder: indexedStackOrder });
-	        }
-	    };
-	    WindowGroup.prototype.render = function () {
-	        var _this = this;
-	        var _a = this.props, children = _a.children, groupProps = __rest(_a, ["children"]);
-	        var currentContainerIndex = this.props.currentContainerIndex != null ?
-	            this.props.currentContainerIndex : this.state.activeWindowIndex;
-	        var indexedStackOrder = this.state.indexedStackOrder;
-	        return (React.createElement(ContainerGroup_1.default, __assign({}, groupProps, { currentContainerIndex: currentContainerIndex || this.state.activeWindowIndex, onContainerActivate: this.onContainerActivate.bind(this) }),
-	            React.createElement("div", { style: { position: 'relative' } }, react_1.Children.map(children, function (child, i) { return (React.createElement("div", { key: i, onClick: function () { return _this.setState({ activeWindowIndex: i }); }, className: 'rrnh-window-wrapper-' + (i + 1), style: {
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = function (_a) {
+	    var children = _a.children, groupProps = __rest(_a, ["children"]);
+	    return (React.createElement(ContainerGroup_1.default, __assign({}, groupProps, { children: function (_a) {
+	            var currentContainerIndex = _a.currentContainerIndex, indexedStackOrder = _a.indexedStackOrder, setCurrentContainerIndex = _a.setCurrentContainerIndex;
+	            return (React.createElement("div", { style: { position: 'relative' } }, react_1.Children.map(children, function (child, i) { return (React.createElement("div", { key: i, onClick: function () { return _this.setState({ activeWindowIndex: i }); }, className: 'rrnh-window-wrapper-' + (i + 1), style: {
 	                    zIndex: getWindowZIndex(indexedStackOrder, i),
 	                    position: 'absolute'
-	                } }, child)); }))));
-	    };
-	    return WindowGroup;
-	}(react_1.Component));
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = WindowGroup;
+	                } }, child)); })));
+	        } })));
+	};
 
 
 /***/ },

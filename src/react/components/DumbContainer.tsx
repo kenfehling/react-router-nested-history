@@ -1,6 +1,9 @@
 import * as React from 'react'
 import { Component, PropTypes, ReactNode } from 'react'
-import {getActiveUrlInGroup, urlMatchesGroup, switchToGroup} from '../../main'
+import {
+  getActiveUrlInGroup, urlMatchesGroup, switchToGroup,
+  isInitialized
+} from '../../main'
 import { patternsMatch } from '../../util/url'
 import {Location} from 'history'
 import {stringToLocation, locationToString} from '../../util/location'
@@ -50,9 +53,9 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
   }
 
   matchesLocation({groupName, patterns}):boolean {
-    const currentUrl:string = this.getCurrentUrl()
-    const activeGroupUrl:string|null = getActiveUrlInGroup(groupName)
-    if (activeGroupUrl) {
+    if (isInitialized()) {
+      const currentUrl:string = this.getCurrentUrl()
+      const activeGroupUrl:string = getActiveUrlInGroup(groupName)
       const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
       const isGroupActive:boolean = urlMatchesGroup(currentUrl, groupName)
       if (isActiveInGroup) {

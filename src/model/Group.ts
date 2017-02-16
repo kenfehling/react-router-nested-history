@@ -7,9 +7,6 @@ import * as nonDefaultBehavior from '../behaviors/nonDefaultBehavior'
 import * as keepFwdTabBehavior from '../behaviors/keepFwdTabBehavior'
 import Page from './Page'
 import IHistory from './interfaces/IHistory'
-import ContainerNotFound from './errors/ContainerNotFound'
-import GroupNotFound from './errors/GroupNotFound'
-import {catchType} from '../util/misc'
 import Container from './Container'
 import IGroupContainer from './interfaces/IGroupContainer'
 import IContainer from './interfaces/IContainer'
@@ -41,7 +38,8 @@ export default class Group implements Comparable, IContainer {
   }
 
   replaceContainer(container:IGroupContainer):Group {
-    if (container.groupName === this.name) {
+    const groupName:string = container.groupName
+    if (groupName === this.name) {
       const i:number = R.findIndex(c => c.name === container.name, this.containers)
       if (i === -1) {  // If container didn't already exist
         return new Group({
@@ -61,7 +59,10 @@ export default class Group implements Comparable, IContainer {
       }
     }
     else {
-      const group:ISubGroup = this.getNestedGroupByName(container.groupName)
+      const group:ISubGroup|null = this.getNestedGroupByName(groupName)
+      if (!group) {
+        throw new Error('Group ' + groupName + ' not found in ' + this.name)
+      }
       const newGroup:Group = group.replaceContainer(container)
       return this.replaceContainer(newGroup as ISubGroup)
     }
@@ -220,7 +221,10 @@ export default class Group implements Comparable, IContainer {
       return this.replaceContainer(container.push(page))
     }
     else {
-      const group:ISubGroup = this.getNestedGroupByName(groupName)
+      const group:ISubGroup|null = this.getNestedGroupByName(groupName)
+      if (!group) {
+        throw new Error('Group ' + groupName + ' not found in ' + this.name)
+      }
       return this.replaceContainer(group.push(page))
     }
   }
@@ -299,7 +303,7 @@ export default class Group implements Comparable, IContainer {
     return this.containers.filter((c:IGroupContainer) => c instanceof Group) as Group[]
   }
 
-  getNestedContainerByName(name:string):IGroupContainer {
+  getNestedContainerByName(name:string):IGroupContainer|null {
     let foundContainer:IGroupContainer|null = null
     this.containers.forEach((container:IGroupContainer) => {
       if (container.name === name) {
@@ -307,48 +311,26 @@ export default class Group implements Comparable, IContainer {
         return
       }
       else if (container instanceof Group) {
-        try {
-          foundContainer = container.getNestedGroupByName(name)
+        const c = container.getNestedGroupByName(name)
+        if (c) {
+          foundContainer = c
           return
-        }
-        catch(e) {
-          catchType(e, GroupNotFound, null)
         }
       }
     })
-    if (foundContainer) {
-      return foundContainer
-    }
-    else {
-      throw new ContainerNotFound(name, this)
-    }
+    return foundContainer
   }
 
-  getNestedGroupByName(name:string):ISubGroup {
-    try {
-      const container:IGroupContainer = this.getNestedContainerByName(name)
-      if (container instanceof Group) {
-        return container as ISubGroup
-      }
-      else {
-        throw new Error(`Found ${name} but it's a Container, not a Group`)
-      }
+  getNestedGroupByName(name:string):ISubGroup|null {
+    const container:IGroupContainer|null = this.getNestedContainerByName(name)
+    if (container && !(container instanceof Group)) {
+      throw new Error(`Found ${name} but it's not a Group`)
     }
-    catch(e) {
-      return catchType(e, ContainerNotFound, () => {
-        throw new GroupNotFound(name)
-      })
-    }
+    return container as ISubGroup
   }
 
   hasNestedGroupWithName(name:string):boolean {
-    try {
-      this.getNestedGroupByName(name)
-      return true
-    }
-    catch(e) {
-      return catchType(e, ContainerNotFound, () => false)
-    }
+    return !!this.getNestedGroupByName(name)
   }
 
   hasNestedGroup(group:Group):boolean {
@@ -356,33 +338,15 @@ export default class Group implements Comparable, IContainer {
   }
 
   getContainerByName(name:string):IGroupContainer {
-    const c:IGroupContainer = R.find(c => c.name === name, this.containers)
-    if (c) {
-      return c
-    }
-    else {
-      throw new ContainerNotFound(name, this)
-    }
+    return R.find(c => c.name === name, this.containers)
   }
 
   hasContainerWithName(name:string):boolean {
-    try {
-      this.getContainerByName(name)
-      return true
-    }
-    catch(e) {
-      return catchType(e, ContainerNotFound, () => false)
-    }
+    return R.any(c => c.name === name, this.containers)
   }
 
   hasNestedContainerWithName(name:string):boolean {
-    try {
-      this.getNestedContainerByName(name)
-      return true
-    }
-    catch(e) {
-      return catchType(e, ContainerNotFound, () => false)
-    }
+    return !!this.getNestedContainerByName(name)
   }
 
   hasNestedContainer(container:IGroupContainer):boolean {

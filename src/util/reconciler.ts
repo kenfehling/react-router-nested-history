@@ -4,10 +4,11 @@ import Step from '../model/interfaces/Step'
 import BackStep from '../model/steps/BackStep'
 import * as R from 'ramda'
 import PushStep from '../model/steps/PushStep'
-import State from '../model/State'
+import IState from '../model/IState'
 import HistoryDiff from '../model/HistoryDiff'
 import ReplaceStep from '../model/steps/ReplaceStep'
 import GoStep from '../model/steps/GoStep'
+import UninitializedState from '../model/UninitializedState'
 
 const getFirstDifferenceIndex = (ps1:Page[], ps2:Page[]):number => {
   const n:number = Math.min(ps1.length, ps2.length)
@@ -76,16 +77,16 @@ export const diffHistoryToSteps:(h1:HistoryStack|null, h2:HistoryStack) => Step[
 /**
  * Get the difference between oldState and newState and return a list of
  * browser functions to transform the browser history from oldState to newState
- * @param oldState {State} The original historyStore state
- * @param newState {State} The new historyStore state
+ * @param oldState {IState} The original historyStore state
+ * @param newState {IState} The new historyStore state
  * @returns {Step[]} An array of steps to get from old state to new state
  */
-export const diffStateToSteps = (oldState:State, newState:State):Step[] => {
-  if (!newState.isInitialized) {
+export const diffStateToSteps = (oldState:IState, newState:IState):Step[] => {
+  if (newState instanceof UninitializedState) {
     return []
   }
   const h2:HistoryStack = newState.browserHistory
-  if (!oldState.isInitialized) {
+  if (oldState instanceof UninitializedState) {
     return diffHistoryToSteps(null, h2)
   }
   const h1:HistoryStack = oldState.browserHistory
