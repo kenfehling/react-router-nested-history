@@ -171,7 +171,13 @@ abstract class IState {
   }
 
   hasGroupWithName(name:string):boolean {
-    return R.any(g => g.name === name, this.groups)
+    try {
+      this.getGroupByName(name)
+      return true
+    }
+    catch (e) {
+      return false
+    }
   }
 
   /**
