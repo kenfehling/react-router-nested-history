@@ -10,22 +10,16 @@ module.exports = {
     loaders: [
       {
         test: /\.(js|jsx)?$/,
-        loaders: ['babel'],
+        loaders: ['babel-loader'],
         exclude: /node_modules/
       }, {
         test: /\.(ts|tsx)?$/,
         loader: "awesome-typescript-loader"
       }
-    ],
-    preLoaders: [
-      {
-        test: /\.js$/,
-        loader: "source-map-loader"
-      }
     ]
   },
   resolve: {
-    extensions: ['', '.js', '.jsx', '.ts', '.tsx'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
   node: { Buffer: false }
 };
