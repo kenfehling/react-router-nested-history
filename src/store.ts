@@ -22,6 +22,9 @@ const store:Store<ReduxState> = canUseWindowLocation ?
     createStore(reducer, applyMiddleware(thunk))
 
 class S {
+  storedState: IState
+  timeStored: number
+
   subscribe(fn) {
     return store.subscribe(fn)
   }
@@ -34,16 +37,31 @@ class S {
     return this.getReduxState().actions.map(obj => deserialize(obj))
   }
 
-  deriveState(actions:Action[], initialized:boolean=false):IState {
-    const State = initialized ? InitializedState : UninitializedState
-    const state:IState = new State()
+  deriveState(actions:Action[], state:IState=new UninitializedState()):IState {
     return actions.reduce((s:IState, a:Action):IState => a.reduce(s), state)
   }
 
+  /**
+   * Derives the state from the list of actions
+   * Caches the last derived state for performance
+   */
   getState():IState {
     const actions:Action[] = this.getActions()
-    const initialized:boolean = R.any(a => a instanceof LoadFromUrl, actions)
-    return this.deriveState(actions, initialized)
+    if (actions.length === 0) {
+      return new UninitializedState()
+    }
+    else {
+      const lastTime:number = R.last(actions).time
+      if (lastTime === this.timeStored) {             // Very rare case
+        this.storedState = this.deriveState(actions)  // Just derive everything
+      }
+      else {
+        const newActions:Action[] = actions.filter(a => a.time > this.timeStored)
+        this.storedState = this.deriveState(newActions, this.storedState)
+      }
+      this.timeStored = lastTime
+      return this.storedState
+    }
   }
 
   getLastAction():Action {

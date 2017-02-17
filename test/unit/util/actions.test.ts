@@ -94,32 +94,6 @@ describe('action utils', () => {
       expect(state.groups.length).toBe(3)
       expect(state.groups[0].activePage.url).toBe('/a')
     })
-
-    it('correctly updates history from popstate', () => {
-      const actions:Action[] = [...originalSimpleActions, ...[
-        new Push({
-          page: new Page({
-            url: '/a/1',
-            params: {id: '1'},
-            groupName: 'Group 1',
-            containerName: 'Container 1'
-          })
-        }),
-        new PopState({
-          page: new Page({
-            url: '/a',
-            params: {},
-            groupName: 'Group 1',
-            containerName: 'Container 1'
-          })
-        })
-      ]]
-      const history:HistoryStack = store.deriveState(actions).groups[0].history
-      expect(history.back.length).toBe(0)
-      expect(history.current.url).toBe('/a')
-      expect(history.forward.length).toBe(1)
-      expect(history.forward[0].url).toBe('/a/1')
-    })
   })
 
   describe('createStepsSinceUpdate', () => {
@@ -137,7 +111,7 @@ describe('action utils', () => {
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 1',
-              lastVisited: 0  // TODO: Should this be 1000?
+              firstVisited: 1000
             }))
           ])
         })
@@ -425,7 +399,7 @@ describe('action utils', () => {
               params: {},
               groupName: createSubGroup1.name,
               containerName: createContainers[0].name,
-              lastVisited: 0  // TODO: Should this be 1000?
+              firstVisited: 1000
             })),
           ])
         })

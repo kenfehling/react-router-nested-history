@@ -100,12 +100,12 @@ describe('main', () => {
         ...createContainers,
         new LoadFromUrl({
           url: '/a/1',
-          time: 1
+          time: 1000
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           containerName: 'Container 2',
-          time: 2
+          time: 2000
         })
       ])
 
@@ -197,12 +197,12 @@ describe('main', () => {
         ...createContainers,
         new LoadFromUrl({
           url: '/a/1',
-          time: 2
+          time: 1000
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           containerName: 'Container 2',
-          time: 3
+          time: 2000
         }),
         new PopState({
           page: new Page({
@@ -210,9 +210,9 @@ describe('main', () => {
             params: {id: '1'},
             groupName: 'Group 1',
             containerName: 'Container 1',
-            firstVisited: 2
+            firstVisited: 1000
           }),
-          time: 4
+          time: 3000
         })
       ])
 
@@ -284,10 +284,11 @@ describe('main', () => {
         ...createContainers,
         new LoadFromUrl({
           url: '/a',
-          time: 0
+          time: 1000
         }),
         new LoadFromUrl({
           url: '/a',
+          time: 2000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(2)
@@ -328,7 +329,7 @@ describe('main', () => {
         ...createContainers,
         new LoadFromUrl({
           url: '/a',
-          time: 2
+          time: 1000
         }),
         new Push({
           page: new Page({
@@ -336,7 +337,7 @@ describe('main', () => {
             params: {id: '1'},
             groupName: 'Group 1',
             containerName: 'Container 1',
-            firstVisited: 3
+            firstVisited: 2000
           })
         })
       ]).then(({entries, index}) => {
@@ -392,11 +393,12 @@ describe('main', () => {
         ...createContainers,
         new LoadFromUrl({
           url: '/a',
-          time: 2
+          time: 1000
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
-          containerName: 'Container 2'
+          containerName: 'Container 2',
+          time: 2000
         }),
         new Push({
           page: new Page({
@@ -404,7 +406,7 @@ describe('main', () => {
             params: {id: '1'},
             groupName: 'Group 1',
             containerName: 'Container 2',
-            firstVisited: 3
+            firstVisited: 3000
           })
         })
       ]).then(({entries, index}) => {
@@ -424,7 +426,7 @@ describe('main', () => {
         ...createContainers,
         new LoadFromUrl({
           url: '/a',
-          time: 2
+          time: 1000
         }),
         new Push({
           page: new Page({
@@ -432,7 +434,7 @@ describe('main', () => {
             params: {id: '1'},
             groupName: 'Group 1',
             containerName: 'Container 1',
-            firstVisited: 3
+            firstVisited: 2000
           })
         }),
         new Push({
@@ -441,11 +443,11 @@ describe('main', () => {
             params: {id: '2'},
             groupName: 'Group 1',
             containerName: 'Container 1',
-            firstVisited: 4
+            firstVisited: 3000
           })
         }),
         new Back({
-          time: 4
+          time: 4000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(4)
@@ -550,10 +552,11 @@ describe('main', () => {
           ...createContainers,
           new LoadFromUrl({
             url: '/a',
-            time: 1
+            time: 1000
           }),
           new PopState({  // User popped back to zero page
-            page: Page.createZeroPage('/a')
+            page: Page.createZeroPage('/a'),
+            time: 2000
           }),
           new Push({
             page: new Page({
@@ -561,7 +564,7 @@ describe('main', () => {
               params: {id: '1'},
               groupName: 'Group 1',
               containerName: 'Container 1',
-              firstVisited: 3
+              firstVisited: 3000
             })
           })
         ]).then(({entries, index}) => {
