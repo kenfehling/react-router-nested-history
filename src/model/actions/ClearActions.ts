@@ -1,6 +1,6 @@
-import ReduxState from '../interfaces/ReduxState'
 import NonStepAction from './NonStepAction'
 import {Serializable} from '../../util/serializer'
+import Action from '../Action'
 
 /**
  * Only for testing purposes
@@ -14,10 +14,7 @@ export default class ClearActions extends NonStepAction {
     super({time})
   }
 
-  store(state:ReduxState):ReduxState {
-    return {
-      ...state,
-      actions: []
-    }
+  store(actions:Action[]):Action[] {
+    return []
   }
 }

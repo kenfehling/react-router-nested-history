@@ -1,4 +1,4 @@
-import State from '../../../src/model/State'
+import IState from '../../../src/model/IState'
 import CreateContainer from '../../../src/model/actions/CreateContainer'
 import Push from '../../../src/model/actions/Push'
 import Page from '../../../src/model/Page'
@@ -89,8 +89,8 @@ describe('action utils', () => {
   ]
 
   describe('derivedState', () => {
-    it('derives State from a list of Actions', () => {
-      const state:State = store.deriveState(originalSimpleActions)
+    it('derives IState from a list of Actions', () => {
+      const state:IState = store.deriveState(originalSimpleActions)
       expect(state.groups.length).toBe(3)
       expect(state.groups[0].activePage.url).toBe('/a')
     })

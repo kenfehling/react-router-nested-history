@@ -24,86 +24,63 @@ export interface DumbHistoryRouterProps {
   locationChanged?: (location:Location) => any
 }
 
-interface DumbHistoryRouterState {
-  started: boolean
-}
-
 export default class DumbHistoryRouter extends
-    Component<DumbHistoryRouterProps, DumbHistoryRouterState> {
-  private unlistenToStore:Function
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      started: false
-    }
-  }
+    Component<DumbHistoryRouterProps, undefined> {
 
   componentWillMount() {
     const {location, zeroPage, listenToLocation, locationChanged} = this.props
-    const start = ():Promise<any> => startup()
-      .then(() => {
-        this.unlistenToStore = listenToStore()
-        locationChanged && locationChanged(stringToLocation(location))
-        listenToLocation && listenToLocation()
-      })
-      .then(() => this.setState({started: true}))
     if (zeroPage) {
-      setZeroPage(zeroPage).then(start)
+      setZeroPage(zeroPage)
     }
-    else {
-      start()
-    }
+    startup()
+    listenToStore()
+    locationChanged && locationChanged(stringToLocation(location))
+    listenToLocation && listenToLocation()
   }
 
   componentDidUpdate() {
-    if (this.state.started && !isInitialized()) {
+    if (!isInitialized()) {
       loadFromUrl(locationToString(this.props.location))
     }
   }
 
   componentWillUnmount() {
     const {unlistenToLocation} = this.props
-    this.unlistenToStore()
+    //this.unlistenToStore()
     unlistenToLocation && unlistenToLocation()
   }
 
   render() {
-    if (this.state.started) {
-      const {
-          basename,
-          forceRefresh,
-          getUserConfirmation,
-          keyLength,
-          createHistory,
-          ...routerProps
-      } = this.props
+    const {
+        basename,
+        forceRefresh,
+        getUserConfirmation,
+        keyLength,
+        createHistory,
+        ...routerProps
+    } = this.props
 
-      return (
-          <ReactRouterHistory
-              createHistory={createHistory}
-              historyOptions={{
-              basename,
-              forceRefresh,
-              getUserConfirmation,
-              keyLength
-      }}>
-            {({ history, action, location }) => (
-                <StaticRouter
-                    action={action}
-                    location={location}
-                    basename={basename}
-                    onPush={history.push}
-                    onReplace={history.replace}
-                    blockTransitions={history.block}
-                    {...routerProps}
-                />
-            )}
-          </ReactRouterHistory>
-      )
-    }
-    else {
-      return <div></div>
-    }
+    return (
+        <ReactRouterHistory
+            createHistory={createHistory}
+            historyOptions={{
+            basename,
+            forceRefresh,
+            getUserConfirmation,
+            keyLength
+    }}>
+          {({ history, action, location }) => (
+              <StaticRouter
+                  action={action}
+                  location={location}
+                  basename={basename}
+                  onPush={history.push}
+                  onReplace={history.replace}
+                  blockTransitions={history.block}
+                  {...routerProps}
+              />
+          )}
+        </ReactRouterHistory>
+    )
   }
 }

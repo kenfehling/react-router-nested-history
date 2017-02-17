@@ -1,5 +1,4 @@
 import IState from './IState'
-import ReduxState from './interfaces/ReduxState'
 import Comparable from './interfaces/Comparable'
 import Step from './interfaces/Step'
 import {diffStateToSteps} from '../util/reconciler'
@@ -11,6 +10,10 @@ abstract class Action implements Comparable, ISerializable {
 
   constructor({time=new Date().getTime()}:{time?:number}={}) {
     this.time = time
+  }
+
+  updateAfterRefresh<A extends Action>(time:number):A {
+    return this.constructor({...Object(this), time}) as A
   }
 
   /**
@@ -25,13 +28,9 @@ abstract class Action implements Comparable, ISerializable {
   /**
    * Reducer for the store, typically used for just storing this action
    * but can be overridden to do things like clear some or all of the actions
-   * @param state - The original state
-   * @returns {ReduxState} - The new state
    */
-  store(state:ReduxState):ReduxState {
-    return {
-      actions: [...state.actions, serialize(this)]
-    }
+  store(actions:Action[]):Action[] {
+    return [...actions, this]
   }
 
   /**

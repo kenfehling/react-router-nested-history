@@ -56,7 +56,7 @@ const startListeningPromise = () => new Promise(resolve => {
 })
 
 export const addChangeListener = (callback:(state:IState)=>void) => {
-  const fn:Function = () => {
+  const fn = () => {
     const state:IState = store.getState()
     if (state instanceof InitializedState) {
       callback(state)
@@ -82,46 +82,45 @@ export const getGroupByName = (name:string):Group =>
 export const hasGroupWithName = (name:string):boolean =>
     store.getState().hasGroupWithName(name)
 
-const createGroup = (action:CreateGroup):Promise<Group> => {
-  return store.dispatch(action).then(
-    (state:IState) => Promise.resolve(state.getGroupByName(action.name)))
+const createGroup = (action:CreateGroup):Group => {
+  store.dispatch(action)
+  return store.getState().getGroupByName(action.name)
 }
 
-export const getOrCreateGroup = (action:CreateGroup):Promise<Group> => {
+export const getOrCreateGroup = (action:CreateGroup):Group => {
   if (hasGroupWithName(action.name)) {
-    return Promise.resolve(getGroupByName(action.name))
+    return getGroupByName(action.name)
   }
   else {
     return createGroup(action)
   }
 }
 
-const createContainer = (action:CreateContainer):Promise<IContainer> => {
-  return store.dispatch(action).then((state:IState) =>
-         state.getGroupByName(action.groupName).getContainerByName(action.name))
+const createContainer = (action:CreateContainer):IContainer => {
+  store.dispatch(action)
+  return store.getState().getGroupByName(action.groupName)
+      .getContainerByName(action.name)
 }
 
-export const getOrCreateContainer = (action:CreateContainer):Promise<IContainer> => {
+export const getOrCreateContainer = (action:CreateContainer):IContainer => {
   const state:IState = store.getState()
   const group:Group = state.getGroupByName(action.groupName)
   if (group.hasContainerWithName(action.name)) {
-    return Promise.resolve(group.getContainerByName(action.name))
+    return group.getContainerByName(action.name)
   }
   else {
     return createContainer(action)
   }
 }
 
-export const switchToGroup = (groupName:string):Promise<IState> =>
+export const switchToGroup = (groupName:string):void =>
     store.dispatch(new SwitchToGroup({groupName}))
 
 export const switchToContainerName = (groupName:string,
-                                      containerName:string):Promise<IState> => {
-  return store.dispatch(new SwitchToContainer({groupName, containerName}))
-}
+                                      containerName:string):void =>
+    store.dispatch(new SwitchToContainer({groupName, containerName}))
 
-export const switchToContainerIndex = (groupName:string,
-                                       index:number):Promise<IState> => {
+export const switchToContainerIndex = (groupName:string, index:number):void => {
   const group:Group = getGroupByName(groupName)
   const container:IContainer = group.containers[index]
   if (container) {
@@ -134,7 +133,7 @@ export const switchToContainerIndex = (groupName:string,
 }
 
 export const push = (groupName:string, containerName:string, url:string,
-                     patterns:string[]):Promise<IState> => {
+                     patterns:string[]):void => {
   const params:Object = parseParamsFromPatterns(patterns, url)
   const page:Page = new Page({
     url,
@@ -143,31 +142,25 @@ export const push = (groupName:string, containerName:string, url:string,
     containerName,
     lastVisited: new Date().getTime()
   })
-  return store.dispatch(new Push({page}))
+  store.dispatch(new Push({page}))
 }
 
-export const startup = ():Promise<IState> =>
-    store.persist({whitelist: ['actions']}).then(() =>
-    store.dispatch(new Startup({fromRefresh: browser.wasLoadedFromRefresh})))
+export const startup = ():void =>
+    store.dispatch(new Startup({fromRefresh: browser.wasLoadedFromRefresh}))
 
-export const loadFromUrl = (url:string):Promise<IState> =>
+export const loadFromUrl = (url:string):void =>
     store.dispatch(new LoadFromUrl({
       url,
       fromRefresh: browser.wasLoadedFromRefresh
     }))
 
-export const setZeroPage = (url:string|null):Promise<IState> =>
+export const setZeroPage = (url:string|null):void =>
     store.dispatch(new SetZeroPage({url}))
 
-export const top = (action:Top):Promise<IState> => store.dispatch(action)
-
-export const go = (n:number=1):Promise<IState> => store.dispatch(new Go({n}))
-
-export const back = (n:number=1):Promise<IState> => store.dispatch(new Back({n}))
-
-export const forward = (n:number=1):Promise<IState> =>
-    store.dispatch(new Forward({n}))
-
+export const top = (action:Top):void => store.dispatch(action)
+export const go = (n:number=1):void => store.dispatch(new Go({n}))
+export const back = (n:number=1):void => store.dispatch(new Back({n}))
+export const forward = (n:number=1):void => store.dispatch(new Forward({n}))
 export const getBackPage = ():Page => store.getState().backPage
 
 export const getActivePageInGroup = (groupName:string):Page =>
@@ -231,13 +224,12 @@ export function runSteps(steps:Step[]):Promise<void> {
   return steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
 }
 
-export const listenToStore = () : () => void => store.subscribe(() => {
+export const listenToStore = () => store.subscribe(() => {
   if (isInitialized()) {
-    const actions:Action[] = store.getActions()
-    const state:IState = store.deriveState(actions)
+    const state:IState = store.deriveState(store.actions)
     const lastUpdate: number = state.lastUpdate
     const current = state.activePage
-    const steps: Step[] = createStepsSince(actions, lastUpdate)
+    const steps: Step[] = createStepsSince(store.actions, lastUpdate)
     const updateLocation:() => Promise<void> = () => {
       window.dispatchEvent(new CustomEvent('locationChange', {
         detail: {location: createLocation(current.url, current.state)}
@@ -246,8 +238,7 @@ export const listenToStore = () : () => void => store.subscribe(() => {
     }
     if (steps.length > 0) {
       store.dispatch(new UpdateBrowser())
-        .then(() => runSteps(steps))
-        .then(updateLocation)
+      runSteps(steps).then(updateLocation)
     }
     else {
       updateLocation()

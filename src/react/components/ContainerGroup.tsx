@@ -1,8 +1,8 @@
-import ReduxState from '../../model/interfaces/ReduxState'
 import * as React from 'react'
 import {Component, PropTypes, Children, ReactNode} from 'react'
 import {connect, Store} from 'react-redux'
-import store from '../../store'
+import locationStore from '../store'
+import actionStore from '../../store'
 import DumbContainerGroup, {
   OnContainerSwitch,
   DumbContainerGroupProps, ChildrenType
@@ -16,6 +16,7 @@ import DumbContainer from './DumbContainer'
 import {renderToStaticMarkup} from 'react-dom/server'
 import * as R from 'ramda'
 import CreateGroup from '../../model/actions/CreateGroup'
+import LocationState from '../model/LocationState'
 
 /**
  * Recursively gets the children of a component for simlated rendering
@@ -55,10 +56,10 @@ export interface ContainerGroupProps {
 }
 
 type CreatedGroupProps = ContainerGroupProps & {
-  store: Store<ReduxState>
+  store: Store<LocationState>
 }
 
-const mapStateToProps = (state:ReduxState,
+const mapStateToProps = (state:LocationState,
                          ownProps:CreatedGroupProps):DumbContainerGroupProps => {
   const {name} = ownProps
   const initialized:boolean = isInitialized()
@@ -68,7 +69,7 @@ const mapStateToProps = (state:ReduxState,
     storedCurrentContainerName: initialized ? getActiveContainerNameInGroup(name) : null,
     storedIndexedStackOrder: getIndexedContainerStackOrder(name),
     storedActivePage: initialized ? getActivePageInGroup(name) : null,
-    storedLastAction: store.getLastAction()
+    storedLastAction: actionStore.getLastAction()
   }
 }
 
@@ -132,7 +133,7 @@ export default class ContainerGroup extends Component<ContainerGroupProps, undef
   render() {
     return (
       <ConnectedContainerGroup
-          store={store.store}
+          store={locationStore}
           {...this.props}
       />
     )

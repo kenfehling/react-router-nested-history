@@ -1,10 +1,6 @@
 import Action from '../Action'
 import IState from '../IState'
-import {
-  Serializable, deserialize, serialize,
-  ISerialized
-} from '../../util/serializer'
-import ReduxState from '../interfaces/ReduxState'
+import {Serializable} from '../../util/serializer'
 import NonStepAction from './NonStepAction'
 import SetZeroPage from './SetZeroPage'
 
@@ -19,6 +15,10 @@ export default class Startup extends NonStepAction {
     this.fromRefresh = fromRefresh
   }
 
+  updateAfterRefresh(time:number):Startup {
+    return new Startup({...Object(this), time, fromRefresh: true})
+  }
+
   reduce(state:IState):IState {
     return state.assign({
       loadedFromRefresh: this.fromRefresh,
@@ -26,37 +26,16 @@ export default class Startup extends NonStepAction {
     })
   }
 
-  store(state: ReduxState): ReduxState {
-    const actions:Action[] = state.actions.map(obj => deserialize(obj))
+  store(actions:Action[]):Action[] {
     if (this.fromRefresh) {
-      return {
-        ...Object(state),
-        actions: [
-          ...actions.map((action:Action) => {
-            const obj:ISerialized = serialize(action)
-
-            // TODO: This gets around the type system, make it nicer?
-            if (obj['fromRefresh'] === false) {
-              obj['fromRefresh'] = true
-            }
-            obj['time'] = this.time
-            return obj
-          })
-        ]
-      }
+      return [...actions.map(a => a.updateAfterRefresh(this.time))]
     }
     else {
       if (actions.length > 0 && actions[0] instanceof SetZeroPage) {
-        return {
-          ...Object(state),
-          actions: [serialize(actions[0]), serialize(this)]
-        }
+        return [actions[0], this]
       }
       else {
-        return {
-          ...Object(state),
-          actions: [serialize(this)]
-        }
+        return [this]
       }
     }
   }

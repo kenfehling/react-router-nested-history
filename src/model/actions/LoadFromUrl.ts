@@ -24,6 +24,10 @@ export default class LoadFromUrl extends Action {
     this.fromRefresh = fromRefresh
   }
 
+  updateAfterRefresh(time:number):LoadFromUrl {
+    return new LoadFromUrl({...Object(this), time, fromRefresh: true})
+  }
+
   reduce(state:UninitializedState):InitializedState {
     return this.fromRefresh ? new InitializedState(state) :
         load(state, this.url, this.time)

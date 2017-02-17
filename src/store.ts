@@ -1,40 +1,33 @@
-import {serialize, ISerialized, deserialize} from './util/serializer'
-import { createStore, applyMiddleware, compose } from 'redux'
-import thunk from 'redux-thunk'
-import { autoRehydrate, persistStore } from 'redux-persist'
-import reducer from './reducers'
-import { canUseWindowLocation } from './util/location'
-import {Store} from 'react-redux'
-import ReduxState from './model/interfaces/ReduxState'
+import {serialize, deserialize} from './util/serializer'
 import Action from './model/Action'
 import * as R from 'ramda'
-import LoadFromUrl from './model/actions/LoadFromUrl'
-import InitializedState from './model/InitializedState'
 import UninitializedState from './model/UninitializedState'
 import IState from './model/IState'
-declare const setTimeout
+import * as store from 'store'
+import ClearActions from './model/actions/ClearActions'
 
-const store:Store<ReduxState> = canUseWindowLocation ?
-    compose(
-        autoRehydrate<ReduxState>(),  // Does order matter?
-        applyMiddleware(thunk),
-    )(createStore)(reducer) :
-    createStore(reducer, applyMiddleware(thunk))
-
-class S {
+class Store {
+  actions: Action[]
   storedState: IState
-  timeStored: number
+  timeStored: number = 0
+  listeners: (() => void)[] = []
 
-  subscribe(fn) {
-    return store.subscribe(fn)
+  constructor() {
+    this.actions = []
+    this.timeStored = 0
   }
 
-  getReduxState():ReduxState {
-    return store.getState()
-  }
+  dispatch(action:Action) {
+    this.actions = action.store(this.actions)
+    if (action instanceof ClearActions) {
+      this.timeStored = 0
+      this.storedState = new UninitializedState()
+    }
 
-  getActions():Action[] {
-    return this.getReduxState().actions.map(obj => deserialize(obj))
+    this.listeners.forEach(fn => fn())
+    if (store.enabled) {  // if can use localStorage
+      store.set('actions', this.actions.map(a => serialize(a)))
+    }
   }
 
   deriveState(actions:Action[], state:IState=new UninitializedState()):IState {
@@ -46,54 +39,35 @@ class S {
    * Caches the last derived state for performance
    */
   getState():IState {
-    const actions:Action[] = this.getActions()
-    if (actions.length === 0) {
+    if (this.actions.length === 0) {
       return new UninitializedState()
     }
     else {
-      const lastTime:number = R.last(actions).time
-      if (lastTime === this.timeStored) {             // Very rare case
-        this.storedState = this.deriveState(actions)  // Just derive everything
+      const lastTime:number = R.last(this.actions).time
+      if (lastTime === this.timeStored) {                  // Very rare case
+        this.storedState = this.deriveState(this.actions)  // Just derive everything
       }
       else {
-        const newActions:Action[] = actions.filter(a => a.time > this.timeStored)
+        const newActions:Action[] =
+            this.actions.filter(a => a.time > this.timeStored)
         this.storedState = this.deriveState(newActions, this.storedState)
+        this.timeStored = lastTime
       }
-      this.timeStored = lastTime
       return this.storedState
     }
   }
 
   getLastAction():Action {
-    return R.last(this.getActions())
+    return R.last(this.actions)
   }
 
   getLastUpdate():number {
     return this.getState().lastUpdate
   }
 
-  // Convert into a plain object for Redux
-  // It gets converted back to an Action object in the reducer
-  dispatch(action:Action):Promise<IState> {
-    const obj:ISerialized = serialize(action)
-    store.dispatch(obj)
-    const state:IState = this.getState()
-    return new Promise(resolve => resolve(state))
-  }
-
-  persist(persistorConfig):Promise<any> {
-    if (canUseWindowLocation) {
-      return new Promise((resolve) =>
-          persistStore(store, persistorConfig, () => resolve()))
-    }
-    else {
-      return Promise.resolve()
-    }
-  }
-
-  get store() {
-    return store
+  subscribe(fn:()=>void):void {
+    this.listeners.push(fn)
   }
 }
 
-export default new S()
+export default new Store()
