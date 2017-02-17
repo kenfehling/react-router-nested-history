@@ -21,7 +21,9 @@ class Store {
   loadActions():void {
     if (store.enabled) {
       const objects:ISerialized[] = store.get('actions')
-      this.actions = objects.map(obj => deserialize(obj))
+      if (objects) {
+        this.actions = objects.map(obj => deserialize(obj))
+      }
     }
   }
 
