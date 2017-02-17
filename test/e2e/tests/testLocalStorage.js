@@ -1,4 +1,4 @@
-const storedActions = (storage) => JSON.parse(storage['reduxPersist:actions'])
+const storedActions = (storage) => JSON.parse(storage['actions'])
 const path = (p) => 'http://localhost:8080' + p
 const N = 17  // initial number of actions
 

@@ -61,7 +61,7 @@ export default class Group implements Comparable, IContainer {
     else {
       const group:ISubGroup|null = this.getNestedGroupByName(groupName)
       if (!group) {
-        throw new Error('Group ' + groupName + ' not found in ' + this.name)
+        throw new Error('Group \'' + groupName + '\' not found in ' + this.name)
       }
       const newGroup:Group = group.replaceContainer(container)
       return this.replaceContainer(newGroup as ISubGroup)
@@ -223,7 +223,7 @@ export default class Group implements Comparable, IContainer {
     else {
       const group:ISubGroup|null = this.getNestedGroupByName(groupName)
       if (!group) {
-        throw new Error('Group ' + groupName + ' not found in ' + this.name)
+        throw new Error('Group \'' + groupName + '\' not found in ' + this.name)
       }
       return this.replaceContainer(group.push(page))
     }

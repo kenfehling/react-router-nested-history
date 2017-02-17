@@ -1,9 +1,4 @@
 import Action from '../../src/model/Action'
-declare const describe:any
-declare const it:any
-declare const expect:any
-declare const beforeEach:any
-declare const afterEach:any
 import {runSteps} from '../../src/main'
 import {push, back, _history, _resetHistory} from '../../src/browserFunctions'
 import {
@@ -26,6 +21,11 @@ import UpdateBrowser from '../../src/model/actions/UpdateBrowser'
 import {createStepsSince} from '../../src/util/actions'
 import Startup from '../../src/model/actions/Startup'
 import ClearActions from '../../src/model/actions/ClearActions'
+declare const describe:any
+declare const it:any
+declare const expect:any
+declare const beforeEach:any
+declare const afterEach:any
 
 describe('main', () => {
   afterEach(() => store.dispatch(new ClearActions()))
@@ -61,7 +61,7 @@ describe('main', () => {
         }),
         new Startup()
       ])
-      expect(store.getActions().length).toBe(1)
+      expect(store.actions.length).toBe(1)
     })
 
     it('loads to a non-default page', () => {
@@ -71,7 +71,7 @@ describe('main', () => {
         ...createContainers,
         new LoadFromUrl({
           url: '/a/1',
-          time: 1
+          time: 1000
         })
       ])
 

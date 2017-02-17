@@ -157,7 +157,7 @@ abstract class IState {
         return foundGroup
       }
       else {
-        throw new Error('Group ' + name + ' not found')
+        throw new Error('Group \'' + name + '\' not found')
       }
     }
   }
