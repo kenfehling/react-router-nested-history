@@ -1,10 +1,11 @@
-import {serialize, deserialize} from './util/serializer'
+import {serialize, deserialize, ISerialized} from './util/serializer'
 import Action from './model/Action'
 import * as R from 'ramda'
 import UninitializedState from './model/UninitializedState'
 import IState from './model/IState'
 import * as store from 'store'
 import ClearActions from './model/actions/ClearActions'
+
 
 class Store {
   actions: Action[]
@@ -15,6 +16,13 @@ class Store {
   constructor() {
     this.actions = []
     this.timeStored = 0
+  }
+
+  loadActions():void {
+    if (store.enabled) {
+      const objects:ISerialized[] = store.get('actions')
+      this.actions = objects.map(obj => deserialize(obj))
+    }
   }
 
   dispatch(action:Action) {

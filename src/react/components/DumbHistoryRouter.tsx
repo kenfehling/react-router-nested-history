@@ -4,7 +4,7 @@ import {History, Location} from 'history'
 import StaticRouter from 'react-router/StaticRouter'
 import ReactRouterHistory from 'react-router/History'
 import {
-  setZeroPage, loadFromUrl, startup, listenToStore, isInitialized
+  setZeroPage, loadFromUrl, startup, listenToStore, isInitialized, loadActions
 } from '../../main'
 import {locationToString, stringToLocation} from '../../util/location'
 declare const window:any
@@ -29,6 +29,7 @@ export default class DumbHistoryRouter extends
 
   componentWillMount() {
     const {location, zeroPage, listenToLocation, locationChanged} = this.props
+    loadActions()
     if (zeroPage) {
       setZeroPage(zeroPage)
     }
