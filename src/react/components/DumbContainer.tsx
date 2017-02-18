@@ -16,7 +16,6 @@ export interface DumbContainerProps {
   name: string,
   initialUrl: string,
   patterns: string[],
-  className?: string,
   style?: any
 
   groupName: string,
@@ -101,26 +100,19 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
     return location
   }
 
-  /*
-  shouldComponentUpdate(newProps) {
-    const {groupName} = newProps
-    const currentUrl:string = this.getCurrentUrl()
-    return urlMatchesGroup(currentUrl, groupName)
-  }
-  */
-
   onClick() {
     const {groupName} = this.props
     switchToGroup(groupName)
   }
 
   render() {
-    const {hideInactiveContainers, className, style} = this.props
+    const {hideInactiveContainers, children, style, ...divProps} = this.props
     if (!hideInactiveContainers || this.matchesLocation(this.props)) {
       return (
-        <div onClick={this.onClick.bind(this)} className={className}
+        <div {...divProps}
+             onClick={this.onClick.bind(this)}
              style={{...style, width: '100%', height: '100%', position: 'inherit'}}>
-          {this.props.children}
+          {children}
         </div>
       )
 
