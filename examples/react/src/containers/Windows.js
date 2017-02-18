@@ -11,8 +11,9 @@ const windowName = (index:number) => 'window' + (index + 1)
 const windowUrl = (index:number) => '/windows/' + (index + 1)
 
 const ExampleWindow = ({index, masterComponent}) => (
-  <Window className={`window ${windowName(index)}`}>
+  <Window className={`window ${windowName(index)}`} children={({isOnTop}) => (
     <Container name={windowName(index)}
+               className={isOnTop ? 'top container' : 'container'}
                initialUrl={windowUrl(index)}
                patterns={[windowUrl(index), windowUrl(index) + '/:page']}
     >
@@ -25,7 +26,7 @@ const ExampleWindow = ({index, masterComponent}) => (
                     component={WindowPage}
       />
     </Container>
-  </Window>
+  )} />
 )
 
 export default () => (

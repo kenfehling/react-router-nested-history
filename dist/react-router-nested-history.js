@@ -18402,6 +18402,15 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 var React = __webpack_require__(3);
 var react_1 = __webpack_require__(3);
 var Window = (function (_super) {
@@ -18410,9 +18419,9 @@ var Window = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     Window.prototype.render = function () {
-        var _a = this.props, top = _a.top, left = _a.left, children = _a.children, className = _a.className, style = _a.style;
+        var _a = this.props, top = _a.top, left = _a.left, children = _a.children, style = _a.style, divProps = __rest(_a, ["top", "left", "children", "style"]);
         var _b = this.context, zIndex = _b.zIndex, isOnTop = _b.isOnTop;
-        return (React.createElement("div", { className: className, style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }, children instanceof Function ? children({ isOnTop: isOnTop }) : children));
+        return (React.createElement("div", __assign({}, divProps, { style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }), children instanceof Function ? children({ isOnTop: isOnTop }) : children));
     };
     return Window;
 }(react_1.Component));

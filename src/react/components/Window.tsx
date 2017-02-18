@@ -1,14 +1,8 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode} from 'react'
-import ReactElement = React.ReactElement
-
-interface WindowProps {
-  top?: number,
-  left?: number,
-  children?: ReactNode,
-  className?: string
-  style?: Object
-}
+import {
+  Component, PropTypes, ReactNode, ReactElement, EventHandler,
+  MouseEvent, TouchEvent
+} from 'react'
 
 interface ChildrenFunctionArgs {
   isOnTop: boolean
@@ -17,6 +11,13 @@ interface ChildrenFunctionArgs {
 export type ChildrenType =
   ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
 
+interface WindowProps {
+  top?: number
+  left?: number
+  children?: ChildrenType
+  style?: Object
+}
+
 export default class Window extends Component<WindowProps, undefined> {
   static contextTypes = {
     zIndex: PropTypes.number.isRequired,
@@ -24,17 +25,18 @@ export default class Window extends Component<WindowProps, undefined> {
   }
 
   render() {
-    const {top, left, children, className, style} = this.props
+    // Pass through all props you could want on a div
+    const {top, left, children, style, ...divProps} = this.props
     const {zIndex, isOnTop} = this.context
     return (
-      <div className={className}
-        style={{
-         ...style,
-         zIndex,
-         position: 'absolute',
-         top: top ? top + 'px' : '',
-         left: left ? left + 'px' : ''
-        }}
+      <div {...divProps}
+           style={{
+             ...style,
+             zIndex,
+             position: 'absolute',
+             top: top ? top + 'px' : '',
+             left: left ? left + 'px' : ''
+           }}
       >
         {children instanceof Function ? children({isOnTop}) : children}
       </div>
