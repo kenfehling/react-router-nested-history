@@ -7,7 +7,7 @@ export default ({params:{page}}) => (
     <p className='page-content'>
       Page: {page}
     </p>
-    <HistoryLink to="/tabs/2/other">Other link</HistoryLink>
+
     <Helmet title={'Tabs: ' + page} />
   </div>
 )
