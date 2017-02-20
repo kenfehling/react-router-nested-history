@@ -1,6 +1,5 @@
 import * as React from 'react'
-import {Component, Children, PropTypes, ReactNode} from 'react'
-import {findDOMNode} from 'react-dom'
+import {Component, PropTypes, ReactNode} from 'react'
 import {
   getActiveUrlInGroup, urlMatchesGroup, switchToGroup,
   isInitialized
@@ -8,50 +7,8 @@ import {
 import { patternsMatch } from '../../util/url'
 import {Location} from 'history'
 import {stringToLocation, locationToString} from '../../util/location'
-import * as TransitionGroup from 'react-addons-transition-group'
-import Page from '../../model/Page'
-import SwitchToContainer from '../../model/actions/SwitchToContainer'
 
 const getContainerKey = (groupName, name) => groupName + '_' + name
-
-interface AnimatedPageProps {
-  children?: ReactNode,
-  lastActionType: string
-}
-
-class AnimatedPage extends Component<AnimatedPageProps, undefined> {
-  private container: HTMLDivElement
-
-  componentWillEnter(callback) {
-    this.container.style.left = '100%'
-    setTimeout(callback, 1);
-  }
-
-  componentDidEnter() {
-    this.container.style.left = '0'
-  }
-
-  componentWillLeave(callback) {
-    this.container.style.left = '-100%'
-    setTimeout(callback, 1000);
-  }
-
-  componentDidLeave() {
-    this.container.style.left = '-100%'
-  }
-
-  render() {
-    return (
-      <div style={{
-        position: 'absolute',
-        transition: 'all 1s',
-      }}
-           ref={c => this.container = c}>
-        {this.props.children}
-      </div>
-    )
-  }
-}
 
 export interface DumbContainerProps {
   location: string | Location
@@ -64,14 +21,10 @@ export interface DumbContainerProps {
   groupName: string
   useDefaultContainer?: boolean
   hideInactiveContainers?: boolean
-
-  activePage: Page|null
-  lastActionType: string
 }
 
 export default class DumbContainer extends Component<DumbContainerProps, undefined> {
   private static locations = {}  // Stays stored even if Container is unmounted
-  private prevAction:string
 
   static childContextTypes = {
     containerName: PropTypes.string.isRequired,
@@ -156,45 +109,24 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
   }
 
   render() {
-    const {
-      hideInactiveContainers,
-      children,
-      style,
-      activePage,
-      lastActionType,
-      ...divProps
-    } = this.props
-
-
-      //this.prevAction = lastActionType
-      /*
-      if (lastActionType === SwitchToContainer.type) {
-        resetMasterScrolls()
-      }
-      */
-      //const timeout = SwitchToContainer.type === 'switch-to-container' ? 1 : 1000
-
+    const {hideInactiveContainers, children, style, ...divProps} = this.props
+    if (!hideInactiveContainers || this.matchesLocation(this.props)) {
       return (
-
         <div {...divProps}
-             onClick={this.onClick.bind(this)}
-             style={{
+          onClick={this.onClick.bind(this)}
+          style={{
                ...style,
                width: '100%',
                height: '100%',
                position: 'inherit',
                overflow: 'hidden'
              }}>
-          <div style={{position: 'relative'}}>
-            <TransitionGroup component='div'>
-              {activePage &&
-      (!hideInactiveContainers || this.matchesLocation(this.props)) ?
-              <AnimatedPage lastActionType={lastActionType} key={activePage.url}>
-                {children}
-              </AnimatedPage> : <div></div>}
-            </TransitionGroup>
-          </div>
+          {children}
         </div>
       )
+    }
+    else {
+      return <div></div>
+    }
   }
 }

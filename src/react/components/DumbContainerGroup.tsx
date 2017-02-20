@@ -1,8 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {switchToContainerIndex, switchToContainerName} from '../../main'
-import Page from '../../model/Page'
-import Action from '../../model/Action'
 import * as R from 'ramda'
 import ReactElement = React.ReactElement
 

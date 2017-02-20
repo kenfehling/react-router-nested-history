@@ -3,6 +3,7 @@ import { Component, PropTypes } from 'react'
 import * as reactRouter from 'react-router'
 import MatchProvider from 'react-router/MatchProvider'
 import matchPattern from 'react-router/matchPattern'
+import AnimatedPage from './AnimatedPage'
 
 class RegisterMatch extends Component {
   static contextTypes = {
@@ -87,15 +88,17 @@ export default class HistoryMatch extends reactRouter.Match {
     return (
       <RegisterMatch match={match}>
         <MatchProvider match={match}>
-          {children ? (
-              children({ matched: !!match, ...props })
-            ) : match ? (
-                  render ? (
-                          render(props)
-                      ) : (
-                          <Component {...props} />
-                      )
-              ) : null}
+          <AnimatedPage>
+            {children ? (
+                children({ matched: !!match, ...props })
+              ) : match ? (
+                render ? (
+                    render(props)
+                  ) : (
+                    <Component {...props} />
+                  )
+                ) : null}
+          </AnimatedPage>
         </MatchProvider>
       </RegisterMatch>
     )
