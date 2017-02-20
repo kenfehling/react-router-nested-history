@@ -4,7 +4,7 @@ import Helmet from 'react-helmet'
 
 export default () => (
   <div>
-    <div className='title'>Tab 2</div>
+    <div className='tab-title'>Tab 2</div>
     <HistoryLink to="/tabs/2/flower">flower</HistoryLink>
     <Helmet title='Tab 2' />
   </div>

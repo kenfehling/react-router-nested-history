@@ -1,5 +1,4 @@
 import React from 'react'
-import { HistoryLink } from 'react-router-nested-history'
 import Helmet from 'react-helmet'
 
 export default ({params:{page}}) => (
@@ -7,7 +6,9 @@ export default ({params:{page}}) => (
     <p className='page-content'>
       Page: {page}
     </p>
-
+    <p>
+      Using the browser's back button will go back to this tab's previous page.
+    </p>
     <Helmet title={'Tabs: ' + page} />
   </div>
 )
