@@ -38,9 +38,10 @@ export const addStepListener = listener => stepListeners.push(listener)
 
 const startListeningForPopState = () => {
   unlisten = browser.listen((location:Location) => {
-    const state:Page = location.state
-    if (state) {
-      store.dispatch(new PopState({page: new Page(state)}))
+    if (location.state) {
+      const page:Page = new Page(location.state)
+      const state:IState = store.getState()
+      store.dispatch(new PopState({n: state.getShiftAmount(page)}))
     }
   })
 }
@@ -113,8 +114,11 @@ export const getOrCreateContainer = (action:CreateContainer):IContainer => {
   }
 }
 
-export const switchToGroup = (groupName:string):void =>
+export const switchToGroup = (groupName:string):void => {
+  if (store.getState().activeGroupName !== groupName) {
     store.dispatch(new SwitchToGroup({groupName}))
+  }
+}
 
 export const switchToContainerName = (groupName:string,
                                       containerName:string):void =>

@@ -57,10 +57,6 @@ export default class UninitializedState extends IState {
     throw new Error('State is uninitialized')
   }
 
-  shiftTo(page:Page, time:number):IState {
-    throw new Error('State is uninitialized')
-  }
-
   containsPage(page:Page):boolean {
     throw new Error('State is uninitialized')
   }

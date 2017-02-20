@@ -47,7 +47,6 @@ abstract class IState {
       {groupName?:string, time:number, reset?:boolean}):IState
 
   abstract getShiftAmount(page:Page):number
-  abstract shiftTo(page:Page, time:number):IState
   abstract containsPage(page:Page):boolean
   protected abstract getHistory(maintainFwd:boolean):HistoryStack
   abstract get groupStackOrder():Group[]

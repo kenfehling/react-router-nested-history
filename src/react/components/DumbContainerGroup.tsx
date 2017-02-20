@@ -31,6 +31,7 @@ export interface DumbContainerGroupProps {
   storedIndexedStackOrder: number[]
   storedCurrentContainerIndex: number,
   storedCurrentContainerName: string|null,
+  style?: any
 }
 
 export default class DumbContainerGroup extends
@@ -97,6 +98,22 @@ export default class DumbContainerGroup extends
     }
   }
 
+  renderDiv(divChildren) {
+    const {style, ...divProps} = R.omit([
+      'children',
+      'storedCurrentContainerIndex',
+      'storedIndexedStackOrder'
+    ], this.props)
+    const divStyle={
+    ...style,
+      width: '100%',
+      height: '100%',
+      position: 'inherit',
+      overflow: 'hidden'
+    }
+    return <div style={divStyle} {...divProps}>{divChildren}</div>
+  }
+
   render() {
     const {
       children,
@@ -111,10 +128,10 @@ export default class DumbContainerGroup extends
         setCurrentContainerIndex: this.switchContainerIndex,
         setCurrentContainerName: this.switchContainerName
       }
-      return <div>{children(args)}</div>
+      return this.renderDiv(children(args))
     }
     else {
-      return <div>{this.props.children}</div>
+      return this.renderDiv(this.props.children)
     }
   }
 }

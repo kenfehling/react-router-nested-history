@@ -77,8 +77,8 @@ describe('IState', () => {
       })
     })
 
-    describe('shiftTo', () => {
-      it('makes old current the new forward', () => {
+    describe('getShiftAmount', () => {
+      it('gets distance to popped page', () => {
         const current:Page = state.activePage
         const forward:Page = new Page({
           url: '/a/2',
@@ -86,10 +86,8 @@ describe('IState', () => {
           groupName: 'Group 1',
           containerName: 'Container 1'
         })
-        const newState = state.push(forward).shiftTo(current, 1000)
-        expect(newState.browserHistory.current.url).toEqual(current.url)
-        expect(newState.browserHistory.forward.length).toBe(1)
-        expect(newState.browserHistory.forward[0]).toEqual(forward)
+        const amount:number = state.push(forward).getShiftAmount(current)
+        expect(amount).toEqual(-1)
       })
     })
   })
