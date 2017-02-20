@@ -6,6 +6,9 @@ export default () => (
   <div>
     <div className='tab-title'>Tab 2</div>
     <HistoryLink to="/tabs/2/flower">flower</HistoryLink>
+    <p>
+      Using the browser's back button will go back to the default tab.
+    </p>
     <Helmet title='Tab 2' />
   </div>
 )
