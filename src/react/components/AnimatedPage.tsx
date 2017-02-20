@@ -92,11 +92,11 @@ class TransPage extends Component<TransPageProps, undefined> {
 
   setLeft(stage:LifecycleStage, callback?:Function, timeout?:number) {
     const action:Action = getLastAction()
-
-    console.log(action.type)
-
     const transition:Transition|undefined = transitions.get(action.type)
     if (transition) {
+
+      console.log(action.type)
+
       this.container.style.left = transition.getLeftPercent(stage, action)
       if (callback) {
         setTimeout(callback, timeout || 0)
@@ -165,14 +165,11 @@ export default class AnimatedPage extends Component<AnimatedPageProps, undefined
         getActivePageInContainer(groupName, containerName) : null
 
       return (
-        <div style={{
-               position: 'relative'
-             }}>
+        <div style={{position: 'relative'}}>
           <TransitionGroup component='div'>
-            {activePage ?
-              <TransPage key={activePage.url}>
-                {children}
-              </TransPage> : <div></div>}
+            {activePage &&
+              <TransPage key={activePage.url}>{children}</TransPage>
+            }
           </TransitionGroup>
         </div>
       )

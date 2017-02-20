@@ -21,7 +21,7 @@
   background-color: #a1ff9d;
 }
 
-.state-tree .current-page.browser {
+.state-tree .current-page.active.group {
   border: thin solid #a4e4ff;
   background-color: #a4e4ff;
 }

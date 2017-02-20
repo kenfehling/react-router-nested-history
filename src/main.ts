@@ -115,20 +115,23 @@ export const getOrCreateContainer = (action:CreateContainer):IContainer => {
 }
 
 export const switchToGroup = (groupName:string):void => {
-  if (store.getState().activeGroupName !== groupName) {
+  if (!isGroupActive(groupName)) {
     store.dispatch(new SwitchToGroup({groupName}))
   }
 }
 
-export const switchToContainerName = (groupName:string,
-                                      containerName:string):void =>
+export const switchToContainer = (groupName:string,
+                                  containerName:string):void => {
+  if (!isContainerActive(groupName, containerName)) {
     store.dispatch(new SwitchToContainer({groupName, containerName}))
+  }
+}
 
 export const switchToContainerIndex = (groupName:string, index:number):void => {
   const group:Group = getGroupByName(groupName)
   const container:IContainer = group.containers[index]
   if (container) {
-    return switchToContainerName(groupName, container.name)
+    return switchToContainer(groupName, container.name)
   }
   else {
     throw new Error(`No container found at index ${index} in '${groupName}' ` +
@@ -146,6 +149,8 @@ export const push = (groupName:string, containerName:string, url:string,
     containerName,
     lastVisited: new Date().getTime()
   })
+  switchToGroup(groupName)
+  switchToContainer(groupName,containerName)
   store.dispatch(new Push({page}))
 }
 
@@ -204,8 +209,8 @@ export const getActiveContainerIndexInGroup = (groupName:string): number =>
 export const getActiveContainerNameInGroup = (groupName:string): string =>
     store.getState().getActiveContainerNameInGroup(groupName)
 
-export const getActiveGroup = (): Group => store.getState().activeGroup
-export const getActiveGroupName = (): string => store.getState().activeGroupName
+export const isGroupActive = (groupName:string): boolean =>
+    store.getState().isGroupActive(groupName)
 
 export const isInitialized = (): boolean =>
     store.getState() instanceof InitializedState

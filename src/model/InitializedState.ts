@@ -174,12 +174,18 @@ export default class InitializedState extends IState {
     return this.getActivePageInContainer(groupName, containerName).url
   }
 
-  get activeGroup():Group {
-    return this.groupStackOrder[0]
+  isGroupActive(groupName:string):boolean {
+    const activeGroup:Group = this.activeGroup
+    if (activeGroup.name === groupName) {
+      return true
+    }
+    else {
+      return activeGroup.hasNestedGroupWithName(groupName)
+    }
   }
 
-  get activeGroupName():string {
-    return this.activeGroup.name
+  get activeGroup():Group {
+    return this.groupStackOrder[0]
   }
 
   get activeContainer():IContainer {

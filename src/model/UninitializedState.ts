@@ -105,6 +105,10 @@ export default class UninitializedState extends IState {
     throw new Error('State is uninitialized')
   }
 
+  isGroupActive(groupName:string):boolean {
+    return false
+  }
+
   get activePage():Page {
     throw new Error('State is uninitialized')
   }
@@ -126,10 +130,6 @@ export default class UninitializedState extends IState {
   }
 
   get activeGroup():Group {
-    throw new Error('State is uninitialized')
-  }
-
-  get activeGroupName():string {
     throw new Error('State is uninitialized')
   }
 

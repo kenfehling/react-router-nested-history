@@ -1,13 +1,13 @@
 import * as React from 'react'
 import {Component, PropTypes, Children, ReactNode} from 'react'
 import {connect, Store} from 'react-redux'
-import locationStore from '../store'
+import store from '../store'
 import DumbContainerGroup, {
   OnContainerSwitch,
   DumbContainerGroupProps, ChildrenType
 } from './DumbContainerGroup'
 import {
-  getIndexedContainerStackOrder, getActivePageInGroup, getOrCreateGroup,
+  getIndexedContainerStackOrder, getOrCreateGroup,
   getActiveContainerIndexInGroup, isInitialized, getActiveContainerNameInGroup,
 } from '../../main'
 import Container from './Container'
@@ -130,7 +130,7 @@ export default class ContainerGroup extends Component<ContainerGroupProps, undef
   render() {
     return (
       <ConnectedContainerGroup
-          store={locationStore}
+          store={store}
           {...this.props}
       />
     )
