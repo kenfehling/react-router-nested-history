@@ -4,13 +4,17 @@ import {connect, Store} from 'react-redux'
 import store from '../store'
 import DumbContainer from './DumbContainer'
 import LocationState from '../model/LocationState'
-import {getOrCreateContainer} from '../../main'
+import {
+  getOrCreateContainer, isInitialized,
+  getActivePageInContainer, getLastActionType
+} from '../../main'
 import {stringToLocation} from '../../util/location'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {Location} from 'history'
 import {addTitle} from '../actions/LocationActions'
 import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
+import Page from '../../model/Page'
 
 interface ContainerProps {
   children?: ReactNode,
@@ -104,12 +108,16 @@ class Container extends Component<InnerContainerProps, undefined> {
   }
 
   render() {
-    const {initializing} = this.context
+    const {name} = this.props
+    const {initializing, groupName} = this.context
     if (initializing) {
       return <div></div>
     }
     else {
-      return <DumbContainer {...this.props} {...this.context} />
+      const activePage:Page|null = isInitialized() ?
+          getActivePageInContainer(groupName, name) : null
+      return <DumbContainer {...this.props} {...this.context}
+        activePage={activePage} lastActionType={getLastActionType()} />
     }
   }
 }

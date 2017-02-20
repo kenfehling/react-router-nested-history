@@ -157,6 +157,8 @@ export const loadFromUrl = (url:string):void =>
 export const setZeroPage = (url:string|null):void =>
     store.dispatch(new SetZeroPage({url}))
 
+export const getLastAction = ():Action => store.getLastAction()
+export const getLastActionType = ():string => getLastAction().type
 export const loadActions = ():void => store.loadActions()
 export const top = (action:Top):void => store.dispatch(action)
 export const go = (n:number=1):void => store.dispatch(new Go({n}))

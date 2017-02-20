@@ -5592,7 +5592,7 @@ var HistoryStack = (function () {
             this.goBack(0 - n, time) : this.goForward(n, time);
     };
     /**
-     * @returns {[Page]} This HistoryStack as a flat array of Page objects
+     * @returns {[AnimatedPage]} This HistoryStack as a flat array of Page objects
      */
     HistoryStack.prototype.flatten = function () {
         return this.back.concat([this.current], this.forward);

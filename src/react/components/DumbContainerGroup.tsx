@@ -30,8 +30,6 @@ export interface DumbContainerGroupProps {
   useDefaultContainer?: boolean,
   hideInactiveContainers?: boolean,
   gotoTopOnSelectActive?: boolean,
-  storedActivePage: Page|null,
-  storedLastAction: Action,
   storedIndexedStackOrder: number[]
   storedCurrentContainerIndex: number,
   storedCurrentContainerName: string|null,
@@ -45,9 +43,7 @@ export default class DumbContainerGroup extends
   static childContextTypes = {
     groupName: PropTypes.string.isRequired,
     useDefaultContainer: PropTypes.bool,
-    hideInactiveContainers: PropTypes.bool,
-    activePage: PropTypes.object.isRequired,
-    lastAction: PropTypes.object.isRequired
+    hideInactiveContainers: PropTypes.bool
   }
 
   constructor(props:DumbContainerGroupProps) {
@@ -61,15 +57,11 @@ export default class DumbContainerGroup extends
       name,
       useDefaultContainer=true,
       hideInactiveContainers=true,
-      storedActivePage,
-      storedLastAction
     } = this.props
     return {
       groupName: name,
       useDefaultContainer,
-      hideInactiveContainers,
-      activePage: storedActivePage,
-      lastAction: storedLastAction
+      hideInactiveContainers
     }
   }
 
