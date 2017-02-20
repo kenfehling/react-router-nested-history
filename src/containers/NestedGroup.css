@@ -1,6 +1,8 @@
 .nested-window {
   width: 320px;
   height: 240px;
+  display: flex;
+  flex-direction: column;
 }
 
 .nested-window.foods {
@@ -14,6 +16,7 @@
 }
 
 .header {
+  height: 2em;
   margin-bottom: 20px;
 }
 
