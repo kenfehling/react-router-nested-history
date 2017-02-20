@@ -45,6 +45,7 @@ class TransPage extends Component<TransPageProps, undefined> {
         height: '100%',
         position: 'absolute',
         transition: 'all 1s',
+        left: 0
       }}
            ref={c => this.container = c}>
         {this.props.children}
