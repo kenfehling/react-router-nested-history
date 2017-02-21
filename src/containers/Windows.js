@@ -13,6 +13,7 @@ const windowUrl = (index:number) => '/windows/' + (index + 1)
 const ExampleWindow = ({index, masterComponent}) => (
   <Window className={`window ${windowName(index)}`} children={({isOnTop}) => (
     <Container name={windowName(index)}
+               animate={false}
                className={isOnTop ? 'top container' : 'container'}
                initialUrl={windowUrl(index)}
                patterns={[windowUrl(index), windowUrl(index) + '/:page']}
