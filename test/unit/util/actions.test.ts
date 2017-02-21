@@ -3,7 +3,6 @@ import CreateContainer from '../../../src/model/actions/CreateContainer'
 import Push from '../../../src/model/actions/Push'
 import Page from '../../../src/model/Page'
 import PopState from '../../../src/model/actions/PopState'
-import HistoryStack from '../../../src/model/HistoryStack'
 import LoadFromUrl from '../../../src/model/actions/LoadFromUrl'
 import ReplaceStep from '../../../src/model/steps/ReplaceStep'
 import PushStep from '../../../src/model/steps/PushStep'
@@ -178,15 +177,6 @@ describe('action utils', () => {
           })
         ]
 
-        /*
-        const loadFromRefreshActions:Action[] = [...originalSimpleActions(true),
-          new LoadFromUrl({
-            url: '/a/1',
-            time: 1000
-          })
-        ]
-        */
-
         it('back', () => {
           const actions:Action[] = [...loadActions, new Back({
             time: 1002
@@ -215,12 +205,7 @@ describe('action utils', () => {
 
         it('handles pop back', () => {
           const actions:Action[] = [...loadActions, new PopState({
-            page: new Page({
-              url: '/a',
-              params: {},
-              groupName: 'Group 1',
-              containerName: 'Container 1'
-            }),
+            n: -1,
             time: 1002
           })]
           expect(createStepsSince(actions, 1000)).toEqual([])
@@ -229,13 +214,7 @@ describe('action utils', () => {
         it('handles pop back, then other stuff', () => {
           const actions:Action[] = [...loadActions, ...[
             new PopState({
-              page: new Page({
-                url: '/a',
-                params: {},
-                groupName: 'Group 1',
-                containerName: 'Container 1',
-                lastVisited: 0
-              }),
+              n: -1,
               time: 1002
             }),
             new Forward({
@@ -261,13 +240,7 @@ describe('action utils', () => {
                 time: 4000
               }),
               new PopState({
-                page: new Page({
-                  url: '/a',
-                  params: {},
-                  groupName: 'Group 1',
-                  containerName: 'Container 1',
-                  firstVisited: 1000
-                }),
+                n: -1,
                 time: 5000
               })
             ]
@@ -296,13 +269,7 @@ describe('action utils', () => {
           it('removes forward history after going back to default tab', () => {
             const actions:Action[] = [...switchActions,
               new PopState({
-                page: new Page({
-                  url: '/a/1',
-                  params: {id: '1'},
-                  groupName: 'Group 1',
-                  containerName: 'Container 1',
-                  firstVisited: 1000
-                }),
+                n: -1,
                 time: 3000
               })
             ]
@@ -475,13 +442,7 @@ describe('action utils', () => {
         it('removes forward history after going back to default tab', () => {
           const actions:Action[] = [...switchActions,
             new PopState({
-              page: new Page({
-                url: '/a/1',
-                params: {id: '1'},
-                groupName: createSubGroup1.name,
-                containerName: 'Container 1',
-                firstVisited: 1000
-              }),
+              n: -1,
               time: 3000
             })
           ]

@@ -40,7 +40,7 @@ export const patternsMatch = (patterns:string[], path:string):boolean => {
 };
 
 const parseParams = (pattern:string, url:string):Object => {
-  const match = matchPath(pattern, createLocation(url), {exact: true})
+  const match = matchPath(url, pattern, {exact: true})
   return match ? match.params || {} : {}
 }
 

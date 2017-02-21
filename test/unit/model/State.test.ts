@@ -48,7 +48,6 @@ describe('IState', () => {
           lastVisited: 2000
         })
         const newState:IState = state.push(page)
-        expect(newState.activeGroupName).toBe('Group 2')
         expect(newState.getActiveContainerNameInGroup('Group 2')).toBe('Container 2')
         expect(newState.activeGroup.activeContainerName).toBe('Container 2')
       })
@@ -131,7 +130,6 @@ describe('IState', () => {
           lastVisited: 2000
         })
         const newState:IState = state.push(page)
-        expect(newState.activeGroupName).toBe(group.name)
         expect(newState.getActiveContainerNameInGroup('Group 2')).toBe('Container 2')
         expect(newState.activeGroup.activeContainerName).toBe(group.containers[1].name)
       })
