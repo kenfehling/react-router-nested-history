@@ -7,6 +7,7 @@ import {
 import { patternsMatch } from '../../util/url'
 import {Location} from 'history'
 import {stringToLocation, locationToString} from '../../util/location'
+import * as R from 'ramda'
 
 const getContainerKey = (groupName, name) => groupName + '_' + name
 
@@ -14,6 +15,7 @@ export interface DumbContainerProps {
   location: string | Location
   children?: ReactNode
   name: string
+  animate?: boolean,
   initialUrl: string
   patterns: string[]
   style?: any
@@ -30,13 +32,16 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
     containerName: PropTypes.string.isRequired,
     location: PropTypes.object.isRequired,
     patterns: PropTypes.arrayOf(PropTypes.string).isRequired,
+    animate: PropTypes.bool.isRequired
   }
 
   getChildContext() {
+    const {name, patterns, animate} = this.props
     return {
-      containerName: this.props.name,
       location: this.getFilteredLocation(),
-      patterns: this.props.patterns
+      containerName: name,
+      patterns,
+      animate: animate == null ? true : animate
     }
   }
 
@@ -109,7 +114,24 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
   }
 
   render() {
-    const {hideInactiveContainers, children, style, ...divProps} = this.props
+    const {
+      hideInactiveContainers,
+      children,
+      style,
+      ...divProps
+    } = R.omit([
+      'animate',
+      'resetOnLeave',
+      'initialUrl',
+      'patterns',
+      'location',
+      'addTitle',
+      'groupName',
+      'name',
+      'store',
+      'initializing',
+      'useDefaultContainer'
+    ], this.props)
     if (!hideInactiveContainers || this.matchesLocation(this.props)) {
       return (
         <div {...divProps}

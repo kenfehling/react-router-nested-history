@@ -11,10 +11,12 @@ import {Location} from 'history'
 import {addTitle} from '../actions/LocationActions'
 import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
+import * as R from 'ramda'
 
 interface ContainerProps {
   children?: ReactNode,
   name: string,
+  animate?: boolean,
   initialUrl: string,
   patterns: string[],
   resetOnLeave?: boolean,
@@ -67,7 +69,8 @@ class Container extends Component<InnerContainerProps, undefined> {
 
     if (initializing) {
       class T extends Component<undefined, undefined> {
-        static childContextTypes = DumbContainer.childContextTypes
+        static childContextTypes =
+          R.omit(['animate'], DumbContainer.childContextTypes)
 
         getChildContext() {
           return {

@@ -142,37 +142,41 @@ class TransPage extends Component<TransPageProps, undefined> {
 export default class AnimatedPage extends Component<AnimatedPageProps, undefined> {
   static contextTypes = {
     groupName: PropTypes.string.isRequired,
-    containerName: PropTypes.string.isRequired
+    containerName: PropTypes.string.isRequired,
+    animate: PropTypes.bool.isRequired
   }
 
   render() {
 
-    //this.prevAction = lastActionType
     /*
      if (lastActionType === SwitchToContainer.type) {
-     resetMasterScrolls()
+        resetMasterScrolls()
      }
      */
-    //const timeout = SwitchToContainer.type === 'switch-to-container' ? 1 : 1000
 
     const {children} = this.props
-    const {groupName, containerName} = this.context
-    if (groupName && containerName) {
-      const activePage:Page|null = isInitialized() ?
-        getActivePageInContainer(groupName, containerName) : null
+    const {animate, groupName, containerName} = this.context
+    if (animate) {
+      if (groupName && containerName) {
+        const activePage: Page|null = isInitialized() ?
+          getActivePageInContainer(groupName, containerName) : null
 
-      return (
-        <div style={{position: 'relative'}}>
-          <TransitionGroup component='div'>
-            {activePage &&
+        return (
+          <div style={{position: 'relative'}}>
+            <TransitionGroup component='div'>
+              {activePage &&
               <TransPage key={activePage.url}>{children}</TransPage>
-            }
-          </TransitionGroup>
-        </div>
-      )
+              }
+            </TransitionGroup>
+          </div>
+        )
+      }
+      else {
+        return <div></div>
+      }
     }
     else {
-      return <div></div>
+      return <div>{children}</div>
     }
   }
 }

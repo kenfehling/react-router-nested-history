@@ -102,7 +102,15 @@ export default class DumbContainerGroup extends
     const {style, ...divProps} = R.omit([
       'children',
       'storedCurrentContainerIndex',
-      'storedIndexedStackOrder'
+      'storedIndexedStackOrder',
+      'useDefaultContainer',
+      'hideInactiveContainers',
+      'store',
+      'dispatch',
+      'storedCurrentContainerName',
+      'currentContainerIndex',
+      'onContainerActivate',
+      'gotoTopOnSelectActive'
     ], this.props)
     const divStyle={
     ...style,
