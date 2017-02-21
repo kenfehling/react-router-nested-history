@@ -1,6 +1,6 @@
-import React, { PropTypes, Component } from 'react'
-import { Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel } from 'react-tabs'
-import { Container, ContainerGroup, HistoryMatch } from 'react-router-nested-history'
+import React, {PropTypes, Component } from 'react'
+import {Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel} from 'react-tabs'
+import {Container, ContainerGroup, HistoryRoute} from 'react-router-nested-history'
 import './Tabs.css'
 import TabMaster1 from "../components/TabMaster1"
 import TabMaster2 from "../components/TabMaster2"
@@ -9,8 +9,8 @@ import TabPage from "../components/TabPage"
 
 const Tab = ({name, initialUrl, patterns, masterComponent}) => (
   <Container name={name} initialUrl={initialUrl} patterns={patterns}>
-    <HistoryMatch exactly pattern={patterns[0]} component={masterComponent} />
-    <HistoryMatch exactly pattern={patterns[1]} component={TabPage} />
+    <HistoryRoute exact path={patterns[0]} component={masterComponent} />
+    <HistoryRoute exact path={patterns[1]} component={TabPage} />
   </Container>
 )
 
