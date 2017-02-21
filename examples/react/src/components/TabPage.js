@@ -2,7 +2,7 @@ import React from 'react'
 import { HistoryLink } from 'react-router-nested-history'
 import Helmet from 'react-helmet'
 
-export default ({params:{page}}) => (
+export default ({match:{params:{page}}}) => (
   <div >
     <p className='page-content'>
       Page: {page}

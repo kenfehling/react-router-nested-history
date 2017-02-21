@@ -1,12 +1,12 @@
 import * as React from 'react'
-import {Component, ReactNode} from 'react'
+import {Component, PropTypes, ReactNode} from 'react'
 import {History, Location} from 'history'
-import StaticRouter from 'react-router/StaticRouter'
-import ReactRouterHistory from 'react-router/History'
+import {Router} from 'react-router'
 import {
   setZeroPage, loadFromUrl, startup, listenToStore, isInitialized, loadActions
 } from '../../main'
 import {locationToString, stringToLocation} from '../../util/location'
+import createBrowserHistory from 'history/createBrowserHistory'
 declare const window:any
 
 export interface DumbHistoryRouterProps {
@@ -51,37 +51,10 @@ export default class DumbHistoryRouter extends
     unlistenToLocation && unlistenToLocation()
   }
 
-  render() {
-    const {
-        basename,
-        forceRefresh,
-        getUserConfirmation,
-        keyLength,
-        createHistory,
-        ...routerProps
-    } = this.props
+  history = createBrowserHistory(this.props) as any
 
-    return (
-        <ReactRouterHistory
-            createHistory={createHistory}
-            historyOptions={{
-            basename,
-            forceRefresh,
-            getUserConfirmation,
-            keyLength
-    }}>
-          {({ history, action, location }) => (
-              <StaticRouter
-                  action={action}
-                  location={location}
-                  basename={basename}
-                  onPush={history.push}
-                  onReplace={history.replace}
-                  blockTransitions={history.block}
-                  {...routerProps}
-              />
-          )}
-        </ReactRouterHistory>
-    )
+  render() {
+    const {children} = this.props
+    return <Router history={this.history} children={children} />
   }
 }

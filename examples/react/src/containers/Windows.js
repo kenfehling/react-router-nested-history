@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  Container, WindowGroup, Window, HistoryMatch
+  Container, WindowGroup, Window, HistoryRoute
 } from 'react-router-nested-history'
 import WindowMaster1 from '../components/WindowMaster1'
 import WindowMaster2 from '../components/WindowMaster2'
@@ -17,12 +17,12 @@ const ExampleWindow = ({index, masterComponent}) => (
                initialUrl={windowUrl(index)}
                patterns={[windowUrl(index), windowUrl(index) + '/:page']}
     >
-      <HistoryMatch exactly
-                    pattern={windowUrl(index)}
+      <HistoryRoute exact
+                    path={windowUrl(index)}
                     component={masterComponent}
       />
-      <HistoryMatch exactly
-                    pattern={windowUrl(index) + '/:page'}
+      <HistoryRoute exact
+                    path={windowUrl(index) + '/:page'}
                     component={WindowPage}
       />
     </Container>

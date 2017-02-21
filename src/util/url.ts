@@ -1,6 +1,6 @@
 import * as pathToRegexp from 'path-to-regexp'
 import {createLocation} from 'history/LocationUtils'
-import matchPattern from 'react-router/matchPattern'
+import matchPath from 'react-router/matchPath'
 import * as R from 'ramda'
 
 export const addLeadingSlash = (path) => path.replace(/\/?(\?|#|$)?/, '/$1');
@@ -40,7 +40,7 @@ export const patternsMatch = (patterns:string[], path:string):boolean => {
 };
 
 const parseParams = (pattern:string, url:string):Object => {
-  const match = matchPattern(pattern, createLocation(url), false)
+  const match = matchPath(pattern, createLocation(url), {exact: true})
   return match ? match.params || {} : {}
 }
 

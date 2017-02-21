@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {
-  Container, ContainerGroup, WindowGroup, Window, HistoryMatch, HeaderLink,
+  Container, ContainerGroup, WindowGroup, Window, HistoryRoute, HeaderLink,
   HistoryLink
 } from 'react-router-nested-history'
 import './NestedGroup.css'
@@ -29,14 +29,14 @@ const FoodsHeader = () => (
   </div>
 )
 
-const FoodsDetail = ({params:{food, category}, className}) => (
+const FoodsDetail = ({match:{params:{food, category}}, className}) => (
   <div>
     {category} > {food}
     <Helmet title={category + ' - ' + food} />
   </div>
 )
 
-const FoodsMaster = ({params:{category}}) => (
+const FoodsMaster = ({match:{params:{category}}}) => (
   <div>
     <div>Category: {category}</div>
     <ul>
@@ -79,9 +79,9 @@ export default () =>(
               patterns={[`/foods/${regex(c)}`, `/foods/${regex(c)}/:food`]}
             >
               <div>
-                <HistoryMatch pattern={`/foods/${regex(c)}`} exactly
+                <HistoryRoute path={`/foods/${regex(c)}`} exact
                               component={FoodsMaster} />
-                <HistoryMatch pattern={`/foods/${regex(c)}/:food`}
+                <HistoryRoute path={`/foods/${regex(c)}/:food`}
                               component={FoodsDetail} />
               </div>
             </Container>
@@ -90,7 +90,7 @@ export default () =>(
       </Window>
       <Window className='window nested-window notes'>
         <Container name='notes' initialUrl='/notes' patterns={['/notes']}>
-          <HistoryMatch pattern='/notes' exactly component={Notes} />
+          <HistoryRoute path='/notes' exact component={Notes} />
         </Container>
       </Window>
     </WindowGroup>
