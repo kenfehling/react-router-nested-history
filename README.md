@@ -63,8 +63,8 @@ Use this in place of react-router's `BrowserRouter` component to enable this lib
     </tbody>
 </table>
 
-### HistoryMatch
-Use this in place of react-router's `Match` component to prevent a match's previous content from disappearing.
+### HistoryRoute
+Use this in place of react-router's `Route` component to prevent a match's previous content from disappearing.
 
 ### HistoryLink
 Use this in place of react-router's `Link` component to enable history tracking for a link.
@@ -128,7 +128,7 @@ Use this to place a back link (which only shows if there is back history)
 </table>
 
 ### Container
-Use this component to wrap one or more `HistoryMatch` components to enable history for a container (a nested tab or window).
+Use this component to wrap one or more `HistoryRoute` components to enable history for a container (a nested tab or window).
 
 #### props
 <table class="table table-bordered table-striped">
