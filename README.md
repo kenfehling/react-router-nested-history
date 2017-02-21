@@ -19,7 +19,7 @@ npm install --save kenfehling/react-router-nested-history
 This library is built to support
 [react-router 4](https://github.com/ReactTraining/react-router/tree/v4). It's
 been developed and tested against
-[v4.0.0-alpha.6](https://github.com/ReactTraining/react-router/releases/tag/v4.0.0-alpha.6). When
+[v4.0.0-beta.6](https://github.com/ReactTraining/react-router/releases/tag/v4.0.0-beta.6). When
 version 4 is officially released the library will be updated for that API.
 
 This library is very new and not battle-tested, although it does have
@@ -63,8 +63,8 @@ Use this in place of react-router's `BrowserRouter` component to enable this lib
     </tbody>
 </table>
 
-### HistoryMatch
-Use this in place of react-router's `Match` component to prevent a match's previous content from disappearing.
+### HistoryRoute
+Use this in place of react-router's `Route` component to prevent a match's previous content from disappearing.
 
 ### HistoryLink
 Use this in place of react-router's `Link` component to enable history tracking for a link.
@@ -128,7 +128,7 @@ Use this to place a back link (which only shows if there is back history)
 </table>
 
 ### Container
-Use this component to wrap one or more `HistoryMatch` components to enable history for a container (a nested tab or window).
+Use this component to wrap one or more `HistoryRoute` components to enable history for a container (a nested tab or window).
 
 #### props
 <table class="table table-bordered table-striped">
