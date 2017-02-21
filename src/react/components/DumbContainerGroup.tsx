@@ -1,8 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {switchToContainerIndex, switchToContainerName} from '../../main'
-import Page from '../../model/Page'
-import Action from '../../model/Action'
+import {switchToContainerIndex, switchToContainer} from '../../main'
 import * as R from 'ramda'
 import ReactElement = React.ReactElement
 
@@ -30,11 +28,10 @@ export interface DumbContainerGroupProps {
   useDefaultContainer?: boolean,
   hideInactiveContainers?: boolean,
   gotoTopOnSelectActive?: boolean,
-  storedActivePage: Page|null,
-  storedLastAction: Action,
   storedIndexedStackOrder: number[]
   storedCurrentContainerIndex: number,
   storedCurrentContainerName: string|null,
+  style?: any
 }
 
 export default class DumbContainerGroup extends
@@ -45,15 +42,13 @@ export default class DumbContainerGroup extends
   static childContextTypes = {
     groupName: PropTypes.string.isRequired,
     useDefaultContainer: PropTypes.bool,
-    hideInactiveContainers: PropTypes.bool,
-    activePage: PropTypes.object.isRequired,
-    lastAction: PropTypes.object.isRequired
+    hideInactiveContainers: PropTypes.bool
   }
 
   constructor(props:DumbContainerGroupProps) {
     super(props)
     this.switchContainerIndex = R.curry(switchToContainerIndex)(props.name)
-    this.switchContainerName = R.curry(switchToContainerName)(props.name)
+    this.switchContainerName = R.curry(switchToContainer)(props.name)
   }
 
   getChildContext() {
@@ -61,15 +56,11 @@ export default class DumbContainerGroup extends
       name,
       useDefaultContainer=true,
       hideInactiveContainers=true,
-      storedActivePage,
-      storedLastAction
     } = this.props
     return {
       groupName: name,
       useDefaultContainer,
-      hideInactiveContainers,
-      activePage: storedActivePage,
-      lastAction: storedLastAction
+      hideInactiveContainers
     }
   }
 
@@ -107,6 +98,22 @@ export default class DumbContainerGroup extends
     }
   }
 
+  renderDiv(divChildren) {
+    const {style, ...divProps} = R.omit([
+      'children',
+      'storedCurrentContainerIndex',
+      'storedIndexedStackOrder'
+    ], this.props)
+    const divStyle={
+    ...style,
+      width: '100%',
+      height: '100%',
+      position: 'inherit',
+      overflow: 'hidden'
+    }
+    return <div style={divStyle} {...divProps}>{divChildren}</div>
+  }
+
   render() {
     const {
       children,
@@ -121,10 +128,10 @@ export default class DumbContainerGroup extends
         setCurrentContainerIndex: this.switchContainerIndex,
         setCurrentContainerName: this.switchContainerName
       }
-      return <div>{children(args)}</div>
+      return this.renderDiv(children(args))
     }
     else {
-      return <div>{this.props.children}</div>
+      return this.renderDiv(this.props.children)
     }
   }
 }

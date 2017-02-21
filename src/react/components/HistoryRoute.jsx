@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import matchPath from 'react-router/matchPath'
+import AnimatedPage from './AnimatedPage'
 
 const computeMatch = (location, { computedMatch, path, exact, strict }) =>
 computedMatch || matchPath(location.pathname, path, { exact, strict })
@@ -73,7 +74,8 @@ export default class HistoryRoute extends Component {
     const props = { ...this.router }
 
     return (
-      component ? ( // component prop gets first priority, only called if there's a match
+      <AnimatedPage>
+        {component ? ( // component prop gets first priority, only called if there's a match
           props.match ? React.createElement(component, props) : null
         ) : render ? ( // render prop is next, only called if there's a match
             props.match ? render(props) : null
@@ -87,7 +89,8 @@ export default class HistoryRoute extends Component {
                   )
             ) : (
               null
-            )
+            )}
+      </AnimatedPage>
     )
   }
 }

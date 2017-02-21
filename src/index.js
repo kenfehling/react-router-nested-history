@@ -1,6 +1,6 @@
 export {
-  switchToContainerName, addChangeListener, addLocationChangeListener,
-  removeLocationChangeListener
+  switchToContainer, addChangeListener, addLocationChangeListener,
+  removeLocationChangeListener, isGroupActive
 } from './main'
 export HistoryLink from './react/components/HistoryLink'
 export BackLink from './react/components/BackLink'

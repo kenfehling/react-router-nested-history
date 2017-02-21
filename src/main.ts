@@ -38,9 +38,10 @@ export const addStepListener = listener => stepListeners.push(listener)
 
 const startListeningForPopState = () => {
   unlisten = browser.listen((location:Location) => {
-    const state:Page = location.state
-    if (state) {
-      store.dispatch(new PopState({page: new Page(state)}))
+    if (location.state) {
+      const page:Page = new Page(location.state)
+      const state:IState = store.getState()
+      store.dispatch(new PopState({n: state.getShiftAmount(page)}))
     }
   })
 }
@@ -113,18 +114,24 @@ export const getOrCreateContainer = (action:CreateContainer):IContainer => {
   }
 }
 
-export const switchToGroup = (groupName:string):void =>
+export const switchToGroup = (groupName:string):void => {
+  if (!isGroupActive(groupName)) {
     store.dispatch(new SwitchToGroup({groupName}))
+  }
+}
 
-export const switchToContainerName = (groupName:string,
-                                      containerName:string):void =>
+export const switchToContainer = (groupName:string,
+                                  containerName:string):void => {
+  if (!isContainerActive(groupName, containerName)) {
     store.dispatch(new SwitchToContainer({groupName, containerName}))
+  }
+}
 
 export const switchToContainerIndex = (groupName:string, index:number):void => {
   const group:Group = getGroupByName(groupName)
   const container:IContainer = group.containers[index]
   if (container) {
-    return switchToContainerName(groupName, container.name)
+    return switchToContainer(groupName, container.name)
   }
   else {
     throw new Error(`No container found at index ${index} in '${groupName}' ` +
@@ -142,6 +149,8 @@ export const push = (groupName:string, containerName:string, url:string,
     containerName,
     lastVisited: new Date().getTime()
   })
+  switchToGroup(groupName)
+  switchToContainer(groupName,containerName)
   store.dispatch(new Push({page}))
 }
 
@@ -157,6 +166,8 @@ export const loadFromUrl = (url:string):void =>
 export const setZeroPage = (url:string|null):void =>
     store.dispatch(new SetZeroPage({url}))
 
+export const getLastAction = ():Action => store.getLastAction()
+export const getLastActionType = ():string => getLastAction().type
 export const loadActions = ():void => store.loadActions()
 export const top = (action:Top):void => store.dispatch(action)
 export const go = (n:number=1):void => store.dispatch(new Go({n}))
@@ -198,8 +209,8 @@ export const getActiveContainerIndexInGroup = (groupName:string): number =>
 export const getActiveContainerNameInGroup = (groupName:string): string =>
     store.getState().getActiveContainerNameInGroup(groupName)
 
-export const getActiveGroup = (): Group => store.getState().activeGroup
-export const getActiveGroupName = (): string => store.getState().activeGroupName
+export const isGroupActive = (groupName:string): boolean =>
+    store.getState().isGroupActive(groupName)
 
 export const isInitialized = (): boolean =>
     store.getState() instanceof InitializedState

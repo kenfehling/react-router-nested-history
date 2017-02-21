@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Component, PropTypes, ReactNode } from 'react'
+import {Component, PropTypes, ReactNode} from 'react'
 import {
   getActiveUrlInGroup, urlMatchesGroup, switchToGroup,
   isInitialized
@@ -8,18 +8,18 @@ import { patternsMatch } from '../../util/url'
 import {Location} from 'history'
 import {stringToLocation, locationToString} from '../../util/location'
 
-const getKey = (groupName, locationIndex) => groupName + '_' + locationIndex
+const getContainerKey = (groupName, name) => groupName + '_' + name
 
 export interface DumbContainerProps {
-  location: string | Location,
-  children?: ReactNode,
-  name: string,
-  initialUrl: string,
-  patterns: string[],
+  location: string | Location
+  children?: ReactNode
+  name: string
+  initialUrl: string
+  patterns: string[]
   style?: any
 
-  groupName: string,
-  useDefaultContainer?: boolean,
+  groupName: string
+  useDefaultContainer?: boolean
   hideInactiveContainers?: boolean
 }
 
@@ -74,9 +74,14 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
     }
   }
 
+  getKey():string {
+    const {name, groupName} = this.props
+    return getContainerKey(groupName, name)
+  }
+
   getNewLocation():Location {
-    const {name, groupName, initialUrl, location} = this.props
-    const key = getKey(groupName, name)
+    const {initialUrl, location} = this.props
+    const key = this.getKey()
     if (location) {
       if (this.matchesCurrentUrl()) {        // If url matches container
         return stringToLocation(location)    // Use this new location
@@ -89,9 +94,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
   }
 
   saveLocation(location:Location) {
-    const {name, groupName} = this.props
-    const key = getKey(groupName, name)
-    DumbContainer.locations[key] = location
+    DumbContainer.locations[this.getKey()] = location
   }
 
   getFilteredLocation() {
@@ -110,12 +113,18 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
     if (!hideInactiveContainers || this.matchesLocation(this.props)) {
       return (
         <div {...divProps}
-             onClick={this.onClick.bind(this)}
-             style={{...style, width: '100%', height: '100%', position: 'inherit'}}>
+          onClick={this.onClick.bind(this)}
+          style={{
+               ...style,
+               /*
+               height: '100%',
+               position: 'inherit',
+               overflow: 'hidden'
+               */
+             }}>
           {children}
         </div>
       )
-
     }
     else {
       return <div></div>
