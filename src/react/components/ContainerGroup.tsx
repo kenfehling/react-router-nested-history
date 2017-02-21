@@ -92,7 +92,6 @@ export default class ContainerGroup extends Component<ContainerGroupProps, undef
     const parentUsesDefault:boolean = this.context ?
       this.context.useDefaultContainer : undefined
 
-    // Promises are too tricky here
     getOrCreateGroup(new CreateGroup({
       name,
       parentGroupName,

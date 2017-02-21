@@ -57,7 +57,6 @@ class Container extends Component<InnerContainerProps, undefined> {
       useDefaultContainer=true
     } = this.context
 
-    // Promises are too tricky here
     getOrCreateContainer(new CreateContainer({
       name,
       groupName,
