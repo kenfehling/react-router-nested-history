@@ -58,13 +58,10 @@ export default class HistoryRoute extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    //console.log("CWRP", this.context)
-    /*
     const location = this.context.location
     Object.assign(this.router, {
       match: computeMatch(location, nextProps)
     })
-    */
   }
 
   componentWillUnmount() {
