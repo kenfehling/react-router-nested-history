@@ -5,9 +5,7 @@ import {connect, Store} from 'react-redux'
 import store from '../store'
 import createBrowserHistory from 'history/createBrowserHistory'
 import createMemoryHistory from 'history/createMemoryHistory'
-import {
-  listenToLocation, unlistenToLocation, locationChanged
-} from '../actions/LocationActions'
+import {listenToLocation, unlistenToLocation} from '../actions/LocationActions'
 import {addStepListener} from '../../main'
 import {canUseWindowLocation} from '../../util/location'
 import LocationState from '../model/LocationState'
@@ -33,8 +31,7 @@ type RouterPropsWithStore = HistoryRouterProps & {
 export type ConnectedHistoryRouterProps = HistoryRouterProps & {
   titles: LocationTitle[],
   listenToLocation: () => any,
-  unlistenToLocation: () => any,
-  locationChanged: (pathname:string) => any
+  unlistenToLocation: () => any
 }
 
 class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
@@ -93,7 +90,7 @@ const ConnectedHistoryRouter = connect(
   (state:LocationState, ownProps:RouterPropsWithStore) => ({
     titles: state.titles
   }),
-  {listenToLocation, unlistenToLocation, locationChanged}
+  {listenToLocation, unlistenToLocation}
 )(HistoryRouter)
 
 export default (props:HistoryRouterProps) => (

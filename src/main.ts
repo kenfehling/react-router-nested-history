@@ -26,6 +26,7 @@ import CreateContainer from './model/actions/CreateContainer'
 import SwitchToGroup from './model/actions/SwitchToGroup'
 import Startup from './model/actions/Startup'
 import InitializedState from './model/InitializedState'
+import IUpdateData from './model/interfaces/IUpdateData'
 declare const window
 declare const CustomEvent
 
@@ -55,11 +56,15 @@ const startListeningPromise = () => new Promise(resolve => {
   return resolve()
 })
 
-export const addChangeListener = (callback:(state:IState)=>void) => {
+export const addChangeListener = (callback:(data:IUpdateData)=>void) => {
   const fn = () => {
     const state:IState = store.getState()
+    const data:IUpdateData = {
+      lastAction: getLastAction(),
+      state
+    }
     if (state instanceof InitializedState) {
-      callback(state)
+      callback(data)
     }
   }
   fn()  // If state is already initialized (from persist) call right away

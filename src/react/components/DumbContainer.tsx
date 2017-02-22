@@ -116,7 +116,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'resetOnLeave',
       'initialUrl',
       'patterns',
-      'location',
+      'pathname',
       'addTitle',
       'groupName',
       'name',

@@ -1,23 +1,22 @@
 import {LOCATION_CHANGED, ADD_LOCATION_TITLE} from '../constants/ActionTypes'
-import {Location} from 'history'
 import {Dispatch} from 'react-redux';
 import LocationState from '../model/LocationState'
 import {LocationAction, AddTitleAction} from '../model/actions'
 import LocationTitle from '../model/LocationTitle'
 import {addChangeListener} from '../../main'
-import IState from '../../model/IState'
+import IUpdateData from '../../model/interfaces/IUpdateData'
 declare const window
 
-export const locationChanged = (pathname:string) : LocationAction => ({
+export const locationChanged = (data:IUpdateData) : LocationAction => ({
   type: LOCATION_CHANGED,
-  pathname
+  ...data
 })
 
 //const locTrigger = (dispatch, e) => dispatch(locationChanged(e.detail.location))
 
 export const listenToLocation = () : (d:Dispatch<LocationState>) => void => {
   return (dispatch) => {
-    addChangeListener((state:IState) => dispatch(locationChanged(state.activeUrl)))
+    addChangeListener((data:IUpdateData) => dispatch(locationChanged(data)))
   }
 }
 

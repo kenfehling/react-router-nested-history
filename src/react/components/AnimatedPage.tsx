@@ -1,23 +1,31 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import * as TransitionGroup from 'react-addons-transition-group'
-import {getActivePageInContainer, isInitialized, getLastAction} from '../../main'
-import Page from '../../model/Page'
 import Push from '../../model/actions/Push'
 import Back from '../../model/actions/Back'
 import Forward from '../../model/actions/Forward'
 import Top from '../../model/actions/Top'
 import Action from '../../model/Action'
 import PopState from '../../model/actions/PopState'
+import {connect, Store} from 'react-redux'
+import LocationState from '../model/LocationState'
+import store from '../store'
+
+interface AnimatedPageProps {
+  children?: ReactNode
+  match: any
+}
 
 interface TransPageProps {
   children?: ReactNode
 }
 
-interface AnimatedPageProps {
-  children?: ReactNode,
-  location: Location,
-  match: any
+type ConnectedProps = TransPageProps & {
+  store: Store<LocationState>
+}
+
+type InnerProps = ConnectedProps & {
+  lastAction: Action
 }
 
 enum LifecycleStage {
@@ -65,6 +73,9 @@ class Transition {
 class PopStateTransition extends Transition {
   getLeft(stage:LifecycleStage, action:PopState):number {
     const left:number = super.getLeft(stage, action)
+
+    console.log(action, left)
+
     return action.n > 0 ? 0 - left : left
   }
 }
@@ -89,14 +100,14 @@ transitions.set(Back.type, slideRight)
 transitions.set(Top.type, slideRight)
 transitions.set(PopState.type, popstate)
 
-class TransPage extends Component<TransPageProps, undefined> {
+class InnerTransPage extends Component<InnerProps, undefined> {
   private container: HTMLDivElement
 
   setLeft(stage:LifecycleStage, callback?:Function, timeout?:number) {
-    const action:Action = getLastAction()
-    const transition:Transition|undefined = transitions.get(action.type)
+    const {lastAction} = this.props
+    const transition:Transition|undefined = transitions.get(lastAction.type)
     if (transition) {
-      this.container.style.left = transition.getLeftPercent(stage, action)
+      this.container.style.left = transition.getLeftPercent(stage, lastAction)
       if (callback) {
         setTimeout(callback, timeout || 0)
       }
@@ -109,6 +120,9 @@ class TransPage extends Component<TransPageProps, undefined> {
   }
 
   componentWillEnter(callback) {
+
+    console.log('CWE')
+
     this.setLeft(LifecycleStage.WILL_ENTER, callback)
   }
 
@@ -141,10 +155,22 @@ class TransPage extends Component<TransPageProps, undefined> {
   }
 }
 
+const mapStateToProps = (state:LocationState,
+                         ownProps:ConnectedProps):InnerProps => ({
+  lastAction: state.lastAction,
+  ...ownProps
+})
+
+const ConnectedTransPage = connect(mapStateToProps)(InnerTransPage)
+
+class TransPage extends Component<TransPageProps, undefined> {
+  render() {
+    return <ConnectedTransPage {...this.props} store={store} />
+  }
+}
+
 export default class AnimatedPage extends Component<AnimatedPageProps, undefined> {
   static contextTypes = {
-    groupName: PropTypes.string.isRequired,
-    containerName: PropTypes.string.isRequired,
     animate: PropTypes.bool.isRequired,
     pathname: PropTypes.string.isRequired
   }
@@ -158,20 +184,14 @@ export default class AnimatedPage extends Component<AnimatedPageProps, undefined
      */
 
     const {children, match} = this.props
-    const {animate, groupName, containerName, pathname} = this.context
+    const {animate, pathname} = this.context
 
     if (animate !== false) {
-      const activePage: Page|null = groupName && containerName && isInitialized() ?
-        getActivePageInContainer(groupName, containerName) : null
-      
       const matches = match && match.url === pathname
-
       return (
       <div style={{position: 'relative'}}>
         <TransitionGroup component='div'>
-          {matches &&
-          <TransPage key={pathname}>{children}</TransPage>
-          }
+          {matches && <TransPage key={pathname}>{children}</TransPage>}
         </TransitionGroup>
       </div>
     )

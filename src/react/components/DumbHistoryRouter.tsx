@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode} from 'react'
+import {Component, ReactNode} from 'react'
 import {History} from 'history'
 import {Router} from 'react-router'
 import {
@@ -19,22 +19,20 @@ export interface DumbHistoryRouterProps {
   children?: ReactNode,
 
   listenToLocation?: () => any,
-  unlistenToLocation?: () => any,
-  locationChanged?: (pathname:string) => any
+  unlistenToLocation?: () => any
 }
 
 export default class DumbHistoryRouter extends
     Component<DumbHistoryRouterProps, undefined> {
 
   componentWillMount() {
-    const {pathname, zeroPage, listenToLocation, locationChanged} = this.props
+    const {zeroPage, listenToLocation} = this.props
     loadActions()
     if (zeroPage) {
       setZeroPage(zeroPage)
     }
     startup()
     listenToStore()
-    locationChanged && locationChanged(pathname)
     listenToLocation && listenToLocation()
   }
 
