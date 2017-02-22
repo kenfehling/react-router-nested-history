@@ -9,8 +9,8 @@ import TabPage from "../components/TabPage"
 
 const Tab = ({name, initialUrl, patterns, masterComponent}) => (
   <Container name={name} initialUrl={initialUrl} patterns={patterns}>
-    <HistoryRoute exact path={patterns[0]} component={masterComponent} />
-    <HistoryRoute exact path={patterns[1]} component={TabPage} />
+    <HistoryRoute exact strict path={patterns[0]} component={masterComponent} />
+    <HistoryRoute exact strict path={patterns[1]} component={TabPage} />
   </Container>
 )
 

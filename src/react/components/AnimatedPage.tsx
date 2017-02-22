@@ -63,7 +63,7 @@ class Transition {
 class PopStateTransition extends Transition {
   getLeft(stage:LifecycleStage, action:PopState):number {
     const left:number = super.getLeft(stage, action)
-    return action.n < 0 ? left : 0 - left
+    return action.n > 0 ? 0 - left : left
   }
 }
 
@@ -161,19 +161,22 @@ export default class AnimatedPage extends Component<AnimatedPageProps, undefined
         const activePage: Page|null = isInitialized() ?
           getActivePageInContainer(groupName, containerName) : null
 
-        return (
-          <div style={{position: 'relative'}}>
-            <TransitionGroup component='div'>
-              {activePage &&
-              <TransPage key={activePage.url}>{children}</TransPage>
-              }
-            </TransitionGroup>
-          </div>
-        )
+        if (activePage) {
+          //console.log(activePage.url)
+
+          return (
+            <div style={{position: 'relative'}}>
+              <TransitionGroup component='div'>
+                {activePage &&
+                <TransPage key={activePage.url}>{children}</TransPage>
+                }
+              </TransitionGroup>
+            </div>
+          )
+        }
+
       }
-      else {
-        return <div></div>
-      }
+      return <div></div>
     }
     else {
       return <div>{children}</div>

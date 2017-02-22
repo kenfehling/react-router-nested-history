@@ -257,7 +257,7 @@ export const listenToStore = () => store.subscribe(() => {
       runSteps(steps).then(updateLocation)
     }
     else {
-      updateLocation()
+      updateLocation().then(updateLocation)
     }
   }
 })
