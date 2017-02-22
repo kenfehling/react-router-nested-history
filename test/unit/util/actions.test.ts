@@ -19,7 +19,7 @@ import GoStep from '../../../src/model/steps/GoStep'
 import * as R from 'ramda'
 import Startup from '../../../src/model/actions/Startup'
 import {
-  createGroup1, createContainers, createContainers3,
+  createGroup1, createContainers1, createContainers3,
   createContainers2, createGroup2, createGroup3, createSubGroup1,
   createSubGroup2
 } from '../fixtures'
@@ -41,7 +41,7 @@ describe('action utils', () => {
   const originalSimpleActions:Action[] = [
     ...baseActions,
     createGroup1,
-    ...createContainers,
+    ...createContainers1,
     createGroup2,
     ...createContainers2,
     createGroup3,
@@ -365,7 +365,7 @@ describe('action utils', () => {
               url: '/a',
               params: {},
               groupName: createSubGroup1.name,
-              containerName: createContainers[0].name,
+              containerName: createContainers1[0].name,
               firstVisited: 1000
             })),
           ])

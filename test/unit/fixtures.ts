@@ -57,7 +57,7 @@ export const createSubGroup2:CreateGroup = createCreateSubGroup({
   parentUsesDefault: false
 })
 
-export const createContainers:CreateContainer[] = createCreateContainers({
+export const createContainers1:CreateContainer[] = createCreateContainers({
   groupName: 'Group 1',
   initialUrls: ['/a', '/b', '/c'],
   useDefault: true,

@@ -14,7 +14,7 @@ describe('PopState action', () => {
   describe('reduce', () => {
     it('shifts the state to reflect the new browser history', () => {
       const action:PopState = new PopState({
-        page: baseState.getZeroPage(),
+        n: -1,
         time: 10
       })
       const newState:IState = action.reduce(baseState)
@@ -30,7 +30,7 @@ describe('PopState action', () => {
   describe('addSteps', () => {
     it('does nothing when you pop back to the zero page', () => {
       const action:PopState = new PopState({
-        page: baseState.getZeroPage(),
+        n: -1,
         time: 10
       })
       expect(action.addSteps([], baseState)).toEqual([])

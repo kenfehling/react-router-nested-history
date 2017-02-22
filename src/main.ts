@@ -232,8 +232,8 @@ function runStep(step:Step) {
   return queue.add(ps)
 }
 
-export function runSteps(steps:Step[]):void {
-  steps.forEach(step => runStep(step))
+export function runSteps(steps:Step[]):Promise<void> {
+  return steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
 }
 
 export const listenToStore = () => store.subscribe(() => {
@@ -242,15 +242,15 @@ export const listenToStore = () => store.subscribe(() => {
     const lastUpdate: number = state.lastUpdate
     const current = state.activePage
     const steps: Step[] = createStepsSince(store.actions, lastUpdate)
-    const updateLocation = () => {
+    const updateLocation:() => Promise<void> = () => {
       window.dispatchEvent(new CustomEvent('locationChange', {
         detail: {location: createLocation(current.url, current.state)}
       }))
+      return Promise.resolve()
     }
     if (steps.length > 0) {
       store.dispatch(new UpdateBrowser())
-      runSteps(steps)
-      updateLocation()
+      runSteps(steps).then(updateLocation)
     }
     else {
       updateLocation()
