@@ -1,6 +1,5 @@
 import {LOCATION_CHANGED, ADD_LOCATION_TITLE} from '../constants/ActionTypes'
 import LocationState from '../model/LocationState'
-import {AddTitleAction, LocationAction} from '../model/actions'
 import LocationTitle from '../model/LocationTitle'
 import {getTitleForUrl} from '../util/titles'
 
@@ -9,10 +8,10 @@ const initialState:LocationState = {
   titles: []
 }
 
-export default function(state:LocationState=initialState, action:any) {
+export default function(state:LocationState=initialState, action:any):LocationState {
   switch (action.type) {
     case LOCATION_CHANGED:
-      return {...state, location: (action as LocationAction).pathname}
+      return {...state, pathname: action.pathname}
     case ADD_LOCATION_TITLE:
       const {pathname, title}:LocationTitle = action
       const existingTitle = getTitleForUrl(state.titles, pathname)

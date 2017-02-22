@@ -145,7 +145,8 @@ export default class AnimatedPage extends Component<AnimatedPageProps, undefined
   static contextTypes = {
     groupName: PropTypes.string.isRequired,
     containerName: PropTypes.string.isRequired,
-    animate: PropTypes.bool.isRequired
+    animate: PropTypes.bool.isRequired,
+    pathname: PropTypes.string.isRequired
   }
 
   render() {
@@ -156,22 +157,20 @@ export default class AnimatedPage extends Component<AnimatedPageProps, undefined
      }
      */
 
-    const {children, location, match} = this.props
-    const {animate, groupName, containerName} = this.context
+    const {children, match} = this.props
+    const {animate, groupName, containerName, pathname} = this.context
 
     if (animate !== false) {
       const activePage: Page|null = groupName && containerName && isInitialized() ?
         getActivePageInContainer(groupName, containerName) : null
-
-      console.log(match, location)
-
-      const matches = match && location && activePage && activePage.url === location.pathname
+      
+      const matches = match && match.url === pathname
 
       return (
       <div style={{position: 'relative'}}>
         <TransitionGroup component='div'>
           {matches &&
-          <TransPage key={location.pathname}>{children}</TransPage>
+          <TransPage key={pathname}>{children}</TransPage>
           }
         </TransitionGroup>
       </div>

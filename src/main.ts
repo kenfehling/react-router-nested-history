@@ -1,8 +1,7 @@
 import {createStepsSince} from './util/actions'
 import * as browser from './browserFunctions'
-import { Location } from 'history'
+import {Location} from 'history'
 import store from './store'
-import {createLocation} from 'history'
 import * as Queue from 'promise-queue'
 import {canUseWindowLocation} from './util/location'
 import {parseParamsFromPatterns} from './util/url'
@@ -236,18 +235,9 @@ export const listenToStore = () => store.subscribe(() => {
     const lastUpdate: number = state.lastUpdate
     const current = state.activePage
     const steps: Step[] = createStepsSince(store.actions, lastUpdate)
-    const updateLocation:() => Promise<void> = () => {
-      window.dispatchEvent(new CustomEvent('locationChange', {
-        detail: {location: createLocation(current.url, current.state)}
-      }))
-      return Promise.resolve()
-    }
     if (steps.length > 0) {
       store.dispatch(new UpdateBrowser())
-      runSteps(steps).then(updateLocation)
-    }
-    else {
-      updateLocation().then(updateLocation)
+      runSteps(steps)
     }
   }
 })
