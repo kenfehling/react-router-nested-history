@@ -15,7 +15,9 @@ interface TransPageProps {
 }
 
 interface AnimatedPageProps {
-  children?: ReactNode
+  children?: ReactNode,
+  location: Location,
+  match: any
 }
 
 enum LifecycleStage {
@@ -154,32 +156,23 @@ export default class AnimatedPage extends Component<AnimatedPageProps, undefined
      }
      */
 
-    const {children} = this.props
-    const {animate, groupName, containerName} = this.context
-    if (animate) {
-      if (groupName && containerName) {
-        const activePage: Page|null = isInitialized() ?
-          getActivePageInContainer(groupName, containerName) : null
+    const {children, location, match} = this.props
+    const {animate} = this.context
 
-        if (activePage) {
-          //console.log(activePage.url)
+    if (animate !== false) {
+      return (
+      <div style={{position: 'relative'}}>
+        <TransitionGroup component='div'>
+          {match && location &&
+          <TransPage key={location.pathname}>{children}</TransPage>
+          }
+        </TransitionGroup>
+      </div>
+    )
 
-          return (
-            <div style={{position: 'relative'}}>
-              <TransitionGroup component='div'>
-                {activePage &&
-                <TransPage key={activePage.url}>{children}</TransPage>
-                }
-              </TransitionGroup>
-            </div>
-          )
-        }
-
-      }
-      return <div></div>
     }
     else {
-      return <div>{children}</div>
+      return <div>{match ? children : ''}</div>
     }
   }
 }

@@ -8,7 +8,7 @@ computedMatch || matchPath(location.pathname, path, { exact, strict })
 /**
  * The public API for matching a single path and rendering.
  */
-export default class HistoryRoute extends Component {
+class HistoryRoute extends Component {
   static contextTypes = {
     router: PropTypes.object.isRequired,
     location: PropTypes.object.isRequired
@@ -70,27 +70,33 @@ export default class HistoryRoute extends Component {
   }
 
   render() {
-    const { children, component, render } = this.props
+    const { children, component, render} = this.props
     const props = { ...this.router }
 
     return (
-      <AnimatedPage>
-        {component ? ( // component prop gets first priority, only called if there's a match
-          props.match ? React.createElement(component, props) : null
-        ) : render ? ( // render prop is next, only called if there's a match
-            props.match ? render(props) : null
-          ) : children ? ( // children come last, always called
-              typeof children === 'function' ? (
-                  children(props)
-                ) : !Array.isArray(children) || children.length ? ( // Preact defaults to empty children array
-                    React.Children.only(children)
-                  ) : (
-                    null
-                  )
-            ) : (
-                null
-            )}
-      </AnimatedPage>
+      component ? ( // component prop gets first priority, only called if there's a match
+        props.match ? React.createElement(component, props) : null
+      ) : render ? ( // render prop is next, only called if there's a match
+          props.match ? render(props) : null
+        ) : children ? ( // children come last, always called
+            typeof children === 'function' ? (
+                children(props)
+              ) : !Array.isArray(children) || children.length ? ( // Preact defaults to empty children array
+                  React.Children.only(children)
+                ) : (
+                  null
+                )
+          ) : (
+              null
+          )
     )
   }
 }
+
+export default ({component, ...props}) => (
+  <HistoryRoute {...props} children={routeProps => (
+    <AnimatedPage {...routeProps}>
+      {React.createElement(component || props.children, routeProps)}
+    </AnimatedPage>
+  )} />
+)
