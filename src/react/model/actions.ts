@@ -6,7 +6,7 @@ interface Action {
 }
 
 export type LocationAction  = Action & {
-  location: Location
+  pathname: string
 }
 
 export type AddTitleAction = LocationTitle & Action

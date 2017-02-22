@@ -1,7 +1,4 @@
-export {
-  switchToContainer, addChangeListener, addLocationChangeListener,
-  removeLocationChangeListener, isGroupActive
-} from './main'
+export {switchToContainer, addChangeListener, isGroupActive} from './main'
 export HistoryLink from './react/components/HistoryLink'
 export BackLink from './react/components/BackLink'
 export HeaderLink from './react/components/HeaderLink'

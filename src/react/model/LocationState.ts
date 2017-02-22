@@ -1,8 +1,7 @@
-import {Location} from 'history'
 import LocationTitle from './LocationTitle'
 
 interface LocationState {
-  readonly location: Location
+  readonly pathname: string
   readonly titles: LocationTitle[]
 }
 

@@ -15,6 +15,10 @@ declare const beforeEach: any
 declare const afterEach:any
 
 describe('WindowGroup', () => {
+  it('works', () => {
+    expect(1).toBe(1)
+  })
+
 /*
   beforeEach(() => {
     jest.useRealTimers()

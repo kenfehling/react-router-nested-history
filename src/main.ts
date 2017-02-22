@@ -67,16 +67,6 @@ export const addChangeListener = (callback:(state:IState)=>void) => {
   return store.subscribe(fn)
 }
 
-const listenToLocation = fn => event => fn(event.detail.location)
-
-export const addLocationChangeListener = (fn:(location:Location)=>void) => {
-  window.addEventListener('locationChange', listenToLocation(fn))
-}
-
-export const removeLocationChangeListener = (fn:(location:Location)=>void) => {
-  window.removeEventListener('locationChange', listenToLocation(fn))
-}
-
 export const getGroupByName = (name:string):Group =>
     store.getState().getGroupByName(name)
 

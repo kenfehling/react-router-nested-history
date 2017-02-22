@@ -1,16 +1,15 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {History, Location} from 'history'
+import {History} from 'history'
 import {Router} from 'react-router'
 import {
   setZeroPage, loadFromUrl, startup, listenToStore, isInitialized, loadActions
 } from '../../main'
-import {locationToString, stringToLocation} from '../../util/location'
 import createBrowserHistory from 'history/createBrowserHistory'
 declare const window:any
 
 export interface DumbHistoryRouterProps {
-  location: string | Location,
+  pathname: string,
   createHistory: (options:any) => History,
   zeroPage?: string
   basename?: string,
@@ -21,27 +20,27 @@ export interface DumbHistoryRouterProps {
 
   listenToLocation?: () => any,
   unlistenToLocation?: () => any,
-  locationChanged?: (location:Location) => any
+  locationChanged?: (pathname:string) => any
 }
 
 export default class DumbHistoryRouter extends
     Component<DumbHistoryRouterProps, undefined> {
 
   componentWillMount() {
-    const {location, zeroPage, listenToLocation, locationChanged} = this.props
+    const {pathname, zeroPage, listenToLocation, locationChanged} = this.props
     loadActions()
     if (zeroPage) {
       setZeroPage(zeroPage)
     }
     startup()
     listenToStore()
-    locationChanged && locationChanged(stringToLocation(location))
+    locationChanged && locationChanged(pathname)
     listenToLocation && listenToLocation()
   }
 
   componentDidUpdate() {
     if (!isInitialized()) {
-      loadFromUrl(locationToString(this.props.location))
+      loadFromUrl(this.props.pathname)
     }
   }
 

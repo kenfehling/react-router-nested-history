@@ -2,8 +2,8 @@ import React, {Component, PropTypes} from 'react'
 import matchPath from 'react-router/matchPath'
 import AnimatedPage from './AnimatedPage'
 
-const computeMatch = (location, { computedMatch, path, exact, strict }) =>
-computedMatch || matchPath(location.pathname, path, { exact, strict })
+const computeMatch = (pathname, { computedMatch, path, exact, strict }) =>
+computedMatch || matchPath(pathname, path, { exact, strict })
 
 /**
  * The public API for matching a single path and rendering.
@@ -11,7 +11,7 @@ computedMatch || matchPath(location.pathname, path, { exact, strict })
 class HistoryRoute extends Component {
   static contextTypes = {
     router: PropTypes.object.isRequired,
-    location: PropTypes.object.isRequired
+    pathname: PropTypes.string.isRequired
   }
 
   static propTypes = {
@@ -39,18 +39,18 @@ class HistoryRoute extends Component {
 
   componentWillMount() {
     const parentRouter = this.context.router
-    const location = this.context.location
+    const pathname = this.context.pathname
 
     if (parentRouter) {
       this.router = {
         ...parentRouter,
-        match: computeMatch(location, this.props)
+        match: computeMatch(pathname, this.props)
       }
 
       // Start listening here so we can <Redirect> on the initial render.
       this.unlisten = parentRouter.listen(() => {
         Object.assign(this.router, parentRouter, {
-          match: computeMatch(location, this.props)
+          match: computeMatch(pathname, this.props)
         })
 
         this.forceUpdate()
@@ -59,9 +59,9 @@ class HistoryRoute extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const location = this.context.location
+    const pathname = this.context.pathname
     Object.assign(this.router, {
-      match: computeMatch(location, nextProps)
+      match: computeMatch(pathname, nextProps)
     })
   }
 

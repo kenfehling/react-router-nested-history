@@ -157,13 +157,20 @@ export default class AnimatedPage extends Component<AnimatedPageProps, undefined
      */
 
     const {children, location, match} = this.props
-    const {animate} = this.context
+    const {animate, groupName, containerName} = this.context
 
     if (animate !== false) {
+      const activePage: Page|null = groupName && containerName && isInitialized() ?
+        getActivePageInContainer(groupName, containerName) : null
+
+      console.log(match, location)
+
+      const matches = match && location && activePage && activePage.url === location.pathname
+
       return (
       <div style={{position: 'relative'}}>
         <TransitionGroup component='div'>
-          {match && location &&
+          {matches &&
           <TransPage key={location.pathname}>{children}</TransPage>
           }
         </TransitionGroup>

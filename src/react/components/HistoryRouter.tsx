@@ -9,7 +9,7 @@ import {
   listenToLocation, unlistenToLocation, locationChanged
 } from '../actions/LocationActions'
 import {addStepListener} from '../../main'
-import {canUseWindowLocation, stringToLocation} from '../../util/location'
+import {canUseWindowLocation} from '../../util/location'
 import LocationState from '../model/LocationState'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import LocationTitle from '../model/LocationTitle'
@@ -34,7 +34,7 @@ export type ConnectedHistoryRouterProps = HistoryRouterProps & {
   titles: LocationTitle[],
   listenToLocation: () => any,
   unlistenToLocation: () => any,
-  locationChanged: (location:Location) => any
+  locationChanged: (pathname:string) => any
 }
 
 class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
@@ -55,18 +55,18 @@ class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
     addStepListener({before: onStep, after: onStep})
   }
 
-  getLocation():Location {
+  getLocation():string {
     if (canUseWindowLocation) {
-      return window.location
+      return window.location.pathname
     }
     else {
       const location:string|undefined = this.props.location
       if (location) {
-        return stringToLocation(location)
+        return location
       }
       else {
         console.warn('You should pass location when testing')
-        return stringToLocation('/')
+        return '/'
       }
     }
   }
@@ -76,14 +76,14 @@ class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
   }
 
   render() {
-    const location:Location = this.getLocation()
+    const pathname:string = this.getLocation()
     const createHistory:(options:any) => History = this.getCreateHistory()
 
     return (
       <DumbHistoryRouter
         {...this.props}
         createHistory={createHistory}
-        location={location}
+        pathname={pathname}
       />
     )
   }
