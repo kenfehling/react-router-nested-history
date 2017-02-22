@@ -85,10 +85,10 @@ export default class HistoryRoute extends Component {
                 ) : !Array.isArray(children) || children.length ? ( // Preact defaults to empty children array
                     React.Children.only(children)
                   ) : (
-                    <div></div>
+                    null
                   )
             ) : (
-                <div></div>
+                null
             )}
       </AnimatedPage>
     )

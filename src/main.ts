@@ -215,7 +215,7 @@ export const isGroupActive = (groupName:string): boolean =>
 export const isInitialized = (): boolean =>
     store.getState() instanceof InitializedState
 
-function runStep(step:Step) {
+function runStep(step:Step):Promise<void> {
   const stepPromise = ():Promise<any> => {
     const currentUrl = browser.getLocation().pathname
     stepListeners.forEach(listener => listener.before(currentUrl))
@@ -227,18 +227,22 @@ function runStep(step:Step) {
       stepListeners.forEach(listener => listener.after(currentUrl))
     })
   }
-  const ps = () => [unlistenPromise, stepPromise, startListeningPromise].reduce(
+  return [unlistenPromise, stepPromise, startListeningPromise].reduce(
       (p:Promise<any>, s) => p.then(s), Promise.resolve())
-  return queue.add(ps)
 }
 
 export function runSteps(steps:Step[]):Promise<void> {
-  return steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
+  const ps:() => Promise<void> = () =>
+      steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
+
+  //console.log(ps)
+
+  return queue.add(ps)
 }
 
 export const listenToStore = () => store.subscribe(() => {
   if (isInitialized()) {
-    const state:IState = store.deriveState(store.actions)
+    const state:IState = store.getState()
     const lastUpdate: number = state.lastUpdate
     const current = state.activePage
     const steps: Step[] = createStepsSince(store.actions, lastUpdate)
