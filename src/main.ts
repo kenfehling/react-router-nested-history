@@ -1,8 +1,7 @@
 import {createStepsSince} from './util/actions'
 import * as browser from './browserFunctions'
-import { Location } from 'history'
+import {Location} from 'history'
 import store from './store'
-import {createLocation} from 'history'
 import * as Queue from 'promise-queue'
 import {canUseWindowLocation} from './util/location'
 import {parseParamsFromPatterns} from './util/url'
@@ -27,6 +26,7 @@ import CreateContainer from './model/actions/CreateContainer'
 import SwitchToGroup from './model/actions/SwitchToGroup'
 import Startup from './model/actions/Startup'
 import InitializedState from './model/InitializedState'
+import IUpdateData from './model/interfaces/IUpdateData'
 declare const window
 declare const CustomEvent
 
@@ -34,13 +34,23 @@ const queue = new Queue(1, Infinity)  // maxConcurrent = 1, maxQueue = Infinity
 let unlisten
 const stepListeners:({before:(currentUrl:string) => void,
                       after:(currentUrl:string) => void})[] = []
+const changeListeners:((data:IUpdateData)=>void)[] = []
+
 export const addStepListener = listener => stepListeners.push(listener)
+
+export const addChangeListener = listener => {
+  changeListeners.push(listener)
+  if (isInitialized()) {
+    updateChangeListeners()
+  }
+}
 
 const startListeningForPopState = () => {
   unlisten = browser.listen((location:Location) => {
-    const state:Page = location.state
-    if (state) {
-      store.dispatch(new PopState({page: new Page(state)}))
+    if (location.state) {
+      const page:Page = new Page(location.state)
+      const state:IState = store.getState()
+      store.dispatch(new PopState({n: state.getShiftAmount(page)}))
     }
   })
 }
@@ -54,27 +64,6 @@ const startListeningPromise = () => new Promise(resolve => {
   startListeningForPopState()
   return resolve()
 })
-
-export const addChangeListener = (callback:(state:IState)=>void) => {
-  const fn = () => {
-    const state:IState = store.getState()
-    if (state instanceof InitializedState) {
-      callback(state)
-    }
-  }
-  fn()  // If state is already initialized (from persist) call right away
-  return store.subscribe(fn)
-}
-
-const listenToLocation = fn => event => fn(event.detail.location)
-
-export const addLocationChangeListener = (fn:(location:Location)=>void) => {
-  window.addEventListener('locationChange', listenToLocation(fn))
-}
-
-export const removeLocationChangeListener = (fn:(location:Location)=>void) => {
-  window.removeEventListener('locationChange', listenToLocation(fn))
-}
 
 export const getGroupByName = (name:string):Group =>
     store.getState().getGroupByName(name)
@@ -113,18 +102,24 @@ export const getOrCreateContainer = (action:CreateContainer):IContainer => {
   }
 }
 
-export const switchToGroup = (groupName:string):void =>
+export const switchToGroup = (groupName:string):void => {
+  if (!isGroupActive(groupName)) {
     store.dispatch(new SwitchToGroup({groupName}))
+  }
+}
 
-export const switchToContainerName = (groupName:string,
-                                      containerName:string):void =>
+export const switchToContainer = (groupName:string,
+                                  containerName:string):void => {
+  if (!isContainerActive(groupName, containerName)) {
     store.dispatch(new SwitchToContainer({groupName, containerName}))
+  }
+}
 
 export const switchToContainerIndex = (groupName:string, index:number):void => {
   const group:Group = getGroupByName(groupName)
   const container:IContainer = group.containers[index]
   if (container) {
-    return switchToContainerName(groupName, container.name)
+    return switchToContainer(groupName, container.name)
   }
   else {
     throw new Error(`No container found at index ${index} in '${groupName}' ` +
@@ -142,6 +137,8 @@ export const push = (groupName:string, containerName:string, url:string,
     containerName,
     lastVisited: new Date().getTime()
   })
+  switchToGroup(groupName)
+  switchToContainer(groupName,containerName)
   store.dispatch(new Push({page}))
 }
 
@@ -157,6 +154,8 @@ export const loadFromUrl = (url:string):void =>
 export const setZeroPage = (url:string|null):void =>
     store.dispatch(new SetZeroPage({url}))
 
+export const getLastAction = ():Action => store.getLastAction()
+export const getLastActionType = ():string => getLastAction().type
 export const loadActions = ():void => store.loadActions()
 export const top = (action:Top):void => store.dispatch(action)
 export const go = (n:number=1):void => store.dispatch(new Go({n}))
@@ -198,13 +197,13 @@ export const getActiveContainerIndexInGroup = (groupName:string): number =>
 export const getActiveContainerNameInGroup = (groupName:string): string =>
     store.getState().getActiveContainerNameInGroup(groupName)
 
-export const getActiveGroup = (): Group => store.getState().activeGroup
-export const getActiveGroupName = (): string => store.getState().activeGroupName
+export const isGroupActive = (groupName:string): boolean =>
+    store.getState().isGroupActive(groupName)
 
 export const isInitialized = (): boolean =>
     store.getState() instanceof InitializedState
 
-function runStep(step:Step) {
+function runStep(step:Step):Promise<void> {
   const stepPromise = ():Promise<any> => {
     const currentUrl = browser.getLocation().pathname
     stepListeners.forEach(listener => listener.before(currentUrl))
@@ -216,33 +215,38 @@ function runStep(step:Step) {
       stepListeners.forEach(listener => listener.after(currentUrl))
     })
   }
-  const ps = () => [unlistenPromise, stepPromise, startListeningPromise].reduce(
+  return [unlistenPromise, stepPromise, startListeningPromise].reduce(
       (p:Promise<any>, s) => p.then(s), Promise.resolve())
-  return queue.add(ps)
 }
 
 export function runSteps(steps:Step[]):Promise<void> {
-  return steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
+  const ps:() => Promise<void> = () =>
+      steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
+  return queue.add(ps)
+}
+
+const updateChangeListeners = () => {
+  const state:IState = store.getState()
+  const data:IUpdateData = {
+    lastAction: getLastAction(),
+    state
+  }
+  changeListeners.forEach(listener => listener(data))
 }
 
 export const listenToStore = () => store.subscribe(() => {
   if (isInitialized()) {
-    const state:IState = store.deriveState(store.actions)
+    const state:IState = store.getState()
     const lastUpdate: number = state.lastUpdate
-    const current = state.activePage
     const steps: Step[] = createStepsSince(store.actions, lastUpdate)
-    const updateLocation:() => Promise<void> = () => {
-      window.dispatchEvent(new CustomEvent('locationChange', {
-        detail: {location: createLocation(current.url, current.state)}
-      }))
-      return Promise.resolve()
-    }
     if (steps.length > 0) {
       store.dispatch(new UpdateBrowser())
-      runSteps(steps).then(updateLocation)
+      runSteps(steps).then(updateChangeListeners)
     }
     else {
-      updateLocation()
+      console.log(state.activeUrl)
+      updateChangeListeners()
+      //updateChangeListeners()  // For some reason this helps?
     }
   }
 })

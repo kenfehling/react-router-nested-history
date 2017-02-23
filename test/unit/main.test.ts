@@ -1,9 +1,9 @@
 import Action from '../../src/model/Action'
-import {runSteps} from '../../src/main'
-import {push, back, _history, _resetHistory} from '../../src/browserFunctions'
+import {runSteps, push} from '../../src/main'
+import {_history, _resetHistory} from '../../src/browserFunctions'
 import {
-  createContainers, createContainers3, createGroup1,
-  createGroup3
+  createContainers1, createContainers3, createGroup1,
+  createGroup3, createGroup2, createContainers2
 } from './fixtures'
 import store from '../../src/store'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
@@ -21,6 +21,7 @@ import UpdateBrowser from '../../src/model/actions/UpdateBrowser'
 import {createStepsSince} from '../../src/util/actions'
 import Startup from '../../src/model/actions/Startup'
 import ClearActions from '../../src/model/actions/ClearActions'
+import SwitchToGroup from '../../src/model/actions/SwitchToGroup'
 declare const describe:any
 declare const it:any
 declare const expect:any
@@ -39,7 +40,7 @@ describe('main', () => {
       dispatchAll([
         new Startup({time: 0}),
         createGroup1,
-        ...createContainers,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a'
         }),
@@ -68,7 +69,7 @@ describe('main', () => {
       dispatchAll([
         new Startup({time: 0}),
         createGroup1,
-        ...createContainers,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a/1',
           time: 1000
@@ -93,11 +94,11 @@ describe('main', () => {
       expect(state.browserHistory.forward.length).toBe(0)
     })
 
-    it('switches to container', async () => {
+    it('switches to container', () => {
       dispatchAll([
         new Startup({time: 0}),
         createGroup1,
-        ...createContainers,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a/1',
           time: 1000
@@ -135,7 +136,7 @@ describe('main', () => {
       expect(state.browserHistory.forward.length).toBe(0)
     })
 
-    it('switches to container with resetOnLeave', async () => {
+    it('switches to container with resetOnLeave', () => {
       dispatchAll([
         new Startup({time: 0}),
         createGroup3,
@@ -189,12 +190,48 @@ describe('main', () => {
       expect(state.browserHistory.current.url).toBe('/k');
       expect(state.browserHistory.forward.length).toBe(0)
     })
-
-    it('handles popstate after container switch', async () => {
+    
+    it('pushes in a different group', () => {
       dispatchAll([
         new Startup({time: 0}),
         createGroup1,
-        ...createContainers,
+        createGroup2,
+        ...createContainers1,
+        ...createContainers2,
+        new LoadFromUrl({
+          url: '/a',
+          time: 1000
+        })
+      ])
+      push('Group 2', 'Container 1', '/e/1', ['/e', '/e/:id'])
+
+      const state:IState = store.getState()
+      const groups = state.groups
+
+      expect(groups[0].containers[0].history.back.length).toBe(0);
+      expect(groups[0].containers[0].history.current.url).toBe('/a');
+      expect(groups[0].containers[0].history.forward.length).toBe(0)
+
+      expect(groups[1].containers[0].history.back.length).toBe(1);
+      expect(groups[1].containers[0].history.back[0].url).toBe('/e');
+      expect(groups[1].containers[0].history.current.url).toBe('/e/1');
+      expect(groups[1].containers[0].history.forward.length).toBe(0)
+
+      expect(groups[1].history.back.length).toBe(1);
+      expect(groups[1].history.back[0].url).toBe('/e');
+      expect(groups[1].history.current.url).toBe('/e/1');
+      expect(groups[1].history.forward.length).toBe(0)
+
+      expect(state.browserHistory.back.length).toBe(2);
+      expect(state.browserHistory.current.url).toBe('/e/1');
+      expect(state.browserHistory.forward.length).toBe(0)
+    })
+
+    it('handles popstate after container switch', () => {
+      dispatchAll([
+        new Startup({time: 0}),
+        createGroup1,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a/1',
           time: 1000
@@ -205,13 +242,7 @@ describe('main', () => {
           time: 2000
         }),
         new PopState({
-          page: new Page({
-            url: '/a/1',
-            params: {id: '1'},
-            groupName: 'Group 1',
-            containerName: 'Container 1',
-            firstVisited: 1000
-          }),
+          n: -1,
           time: 3000
         })
       ])
@@ -265,7 +296,7 @@ describe('main', () => {
       await run([
         new Startup({time: 0}),
         createGroup1,
-        ...createContainers,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a',
         })
@@ -281,7 +312,7 @@ describe('main', () => {
       await run([
         new Startup({time: 0}),
         createGroup1,
-        ...createContainers,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a',
           time: 1000
@@ -304,7 +335,7 @@ describe('main', () => {
           time: 1000
         }),
         createGroup1,
-        ...createContainers,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a',
           time: 2000
@@ -326,7 +357,7 @@ describe('main', () => {
       await run([
         new Startup({time: 0}),
         createGroup1,
-        ...createContainers,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a',
           time: 1000
@@ -353,7 +384,7 @@ describe('main', () => {
     // TODO: the fact that the browser history has already changed
     /*
     it('handles popstate after container switch', async () => {
-      await run([
+     await run([
         new Startup({time: 0}),
         createGroup,
         ...createContainers,
@@ -390,7 +421,7 @@ describe('main', () => {
       await run([
         new Startup({time: 0}),
         createGroup1,
-        ...createContainers,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a',
           time: 1000
@@ -419,11 +450,44 @@ describe('main', () => {
       })
     })
 
+    it('pushes in a different group', async () => {
+      await run([
+        new Startup({time: 0}),
+        createGroup1,
+        createGroup2,
+        ...createContainers1,
+        ...createContainers2,
+        new LoadFromUrl({
+          url: '/a',
+          time: 1000
+        }),
+        new SwitchToGroup({
+          groupName: 'Group 2',
+          time: 2000
+        }),
+        new Push({
+          page: new Page({
+            url: '/e/1',
+            params: {id: '1'},
+            groupName: 'Group 2',
+            containerName: 'Container 1',
+            firstVisited: 3000
+          })
+        })
+      ]).then(({entries, index}) => {
+        expect(entries.length).toBe(3)
+        expect(entries[0].pathname).toBe('/a')  // zero page
+        expect(entries[1].pathname).toBe('/e')
+        expect(entries[2].pathname).toBe('/e/1')
+        expect(index).toBe(2)
+      })
+    })
+
     it('goes back', async () => {
       await run([
         new Startup({time: 0}),
         createGroup1,
-        ...createContainers,
+        ...createContainers1,
         new LoadFromUrl({
           url: '/a',
           time: 1000
@@ -504,12 +568,12 @@ describe('main', () => {
       })
     })
 
-    describe('UpdateBrowser action', () => {
-      it('prevents running old actions', async () => {
-        await run([
+    describe('UpdateBrowser action', async () => {
+      await it('prevents running old actions', () => {
+        run([
           new Startup({time: 0}),
           createGroup1,
-          ...createContainers,
+          ...createContainers1,
           new LoadFromUrl({
             url: '/a',
             time: 1000
@@ -544,18 +608,18 @@ describe('main', () => {
       })
     })
 
-    describe('while on zero page', () => {
-      it('does a double push', async () => {
-        await run([
+    describe('while on zero page', async () => {
+      await it('does a double push', () => {
+        run([
           new Startup({time: 0}),
           createGroup1,
-          ...createContainers,
+          ...createContainers1,
           new LoadFromUrl({
             url: '/a',
             time: 1000
           }),
           new PopState({  // User popped back to zero page
-            page: Page.createZeroPage('/a'),
+            n: -1,
             time: 2000
           }),
           new Push({
@@ -580,13 +644,13 @@ describe('main', () => {
         await run([
           new Startup({time: 0}),
           createGroup1,
-          ...createContainers,
+          ...createContainers1,
           new LoadFromUrl({
             url: '/a',
             time: 1000
           }),
           new PopState({  // User popped back to zero page
-            page: Page.createZeroPage('/a'),
+            n: -1,
             time: 2000
           }),
           new SwitchToContainer({

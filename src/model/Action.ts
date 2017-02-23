@@ -2,7 +2,7 @@ import IState from './IState'
 import Comparable from './interfaces/Comparable'
 import Step from './interfaces/Step'
 import {diffStateToSteps} from '../util/reconciler'
-import {serialize, ISerializable} from '../util/serializer'
+import {ISerializable} from '../util/serializer'
 
 abstract class Action implements Comparable, ISerializable {
   abstract readonly type: string

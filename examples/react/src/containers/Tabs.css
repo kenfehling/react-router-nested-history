@@ -1,3 +1,9 @@
+.tab-title {
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
 .tab-content {
   padding: 4px 13px;
+  height: 300px;
 }

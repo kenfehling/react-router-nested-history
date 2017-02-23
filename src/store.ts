@@ -5,6 +5,7 @@ import UninitializedState from './model/UninitializedState'
 import IState from './model/IState'
 import * as store from 'store'
 import ClearActions from './model/actions/ClearActions'
+import UpdateBrowser from './model/actions/UpdateBrowser'
 
 
 class Store {
@@ -68,7 +69,7 @@ class Store {
   }
 
   getLastAction():Action {
-    return R.last(this.actions)
+    return R.last(this.actions.filter(a => !(a instanceof UpdateBrowser)))
   }
 
   getLastUpdate():number {

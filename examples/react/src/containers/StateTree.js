@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {addChangeListener} from 'react-router-nested-history'
+import {addChangeListener, isGroupActive} from 'react-router-nested-history'
 import './StateTree.css'
 
 const HistoryTree = ({history, className}) => (
@@ -16,11 +16,11 @@ const HistoryTree = ({history, className}) => (
   </div>
 )
 
-const GroupTree = ({group, activeGroup}) => (
+const GroupTree = ({group}) => (
   <div>
     <div>{'Group: ' + group.name}</div>
     <HistoryTree history={group.history}
-                 className={activeGroup === group.name ? 'browser' : 'group'} />
+                 className={isGroupActive(group.name) ? 'active group' : 'group'} />
     <div>
       {group.containers.map(container =>
         <div key={group.name + ' ' + container.name}>
@@ -56,10 +56,9 @@ export default class extends Component {
   }
 
   componentWillMount() {
-    this.unlisten = addChangeListener(state => {
+    this.unlisten = addChangeListener(({state:{groups}}) => {
       this.setState({
-        groups: state.groups,
-        activeGroup: state.activeGroupName
+        groups
       })
     })
   }

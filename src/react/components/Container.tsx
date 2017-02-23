@@ -5,16 +5,16 @@ import store from '../store'
 import DumbContainer from './DumbContainer'
 import LocationState from '../model/LocationState'
 import {getOrCreateContainer} from '../../main'
-import {stringToLocation} from '../../util/location'
 import {renderToStaticMarkup} from 'react-dom/server'
-import {Location} from 'history'
 import {addTitle} from '../actions/LocationActions'
 import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
+import * as R from 'ramda'
 
 interface ContainerProps {
   children?: ReactNode,
   name: string,
+  animate?: boolean,
   initialUrl: string,
   patterns: string[],
   resetOnLeave?: boolean,
@@ -23,7 +23,7 @@ interface ContainerProps {
 }
 
 type InnerContainerProps = ContainerProps & {
-  location: Location,
+  pathname: string,
   addTitle: (LocationTitle) => any
 }
 
@@ -55,7 +55,6 @@ class Container extends Component<InnerContainerProps, undefined> {
       useDefaultContainer=true
     } = this.context
 
-    // Promises are too tricky here
     getOrCreateContainer(new CreateContainer({
       name,
       groupName,
@@ -67,12 +66,13 @@ class Container extends Component<InnerContainerProps, undefined> {
 
     if (initializing) {
       class T extends Component<undefined, undefined> {
-        static childContextTypes = DumbContainer.childContextTypes
+        static childContextTypes =
+          R.omit(['animate'], DumbContainer.childContextTypes)
 
         getChildContext() {
           return {
             containerName: name,
-            location: stringToLocation(initialUrl),
+            pathname: initialUrl,
             patterns: patterns
           }
         }
@@ -91,12 +91,11 @@ class Container extends Component<InnerContainerProps, undefined> {
   }
 
   componentDidUpdate() {
-    const {patterns, location, addTitle} = this.props
-    if (location) {
-      const url = location.pathname
-      if (patternsMatch(patterns, url)) {
+    const {patterns, pathname, addTitle} = this.props
+    if (pathname) {
+      if (patternsMatch(patterns, pathname)) {
         addTitle({
-          url,
+          pathname,
           title: document.title
         })
       }
@@ -118,7 +117,7 @@ const mapStateToProps = (state:LocationState,
                          ownProps:ConnectedContainerProps):InnerContainerProps => {
   return {
     ...ownProps,
-    location: state.location
+    pathname: state.pathname
   }
 }
 

@@ -1,8 +1,9 @@
-import {Location} from 'history'
 import LocationTitle from './LocationTitle'
+import Action from '../../model/Action'
 
 interface LocationState {
-  readonly location: Location
+  readonly pathname: string
+  readonly lastAction: Action
   readonly titles: LocationTitle[]
 }
 

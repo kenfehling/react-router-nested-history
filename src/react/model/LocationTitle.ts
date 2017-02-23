@@ -1,5 +1,5 @@
 interface LocationTitle {
-  url: string,
+  pathname: string,
   title: string
 }
 

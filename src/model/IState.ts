@@ -47,7 +47,7 @@ abstract class IState {
       {groupName?:string, time:number, reset?:boolean}):IState
 
   abstract getShiftAmount(page:Page):number
-  abstract shiftTo(page:Page, time:number):IState
+
   abstract containsPage(page:Page):boolean
   protected abstract getHistory(maintainFwd:boolean):HistoryStack
   abstract get groupStackOrder():Group[]
@@ -67,7 +67,7 @@ abstract class IState {
   abstract getActivePageInContainer(groupName:string, containerName:string):Page
   abstract getActiveUrlInContainer(groupName:string, containerName:string):string
   abstract get activeGroup():Group
-  abstract get activeGroupName():string
+  abstract isGroupActive(groupName:string):boolean
   abstract get activeContainer():IContainer
   abstract getContainer(groupName:string, containerName:string):Container
   abstract isActiveContainer(groupName:string, containerName:string):boolean

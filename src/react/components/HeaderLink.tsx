@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {
-  switchToContainerName, getContainerLinkUrl,
+  switchToContainer, getContainerLinkUrl,
   isContainerActive
 } from '../../main'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
@@ -27,7 +27,7 @@ export default class HeaderLink extends Component<HeaderLinkProps, undefined> {
   onClick(event):void {
     const {groupName} = this.context
     const {toContainer} = this.props
-    switchToContainerName(groupName, toContainer)
+    switchToContainer(groupName, toContainer)
     event.preventDefault()
   }
 
