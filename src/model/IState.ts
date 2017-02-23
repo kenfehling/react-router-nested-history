@@ -58,6 +58,7 @@ abstract class IState {
    */
   abstract get indexedGroupStackOrder():number[]
 
+  abstract getBackPageInGroup(groupName:string)
   abstract getActiveContainerNameInGroup(groupName:string)
   abstract getActiveContainerIndexInGroup(groupName:string)
   abstract getActivePageInGroup(groupName:string):Page

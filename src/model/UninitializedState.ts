@@ -93,6 +93,10 @@ export default class UninitializedState extends IState {
     return []
   }
 
+  getBackPageInGroup(groupName:string):Page {
+    throw new Error('State is uninitialized')
+  }
+
   getActiveContainerNameInGroup(groupName: string) {
     throw new Error('State is uninitialized')
   }

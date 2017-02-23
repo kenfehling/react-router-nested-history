@@ -1454,7 +1454,9 @@ exports.forward = function (n) {
     if (n === void 0) { n = 1; }
     return store_1.default.dispatch(new Forward_1.default({ n: n }));
 };
-exports.getBackPage = function () { return store_1.default.getState().backPage; };
+exports.getBackPageInGroup = function (groupName) {
+    return store_1.default.getState().getBackPageInGroup(groupName);
+};
 exports.getActivePageInGroup = function (groupName) {
     return store_1.default.getState().getActivePageInGroup(groupName);
 };
@@ -11491,6 +11493,9 @@ var InitializedState = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    InitializedState.prototype.getBackPageInGroup = function (groupName) {
+        return this.getGroupByName(groupName).backPage;
+    };
     InitializedState.prototype.getActiveContainerNameInGroup = function (groupName) {
         return this.getGroupByName(groupName).activeContainerName;
     };
@@ -11678,6 +11683,9 @@ var UninitializedState = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    UninitializedState.prototype.getBackPageInGroup = function (groupName) {
+        throw new Error('State is uninitialized');
+    };
     UninitializedState.prototype.getActiveContainerNameInGroup = function (groupName) {
         throw new Error('State is uninitialized');
     };
@@ -17893,6 +17901,11 @@ var BackLink = (function (_super) {
     function BackLink() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    BackLink.prototype.componentDidMount = function () {
+        if (this.context.groupName == null) {
+            throw new Error('BackLink needs to be inside a ContainerGroup');
+        }
+    };
     BackLink.prototype.shouldComponentUpdate = function () {
         return false; // Don't disappear when transitioning back to previous page
     };
@@ -17902,7 +17915,8 @@ var BackLink = (function (_super) {
     };
     BackLink.prototype.render = function () {
         var _a = this.props, children = _a.children, nameFn = _a.nameFn;
-        var backPage = main_1.getBackPage();
+        var groupName = this.context.groupName;
+        var backPage = main_1.getBackPageInGroup(groupName);
         if (backPage) {
             return (React.createElement("a", { href: backPage.url, onClick: this.onClick.bind(this) }, children || nameFn ? nameFn({ params: backPage.params }) : 'Back'));
         }
@@ -17912,6 +17926,9 @@ var BackLink = (function (_super) {
     };
     return BackLink;
 }(react_1.Component));
+BackLink.contextTypes = {
+    groupName: react_1.PropTypes.string.isRequired
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = BackLink;
 

@@ -136,6 +136,10 @@ export default class InitializedState extends IState {
       R.findIndex((g:Group) => orig.name === g.name, order))
   }
 
+  getBackPageInGroup(groupName:string):Page {
+    return this.getGroupByName(groupName).backPage
+  }
+
   getActiveContainerNameInGroup(groupName:string):string {
     return this.getGroupByName(groupName).activeContainerName
   }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {
   Container, ContainerGroup, WindowGroup, Window, HistoryRoute, HeaderLink,
-  HistoryLink
+  HistoryLink, BackLink
 } from 'react-router-nested-history'
 import './NestedGroup.css'
 import Helmet from 'react-helmet'
@@ -31,7 +31,8 @@ const FoodsHeader = () => (
 
 const FoodsDetail = ({match:{params:{food, category}}, className}) => (
   <div>
-    {category} > {food}
+    <BackLink />
+    <p>{category} > {food}</p>
     <Helmet title={category + ' - ' + food} />
   </div>
 )

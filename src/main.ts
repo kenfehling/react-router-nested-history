@@ -167,7 +167,9 @@ export const top = (action:Top):void => store.dispatch(action)
 export const go = (n:number=1):void => store.dispatch(new Go({n}))
 export const back = (n:number=1):void => store.dispatch(new Back({n}))
 export const forward = (n:number=1):void => store.dispatch(new Forward({n}))
-export const getBackPage = ():Page => store.getState().backPage
+
+export const getBackPageInGroup = (groupName):Page =>
+  store.getState().getBackPageInGroup(groupName)
 
 export const getActivePageInGroup = (groupName:string):Page =>
     store.getState().getActivePageInGroup(groupName)
