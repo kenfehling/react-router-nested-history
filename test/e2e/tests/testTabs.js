@@ -28,7 +28,7 @@ export default {
       .back()
       .click('li[id=react-tabs-2]')
       .back()
-      .assert.containsText('.tab-content .title', 'Tab 1')
+      .assert.containsText('.tab-title', 'Tab 1')
       .forward()
       .assert.containsText('.tab-content .page-content', 'Page: balloon')
       .end()
@@ -39,13 +39,13 @@ export default {
       .url(path('/tabs/1'))
       .click('li[id=react-tabs-2]')
       .pause(1)
-      .assert.containsText('.tab-content .title', 'Tab 2')
+      .assert.containsText('.tab-title', 'Tab 2')
       .assert.urlEquals(path('/tabs/2'))
       .back()
-      .assert.containsText('.tab-content .title', 'Tab 1')
+      .assert.containsText('.tab-title', 'Tab 1')
       .assert.urlEquals(path('/tabs/1'))
       .forward()
-      .assert.containsText('.tab-content .title', 'Tab 1')  // Can't go forward
+      .assert.containsText('.tab-title', 'Tab 1')  // Can't go forward
       .assert.urlEquals(path('/tabs/1'))
       .end()
   },
