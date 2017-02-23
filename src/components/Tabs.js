@@ -1,11 +1,51 @@
 import React, {PropTypes, Component } from 'react'
 import {Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel} from 'react-tabs'
-import {Container, ContainerGroup, HistoryRoute} from 'react-router-nested-history'
+import {
+  Container, ContainerGroup, HistoryRoute, HistoryLink
+} from 'react-router-nested-history'
+import Helmet from 'react-helmet'
 import './Tabs.css'
-import TabMaster1 from "../components/TabMaster1"
-import TabMaster2 from "../components/TabMaster2"
-import TabMaster3 from "../components/TabMaster3"
-import TabPage from "../components/TabPage"
+
+const TabMaster1 = () => (
+  <div>
+    <div className='tab-title'>Tab 1</div>
+    <HistoryLink to="/tabs/1/balloon">Balloon</HistoryLink>
+    <p>
+      Clicking the link will push a new page to this tab's history.
+    </p>
+    <Helmet title='Tab 1' />
+  </div>
+)
+
+const TabMaster2 = () => (
+  <div>
+    <div className='tab-title'>Tab 2</div>
+    <HistoryLink to="/tabs/2/flower">flower</HistoryLink>
+    <p>
+      Using the browser's back button will go back to the default tab.
+    </p>
+    <Helmet title='Tab 2' />
+  </div>
+)
+
+const TabMaster3 = () => (
+  <div>
+    <div className='tab-title'>Tab 3</div>
+    <Helmet title='Tab 3' />
+  </div>
+)
+
+const TabPage = ({match:{params:{page}}}) => (
+  <div >
+    <p className='page-content'>
+      Page: {page}
+    </p>
+    <p>
+      Using the browser's back button will go back to this tab's previous page.
+    </p>
+    <Helmet title={'Tabs: ' + page} />
+  </div>
+)
 
 const Tab = ({name, initialUrl, patterns, masterComponent}) => (
   <Container name={name} initialUrl={initialUrl} patterns={patterns}>
