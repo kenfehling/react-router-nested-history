@@ -37,7 +37,13 @@ const stepListeners:({before:(currentUrl:string) => void,
 const changeListeners:((data:IUpdateData)=>void)[] = []
 
 export const addStepListener = listener => stepListeners.push(listener)
-export const addChangeListener = listener => changeListeners.push(listener)
+
+export const addChangeListener = listener => {
+  changeListeners.push(listener)
+  if (isInitialized()) {
+    updateChangeListeners()
+  }
+}
 
 const startListeningForPopState = () => {
   unlisten = browser.listen((location:Location) => {
@@ -238,7 +244,9 @@ export const listenToStore = () => store.subscribe(() => {
       runSteps(steps).then(updateChangeListeners)
     }
     else {
+      console.log(state.activeUrl)
       updateChangeListeners()
+      //updateChangeListeners()  // For some reason this helps?
     }
   }
 })

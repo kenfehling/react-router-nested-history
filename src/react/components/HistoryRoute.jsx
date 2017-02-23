@@ -1,6 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 import matchPath from 'react-router/matchPath'
+import {connect} from 'react-redux'
 import AnimatedPage from './AnimatedPage'
+import store from '../store'
 
 const computeMatch = (pathname, { computedMatch, path, exact, strict }) =>
 computedMatch || matchPath(pathname, path, { exact, strict })
@@ -10,8 +12,7 @@ computedMatch || matchPath(pathname, path, { exact, strict })
  */
 class HistoryRoute extends Component {
   static contextTypes = {
-    router: PropTypes.object.isRequired,
-    pathname: PropTypes.string.isRequired
+    router: PropTypes.object.isRequired
   }
 
   static propTypes = {
@@ -24,7 +25,8 @@ class HistoryRoute extends Component {
     children: PropTypes.oneOfType([
       PropTypes.func,
       PropTypes.node
-    ])
+    ]),
+    pathname: PropTypes.string
   }
 
   static childContextTypes = {
@@ -39,18 +41,18 @@ class HistoryRoute extends Component {
 
   componentWillMount() {
     const parentRouter = this.context.router
-    const pathname = this.context.pathname
+    const {pathname, ...props} = this.props
 
     if (parentRouter) {
       this.router = {
         ...parentRouter,
-        match: computeMatch(pathname, this.props)
+        match: computeMatch(pathname, props)
       }
 
       // Start listening here so we can <Redirect> on the initial render.
       this.unlisten = parentRouter.listen(() => {
         Object.assign(this.router, parentRouter, {
-          match: computeMatch(pathname, this.props)
+          match: computeMatch(pathname, props)
         })
 
         this.forceUpdate()
@@ -58,10 +60,9 @@ class HistoryRoute extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const pathname = this.context.pathname
+  componentWillReceiveProps({pathname, ...props}) {
     Object.assign(this.router, {
-      match: computeMatch(pathname, nextProps)
+      match: computeMatch(pathname, props)
     })
   }
 
@@ -93,10 +94,18 @@ class HistoryRoute extends Component {
   }
 }
 
-export default ({component, ...props}) => (
+const AnimatedRoute = ({component, ...props}) => (
   <HistoryRoute {...props} children={routeProps => (
     <AnimatedPage {...routeProps}>
       {React.createElement(component || props.children, routeProps)}
     </AnimatedPage>
   )} />
 )
+
+const mapStateToProps = (state) => ({
+  pathname: state.pathname
+})
+
+const ConnectedRoute = connect(mapStateToProps)(AnimatedRoute)
+
+export default props => <ConnectedRoute store={store} {...props} />
