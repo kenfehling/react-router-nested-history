@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import * as TransitionGroup from 'react-addons-transition-group'
+import { TransitionMotion, spring } from 'react-motion'
 import Push from '../../model/actions/Push'
 import Back from '../../model/actions/Back'
 import Forward from '../../model/actions/Forward'
@@ -16,11 +16,7 @@ interface AnimatedPageProps {
   match: any
 }
 
-interface TransPageProps {
-  children?: ReactNode
-}
-
-type ConnectedProps = TransPageProps & {
+type ConnectedProps = AnimatedPageProps & {
   store: Store<LocationState>
 }
 
@@ -64,18 +60,11 @@ class Transition {
       default: throw new Error('Unknown lifecycle stage: ' + stage)
     }
   }
-  
-  getLeftPercent(stage:LifecycleStage, action:Action):string {
-    return this.getLeft(stage, action) + '%'
-  }
 }
 
 class PopStateTransition extends Transition {
   getLeft(stage:LifecycleStage, action:PopState):number {
     const left:number = super.getLeft(stage, action)
-
-    console.log(action, left)
-
     return action.n > 0 ? 0 - left : left
   }
 }
@@ -100,76 +89,22 @@ transitions.set(Back.type, slideRight)
 transitions.set(Top.type, slideRight)
 transitions.set(PopState.type, popstate)
 
-class InnerTransPage extends Component<InnerProps, undefined> {
-  private container: HTMLDivElement
-
-  setLeft(stage:LifecycleStage, callback?:Function, timeout?:number) {
-    const {lastAction} = this.props
-    const transition:Transition|undefined = transitions.get(lastAction.type)
-    if (transition) {
-      this.container.style.left = transition.getLeftPercent(stage, lastAction)
-      if (callback) {
-        setTimeout(callback, timeout || 0)
-      }
-    }
-    else {
-      if(callback) {
-        callback()
-      }
-    }
+function getLeft(stage:LifecycleStage, action:Action):number {
+  const transition:Transition|undefined = transitions.get(action.type)
+  if (transition) {
+    return transition.getLeft(stage, action)
   }
-
-  componentWillEnter(callback) {
-
-    console.log('CWE')
-
-    this.setLeft(LifecycleStage.WILL_ENTER, callback)
-  }
-
-  componentDidEnter() {
-    this.setLeft(LifecycleStage.DID_ENTER)
-  }
-
-  componentWillLeave(callback) {
-    this.setLeft(LifecycleStage.WILL_LEAVE, callback, 1000)
-  }
-
-  componentDidLeave() {
-    this.setLeft(LifecycleStage.DID_LEAVE)
-  }
-
-  render() {
-    return (
-      <div ref={c => this.container = c}
-           style={{
-             width: '100%',
-             height: '100%',
-             position: 'absolute',
-             transition: 'all 1s',
-             left: 0
-            }}
-      >
-        {this.props.children}
-      </div>
-    )
+  else {
+    return 0
   }
 }
 
-const mapStateToProps = (state:LocationState,
-                         ownProps:ConnectedProps):InnerProps => ({
-  lastAction: state.lastAction,
-  ...ownProps
-})
-
-const ConnectedTransPage = connect(mapStateToProps)(InnerTransPage)
-
-class TransPage extends Component<TransPageProps, undefined> {
-  render() {
-    return <ConnectedTransPage {...this.props} store={store} />
-  }
+function getFn(stage:LifecycleStage, action:Action):() => Object {
+  const left = getLeft(stage, action)
+  return () => ({left})
 }
 
-export default class AnimatedPage extends Component<AnimatedPageProps, undefined> {
+class AnimatedPage extends Component<InnerProps, undefined> {
   static contextTypes = {
     animate: PropTypes.bool.isRequired,
     pathname: PropTypes.string.isRequired
@@ -183,16 +118,38 @@ export default class AnimatedPage extends Component<AnimatedPageProps, undefined
      }
      */
 
-    const {children, match} = this.props
+    const {children, match, lastAction} = this.props
     const {animate, pathname} = this.context
 
     if (animate !== false) {
       const matches = match && match.url === pathname
       return (
       <div style={{position: 'relative'}}>
-        <TransitionGroup component='div'>
-          {matches && <TransPage key={pathname}>{children}</TransPage>}
-        </TransitionGroup>
+        <TransitionMotion
+          willEnter={getFn(LifecycleStage.WILL_ENTER, lastAction)}
+          willLeave={getFn(LifecycleStage.WILL_LEAVE, lastAction)}
+          styles={matches ? [ {
+          key: pathname,
+          style: {left: spring(0)}
+        } ] : []}
+        >
+          {interpolatedStyles => (
+            <div>
+              {interpolatedStyles.map(config => (
+                <div
+                  style={{
+                    left: config.style.left + '%',
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute'
+                  }}
+                >
+                  {matches && children}
+                </div>
+              ))}
+            </div>
+          )}
+        </TransitionMotion>
       </div>
     )
 
@@ -200,5 +157,19 @@ export default class AnimatedPage extends Component<AnimatedPageProps, undefined
     else {
       return <div>{match ? children : ''}</div>
     }
+  }
+}
+
+const mapStateToProps = (state:LocationState,
+                         ownProps:ConnectedProps):InnerProps => ({
+  lastAction: state.lastAction,
+  ...ownProps
+})
+
+const ConnectedPage = connect(mapStateToProps)(AnimatedPage)
+
+export default class extends Component<AnimatedPageProps, undefined> {
+  render() {
+    return <ConnectedPage {...this.props} store={store} />
   }
 }
