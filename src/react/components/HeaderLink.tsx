@@ -40,7 +40,7 @@ export default class HeaderLink extends Component<HeaderLinkProps, undefined> {
 
   render() {
     const {groupName} = this.context
-    const {children, toContainer, className} = this.props
+    const {children, toContainer} = this.props
     const url:string = getContainerLinkUrl(groupName, toContainer)
     return (
       <a href={url}

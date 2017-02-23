@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import { RouteTransition } from 'react-router-transition'
+import {RouteTransition} from 'react-router-transition'
 import Push from '../../model/actions/Push'
 import Back from '../../model/actions/Back'
 import Forward from '../../model/actions/Forward'
@@ -99,11 +99,11 @@ function getLeft(stage:LifecycleStage, action:Action):number {
   }
 }
 
-const willEnter = (action:Action) => () => ({
+const willEnter = (action:Action) => ({
   left: getLeft(LifecycleStage.WILL_ENTER, action)
 })
 
-const willLeave = (action:Action) => () => ({
+const willLeave = (action:Action) => ({
   left: getLeft(LifecycleStage.WILL_LEAVE, action)
 })
 
@@ -136,8 +136,8 @@ class AnimatedPage extends Component<InnerProps, undefined> {
       return (
         <RouteTransition
           pathname={pathname}
-          atEnter={{left: getLeft(LifecycleStage.WILL_ENTER, lastAction)}}
-          atLeave={{left: getLeft(LifecycleStage.WILL_LEAVE, lastAction)}}
+          atEnter={willEnter(lastAction)}
+          atLeave={willLeave(lastAction)}
           atActive={{left: 0}}
           mapStyles={styles => ({
               position: 'absolute',

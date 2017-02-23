@@ -110,7 +110,13 @@ export const switchToGroup = (groupName:string):void => {
 
 export const switchToContainer = (groupName:string,
                                   containerName:string):void => {
-  if (!isContainerActive(groupName, containerName)) {
+  if (isContainerActive(groupName, containerName)) {
+    const group:Group = getGroupByName(groupName)
+    if (group.gotoTopOnSelectActive) {
+      store.dispatch(new Top({groupName}))
+    }
+  }
+  else {
     store.dispatch(new SwitchToContainer({groupName, containerName}))
   }
 }

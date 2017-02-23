@@ -18,15 +18,9 @@ export default class InitializedState extends IState {
   }
 
   switchToContainer({groupName, containerName, time}:
-    {groupName:string, containerName:string, time:number}):IState {
+      {groupName:string, containerName:string, time:number}):IState {
     const group:Group = this.getGroupByName(groupName)
-    if (group.gotoTopOnSelectActive &&
-      group.activeContainerName === containerName) {
-      return this.top({groupName, time})
-    }
-    else {
-      return this.replaceGroup(group.activateContainer(containerName, time))
-    }
+    return this.replaceGroup(group.activateContainer(containerName, time))
   }
 
   get backPage():Page {
