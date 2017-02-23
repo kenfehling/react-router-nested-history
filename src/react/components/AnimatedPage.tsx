@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import { TransitionMotion, spring } from 'react-motion'
+import { RouteTransition } from 'react-router-transition'
 import Push from '../../model/actions/Push'
 import Back from '../../model/actions/Back'
 import Forward from '../../model/actions/Forward'
@@ -32,8 +32,8 @@ enum LifecycleStage {
 }
 
 enum Side {
-  LEFT = -100,
-  RIGHT = 100
+  LEFT = -110,
+  RIGHT = 110
 }
 
 class Transition {
@@ -104,7 +104,7 @@ const willEnter = (action:Action) => () => ({
 })
 
 const willLeave = (action:Action) => () => ({
-  left: spring(getLeft(LifecycleStage.WILL_LEAVE, action))
+  left: getLeft(LifecycleStage.WILL_LEAVE, action)
 })
 
 class AnimatedPage extends Component<InnerProps, undefined> {
@@ -124,44 +124,31 @@ class AnimatedPage extends Component<InnerProps, undefined> {
     const {children, match, lastAction} = this.props
     const {animate, pathname} = this.context
 
+    const matches = match && match.url === pathname
+
     if (animate !== false) {
-      const matches = match && match.url === pathname
-
-      console.log(pathname, match ? match.url : 'no match')
-
       return (
       <div style={{position: 'relative'}}>
-        <TransitionMotion
-          willEnter={willEnter(lastAction)}
-          willLeave={willLeave(lastAction)}
-          styles={matches ? [ {
-          key: pathname,
-          style: {left: spring(0)}
-        } ] : []}
+        <RouteTransition
+          pathname={pathname}
+          atEnter={{ left: getLeft(LifecycleStage.WILL_ENTER, lastAction) }}
+          atLeave={{ left: getLeft(LifecycleStage.WILL_LEAVE, lastAction) }}
+          atActive={{ left: 0 }}
+          mapStyles={styles => ({
+              left: styles.left + '%',
+              width: '100%',
+              height: '100%',
+              position: 'absolute'
+          })}
         >
-          {interpolatedStyles => (
-            <div>
-              {interpolatedStyles.map(config => (
-                <div
-                  style={{
-                    left: config.style.left + '%',
-                    width: '100%',
-                    height: '100%',
-                    position: 'absolute'
-                  }}
-                >
-                  {matches && children}
-                </div>
-              ))}
-            </div>
-          )}
-        </TransitionMotion>
+          {matches && children}
+        </RouteTransition>
       </div>
     )
 
     }
     else {
-      return <div>{match ? children : ''}</div>
+      return <div>{matches ? children : ''}</div>
     }
   }
 }

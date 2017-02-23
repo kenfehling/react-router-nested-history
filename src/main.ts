@@ -34,7 +34,10 @@ const queue = new Queue(1, Infinity)  // maxConcurrent = 1, maxQueue = Infinity
 let unlisten
 const stepListeners:({before:(currentUrl:string) => void,
                       after:(currentUrl:string) => void})[] = []
+const changeListeners:((data:IUpdateData)=>void)[] = []
+
 export const addStepListener = listener => stepListeners.push(listener)
+export const addChangeListener = listener => changeListeners.push(listener)
 
 const startListeningForPopState = () => {
   unlisten = browser.listen((location:Location) => {
@@ -55,21 +58,6 @@ const startListeningPromise = () => new Promise(resolve => {
   startListeningForPopState()
   return resolve()
 })
-
-export const addChangeListener = (callback:(data:IUpdateData)=>void) => {
-  const fn = () => {
-    const state:IState = store.getState()
-    const data:IUpdateData = {
-      lastAction: getLastAction(),
-      state
-    }
-    if (state instanceof InitializedState) {
-      callback(data)
-    }
-  }
-  fn()  // If state is already initialized (from persist) call right away
-  return store.subscribe(fn)
-}
 
 export const getGroupByName = (name:string):Group =>
     store.getState().getGroupByName(name)
@@ -228,21 +216,29 @@ function runStep(step:Step):Promise<void> {
 export function runSteps(steps:Step[]):Promise<void> {
   const ps:() => Promise<void> = () =>
       steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
-
-  //console.log(ps)
-
   return queue.add(ps)
+}
+
+const updateChangeListeners = () => {
+  const state:IState = store.getState()
+  const data:IUpdateData = {
+    lastAction: getLastAction(),
+    state
+  }
+  changeListeners.forEach(listener => listener(data))
 }
 
 export const listenToStore = () => store.subscribe(() => {
   if (isInitialized()) {
     const state:IState = store.getState()
     const lastUpdate: number = state.lastUpdate
-    const current = state.activePage
     const steps: Step[] = createStepsSince(store.actions, lastUpdate)
     if (steps.length > 0) {
       store.dispatch(new UpdateBrowser())
-      runSteps(steps)
+      runSteps(steps).then(updateChangeListeners)
+    }
+    else {
+      updateChangeListeners()
     }
   }
 })
