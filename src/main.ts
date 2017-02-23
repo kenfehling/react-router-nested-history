@@ -109,11 +109,14 @@ export const switchToGroup = (groupName:string):void => {
 }
 
 export const switchToContainer = (groupName:string,
-                                  containerName:string):void => {
+                                  containerName:string,
+                                  fromPush:boolean=false):void => {
   if (isContainerActive(groupName, containerName)) {
-    const group:Group = getGroupByName(groupName)
-    if (group.gotoTopOnSelectActive) {
-      store.dispatch(new Top({groupName}))
+    if (!fromPush) {
+      const group:Group = getGroupByName(groupName)
+      if (group.gotoTopOnSelectActive) {
+        store.dispatch(new Top({groupName}))
+      }
     }
   }
   else {
@@ -144,7 +147,7 @@ export const push = (groupName:string, containerName:string, url:string,
     lastVisited: new Date().getTime()
   })
   switchToGroup(groupName)
-  switchToContainer(groupName,containerName)
+  switchToContainer(groupName,containerName, true)
   store.dispatch(new Push({page}))
 }
 

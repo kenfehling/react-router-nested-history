@@ -56,8 +56,8 @@ class Store {
       const lastTime:number = R.last(this.actions).time
       const prevTime:number = this.actions.length > 1 ?
           R.takeLast(2, this.actions)[0].time : lastTime
-      if (prevTime === this.timeStored) {                  // Should be rare
-        this.storedState = this.deriveState(this.actions)  // Just derive all
+      if (lastTime === prevTime && prevTime === this.timeStored) {  // Rare case
+        this.storedState = this.deriveState(this.actions)     // Just derive all
       }
       else {
         const newActions:Action[] =

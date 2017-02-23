@@ -1391,11 +1391,14 @@ exports.switchToGroup = function (groupName) {
         store_1.default.dispatch(new SwitchToGroup_1.default({ groupName: groupName }));
     }
 };
-exports.switchToContainer = function (groupName, containerName) {
+exports.switchToContainer = function (groupName, containerName, fromPush) {
+    if (fromPush === void 0) { fromPush = false; }
     if (exports.isContainerActive(groupName, containerName)) {
-        var group = exports.getGroupByName(groupName);
-        if (group.gotoTopOnSelectActive) {
-            store_1.default.dispatch(new Top_1.default({ groupName: groupName }));
+        if (!fromPush) {
+            var group = exports.getGroupByName(groupName);
+            if (group.gotoTopOnSelectActive) {
+                store_1.default.dispatch(new Top_1.default({ groupName: groupName }));
+            }
         }
     }
     else {
@@ -1423,7 +1426,7 @@ exports.push = function (groupName, containerName, url, patterns) {
         lastVisited: new Date().getTime()
     });
     exports.switchToGroup(groupName);
-    exports.switchToContainer(groupName, containerName);
+    exports.switchToContainer(groupName, containerName, true);
     store_1.default.dispatch(new Push_1.default({ page: page }));
 };
 exports.startup = function () {
@@ -12405,8 +12408,10 @@ var Store = (function () {
         }
         else {
             var lastTime = R.last(this.actions).time;
-            if (lastTime === this.timeStored) {
-                this.storedState = this.deriveState(this.actions); // Just derive everything
+            var prevTime = this.actions.length > 1 ?
+                R.takeLast(2, this.actions)[0].time : lastTime;
+            if (lastTime === prevTime && prevTime === this.timeStored) {
+                this.storedState = this.deriveState(this.actions); // Just derive all
             }
             else {
                 var newActions = this.actions.filter(function (a) { return a.time > _this.timeStored; });
