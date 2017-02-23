@@ -99,10 +99,13 @@ function getLeft(stage:LifecycleStage, action:Action):number {
   }
 }
 
-function getFn(stage:LifecycleStage, action:Action):() => Object {
-  const left = getLeft(stage, action)
-  return () => ({left})
-}
+const willEnter = (action:Action) => () => ({
+  left: getLeft(LifecycleStage.WILL_ENTER, action)
+})
+
+const willLeave = (action:Action) => () => ({
+  left: spring(getLeft(LifecycleStage.WILL_LEAVE, action))
+})
 
 class AnimatedPage extends Component<InnerProps, undefined> {
   static contextTypes = {
@@ -123,11 +126,14 @@ class AnimatedPage extends Component<InnerProps, undefined> {
 
     if (animate !== false) {
       const matches = match && match.url === pathname
+
+      console.log(pathname, match ? match.url : 'no match')
+
       return (
       <div style={{position: 'relative'}}>
         <TransitionMotion
-          willEnter={getFn(LifecycleStage.WILL_ENTER, lastAction)}
-          willLeave={getFn(LifecycleStage.WILL_LEAVE, lastAction)}
+          willEnter={willEnter(lastAction)}
+          willLeave={willLeave(lastAction)}
           styles={matches ? [ {
           key: pathname,
           style: {left: spring(0)}
