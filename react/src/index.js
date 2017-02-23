@@ -1,7 +1,7 @@
 import React from 'react'
 import {Route, Redirect} from 'react-router'
 import {render} from 'react-dom'
-import App from './containers/App'
+import App from './components/App'
 import {HistoryRouter} from 'react-router-nested-history'
 
 render((
