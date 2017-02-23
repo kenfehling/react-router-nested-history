@@ -12250,7 +12250,7 @@ var DumbContainer = (function (_super) {
             'useDefaultContainer'
         ], this.props), hideInactiveContainers = _a.hideInactiveContainers, children = _a.children, style = _a.style, divProps = __rest(_a, ["hideInactiveContainers", "children", "style"]);
         if (!hideInactiveContainers || this.matchesLocation(this.props)) {
-            return (React.createElement("div", __assign({}, divProps, { onClick: this.onClick.bind(this), style: __assign({}, style) }), children));
+            return (React.createElement("div", __assign({}, divProps, { onClick: this.onClick.bind(this), style: __assign({}, style, { width: '100%', height: '100%', position: 'relative' }) }), children));
         }
         else {
             return React.createElement("div", null);
@@ -19509,7 +19509,7 @@ var AnimatedPage = (function (_super) {
         var _b = this.context, animate = _b.animate, pathname = _b.pathname;
         var matches = match && match.url === pathname;
         if (animate !== false) {
-            return (React.createElement(react_router_transition_1.RouteTransition, { pathname: pathname, atEnter: { left: getLeft(LifecycleStage.WILL_ENTER, lastAction) }, atLeave: { left: getLeft(LifecycleStage.WILL_LEAVE, lastAction) }, atActive: { left: 0 }, style: { position: 'relative' }, mapStyles: function (styles) { return ({
+            return (React.createElement(react_router_transition_1.RouteTransition, { pathname: pathname, atEnter: { left: getLeft(LifecycleStage.WILL_ENTER, lastAction) }, atLeave: { left: getLeft(LifecycleStage.WILL_LEAVE, lastAction) }, atActive: { left: 0 }, mapStyles: function (styles) { return ({
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
@@ -19632,6 +19632,7 @@ var DumbContainerGroup = (function (_super) {
             'dispatch',
             'storedCurrentContainerName',
             'currentContainerIndex',
+            'currentContainerName',
             'onContainerActivate',
             'gotoTopOnSelectActive'
         ], this.props), style = _a.style, divProps = __rest(_a, ["style"]);

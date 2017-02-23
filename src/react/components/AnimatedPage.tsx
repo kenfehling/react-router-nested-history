@@ -132,7 +132,6 @@ class AnimatedPage extends Component<InnerProps, undefined> {
           atEnter={{left: getLeft(LifecycleStage.WILL_ENTER, lastAction)}}
           atLeave={{left: getLeft(LifecycleStage.WILL_LEAVE, lastAction)}}
           atActive={{left: 0}}
-          style={{position: 'relative'}}
           mapStyles={styles => ({
               position: 'absolute',
               width: '100%',

@@ -130,8 +130,11 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
           onClick={this.onClick.bind(this)}
           style={{
                ...style,
-               /*
+               width: '100%',
                height: '100%',
+               position: 'relative'
+               /*
+
                position: 'inherit',
                overflow: 'hidden'
                */

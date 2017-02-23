@@ -109,6 +109,7 @@ export default class DumbContainerGroup extends
       'dispatch',
       'storedCurrentContainerName',
       'currentContainerIndex',
+      'currentContainerName',
       'onContainerActivate',
       'gotoTopOnSelectActive'
     ], this.props)
