@@ -52,8 +52,8 @@ class HistoryRoute extends Component {
         Object.assign(this.router, parentRouter, {
           match: computeMatch(pathname, this.props)
         })
-
         this.forceUpdate()
+        this.unlisten()
       })
     }
   }
@@ -63,6 +63,11 @@ class HistoryRoute extends Component {
     Object.assign(this.router, {
       match: computeMatch(pathname, nextProps)
     })
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return !this.router.match ||
+      this.router.match.path !== computeMatch(this.context.pathname, nextProps)
   }
 
   componentWillUnmount() {

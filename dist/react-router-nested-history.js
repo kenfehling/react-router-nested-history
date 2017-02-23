@@ -18255,8 +18255,8 @@ var HistoryRoute = function (_Component) {
           Object.assign(_this2.router, parentRouter, {
             match: computeMatch(pathname, _this2.props)
           });
-
           _this2.forceUpdate();
+          _this2.unlisten();
         });
       }
     }
@@ -18267,6 +18267,11 @@ var HistoryRoute = function (_Component) {
       Object.assign(this.router, {
         match: computeMatch(pathname, nextProps)
       });
+    }
+  }, {
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps) {
+      return !this.router.match || this.router.match.path !== computeMatch(this.context.pathname, nextProps);
     }
   }, {
     key: 'componentWillUnmount',
