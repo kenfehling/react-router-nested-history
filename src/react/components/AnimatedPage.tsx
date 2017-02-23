@@ -128,24 +128,22 @@ class AnimatedPage extends Component<InnerProps, undefined> {
 
     if (animate !== false) {
       return (
-      <div style={{position: 'relative'}}>
         <RouteTransition
           pathname={pathname}
-          atEnter={{ left: getLeft(LifecycleStage.WILL_ENTER, lastAction) }}
-          atLeave={{ left: getLeft(LifecycleStage.WILL_LEAVE, lastAction) }}
-          atActive={{ left: 0 }}
+          atEnter={{left: getLeft(LifecycleStage.WILL_ENTER, lastAction)}}
+          atLeave={{left: getLeft(LifecycleStage.WILL_LEAVE, lastAction)}}
+          atActive={{left: 0}}
+          style={{position: 'relative'}}
           mapStyles={styles => ({
-              left: styles.left + '%',
+              position: 'absolute',
               width: '100%',
               height: '100%',
-              position: 'absolute'
+              left: styles.left + '%'
           })}
         >
           {matches && children}
         </RouteTransition>
-      </div>
-    )
-
+      )
     }
     else {
       return <div>{matches ? children : ''}</div>
