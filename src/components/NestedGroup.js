@@ -118,9 +118,9 @@ export default () =>(
               <div>
                 <HistoryRoute path={`/foods/${regex(c)}`} exact
                               component={FoodsMaster} />
-                <HistoryRoute path={`/foods/${regex(c)}/:food`}
+                <HistoryRoute path={`/foods/${regex(c)}/:food`} exact
                               component={FoodDetail} />
-                <HistoryRoute path={`/foods/${regex(c)}/:food/:type`}
+                <HistoryRoute path={`/foods/${regex(c)}/:food/:type`} exact
                               component={FoodTypeDetail} />
               </div>
             </Container>
