@@ -1,8 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import matchPath from 'react-router/matchPath'
-import {connect} from 'react-redux'
 import AnimatedPage from './AnimatedPage'
-import store from '../store'
 
 const computeMatch = (pathname, { computedMatch, path, exact, strict }) =>
 computedMatch || matchPath(pathname, path, { exact, strict })
@@ -12,7 +10,8 @@ computedMatch || matchPath(pathname, path, { exact, strict })
  */
 class HistoryRoute extends Component {
   static contextTypes = {
-    router: PropTypes.object.isRequired
+    router: PropTypes.object.isRequired,
+    pathname: PropTypes.string.isRequired
   }
 
   static propTypes = {
@@ -25,8 +24,7 @@ class HistoryRoute extends Component {
     children: PropTypes.oneOfType([
       PropTypes.func,
       PropTypes.node
-    ]),
-    pathname: PropTypes.string
+    ])
   }
 
   static childContextTypes = {
@@ -41,18 +39,18 @@ class HistoryRoute extends Component {
 
   componentWillMount() {
     const parentRouter = this.context.router
-    const {pathname, ...props} = this.props
+    const pathname = this.context.pathname
 
     if (parentRouter) {
       this.router = {
         ...parentRouter,
-        match: computeMatch(pathname, props)
+        match: computeMatch(pathname, this.props)
       }
 
       // Start listening here so we can <Redirect> on the initial render.
       this.unlisten = parentRouter.listen(() => {
         Object.assign(this.router, parentRouter, {
-          match: computeMatch(pathname, props)
+          match: computeMatch(pathname, this.props)
         })
 
         this.forceUpdate()
@@ -60,9 +58,10 @@ class HistoryRoute extends Component {
     }
   }
 
-  componentWillReceiveProps({pathname, ...props}) {
+  componentWillReceiveProps(nextProps) {
+    const pathname = this.context.pathname
     Object.assign(this.router, {
-      match: computeMatch(pathname, props)
+      match: computeMatch(pathname, nextProps)
     })
   }
 
@@ -76,36 +75,29 @@ class HistoryRoute extends Component {
 
     return (
       component ? ( // component prop gets first priority, only called if there's a match
-        props.match ? React.createElement(component, props) : null
-      ) : render ? ( // render prop is next, only called if there's a match
-          props.match ? render(props) : null
-        ) : children ? ( // children come last, always called
-            typeof children === 'function' ? (
-                children(props)
-              ) : !Array.isArray(children) || children.length ? ( // Preact defaults to empty children array
-                  React.Children.only(children)
-                ) : (
-                  null
-                )
-          ) : (
+          props.match ? React.createElement(component, props) : null
+        ) : render ? ( // render prop is next, only called if there's a match
+            props.match ? render(props) : null
+          ) : children ? ( // children come last, always called
+              typeof children === 'function' ? (
+                  children(props)
+                ) : !Array.isArray(children) || children.length ? ( // Preact defaults to empty children array
+                    React.Children.only(children)
+                  ) : (
+                    null
+                  )
+            ) : (
               null
-          )
+            )
     )
   }
 }
 
-const AnimatedRoute = ({component, ...props}) => (
+export default ({component, ...props}) => (
   <HistoryRoute {...props} children={routeProps => (
     <AnimatedPage {...routeProps}>
-      {React.createElement(component || props.children, routeProps)}
+      {routeProps.match ?
+        React.createElement(component || props.children, routeProps) : null}
     </AnimatedPage>
   )} />
 )
-
-const mapStateToProps = (state) => ({
-  pathname: state.pathname
-})
-
-const ConnectedRoute = connect(mapStateToProps)(AnimatedRoute)
-
-export default props => <ConnectedRoute store={store} {...props} />

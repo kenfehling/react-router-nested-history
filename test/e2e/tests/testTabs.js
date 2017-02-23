@@ -1,6 +1,13 @@
 const path = (p) => 'http://localhost:8080' + p
 
 export default {
+  'Check content when other group loaded': (client) => {
+    client
+      .url(path('/windows/1'))
+      .assert.containsText('.tab-title', 'Tab 1')
+      .end()
+  },
+
   'Back from /tabs/1 should go to zero page': (client) => {
     client
       .url(path('/tabs/1'))

@@ -26,7 +26,7 @@ export default {
       .end()
   },
 
-  'Load /windows/1':  (client) => checkLoadWindowZIndex(client, 1).end(),
+  'Check /windows/1 zIndex': (client) => checkLoadWindowZIndex(client, 1).end(),
 
-  'Load /windows/2': (client) => checkLoadWindowZIndex(client, 2).end(),
+  'Check /windows/2 zIndex': (client) => checkLoadWindowZIndex(client, 2).end(),
 }

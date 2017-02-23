@@ -145,7 +145,7 @@ class AnimatedPage extends Component<InnerProps, undefined> {
       )
     }
     else {
-      return <div>{matches ? children : ''}</div>
+      return <div>{children}</div>
     }
   }
 }

@@ -244,9 +244,8 @@ export const listenToStore = () => store.subscribe(() => {
       runSteps(steps).then(updateChangeListeners)
     }
     else {
-      console.log(state.activeUrl)
       updateChangeListeners()
-      //updateChangeListeners()  // For some reason this helps?
+      updateChangeListeners()  // For some reason this helps?
     }
   }
 })
