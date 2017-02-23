@@ -35,3 +35,7 @@
 .header-item:hover {
   text-decoration: underline;
 }
+
+.food-title {
+  font-weight: bold;
+}

@@ -169,7 +169,25 @@ describe('Group', () => {
         })
         const h:HistoryStack = group.push(page).history
         expect(h.back.length).toBe(1)
+        expect(h.back[0].url).toBe('/a')
         expect(h.current.url).toBe('/d')
+        expect(h.forward.length).toBe(0)
+      })
+
+      it('works after pushing multiple pages', () => {
+        const push = (g:Group, url:string) => g.push(new Page({
+          url,
+          params: {},
+          groupName: 'Group 1',
+          containerName: 'Container 1'
+        }))
+        const g:Group = push(push(push(group, '/d'), '/d/1'), '/d/1/1')
+        const h:HistoryStack = g.history
+        expect(h.back.length).toBe(3)
+        expect(h.back[0].url).toBe('/a')
+        expect(h.back[1].url).toBe('/d')
+        expect(h.back[2].url).toBe('/d/1')
+        expect(h.current.url).toBe('/d/1/1')
         expect(h.forward.length).toBe(0)
       })
     })

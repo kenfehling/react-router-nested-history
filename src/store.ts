@@ -7,7 +7,6 @@ import * as store from 'store'
 import ClearActions from './model/actions/ClearActions'
 import UpdateBrowser from './model/actions/UpdateBrowser'
 
-
 class Store {
   actions: Action[]
   storedState: IState
@@ -55,8 +54,10 @@ class Store {
     }
     else {
       const lastTime:number = R.last(this.actions).time
-      if (lastTime === this.timeStored) {                  // Very rare case
-        this.storedState = this.deriveState(this.actions)  // Just derive everything
+      const prevTime:number = this.actions.length > 1 ?
+          R.takeLast(2, this.actions)[0].time : lastTime
+      if (prevTime === this.timeStored) {                  // Should be rare
+        this.storedState = this.deriveState(this.actions)  // Just derive all
       }
       else {
         const newActions:Action[] =

@@ -31,6 +31,23 @@ describe('History', () => {
       expect(h.current.url).toBe('/d')
       expect(h.forward.length).toBe(0)
     })
+
+    it('works after pushing multiple pages', () => {
+      const push = (h:HistoryStack, url:string) => h.push(new Page({
+        url,
+        params: {},
+        groupName: 'Group 1',
+        containerName: 'Container 1'
+      }))
+      const h:HistoryStack = push(push(push(history, '/d'), '/d/1'), '/d/1/1')
+      expect(h.back.length).toBe(4)
+      expect(h.back[0].url).toBe('/a')
+      expect(h.back[1].url).toBe('/b')
+      expect(h.back[2].url).toBe('/d')
+      expect(h.back[3].url).toBe('/d/1')
+      expect(h.current.url).toBe('/d/1/1')
+      expect(h.forward.length).toBe(0)
+    })
   })
 
   describe('containsPage', () => {

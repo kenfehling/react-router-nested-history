@@ -55,6 +55,18 @@ describe('Container', () => {
     it('parses params', () => {
       expect(newContainer.history.current.params).toEqual({id: '1'})
     })
+
+    it('works after pushing multiple pages', () => {
+      const c:Container =
+          newContainer.pushUrl('/a/2', now + 1).pushUrl('/a/3', now + 2)
+      expect(c.history.current.url).toBe('/a/3')
+      expect(c.history.back.length).toBe(4)
+      expect(c.history.back[0].url).toBe('/back')
+      expect(c.history.back[1].url).toBe('/a')
+      expect(c.history.back[2].url).toBe('/a/1')
+      expect(c.history.back[3].url).toBe('/a/2')
+      expect(c.history.forward.length).toBe(0)
+    })
   })
 
   describe('loadFromUrl', () => {

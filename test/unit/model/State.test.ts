@@ -64,6 +64,24 @@ describe('IState', () => {
         expect(h.current.url).toBe('/d')
         expect(h.forward.length).toBe(0)
       })
+
+      it('works after pushing multiple pages', () => {
+        const push = (s:IState, url:string) => s.push(new Page({
+          url,
+          params: {},
+          groupName: 'Group 1',
+          containerName: 'Container 1'
+        }))
+        const newState:IState = push(push(push(state, '/d'), '/d/1'), '/d/1/1')
+        const h:HistoryStack = newState.browserHistory
+        expect(h.back.length).toBe(4)
+        expect(h.back[0].url).toBe('/a')
+        expect(h.back[1].url).toBe('/a')
+        expect(h.back[2].url).toBe('/d')
+        expect(h.back[3].url).toBe('/d/1')
+        expect(h.current.url).toBe('/d/1/1')
+        expect(h.forward.length).toBe(0)
+      })
     })
 
     describe('go', () => {
