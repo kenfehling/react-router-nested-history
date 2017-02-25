@@ -1,16 +1,16 @@
-.nested-window {
+.nested .window {
   width: 320px;
   height: 240px;
   display: flex;
   flex-direction: column;
 }
 
-.nested-window.foods {
+.nested .window.foods {
   top: 0;
   left: 0;
 }
 
-.nested-window.notes {
+.nested .window.notes {
   top: 80px;
   left: 120px;
 }

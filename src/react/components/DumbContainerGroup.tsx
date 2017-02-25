@@ -140,7 +140,7 @@ export default class DumbContainerGroup extends
       return this.renderDiv(children(args))
     }
     else {
-      return this.renderDiv(this.props.children)
+      return this.renderDiv(children)
     }
   }
 }

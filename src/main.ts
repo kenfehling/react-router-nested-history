@@ -108,7 +108,7 @@ export const switchToGroup = (groupName:string):void => {
   }
 }
 
-export const switchToContainer = (groupName:string,
+const switchToContainerName = (groupName:string,
                                   containerName:string,
                                   fromPush:boolean=false):void => {
   if (isContainerActive(groupName, containerName)) {
@@ -124,11 +124,14 @@ export const switchToContainer = (groupName:string,
   }
 }
 
+export const switchToContainer = (groupName:string, containerName:string):void =>
+    switchToContainerName(groupName, containerName, false)
+
 export const switchToContainerIndex = (groupName:string, index:number):void => {
   const group:Group = getGroupByName(groupName)
   const container:IContainer = group.containers[index]
   if (container) {
-    return switchToContainer(groupName, container.name)
+    return switchToContainerName(groupName, container.name)
   }
   else {
     throw new Error(`No container found at index ${index} in '${groupName}' ` +
@@ -147,7 +150,7 @@ export const push = (groupName:string, containerName:string, url:string,
     lastVisited: new Date().getTime()
   })
   switchToGroup(groupName)
-  switchToContainer(groupName,containerName, true)
+  switchToContainerName(groupName, containerName, true)
   store.dispatch(new Push({page}))
 }
 

@@ -6,15 +6,34 @@
   height: 100%;
   padding: 1px 25px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.window-group {
+  flex: 1;
+}
+
+.window-menu {
+  height: 40px;
+  display: flex;
+  padding: 0 20px;
+}
+
+.window-menu button {
+  margin: 10px auto;
 }
 
 .window {
   background-color: #FFF;
   border: 3px solid #BBB;
   border-radius: 4px;
-  width: 200px;
-  height: 192px;
   box-sizing: border-box;
+}
+
+.windows .window {
+  width: 200px;
+  height: 175px;
 }
 
 .window > div {
@@ -28,7 +47,7 @@
 }
 
 .window2 {
-  top: 80px;
+  top: 65px;
   left: 95px;
 }
 
