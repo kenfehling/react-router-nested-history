@@ -136,6 +136,7 @@ class AnimatedPage extends Component<InnerProps, undefined> {
       return (
         <RouteTransition
           pathname={pathname}
+          runOnMount={false}
           atEnter={willEnter(lastAction)}
           atLeave={willLeave(lastAction)}
           atActive={{left: 0}}

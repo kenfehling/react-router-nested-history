@@ -19544,7 +19544,7 @@ var AnimatedPage = (function (_super) {
         var _b = this.context, animate = _b.animate, pathname = _b.pathname;
         var matches = match && match.url === pathname;
         if (animate !== false) {
-            return (React.createElement(react_router_transition_1.RouteTransition, { pathname: pathname, atEnter: willEnter(lastAction), atLeave: willLeave(lastAction), atActive: { left: 0 }, mapStyles: function (styles) { return ({
+            return (React.createElement(react_router_transition_1.RouteTransition, { pathname: pathname, runOnMount: false, atEnter: willEnter(lastAction), atLeave: willLeave(lastAction), atActive: { left: 0 }, mapStyles: function (styles) { return ({
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
