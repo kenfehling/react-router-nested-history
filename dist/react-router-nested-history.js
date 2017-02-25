@@ -19482,12 +19482,14 @@ var AnimatedPage = (function (_super) {
     function AnimatedPage() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    AnimatedPage.prototype.shouldComponentUpdate = function (nextProps) {
-        var match = this.props.match;
-        var nextMatch = nextProps.match;
-        return !(!match && !nextMatch) &&
-            (!match || !nextMatch || match.path !== nextMatch.path);
-    };
+    /*
+    shouldComponentUpdate(nextProps) {
+      const {match} = this.props
+      const nextMatch = nextProps.match
+      return !(!match && !nextMatch) &&
+        (!match || !nextMatch || match.path !== nextMatch.path)
+    }
+    */
     AnimatedPage.prototype.render = function () {
         /*
          if (lastActionType === SwitchToContainer.type) {
