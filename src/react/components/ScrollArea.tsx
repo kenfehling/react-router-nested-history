@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
+import * as R from 'ramda'
 
 interface ScrollAreaProps {
   resetOnLeave?: boolean,
@@ -73,7 +74,13 @@ export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
   }
 
   render() {
-    const {children, horizontal=true, vertical=true, style={}, ...divProps} = this.props
+    const {
+      children,
+      horizontal=true,
+      vertical=true,
+      style={},
+      ...divProps
+    } = R.omit(['resetOnLeave'], this.props)
     return (
       <div ref={(ref) => this.scrollArea = ref}
            onScroll={this.onScroll.bind(this)}

@@ -539,7 +539,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 // @Serializable decorator for a class
 function Serializable(target) {
     if (target.type) {
@@ -860,66 +860,6 @@ module.exports = ExecutionEnvironment;
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _arity = __webpack_require__(24);
-var _curry1 = __webpack_require__(1);
-var _curry2 = __webpack_require__(0);
-var _curryN = __webpack_require__(68);
-
-
-/**
- * Returns a curried equivalent of the provided function, with the specified
- * arity. The curried function has two unusual capabilities. First, its
- * arguments needn't be provided one at a time. If `g` is `R.curryN(3, f)`, the
- * following are equivalent:
- *
- *   - `g(1)(2)(3)`
- *   - `g(1)(2, 3)`
- *   - `g(1, 2)(3)`
- *   - `g(1, 2, 3)`
- *
- * Secondly, the special placeholder value `R.__` may be used to specify
- * "gaps", allowing partial application of any combination of arguments,
- * regardless of their positions. If `g` is as above and `_` is `R.__`, the
- * following are equivalent:
- *
- *   - `g(1, 2, 3)`
- *   - `g(_, 2, 3)(1)`
- *   - `g(_, _, 3)(1)(2)`
- *   - `g(_, _, 3)(1, 2)`
- *   - `g(_, 2)(1)(3)`
- *   - `g(_, 2)(1, 3)`
- *   - `g(_, 2)(_, 3)(1)`
- *
- * @func
- * @memberOf R
- * @since v0.5.0
- * @category Function
- * @sig Number -> (* -> a) -> (* -> a)
- * @param {Number} length The arity for the returned function.
- * @param {Function} fn The function to curry.
- * @return {Function} A new, curried function.
- * @see R.curry
- * @example
- *
- *      var sumArgs = (...args) => R.sum(args);
- *
- *      var curriedAddFourNumbers = R.curryN(4, sumArgs);
- *      var f = curriedAddFourNumbers(1, 2);
- *      var g = f(3);
- *      g(4); //=> 10
- */
-module.exports = _curry2(function curryN(length, fn) {
-  if (length === 1) {
-    return _curry1(fn);
-  }
-  return _arity(length, _curryN(length, [], fn));
-});
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
 module.exports = {
   F: __webpack_require__(314),
   T: __webpack_require__(315),
@@ -961,7 +901,7 @@ module.exports = {
   converge: __webpack_require__(165),
   countBy: __webpack_require__(336),
   curry: __webpack_require__(66),
-  curryN: __webpack_require__(13),
+  curryN: __webpack_require__(14),
   dec: __webpack_require__(337),
   descend: __webpack_require__(338),
   defaultTo: __webpack_require__(166),
@@ -1163,6 +1103,66 @@ module.exports = {
 
 
 /***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _arity = __webpack_require__(24);
+var _curry1 = __webpack_require__(1);
+var _curry2 = __webpack_require__(0);
+var _curryN = __webpack_require__(68);
+
+
+/**
+ * Returns a curried equivalent of the provided function, with the specified
+ * arity. The curried function has two unusual capabilities. First, its
+ * arguments needn't be provided one at a time. If `g` is `R.curryN(3, f)`, the
+ * following are equivalent:
+ *
+ *   - `g(1)(2)(3)`
+ *   - `g(1)(2, 3)`
+ *   - `g(1, 2)(3)`
+ *   - `g(1, 2, 3)`
+ *
+ * Secondly, the special placeholder value `R.__` may be used to specify
+ * "gaps", allowing partial application of any combination of arguments,
+ * regardless of their positions. If `g` is as above and `_` is `R.__`, the
+ * following are equivalent:
+ *
+ *   - `g(1, 2, 3)`
+ *   - `g(_, 2, 3)(1)`
+ *   - `g(_, _, 3)(1)(2)`
+ *   - `g(_, _, 3)(1, 2)`
+ *   - `g(_, 2)(1)(3)`
+ *   - `g(_, 2)(1, 3)`
+ *   - `g(_, 2)(_, 3)(1)`
+ *
+ * @func
+ * @memberOf R
+ * @since v0.5.0
+ * @category Function
+ * @sig Number -> (* -> a) -> (* -> a)
+ * @param {Number} length The arity for the returned function.
+ * @param {Function} fn The function to curry.
+ * @return {Function} A new, curried function.
+ * @see R.curry
+ * @example
+ *
+ *      var sumArgs = (...args) => R.sum(args);
+ *
+ *      var curriedAddFourNumbers = R.curryN(4, sumArgs);
+ *      var f = curriedAddFourNumbers(1, 2);
+ *      var g = f(3);
+ *      g(4); //=> 10
+ */
+module.exports = _curry2(function curryN(length, fn) {
+  if (length === 1) {
+    return _curry1(fn);
+  }
+  return _arity(length, _curryN(length, [], fn));
+});
+
+
+/***/ }),
 /* 15 */
 /***/ (function(module, exports) {
 
@@ -1180,7 +1180,7 @@ var _dispatchable = __webpack_require__(8);
 var _map = __webpack_require__(72);
 var _reduce = __webpack_require__(17);
 var _xmap = __webpack_require__(401);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 var keys = __webpack_require__(25);
 
 
@@ -3943,7 +3943,7 @@ module.exports = function _checkForMethod(methodname, fn) {
 
 var _curry2 = __webpack_require__(0);
 var _isFunction = __webpack_require__(69);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 var toString = __webpack_require__(52);
 
 
@@ -5198,7 +5198,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 /**
  * Not really a stack in the strictest definition, rather two arrays and a value,
  * but the name History is already built-in type in TypeScript
@@ -5413,7 +5413,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var serializer_1 = __webpack_require__(10);
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var Page = Page_1 = (function () {
     function Page(_a) {
         var url = _a.url, params = _a.params, groupName = _a.groupName, containerName = _a.containerName, _b = _a.firstVisited, firstVisited = _b === void 0 ? 0 : _b, _c = _a.lastVisited, lastVisited = _c === void 0 ? 0 : _c, _d = _a.isZeroPage, isZeroPage = _d === void 0 ? false : _d;
@@ -5490,7 +5490,7 @@ exports.default = store;
 
 var pathToRegexp = __webpack_require__(88);
 var matchPath_1 = __webpack_require__(238);
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 exports.addLeadingSlash = function (path) { return path.replace(/\/?(\?|#|$)?/, '/$1'); };
 exports.addTrailingSlash = function (path) { return path.replace(/\/?(\?|#|$)/, '/$1'); };
 exports.stripLeadingSlash = function (path) { return path.charAt(0) === '/' ? path.substr(1) : path; };
@@ -5660,7 +5660,7 @@ module.exports = _curry3(function assoc(prop, val, obj) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 
 
 /**
@@ -10958,7 +10958,7 @@ var main_1 = __webpack_require__(18);
 var Container_1 = __webpack_require__(129);
 var DumbContainer_1 = __webpack_require__(144);
 var server_1 = __webpack_require__(235);
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var CreateGroup_1 = __webpack_require__(261);
 var createElement = React.createElement;
 /**
@@ -11236,7 +11236,7 @@ exports.default = Container;
 
 var Page_1 = __webpack_require__(60);
 var Container_1 = __webpack_require__(131);
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var Group_1 = __webpack_require__(257);
 var IState = (function () {
     function IState(_a) {
@@ -11381,7 +11381,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var IState_1 = __webpack_require__(132);
 var HistoryStack_1 = __webpack_require__(59);
 var InitializedState = (function (_super) {
@@ -12250,7 +12250,7 @@ var React = __webpack_require__(4);
 var react_1 = __webpack_require__(4);
 var main_1 = __webpack_require__(18);
 var url_1 = __webpack_require__(62);
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var DumbContainer = (function (_super) {
     __extends(DumbContainer, _super);
     function DumbContainer() {
@@ -12374,7 +12374,7 @@ exports.ADD_LOCATION_TITLE = 'add-location-title';
 
 "use strict";
 
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 exports.getTitleForUrl = function (titles, url) {
     var found = R.find(function (t) { return t.pathname === url; }, titles);
     return found ? found.title : null;
@@ -12388,7 +12388,7 @@ exports.getTitleForUrl = function (titles, url) {
 "use strict";
 
 var serializer_1 = __webpack_require__(10);
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var UninitializedState_1 = __webpack_require__(134);
 var store = __webpack_require__(604);
 var ClearActions_1 = __webpack_require__(259);
@@ -12469,7 +12469,7 @@ exports.default = new Store();
 "use strict";
 
 var BackStep_1 = __webpack_require__(267);
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var PushStep_1 = __webpack_require__(269);
 var HistoryDiff_1 = __webpack_require__(258);
 var ReplaceStep_1 = __webpack_require__(270);
@@ -13340,7 +13340,7 @@ module.exports = _curry2(function constructN(n, Fn) {
 
 var _curry2 = __webpack_require__(0);
 var _map = __webpack_require__(72);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 var max = __webpack_require__(39);
 var pluck = __webpack_require__(51);
 var reduce = __webpack_require__(26);
@@ -14196,7 +14196,7 @@ module.exports = _curry1(function length(list) {
 var _curry2 = __webpack_require__(0);
 var _reduce = __webpack_require__(17);
 var ap = __webpack_require__(89);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 var map = __webpack_require__(16);
 
 
@@ -14945,7 +14945,7 @@ module.exports = _curry3(function update(idx, x, list) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 
 
 /**
@@ -18186,6 +18186,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 var React = __webpack_require__(4);
 var react_1 = __webpack_require__(4);
+var R = __webpack_require__(13);
 var ScrollArea = (function (_super) {
     __extends(ScrollArea, _super);
     function ScrollArea(props) {
@@ -18236,7 +18237,7 @@ var ScrollArea = (function (_super) {
     };
     ScrollArea.prototype.render = function () {
         var _this = this;
-        var _a = this.props, children = _a.children, _b = _a.horizontal, horizontal = _b === void 0 ? true : _b, _c = _a.vertical, vertical = _c === void 0 ? true : _c, _d = _a.style, style = _d === void 0 ? {} : _d, divProps = __rest(_a, ["children", "horizontal", "vertical", "style"]);
+        var _a = R.omit(['resetOnLeave'], this.props), children = _a.children, _b = _a.horizontal, horizontal = _b === void 0 ? true : _b, _c = _a.vertical, vertical = _c === void 0 ? true : _c, _d = _a.style, style = _d === void 0 ? {} : _d, divProps = __rest(_a, ["children", "horizontal", "vertical", "style"]);
         return (React.createElement("div", __assign({ ref: function (ref) { return _this.scrollArea = ref; }, onScroll: this.onScroll.bind(this) }, divProps, { style: __assign({}, style, { width: '100%', height: '100%', overflowX: horizontal ? 'scroll' : 'auto', overflowY: vertical ? 'scroll' : 'auto' }) }), children));
     };
     return ScrollArea;
@@ -18334,7 +18335,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 var React = __webpack_require__(4);
 var react_1 = __webpack_require__(4);
 var ContainerGroup_1 = __webpack_require__(130);
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var getWindowZIndex = function (iOrder, index) {
     return iOrder && iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1;
 };
@@ -18559,7 +18560,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var defaultBehavior = __webpack_require__(254);
 var nonDefaultBehavior = __webpack_require__(256);
 var keepFwdTabBehavior = __webpack_require__(255);
@@ -19712,7 +19713,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 var React = __webpack_require__(4);
 var react_1 = __webpack_require__(4);
 var main_1 = __webpack_require__(18);
-var R = __webpack_require__(14);
+var R = __webpack_require__(13);
 var DumbContainerGroup = (function (_super) {
     __extends(DumbContainerGroup, _super);
     function DumbContainerGroup(props) {
@@ -21581,7 +21582,7 @@ module.exports = {'@@functional/placeholder': true};
 
 var _concat = __webpack_require__(21);
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 
 
 /**
@@ -21674,7 +21675,7 @@ module.exports = _curry2(_dispatchable(['all'], _xall, function all(fn, list) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 var max = __webpack_require__(39);
 var pluck = __webpack_require__(51);
 var reduce = __webpack_require__(26);
@@ -21725,7 +21726,7 @@ module.exports = _curry1(function allPass(preds) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 var max = __webpack_require__(39);
 var pluck = __webpack_require__(51);
 var reduce = __webpack_require__(26);
@@ -21845,7 +21846,7 @@ module.exports = _curry2(function append(el, list) {
 
 var _curry1 = __webpack_require__(1);
 var apply = __webpack_require__(160);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 var map = __webpack_require__(16);
 var max = __webpack_require__(39);
 var pluck = __webpack_require__(51);
@@ -23448,7 +23449,7 @@ module.exports = nth(0);
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry3 = __webpack_require__(2);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 
 
 /**
@@ -26067,7 +26068,7 @@ module.exports = _curry2(_complement(_dispatchable(['any'], _xany, any)));
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 var nth = __webpack_require__(49);
 
 
@@ -27787,7 +27788,7 @@ module.exports = invoker(0, 'toUpperCase');
 
 var _reduce = __webpack_require__(17);
 var _xwrap = __webpack_require__(187);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 
 
 /**
@@ -28096,7 +28097,7 @@ module.exports = _curry1(function unary(fn) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var curryN = __webpack_require__(13);
+var curryN = __webpack_require__(14);
 
 
 /**
