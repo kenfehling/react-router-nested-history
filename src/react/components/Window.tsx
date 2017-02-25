@@ -25,7 +25,7 @@ export default class Window extends Component<WindowProps, undefined> {
 
   render() {
     // Pass through all props you could want on a div
-    const {top, left, children, style, ...divProps} = this.props
+    const {top, left, children, style={}, ...divProps} = this.props
     const {zIndex, isOnTop} = this.context
     return (
       <div {...divProps}

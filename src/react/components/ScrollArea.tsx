@@ -4,7 +4,8 @@ import {Component, PropTypes} from 'react'
 interface ScrollAreaProps {
   resetOnLeave?: boolean,
   horizontal?: boolean,
-  vertical?: boolean
+  vertical?: boolean,
+  style?: Object
 }
 
 export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
@@ -72,11 +73,13 @@ export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
   }
 
   render() {
-    const {children, horizontal=true, vertical=true} = this.props
+    const {children, horizontal=true, vertical=true, style={}, ...divProps} = this.props
     return (
       <div ref={(ref) => this.scrollArea = ref}
            onScroll={this.onScroll.bind(this)}
+           {...divProps}
            style={{
+             ...style,
              width: '100%',
              height: '100%',
              overflowX: horizontal ? 'scroll' : 'auto',

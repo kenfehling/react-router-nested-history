@@ -99,7 +99,7 @@ export default class DumbContainerGroup extends
   }
 
   renderDiv(divChildren) {
-    const {style, ...divProps} = R.omit([
+    const {style={}, ...divProps} = R.omit([
       'children',
       'storedCurrentContainerIndex',
       'storedIndexedStackOrder',
@@ -115,7 +115,7 @@ export default class DumbContainerGroup extends
       'gotoTopOnSelectActive'
     ], this.props)
     const divStyle={
-    ...style,
+      ...style,
       width: '100%',
       height: '100%',
       position: 'inherit',

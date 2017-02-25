@@ -109,7 +109,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
     const {
       hideInactiveContainers,
       children,
-      style,
+      style={},
       ...divProps
     } = R.omit([
       'animate',

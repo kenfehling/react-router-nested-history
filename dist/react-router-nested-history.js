@@ -12336,7 +12336,7 @@ var DumbContainer = (function (_super) {
             'store',
             'initializing',
             'useDefaultContainer'
-        ], this.props), hideInactiveContainers = _a.hideInactiveContainers, children = _a.children, style = _a.style, divProps = __rest(_a, ["hideInactiveContainers", "children", "style"]);
+        ], this.props), hideInactiveContainers = _a.hideInactiveContainers, children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["hideInactiveContainers", "children", "style"]);
         if (!hideInactiveContainers || this.matchesLocation(this.props)) {
             return (React.createElement("div", __assign({}, divProps, { onClick: this.onClick.bind(this), style: __assign({}, style, { width: '100%', height: '100%', position: 'relative' }) }), children));
         }
@@ -18167,6 +18167,23 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 var React = __webpack_require__(4);
 var react_1 = __webpack_require__(4);
 var ScrollArea = (function (_super) {
@@ -18219,13 +18236,8 @@ var ScrollArea = (function (_super) {
     };
     ScrollArea.prototype.render = function () {
         var _this = this;
-        var _a = this.props, children = _a.children, _b = _a.horizontal, horizontal = _b === void 0 ? true : _b, _c = _a.vertical, vertical = _c === void 0 ? true : _c;
-        return (React.createElement("div", { ref: function (ref) { return _this.scrollArea = ref; }, onScroll: this.onScroll.bind(this), style: {
-                width: '100%',
-                height: '100%',
-                overflowX: horizontal ? 'scroll' : 'auto',
-                overflowY: vertical ? 'scroll' : 'auto'
-            } }, children));
+        var _a = this.props, children = _a.children, _b = _a.horizontal, horizontal = _b === void 0 ? true : _b, _c = _a.vertical, vertical = _c === void 0 ? true : _c, _d = _a.style, style = _d === void 0 ? {} : _d, divProps = __rest(_a, ["children", "horizontal", "vertical", "style"]);
+        return (React.createElement("div", __assign({ ref: function (ref) { return _this.scrollArea = ref; }, onScroll: this.onScroll.bind(this) }, divProps, { style: __assign({}, style, { width: '100%', height: '100%', overflowX: horizontal ? 'scroll' : 'auto', overflowY: vertical ? 'scroll' : 'auto' }) }), children));
     };
     return ScrollArea;
 }(react_1.Component));
@@ -18276,8 +18288,8 @@ var Window = (function (_super) {
     }
     Window.prototype.render = function () {
         // Pass through all props you could want on a div
-        var _a = this.props, top = _a.top, left = _a.left, children = _a.children, style = _a.style, divProps = __rest(_a, ["top", "left", "children", "style"]);
-        var _b = this.context, zIndex = _b.zIndex, isOnTop = _b.isOnTop;
+        var _a = this.props, top = _a.top, left = _a.left, children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["top", "left", "children", "style"]);
+        var _c = this.context, zIndex = _c.zIndex, isOnTop = _c.isOnTop;
         return (React.createElement("div", __assign({}, divProps, { style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }), children instanceof Function ? children({ isOnTop: isOnTop }) :
             react_1.cloneElement(react_1.Children.only(children), { isOnTop: isOnTop })));
     };
@@ -19763,7 +19775,7 @@ var DumbContainerGroup = (function (_super) {
             'currentContainerName',
             'onContainerActivate',
             'gotoTopOnSelectActive'
-        ], this.props), style = _a.style, divProps = __rest(_a, ["style"]);
+        ], this.props), _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["style"]);
         var divStyle = __assign({}, style, { width: '100%', height: '100%', position: 'inherit', overflow: 'hidden' });
         return React.createElement("div", __assign({ style: divStyle }, divProps), divChildren);
     };
