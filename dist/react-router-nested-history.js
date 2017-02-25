@@ -18291,87 +18291,61 @@ var computeMatch = function computeMatch(pathname, _ref) {
   return computedMatch || (0, _matchPath2.default)(pathname, path, { exact: exact, strict: strict });
 };
 
-/**
- * The public API for matching a single path and rendering.
- */
+var InnerHistoryRoute = function (_Component) {
+  _inherits(InnerHistoryRoute, _Component);
 
-var HistoryRoute = function (_Component) {
-  _inherits(HistoryRoute, _Component);
+  function InnerHistoryRoute() {
+    _classCallCheck(this, InnerHistoryRoute);
 
-  function HistoryRoute() {
-    _classCallCheck(this, HistoryRoute);
-
-    return _possibleConstructorReturn(this, (HistoryRoute.__proto__ || Object.getPrototypeOf(HistoryRoute)).apply(this, arguments));
+    return _possibleConstructorReturn(this, (InnerHistoryRoute.__proto__ || Object.getPrototypeOf(InnerHistoryRoute)).apply(this, arguments));
   }
 
-  _createClass(HistoryRoute, [{
-    key: 'getChildContext',
-    value: function getChildContext() {
-      return {
-        router: this.router
-      };
-    }
-  }, {
-    key: 'componentWillMount',
-    value: function componentWillMount() {
-      var _this2 = this;
-
-      var parentRouter = this.context.router;
-      var pathname = this.context.pathname;
-
-      if (parentRouter) {
-        this.router = _extends({}, parentRouter, {
-          match: computeMatch(pathname, this.props)
-        });
-
-        // Start listening here so we can <Redirect> on the initial render.
-        this.unlisten = parentRouter.listen(function () {
-          Object.assign(_this2.router, parentRouter, {
-            match: computeMatch(pathname, _this2.props)
-          });
-
-          _this2.forceUpdate();
-        });
-      }
-    }
-  }, {
-    key: 'componentWillReceiveProps',
-    value: function componentWillReceiveProps(nextProps) {
-      var pathname = this.context.pathname;
-      Object.assign(this.router, {
-        match: computeMatch(pathname, nextProps)
-      });
-    }
-  }, {
-    key: 'componentWillUnmount',
-    value: function componentWillUnmount() {
-      this.unlisten();
+  _createClass(InnerHistoryRoute, [{
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps) {
+      return this.props.pathname !== nextProps.pathname;
     }
   }, {
     key: 'render',
     value: function render() {
       var _props = this.props,
+          pathname = _props.pathname,
           children = _props.children,
           component = _props.component,
           render = _props.render;
 
-      var props = _extends({}, this.router);
-
+      var match = computeMatch(pathname, this.props);
+      var props = { match: match, location: { pathname: pathname } };
       return component ? // component prop gets first priority, only called if there's a match
-      props.match ? _react2.default.createElement(component, props) : null : render ? // render prop is next, only called if there's a match
-      props.match ? render(props) : null : children ? // children come last, always called
+      match ? _react2.default.createElement(component, props) : null : render ? // render prop is next, only called if there's a match
+      match ? render(props) : null : children ? // children come last, always called
       typeof children === 'function' ? children(props) : !Array.isArray(children) || children.length ? // Preact defaults to empty children array
       _react2.default.Children.only(children) : null : null;
     }
   }]);
 
-  return HistoryRoute;
+  return InnerHistoryRoute;
 }(_react.Component);
 
+var HistoryRoute = function HistoryRoute(_ref2, _ref3) {
+  var pathname = _ref3.pathname;
+
+  var component = _ref2.component,
+      props = _objectWithoutProperties(_ref2, ['component']);
+
+  return _react2.default.createElement(InnerHistoryRoute, _extends({}, props, { pathname: pathname, children: function children(routeProps) {
+      return _react2.default.createElement(
+        _AnimatedPage2.default,
+        routeProps,
+        routeProps.match ? _react2.default.createElement(component || props.children, routeProps) : null
+      );
+    } }));
+};
+
 HistoryRoute.contextTypes = {
-  router: _react.PropTypes.object.isRequired,
   pathname: _react.PropTypes.string.isRequired
 };
+
 HistoryRoute.propTypes = {
   computedMatch: _react.PropTypes.object, // private, from <Switch>
   path: _react.PropTypes.string,
@@ -18381,22 +18355,8 @@ HistoryRoute.propTypes = {
   render: _react.PropTypes.func,
   children: _react.PropTypes.oneOfType([_react.PropTypes.func, _react.PropTypes.node])
 };
-HistoryRoute.childContextTypes = {
-  router: _react.PropTypes.object.isRequired
-};
 
-exports.default = function (_ref2) {
-  var component = _ref2.component,
-      props = _objectWithoutProperties(_ref2, ['component']);
-
-  return _react2.default.createElement(HistoryRoute, _extends({}, props, { children: function children(routeProps) {
-      return _react2.default.createElement(
-        _AnimatedPage2.default,
-        routeProps,
-        routeProps.match ? _react2.default.createElement(component || props.children, routeProps) : null
-      );
-    } }));
-};
+exports.default = HistoryRoute;
 
 /***/ }),
 /* 253 */
