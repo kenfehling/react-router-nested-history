@@ -1391,7 +1391,7 @@ exports.switchToGroup = function (groupName) {
         store_1.default.dispatch(new SwitchToGroup_1.default({ groupName: groupName }));
     }
 };
-exports.switchToContainer = function (groupName, containerName, fromPush) {
+var switchToContainerName = function (groupName, containerName, fromPush) {
     if (fromPush === void 0) { fromPush = false; }
     if (exports.isContainerActive(groupName, containerName)) {
         if (!fromPush) {
@@ -1405,11 +1405,14 @@ exports.switchToContainer = function (groupName, containerName, fromPush) {
         store_1.default.dispatch(new SwitchToContainer_1.default({ groupName: groupName, containerName: containerName }));
     }
 };
+exports.switchToContainer = function (groupName, containerName) {
+    return switchToContainerName(groupName, containerName, false);
+};
 exports.switchToContainerIndex = function (groupName, index) {
     var group = exports.getGroupByName(groupName);
     var container = group.containers[index];
     if (container) {
-        return exports.switchToContainer(groupName, container.name);
+        return switchToContainerName(groupName, container.name);
     }
     else {
         throw new Error("No container found at index " + index + " in '" + groupName + "' " +
@@ -1426,7 +1429,7 @@ exports.push = function (groupName, containerName, url, patterns) {
         lastVisited: new Date().getTime()
     });
     exports.switchToGroup(groupName);
-    exports.switchToContainer(groupName, containerName, true);
+    switchToContainerName(groupName, containerName, true);
     store_1.default.dispatch(new Push_1.default({ page: page }));
 };
 exports.startup = function () {
@@ -19669,7 +19672,7 @@ var DumbContainerGroup = (function (_super) {
             return this.renderDiv(children(args));
         }
         else {
-            return this.renderDiv(this.props.children);
+            return this.renderDiv(children);
         }
     };
     return DumbContainerGroup;
