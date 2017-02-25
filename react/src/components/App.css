@@ -25,14 +25,15 @@ a {
   flex: 1;
 }
 
-.top-container {
+.top-container, .bottom-container {
   display: flex;
-  margin-bottom: 20px;
+  margin: 10px 0;
 }
 
 .tabs-container,
 .windows-container,
-.nested-group-container {
+.nested-group-container,
+.scroll-area-container {
   margin: 0 auto;
 }
 
@@ -46,8 +47,13 @@ a {
 }
 
 .nested-group-container {
-  width: 500px;
-  height: 525px;
+  width: 480px;
+  height: 550px;
+}
+
+.scroll-area-container {
+  width: 200px;
+  height: 300px;
 }
 
 .state-tree-container {
