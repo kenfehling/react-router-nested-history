@@ -9,7 +9,7 @@ import Helmet from 'react-helmet'
 const regex = c => `:category(${c})`
 
 const foods = {
-  'Fruits': {
+  'Fruit': {
       'Apple': ['Green', 'Red'],
       'Orange': ['Tangerine', 'Mandarin', 'Clementine'],
       'Banana': ['Plantain']
@@ -92,7 +92,7 @@ const Notes = () => (
 )
 
 export default () =>(
-  <div className="windows">
+  <div className="nested windows">
     <h2>Nested group example</h2>
     <div className="description">
       <p>Two groups are nested inside another group.</p>
@@ -100,7 +100,7 @@ export default () =>(
       <p>When selecting an already active tab, it will go to the top of that tree.</p>
     </div>
     <WindowGroup name='nested'>
-      <Window className='window nested-window foods'>
+      <Window className='window foods'>
         <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
           <FoodsHeader />
           {foodGroups.map(c => (
