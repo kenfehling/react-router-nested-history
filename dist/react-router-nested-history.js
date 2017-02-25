@@ -19515,7 +19515,7 @@ var AnimatedPage = (function (_super) {
         var match = this.props.match;
         var nextMatch = nextProps.match;
         return !(!match && !nextMatch) &&
-            (!match || !nextMatch || match.path !== nextMatch.path);
+            (!match || !nextMatch || match.url !== nextMatch.url);
     };
     AnimatedPage.prototype.render = function () {
         /*

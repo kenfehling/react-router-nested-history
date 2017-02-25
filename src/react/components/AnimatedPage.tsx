@@ -112,12 +112,12 @@ class AnimatedPage extends Component<InnerProps, undefined> {
     animate: PropTypes.bool.isRequired,
     pathname: PropTypes.string.isRequired
   }
-  
+
   shouldComponentUpdate(nextProps) {
     const {match} = this.props
     const nextMatch = nextProps.match
     return !(!match && !nextMatch) &&
-      (!match || !nextMatch || match.path !== nextMatch.path)
+      (!match || !nextMatch || match.url !== nextMatch.url)
   }
 
   render() {
