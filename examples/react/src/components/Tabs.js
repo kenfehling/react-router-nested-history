@@ -49,25 +49,25 @@ const TabPage = ({match:{params:{page}}}) => (
 
 const Tab = ({name, initialUrl, patterns, masterComponent}) => (
   <Container name={name} initialUrl={initialUrl} patterns={patterns}>
-    <HistoryRoute exact strict path={patterns[0]} component={masterComponent} />
-    <HistoryRoute exact strict path={patterns[1]} component={TabPage} />
+    <HistoryRoute exact path={patterns[0]} component={masterComponent} />
+    <HistoryRoute exact path={patterns[1]} component={TabPage} />
   </Container>
 )
 
-export const Tab1 = () => <Tab name='tab1'
-                               initialUrl="/tabs/1"
-                               patterns={['/tabs/1', '/tabs/1/:page']}
-                               masterComponent={TabMaster1} />
+const Tab1 = () => <Tab name='tab1'
+                         initialUrl="/tabs/1"
+                         patterns={['/tabs/1', '/tabs/1/:page']}
+                         masterComponent={TabMaster1} />
 
-export const Tab2 = () => <Tab name='tab2'
-                               initialUrl="/tabs/2"
-                               patterns={['/tabs/2', '/tabs/2/:page']}
-                               masterComponent={TabMaster2} />
+const Tab2 = () => <Tab name='tab2'
+                         initialUrl="/tabs/2"
+                         patterns={['/tabs/2', '/tabs/2/:page']}
+                         masterComponent={TabMaster2} />
 
-export const Tab3 = () => <Tab name='tab3'
-                               initialUrl="/tabs/3"
-                               patterns={['/tabs/3', '/tabs/3/:page']}
-                               masterComponent={TabMaster3} />
+const Tab3 = () => <Tab name='tab3'
+                         initialUrl="/tabs/3"
+                         patterns={['/tabs/3', '/tabs/3/:page']}
+                         masterComponent={TabMaster3} />
 
 class Tabs extends Component {
 

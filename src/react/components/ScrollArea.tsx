@@ -21,6 +21,15 @@ export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
     super(props)
   }
 
+  checkProps() {
+    if (this.context.groupName == null) {
+      throw new Error('ScrollArea needs to be inside a ContainerGroup')
+    }
+    if (this.context.containerName == null) {
+      throw new Error('ScrollArea needs to be inside a Container')
+    }
+  }
+
   getKey():string {
     const {groupName, containerName} = this.context
     return groupName + '_' + containerName
@@ -52,12 +61,7 @@ export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
   }
 
   componentDidMount() {
-    if (this.context.groupName == null) {
-      throw new Error('ScrollArea needs to be inside a ContainerGroup')
-    }
-    if (this.context.containerName == null) {
-      throw new Error('ScrollArea needs to be inside a Container')
-    }
+    this.checkProps()
     this.loadScrolls()
   }
 
@@ -68,10 +72,18 @@ export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
   }
 
   render() {
+    const {children, horizontal=true, vertical=true} = this.props
     return (
       <div ref={(ref) => this.scrollArea = ref}
-           onScroll={this.onScroll.bind(this)}>
-
+           onScroll={this.onScroll.bind(this)}
+           style={{
+             width: '100%',
+             height: '100%',
+             overflowX: horizontal ? 'scroll' : 'auto',
+             overflowY: vertical ? 'scroll' : 'auto'
+           }}
+      >
+        {children}
       </div>
     )
   }
