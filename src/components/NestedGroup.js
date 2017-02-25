@@ -128,7 +128,7 @@ export default () =>(
         </ContainerGroup>
       </Window>
       <Window className='window nested-window notes'>
-        <Container name='notes' initialUrl='/notes' patterns={['/notes']}>
+        <Container name='notes' animate={false} initialUrl='/notes' patterns={['/notes']}>
           <HistoryRoute path='/notes' exact component={Notes} />
         </Container>
       </Window>
