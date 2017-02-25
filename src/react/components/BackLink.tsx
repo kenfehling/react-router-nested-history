@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {back, getBackPageInGroup} from '../../main'
+import {back, getBackPageInGroup, goBackInGroup} from '../../main'
 
 export interface BackLinkProps {
   children: ReactNode;
@@ -23,7 +23,8 @@ export default class BackLink extends Component<BackLinkProps, undefined> {
   }
 
   onClick(event) {
-    back()
+    const {groupName} = this.context
+    goBackInGroup(groupName)
     event.preventDefault()
   }
 

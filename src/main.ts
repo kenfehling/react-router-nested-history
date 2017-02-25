@@ -171,8 +171,18 @@ export const go = (n:number=1):void => store.dispatch(new Go({n}))
 export const back = (n:number=1):void => store.dispatch(new Back({n}))
 export const forward = (n:number=1):void => store.dispatch(new Forward({n}))
 
-export const getBackPageInGroup = (groupName):Page =>
+export const getBackPageInGroup = (groupName:string):Page =>
   store.getState().getBackPageInGroup(groupName)
+
+export const goBackInGroup = (groupName:string, n:number=1):void => {
+  switchToGroup(groupName)
+  back(n)
+}
+
+export const goForwardInGroup = (groupName:string, n:number=1):void => {
+  switchToGroup(groupName)
+  forward(n)
+}
 
 export const getActivePageInGroup = (groupName:string):Page =>
     store.getState().getActivePageInGroup(groupName)

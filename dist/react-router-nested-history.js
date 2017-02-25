@@ -1460,6 +1460,16 @@ exports.forward = function (n) {
 exports.getBackPageInGroup = function (groupName) {
     return store_1.default.getState().getBackPageInGroup(groupName);
 };
+exports.goBackInGroup = function (groupName, n) {
+    if (n === void 0) { n = 1; }
+    exports.switchToGroup(groupName);
+    exports.back(n);
+};
+exports.goForwardInGroup = function (groupName, n) {
+    if (n === void 0) { n = 1; }
+    exports.switchToGroup(groupName);
+    exports.forward(n);
+};
 exports.getActivePageInGroup = function (groupName) {
     return store_1.default.getState().getActivePageInGroup(groupName);
 };
@@ -17915,7 +17925,8 @@ var BackLink = (function (_super) {
         return false; // Don't disappear when transitioning back to previous page
     };
     BackLink.prototype.onClick = function (event) {
-        main_1.back();
+        var groupName = this.context.groupName;
+        main_1.goBackInGroup(groupName);
         event.preventDefault();
     };
     BackLink.prototype.render = function () {
