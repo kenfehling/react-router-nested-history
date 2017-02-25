@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {Component} from 'react'
 import {
   Container, WindowGroup, Window, HistoryRoute, HistoryLink
 } from 'react-router-nested-history'
@@ -50,16 +50,46 @@ const ExampleWindow = ({index, masterComponent}) => (
   )} />
 )
 
-export default () => (
-  <div className="windows">
-    <h2>Windows example</h2>
-    <div className="description">
-      <p>Each window has its own individual history.</p>
-      <p>Clicking on a window brings it to the front.</p>
-    </div>
-    <WindowGroup name='windows'>
-      <ExampleWindow index={0} masterComponent={WindowMaster1} />
-      <ExampleWindow index={1} masterComponent={WindowMaster2} />
-    </WindowGroup>
-  </div>
-)
+export default class Windows extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      currentWindow: null,
+      currentIndex: null
+    }
+  }
+
+  onNameClick(index) {
+    this.setState({currentName: windowName(index)})
+  }
+
+  onIndexClick(index) {
+    this.setState({currentIndex: index})
+  }
+
+  render() {
+    return (
+      <div className="windows">
+        <h2>Windows example</h2>
+        <div className="description">
+          <p>Each window has its own individual history.</p>
+          <p>Clicking on a window brings it to the front.</p>
+        </div>
+        <div className='window-group'>
+          <WindowGroup name='windows'
+                       currentContainerName={this.state.currentName}
+                       currentContainerIndex={this.state.currentIndex}>
+            <ExampleWindow index={0} masterComponent={WindowMaster1} />
+            <ExampleWindow index={1} masterComponent={WindowMaster2} />
+          </WindowGroup>
+        </div>
+        <div className='window-menu'>
+          <button onClick={() => this.onNameClick(0)}>Window 1</button>
+          <button onClick={() => this.onNameClick(1)}>Window 2</button>
+          <button onClick={() => this.onIndexClick(0)}>0</button>
+          <button onClick={() => this.onIndexClick(1)}>1</button>
+        </div>
+      </div>
+    )
+  }
+}

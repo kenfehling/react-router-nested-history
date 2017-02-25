@@ -46,8 +46,8 @@ a {
 }
 
 .nested-group-container {
-  width: 600px;
-  height: 500px;
+  width: 500px;
+  height: 525px;
 }
 
 .state-tree-container {
@@ -57,5 +57,5 @@ a {
 }
 
 .description {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
