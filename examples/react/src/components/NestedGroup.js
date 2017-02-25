@@ -88,6 +88,7 @@ const FoodTypeDetail = ({match:{params:{category, food, type}}, className}) => (
 const Notes = () => (
   <div>
     This just has notes in it
+    <Helmet title='Notes' />
   </div>
 )
 

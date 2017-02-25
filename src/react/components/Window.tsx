@@ -1,7 +1,6 @@
 import * as React from 'react'
 import {
-  Component, PropTypes, ReactNode, ReactElement, EventHandler,
-  MouseEvent, TouchEvent
+  Component, PropTypes, ReactNode, ReactElement, Children, cloneElement
 } from 'react'
 
 interface ChildrenFunctionArgs {
@@ -38,7 +37,8 @@ export default class Window extends Component<WindowProps, undefined> {
              left: left ? left + 'px' : ''
            }}
       >
-        {children instanceof Function ? children({isOnTop}) : children}
+        {children instanceof Function ? children({isOnTop}) :
+            cloneElement(Children.only(children), {isOnTop})}
       </div>
     )
   }

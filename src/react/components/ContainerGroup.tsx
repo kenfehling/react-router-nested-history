@@ -16,6 +16,7 @@ import {renderToStaticMarkup} from 'react-dom/server'
 import * as R from 'ramda'
 import CreateGroup from '../../model/actions/CreateGroup'
 import LocationState from '../model/LocationState'
+import createElement = React.createElement
 
 /**
  * Recursively gets the children of a component for simlated rendering
@@ -33,8 +34,13 @@ function getChildren(component, depth:number=0) {
     return [component]  // Stop if you find a Container or nested ContainerGroup
   }
   else if (component.props && component.props.children) {
-    const children = Children.map(component.props.children, c => c)
-    return R.flatten(children.map(c => getChildren(c, depth + 1)))  // grandkids
+    if (component.props.children instanceof Function) {
+      return getChildren(createElement(component.props.children), depth + 1)
+    }
+    else {
+      const children = Children.toArray(component.props.children)
+      return R.flatten(children.map(c => getChildren(c, depth + 1)))
+    }
   }
   else {  // no children
     return [component]

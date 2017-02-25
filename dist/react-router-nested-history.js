@@ -539,7 +539,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 // @Serializable decorator for a class
 function Serializable(target) {
     if (target.type) {
@@ -860,6 +860,66 @@ module.exports = ExecutionEnvironment;
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var _arity = __webpack_require__(24);
+var _curry1 = __webpack_require__(1);
+var _curry2 = __webpack_require__(0);
+var _curryN = __webpack_require__(68);
+
+
+/**
+ * Returns a curried equivalent of the provided function, with the specified
+ * arity. The curried function has two unusual capabilities. First, its
+ * arguments needn't be provided one at a time. If `g` is `R.curryN(3, f)`, the
+ * following are equivalent:
+ *
+ *   - `g(1)(2)(3)`
+ *   - `g(1)(2, 3)`
+ *   - `g(1, 2)(3)`
+ *   - `g(1, 2, 3)`
+ *
+ * Secondly, the special placeholder value `R.__` may be used to specify
+ * "gaps", allowing partial application of any combination of arguments,
+ * regardless of their positions. If `g` is as above and `_` is `R.__`, the
+ * following are equivalent:
+ *
+ *   - `g(1, 2, 3)`
+ *   - `g(_, 2, 3)(1)`
+ *   - `g(_, _, 3)(1)(2)`
+ *   - `g(_, _, 3)(1, 2)`
+ *   - `g(_, 2)(1)(3)`
+ *   - `g(_, 2)(1, 3)`
+ *   - `g(_, 2)(_, 3)(1)`
+ *
+ * @func
+ * @memberOf R
+ * @since v0.5.0
+ * @category Function
+ * @sig Number -> (* -> a) -> (* -> a)
+ * @param {Number} length The arity for the returned function.
+ * @param {Function} fn The function to curry.
+ * @return {Function} A new, curried function.
+ * @see R.curry
+ * @example
+ *
+ *      var sumArgs = (...args) => R.sum(args);
+ *
+ *      var curriedAddFourNumbers = R.curryN(4, sumArgs);
+ *      var f = curriedAddFourNumbers(1, 2);
+ *      var g = f(3);
+ *      g(4); //=> 10
+ */
+module.exports = _curry2(function curryN(length, fn) {
+  if (length === 1) {
+    return _curry1(fn);
+  }
+  return _arity(length, _curryN(length, [], fn));
+});
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
 module.exports = {
   F: __webpack_require__(313),
   T: __webpack_require__(314),
@@ -901,7 +961,7 @@ module.exports = {
   converge: __webpack_require__(165),
   countBy: __webpack_require__(335),
   curry: __webpack_require__(66),
-  curryN: __webpack_require__(14),
+  curryN: __webpack_require__(13),
   dec: __webpack_require__(336),
   descend: __webpack_require__(337),
   defaultTo: __webpack_require__(166),
@@ -1103,66 +1163,6 @@ module.exports = {
 
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _arity = __webpack_require__(24);
-var _curry1 = __webpack_require__(1);
-var _curry2 = __webpack_require__(0);
-var _curryN = __webpack_require__(68);
-
-
-/**
- * Returns a curried equivalent of the provided function, with the specified
- * arity. The curried function has two unusual capabilities. First, its
- * arguments needn't be provided one at a time. If `g` is `R.curryN(3, f)`, the
- * following are equivalent:
- *
- *   - `g(1)(2)(3)`
- *   - `g(1)(2, 3)`
- *   - `g(1, 2)(3)`
- *   - `g(1, 2, 3)`
- *
- * Secondly, the special placeholder value `R.__` may be used to specify
- * "gaps", allowing partial application of any combination of arguments,
- * regardless of their positions. If `g` is as above and `_` is `R.__`, the
- * following are equivalent:
- *
- *   - `g(1, 2, 3)`
- *   - `g(_, 2, 3)(1)`
- *   - `g(_, _, 3)(1)(2)`
- *   - `g(_, _, 3)(1, 2)`
- *   - `g(_, 2)(1)(3)`
- *   - `g(_, 2)(1, 3)`
- *   - `g(_, 2)(_, 3)(1)`
- *
- * @func
- * @memberOf R
- * @since v0.5.0
- * @category Function
- * @sig Number -> (* -> a) -> (* -> a)
- * @param {Number} length The arity for the returned function.
- * @param {Function} fn The function to curry.
- * @return {Function} A new, curried function.
- * @see R.curry
- * @example
- *
- *      var sumArgs = (...args) => R.sum(args);
- *
- *      var curriedAddFourNumbers = R.curryN(4, sumArgs);
- *      var f = curriedAddFourNumbers(1, 2);
- *      var g = f(3);
- *      g(4); //=> 10
- */
-module.exports = _curry2(function curryN(length, fn) {
-  if (length === 1) {
-    return _curry1(fn);
-  }
-  return _arity(length, _curryN(length, [], fn));
-});
-
-
-/***/ }),
 /* 15 */
 /***/ (function(module, exports) {
 
@@ -1180,7 +1180,7 @@ var _dispatchable = __webpack_require__(8);
 var _map = __webpack_require__(72);
 var _reduce = __webpack_require__(17);
 var _xmap = __webpack_require__(400);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 var keys = __webpack_require__(25);
 
 
@@ -3943,7 +3943,7 @@ module.exports = function _checkForMethod(methodname, fn) {
 
 var _curry2 = __webpack_require__(0);
 var _isFunction = __webpack_require__(69);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 var toString = __webpack_require__(52);
 
 
@@ -5198,7 +5198,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 /**
  * Not really a stack in the strictest definition, rather two arrays and a value,
  * but the name History is already built-in type in TypeScript
@@ -5413,7 +5413,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var serializer_1 = __webpack_require__(10);
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var Page = Page_1 = (function () {
     function Page(_a) {
         var url = _a.url, params = _a.params, groupName = _a.groupName, containerName = _a.containerName, _b = _a.firstVisited, firstVisited = _b === void 0 ? 0 : _b, _c = _a.lastVisited, lastVisited = _c === void 0 ? 0 : _c, _d = _a.isZeroPage, isZeroPage = _d === void 0 ? false : _d;
@@ -5490,7 +5490,7 @@ exports.default = store;
 
 var pathToRegexp = __webpack_require__(88);
 var matchPath_1 = __webpack_require__(238);
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 exports.addLeadingSlash = function (path) { return path.replace(/\/?(\?|#|$)?/, '/$1'); };
 exports.addTrailingSlash = function (path) { return path.replace(/\/?(\?|#|$)/, '/$1'); };
 exports.stripLeadingSlash = function (path) { return path.charAt(0) === '/' ? path.substr(1) : path; };
@@ -5660,7 +5660,7 @@ module.exports = _curry3(function assoc(prop, val, obj) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 
 
 /**
@@ -10849,13 +10849,12 @@ var server_1 = __webpack_require__(235);
 var LocationActions_1 = __webpack_require__(143);
 var url_1 = __webpack_require__(62);
 var CreateContainer_1 = __webpack_require__(259);
-var R = __webpack_require__(13);
 var Container = (function (_super) {
     __extends(Container, _super);
     function Container(props, context) {
         var _this = _super.call(this, props, context) || this;
-        var _a = _this.props, children = _a.children, name = _a.name, patterns = _a.patterns, initialUrl = _a.initialUrl, _b = _a.resetOnLeave, resetOnLeave = _b === void 0 ? false : _b, addTitle = _a.addTitle;
-        var _c = _this.context, groupName = _c.groupName, _d = _c.initializing, initializing = _d === void 0 ? false : _d, _e = _c.useDefaultContainer, useDefaultContainer = _e === void 0 ? true : _e;
+        var _a = _this.props, children = _a.children, name = _a.name, patterns = _a.patterns, initialUrl = _a.initialUrl, _b = _a.animate, animate = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, addTitle = _a.addTitle;
+        var _d = _this.context, groupName = _d.groupName, _e = _d.initializing, initializing = _e === void 0 ? false : _e, _f = _d.useDefaultContainer, useDefaultContainer = _f === void 0 ? true : _f;
         main_1.getOrCreateContainer(new CreateContainer_1.default({
             name: name,
             groupName: groupName,
@@ -10872,6 +10871,8 @@ var Container = (function (_super) {
                 }
                 T.prototype.getChildContext = function () {
                     return {
+                        groupName: groupName,
+                        animate: animate,
                         containerName: name,
                         pathname: initialUrl,
                         patterns: patterns
@@ -10882,10 +10883,10 @@ var Container = (function (_super) {
                 };
                 return T;
             }(react_1.Component));
-            T.childContextTypes = R.omit(['animate'], DumbContainer_1.default.childContextTypes);
+            T.childContextTypes = DumbContainer_1.default.childContextTypes;
             server_1.renderToStaticMarkup(React.createElement(T, null));
             addTitle({
-                url: initialUrl,
+                pathname: initialUrl,
                 title: document.title
             });
         }
@@ -10908,7 +10909,9 @@ var Container = (function (_super) {
             return React.createElement("div", null);
         }
         else {
-            return React.createElement(DumbContainer_1.default, __assign({}, this.props, this.context));
+            var _a = this.props.animate, animate = _a === void 0 ? true : _a;
+            var props = __assign({}, this.props, this.context, { animate: animate });
+            return React.createElement(DumbContainer_1.default, __assign({}, props));
         }
     };
     return Container;
@@ -10955,8 +10958,9 @@ var main_1 = __webpack_require__(18);
 var Container_1 = __webpack_require__(129);
 var DumbContainer_1 = __webpack_require__(144);
 var server_1 = __webpack_require__(235);
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var CreateGroup_1 = __webpack_require__(260);
+var createElement = React.createElement;
 /**
  * Recursively gets the children of a component for simlated rendering
  * so that the containers are initialized even if they're hidden inside tabs
@@ -10974,8 +10978,13 @@ function getChildren(component, depth) {
         return [component]; // Stop if you find a Container or nested ContainerGroup
     }
     else if (component.props && component.props.children) {
-        var children = react_1.Children.map(component.props.children, function (c) { return c; });
-        return R.flatten(children.map(function (c) { return getChildren(c, depth + 1); })); // grandkids
+        if (component.props.children instanceof Function) {
+            return getChildren(createElement(component.props.children), depth + 1);
+        }
+        else {
+            var children = react_1.Children.toArray(component.props.children);
+            return R.flatten(children.map(function (c) { return getChildren(c, depth + 1); }));
+        }
     }
     else {
         return [component];
@@ -11227,7 +11236,7 @@ exports.default = Container;
 
 var Page_1 = __webpack_require__(60);
 var Container_1 = __webpack_require__(131);
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var Group_1 = __webpack_require__(256);
 var IState = (function () {
     function IState(_a) {
@@ -11372,7 +11381,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var IState_1 = __webpack_require__(132);
 var HistoryStack_1 = __webpack_require__(59);
 var InitializedState = (function (_super) {
@@ -12241,7 +12250,7 @@ var React = __webpack_require__(4);
 var react_1 = __webpack_require__(4);
 var main_1 = __webpack_require__(18);
 var url_1 = __webpack_require__(62);
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var getContainerKey = function (groupName, name) { return groupName + '_' + name; };
 var DumbContainer = (function (_super) {
     __extends(DumbContainer, _super);
@@ -12249,12 +12258,13 @@ var DumbContainer = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     DumbContainer.prototype.getChildContext = function () {
-        var _a = this.props, name = _a.name, patterns = _a.patterns, animate = _a.animate;
+        var _a = this.props, name = _a.name, groupName = _a.groupName, patterns = _a.patterns, animate = _a.animate;
         return {
             pathname: this.getFilteredLocation(),
             containerName: name,
+            groupName: groupName,
             patterns: patterns,
-            animate: animate == null ? true : animate
+            animate: animate
         };
     };
     DumbContainer.prototype.matchesCurrentUrl = function () {
@@ -12323,6 +12333,7 @@ var DumbContainer = (function (_super) {
             'addTitle',
             'groupName',
             'name',
+            'isOnTop',
             'store',
             'initializing',
             'useDefaultContainer'
@@ -12338,6 +12349,7 @@ var DumbContainer = (function (_super) {
 }(react_1.Component));
 DumbContainer.locations = {}; // Stays stored even if Container is unmounted
 DumbContainer.childContextTypes = {
+    groupName: react_1.PropTypes.string.isRequired,
     containerName: react_1.PropTypes.string.isRequired,
     pathname: react_1.PropTypes.string.isRequired,
     patterns: react_1.PropTypes.arrayOf(react_1.PropTypes.string).isRequired,
@@ -12363,7 +12375,7 @@ exports.ADD_LOCATION_TITLE = 'add-location-title';
 
 "use strict";
 
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 exports.getTitleForUrl = function (titles, url) {
     var found = R.find(function (t) { return t.pathname === url; }, titles);
     return found ? found.title : null;
@@ -12377,7 +12389,7 @@ exports.getTitleForUrl = function (titles, url) {
 "use strict";
 
 var serializer_1 = __webpack_require__(10);
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var UninitializedState_1 = __webpack_require__(134);
 var store = __webpack_require__(603);
 var ClearActions_1 = __webpack_require__(258);
@@ -12458,7 +12470,7 @@ exports.default = new Store();
 "use strict";
 
 var BackStep_1 = __webpack_require__(266);
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var PushStep_1 = __webpack_require__(268);
 var HistoryDiff_1 = __webpack_require__(257);
 var ReplaceStep_1 = __webpack_require__(269);
@@ -13329,7 +13341,7 @@ module.exports = _curry2(function constructN(n, Fn) {
 
 var _curry2 = __webpack_require__(0);
 var _map = __webpack_require__(72);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 var max = __webpack_require__(39);
 var pluck = __webpack_require__(51);
 var reduce = __webpack_require__(26);
@@ -14185,7 +14197,7 @@ module.exports = _curry1(function length(list) {
 var _curry2 = __webpack_require__(0);
 var _reduce = __webpack_require__(17);
 var ap = __webpack_require__(89);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 var map = __webpack_require__(16);
 
 
@@ -14934,7 +14946,7 @@ module.exports = _curry3(function update(idx, x, list) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 
 
 /**
@@ -18184,7 +18196,8 @@ var Window = (function (_super) {
         // Pass through all props you could want on a div
         var _a = this.props, top = _a.top, left = _a.left, children = _a.children, style = _a.style, divProps = __rest(_a, ["top", "left", "children", "style"]);
         var _b = this.context, zIndex = _b.zIndex, isOnTop = _b.isOnTop;
-        return (React.createElement("div", __assign({}, divProps, { style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }), children instanceof Function ? children({ isOnTop: isOnTop }) : children));
+        return (React.createElement("div", __assign({}, divProps, { style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }), children instanceof Function ? children({ isOnTop: isOnTop }) :
+            react_1.cloneElement(react_1.Children.only(children), { isOnTop: isOnTop })));
     };
     return Window;
 }(react_1.Component));
@@ -18227,9 +18240,9 @@ var __rest = (this && this.__rest) || function (s, e) {
 var React = __webpack_require__(4);
 var react_1 = __webpack_require__(4);
 var ContainerGroup_1 = __webpack_require__(130);
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var getWindowZIndex = function (iOrder, index) {
-    return iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1;
+    return iOrder && iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1;
 };
 var defaultToFalse = function (p) { return p == null ? false : p; };
 var changeDefaults = function (props) { return (__assign({}, props, { useDefaultContainer: defaultToFalse(props.useDefaultContainer), hideInactiveContainers: defaultToFalse(props.hideInactiveContainers) })); };
@@ -18254,11 +18267,12 @@ WindowWrapper.childContextTypes = {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (_a) {
     var children = _a.children, groupProps = __rest(_a, ["children"]);
-    return (React.createElement(ContainerGroup_1.default, __assign({}, changeDefaults(groupProps), { children: function (props) {
-            var c = children instanceof Function ?
-                children(props).props.children : children;
-            return (React.createElement("div", { style: { position: 'relative' } }, react_1.Children.map(c, function (child, i) { return (React.createElement(WindowWrapper, { key: i, onClick: function () { return props.setCurrentContainerIndex(i); }, zIndex: getWindowZIndex(props.indexedStackOrder, i), isOnTop: props.indexedStackOrder[i] === 0 }, child)); })));
-        } })));
+    return (React.createElement(ContainerGroup_1.default, __assign({}, changeDefaults(groupProps)), function (props) {
+        var c = children instanceof Function ?
+            children(props).props.children : children;
+        return (React.createElement("div", { style: { position: 'relative' } }, react_1.Children.map(c, function (child, i) { return (React.createElement(WindowWrapper, { key: i, onClick: function () { return props.setCurrentContainerIndex(i); }, zIndex: getWindowZIndex(props.indexedStackOrder, i), isOnTop: !!props.indexedStackOrder &&
+                props.indexedStackOrder[i] === 0 }, child)); })));
+    }));
 };
 
 
@@ -18440,7 +18454,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var defaultBehavior = __webpack_require__(253);
 var nonDefaultBehavior = __webpack_require__(255);
 var keepFwdTabBehavior = __webpack_require__(254);
@@ -19594,7 +19608,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 var React = __webpack_require__(4);
 var react_1 = __webpack_require__(4);
 var main_1 = __webpack_require__(18);
-var R = __webpack_require__(13);
+var R = __webpack_require__(14);
 var DumbContainerGroup = (function (_super) {
     __extends(DumbContainerGroup, _super);
     function DumbContainerGroup(props) {
@@ -19650,6 +19664,7 @@ var DumbContainerGroup = (function (_super) {
             'useDefaultContainer',
             'hideInactiveContainers',
             'store',
+            'isOnTop',
             'dispatch',
             'storedCurrentContainerName',
             'currentContainerIndex',
@@ -21462,7 +21477,7 @@ module.exports = {'@@functional/placeholder': true};
 
 var _concat = __webpack_require__(21);
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 
 
 /**
@@ -21555,7 +21570,7 @@ module.exports = _curry2(_dispatchable(['all'], _xall, function all(fn, list) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 var max = __webpack_require__(39);
 var pluck = __webpack_require__(51);
 var reduce = __webpack_require__(26);
@@ -21606,7 +21621,7 @@ module.exports = _curry1(function allPass(preds) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 var max = __webpack_require__(39);
 var pluck = __webpack_require__(51);
 var reduce = __webpack_require__(26);
@@ -21726,7 +21741,7 @@ module.exports = _curry2(function append(el, list) {
 
 var _curry1 = __webpack_require__(1);
 var apply = __webpack_require__(160);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 var map = __webpack_require__(16);
 var max = __webpack_require__(39);
 var pluck = __webpack_require__(51);
@@ -23329,7 +23344,7 @@ module.exports = nth(0);
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry3 = __webpack_require__(2);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 
 
 /**
@@ -25948,7 +25963,7 @@ module.exports = _curry2(_complement(_dispatchable(['any'], _xany, any)));
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry1 = __webpack_require__(1);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 var nth = __webpack_require__(49);
 
 
@@ -27668,7 +27683,7 @@ module.exports = invoker(0, 'toUpperCase');
 
 var _reduce = __webpack_require__(17);
 var _xwrap = __webpack_require__(187);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 
 
 /**
@@ -27977,7 +27992,7 @@ module.exports = _curry1(function unary(fn) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var curryN = __webpack_require__(14);
+var curryN = __webpack_require__(13);
 
 
 /**

@@ -19,8 +19,8 @@ export default function(state:LocationState=initialState, action:any):LocationSt
     case ADD_LOCATION_TITLE:
       const {pathname, title}:LocationTitle = action
       const existingTitle = getTitleForUrl(state.titles, pathname)
-        return existingTitle ? state :
-          {...state, titles: [...state.titles, {pathname, title}]}
+      return existingTitle ? state :
+        {...state, titles: [...state.titles, {pathname, title}]}
 
   }
   return state

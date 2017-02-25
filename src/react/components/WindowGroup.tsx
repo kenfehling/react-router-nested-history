@@ -6,7 +6,7 @@ import {ChildrenFunctionArgs} from './DumbContainerGroup'
 import * as R from 'ramda'
 
 const getWindowZIndex = (iOrder, index) =>
-    iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1
+    iOrder && iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1
 
 const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
 
@@ -39,9 +39,8 @@ class WindowWrapper extends Component<WindowWrapperProps, undefined> {
 }
 
 export default ({children, ...groupProps}:ContainerGroupProps) => (
-  <ContainerGroup
-    {...changeDefaults(groupProps)}
-    children={(props:ChildrenFunctionArgs) => {
+  <ContainerGroup {...changeDefaults(groupProps)}>
+    {(props:ChildrenFunctionArgs) => {
       const c:ReactNode = children instanceof Function ?
             children(props).props.children : children
 
@@ -51,7 +50,8 @@ export default ({children, ...groupProps}:ContainerGroupProps) => (
             <WindowWrapper key={i}
                            onClick = {() => props.setCurrentContainerIndex(i)}
                            zIndex={getWindowZIndex(props.indexedStackOrder, i)}
-                           isOnTop={props.indexedStackOrder[i] === 0}
+                           isOnTop={!!props.indexedStackOrder &&
+                                    props.indexedStackOrder[i] === 0}
             >
               {child}
             </WindowWrapper>
@@ -59,5 +59,5 @@ export default ({children, ...groupProps}:ContainerGroupProps) => (
         </div>
       )}
     }
-  />
+  </ContainerGroup>
 )

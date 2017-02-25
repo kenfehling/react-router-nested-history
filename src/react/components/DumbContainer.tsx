@@ -27,6 +27,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
   private static locations = {}  // Stays stored even if Container is unmounted
 
   static childContextTypes = {
+    groupName: PropTypes.string.isRequired,
     containerName: PropTypes.string.isRequired,
     pathname: PropTypes.string.isRequired,
     patterns: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -34,12 +35,13 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
   }
 
   getChildContext() {
-    const {name, patterns, animate} = this.props
+    const {name, groupName, patterns, animate} = this.props
     return {
       pathname: this.getFilteredLocation(),
       containerName: name,
+      groupName,
       patterns,
-      animate: animate == null ? true : animate
+      animate
     }
   }
 
@@ -120,6 +122,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'addTitle',
       'groupName',
       'name',
+      'isOnTop',
       'store',
       'initializing',
       'useDefaultContainer'

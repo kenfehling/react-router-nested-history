@@ -27,8 +27,6 @@ import SwitchToGroup from './model/actions/SwitchToGroup'
 import Startup from './model/actions/Startup'
 import InitializedState from './model/InitializedState'
 import IUpdateData from './model/interfaces/IUpdateData'
-declare const window
-declare const CustomEvent
 
 const queue = new Queue(1, Infinity)  // maxConcurrent = 1, maxQueue = Infinity
 let unlisten

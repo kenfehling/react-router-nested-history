@@ -46,6 +46,7 @@ class Container extends Component<InnerContainerProps, undefined> {
       name,
       patterns,
       initialUrl,
+      animate=true,
       resetOnLeave=false,
       addTitle
     } = this.props
@@ -66,11 +67,12 @@ class Container extends Component<InnerContainerProps, undefined> {
 
     if (initializing) {
       class T extends Component<undefined, undefined> {
-        static childContextTypes =
-          R.omit(['animate'], DumbContainer.childContextTypes)
+        static childContextTypes = DumbContainer.childContextTypes
 
         getChildContext() {
           return {
+            groupName,
+            animate,
             containerName: name,
             pathname: initialUrl,
             patterns: patterns
@@ -84,7 +86,7 @@ class Container extends Component<InnerContainerProps, undefined> {
 
       renderToStaticMarkup(<T />)
       addTitle({
-        url: initialUrl,
+        pathname: initialUrl,
         title: document.title
       })
     }
@@ -108,7 +110,9 @@ class Container extends Component<InnerContainerProps, undefined> {
       return <div></div>
     }
     else {
-      return <DumbContainer {...this.props} {...this.context} />
+      const {animate=true} = this.props
+      const props = {...this.props, ...this.context, animate}
+      return <DumbContainer {...props} />
     }
   }
 }
