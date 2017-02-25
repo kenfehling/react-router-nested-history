@@ -11547,7 +11547,7 @@ var InitializedState = (function (_super) {
             return true;
         }
         else {
-            var activeContainer = activeGroup.activeContainer;
+            var activeContainer = activeGroup.activeNestedContainer;
             var group = this.getGroupByName(groupName);
             return group.hasNestedContainer(activeContainer);
         }
@@ -18608,6 +18608,22 @@ var Group = (function () {
             return this.activeContainer.name === containerName;
         }
     };
+    Object.defineProperty(Group.prototype, "activeNestedContainer", {
+        get: function () {
+            var activeContainer = this.activeContainer;
+            if (activeContainer instanceof Container_1.default) {
+                return activeContainer;
+            }
+            else if (activeContainer instanceof Group) {
+                return activeContainer.activeNestedContainer;
+            }
+            else {
+                throw new Error('activeContainer should be a Container or Group');
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Group.prototype, "defaultContainer", {
         get: function () {
             return R.find(function (c) { return c.isDefault; }, this.containers);
@@ -19495,14 +19511,12 @@ var AnimatedPage = (function (_super) {
     function AnimatedPage() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    /*
-    shouldComponentUpdate(nextProps) {
-      const {match} = this.props
-      const nextMatch = nextProps.match
-      return !(!match && !nextMatch) &&
-        (!match || !nextMatch || match.path !== nextMatch.path)
-    }
-    */
+    AnimatedPage.prototype.shouldComponentUpdate = function (nextProps) {
+        var match = this.props.match;
+        var nextMatch = nextProps.match;
+        return !(!match && !nextMatch) &&
+            (!match || !nextMatch || match.path !== nextMatch.path);
+    };
     AnimatedPage.prototype.render = function () {
         /*
          if (lastActionType === SwitchToContainer.type) {

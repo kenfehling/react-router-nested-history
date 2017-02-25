@@ -179,7 +179,7 @@ export default class InitializedState extends IState {
       return true
     }
     else {
-      const activeContainer:IGroupContainer = activeGroup.activeContainer
+      const activeContainer:Container = activeGroup.activeNestedContainer
       const group:Group = this.getGroupByName(groupName)
       return group.hasNestedContainer(activeContainer)
     }

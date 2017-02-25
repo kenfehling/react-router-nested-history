@@ -194,6 +194,19 @@ export default class Group implements Comparable, IContainer {
     }
   }
 
+  get activeNestedContainer():Container {
+    const activeContainer:IGroupContainer = this.activeContainer
+    if (activeContainer instanceof Container) {
+      return activeContainer
+    }
+    else if (activeContainer instanceof Group) {
+      return activeContainer.activeNestedContainer
+    }
+    else {
+      throw new Error('activeContainer should be a Container or Group')
+    }
+  }
+
   get defaultContainer():IGroupContainer {
     return R.find((c:IGroupContainer) => c.isDefault, this.containers)
   }
