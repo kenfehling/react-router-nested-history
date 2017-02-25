@@ -7,8 +7,6 @@ import {
 import { patternsMatch } from '../../util/url'
 import * as R from 'ramda'
 
-const getContainerKey = (groupName, name) => groupName + '_' + name
-
 export interface DumbContainerProps {
   pathname: string
   children?: ReactNode
@@ -75,7 +73,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
 
   getKey():string {
     const {name, groupName} = this.props
-    return getContainerKey(groupName, name)
+    return groupName + '_' + name
   }
 
   getNewLocation():string {
