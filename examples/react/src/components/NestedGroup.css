@@ -7,12 +7,12 @@
 
 .nested .window.foods {
   top: 0;
-  left: 0;
+  left: 10px;
 }
 
 .nested .window.notes {
   top: 80px;
-  left: 120px;
+  left: 95px;
 }
 
 .header {

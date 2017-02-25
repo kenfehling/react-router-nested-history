@@ -128,9 +128,8 @@ class AnimatedPage extends Component<InnerProps, undefined> {
      }
      */
 
-    const {children, match, lastAction} = this.props
+    const {children, lastAction} = this.props
     const {animate, pathname} = this.context
-    const matches = match && match.url === pathname
 
     if (animate !== false) {
       return (
@@ -147,7 +146,7 @@ class AnimatedPage extends Component<InnerProps, undefined> {
               left: styles.left + '%'
           })}
         >
-          {matches && children}
+          {children}
         </RouteTransition>
       )
     }

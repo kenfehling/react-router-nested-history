@@ -136,6 +136,7 @@ Use this component to wrap one or more `HistoryRoute` components to enable histo
     <tr>
         <th>name</th>
         <th>type</th>
+        <th>default</th>
         <th>required</th>
         <th>description</th>
     </tr>
@@ -144,24 +145,35 @@ Use this component to wrap one or more `HistoryRoute` components to enable histo
         <tr>
           <td>name</td>
           <td>string</td>
+            <td></td>
           <td align="center">✓</td>
           <td>The name of this container (must be unique)</td>
         </tr>
         <tr>
           <td>initialUrl</td>
           <td>string</td>
+           <td></td>
           <td align="center">✓</td>
           <td>The path that the container starts on</td>
         </tr>
         <tr>
           <td>patterns</td>
           <td>string[]</td>
+            <td></td>
           <td align="center">✓</td>
           <td>A list of path patterns that will load in this container from a URL in the address bar</td>
         </tr>
         <tr>
+            <td>animate</td>
+            <td>boolean</td>
+            <td>true</td>
+            <td align="center"></td>
+            <td>Should this container use slide transition animations?</td>
+        </tr>
+        <tr>
           <td>className</td>
           <td>string</td>
+            <td></td>
           <td align="center"></td>
           <td>The CSS class for styling this element</td>
         </tr>
@@ -240,29 +252,6 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>The children of this ContainerGroup</td>
         </tr>
     </tbody>   
-</table>
-
-#### context
-<table class="table table-bordered table-striped">
-    <thead>
-    <tr>
-        <th>name</th>
-        <th>type</th>
-        <th>description</th>
-    </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>activePage</td>
-          <td>{url:string, params:Object}</td>
-          <td>The active page of this Container</td>
-        </tr>
-        <tr>
-          <td>lastAction</td>
-          <td>string</td>
-          <td>The type of the last action performed</td>
-        </tr>
-    </tbody>
 </table>
 
 #### `onContainerActivate` params
@@ -413,6 +402,46 @@ A single window inside a `WindowGroup`
           <td>isOnTop/td>
           <td>boolean</td>
           <td>Is this window on the top of the stack in its `WindowGroup`</td>
+        </tr>
+    </tbody>
+</table>
+
+
+### ScrollArea
+Keeps track of scrolling inside a container
+
+#### props
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>default</th>
+        <th>required</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>resetOnLeave</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Reset the scroll position when the container is left</td>
+        </tr>
+        <tr>
+          <td>horizontal</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Use horizontal scrolling</td>
+        </tr>
+        <tr>
+          <td>vertical</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Use vertical scrolling</td>
         </tr>
     </tbody>
 </table>
