@@ -5,6 +5,7 @@ import Group from './Group'
 import IState from './IState'
 import HistoryStack from './HistoryStack'
 import Container from './Container'
+import IGroupContainer from './interfaces/IGroupContainer'
 
 export default class InitializedState extends IState {
 
@@ -178,7 +179,9 @@ export default class InitializedState extends IState {
       return true
     }
     else {
-      return activeGroup.hasNestedGroupWithName(groupName)
+      const activeContainer:IGroupContainer = activeGroup.activeContainer
+      const group:Group = this.getGroupByName(groupName)
+      return group.hasNestedContainer(activeContainer)
     }
   }
 

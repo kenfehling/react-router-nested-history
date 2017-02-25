@@ -11547,7 +11547,9 @@ var InitializedState = (function (_super) {
             return true;
         }
         else {
-            return activeGroup.hasNestedGroupWithName(groupName);
+            var activeContainer = activeGroup.activeContainer;
+            var group = this.getGroupByName(groupName);
+            return group.hasNestedContainer(activeContainer);
         }
     };
     Object.defineProperty(InitializedState.prototype, "activeGroup", {
