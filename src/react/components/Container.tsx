@@ -10,6 +10,7 @@ import {addTitle} from '../actions/LocationActions'
 import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
 import * as R from 'ramda'
+import {canUseDOM} from 'history/ExecutionEnvironment'
 
 interface ContainerProps {
   children?: ReactNode,
@@ -39,6 +40,16 @@ class Container extends Component<InnerContainerProps, undefined> {
     hideInactiveContainers: PropTypes.bool
   }
 
+  addTitleForPath(pathname:string) {
+    const {addTitle} = this.props
+    if (canUseDOM) {
+      addTitle({
+        pathname,
+        title: document.title
+      })
+    }
+  }
+
   constructor(props, context) {
     super(props, context)
     const {
@@ -48,7 +59,6 @@ class Container extends Component<InnerContainerProps, undefined> {
       initialUrl,
       animate=true,
       resetOnLeave=false,
-      addTitle
     } = this.props
     const {
       groupName,
@@ -85,21 +95,15 @@ class Container extends Component<InnerContainerProps, undefined> {
       }
 
       renderToStaticMarkup(<T />)
-      addTitle({
-        pathname: initialUrl,
-        title: document.title
-      })
+      this.addTitleForPath(initialUrl)
     }
   }
 
   componentDidUpdate() {
-    const {patterns, pathname, addTitle} = this.props
+    const {patterns, pathname} = this.props
     if (pathname) {
       if (patternsMatch(patterns, pathname)) {
-        addTitle({
-          pathname,
-          title: document.title
-        })
+        this.addTitleForPath(pathname)
       }
     }
   }

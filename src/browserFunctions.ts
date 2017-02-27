@@ -1,8 +1,8 @@
 import Page from './model/Page'
 import createBrowserHistory from 'history/createBrowserHistory'
 import createMemoryHistory from 'history/createMemoryHistory'
-import { Location, History } from 'history'
-import { canUseWindowLocation } from './util/location'
+import {Location, History} from 'history'
+import {canUseWindowLocation} from './util/location'
 declare const performance:any
 declare const Promise:any
 declare const window:any
@@ -38,5 +38,6 @@ export const listenPromise = () : Promise<Location> => new Promise(resolve => {
 
 export const getLocation = () : Location => _history.location
 
-export const wasLoadedFromRefresh =
-    !!window.performance && performance.navigation.type === 1
+export const wasLoadedFromRefresh = canUseWindowLocation &&
+                                    window.performance &&
+                                    window.performance.navigation.type === 1
