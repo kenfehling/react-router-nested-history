@@ -1,17 +1,23 @@
 import * as React from 'react'
-import {Component, ReactNode} from 'react'
-import {Location, History} from 'history'
+import {Component, Children, ReactNode, PropTypes, createElement} from 'react'
+import {renderToStaticMarkup} from 'react-dom/server'
 import {connect, Store} from 'react-redux'
+import {Route} from 'react-router'
 import store from '../store'
-import createBrowserHistory from 'history/createBrowserHistory'
-import createMemoryHistory from 'history/createMemoryHistory'
 import {listenToLocation, unlistenToLocation} from '../actions/LocationActions'
-import {addStepListener} from '../../main'
+import {
+  setZeroPage, loadFromUrl, startup, listenToStore, isInitialized, loadActions,
+  addStepListener
+} from '../../main'
 import {canUseWindowLocation} from '../../util/location'
 import LocationState from '../model/LocationState'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import LocationTitle from '../model/LocationTitle'
 import {getTitleForUrl} from '../util/titles'
+import * as R from 'ramda'
+import cloneElement = React.cloneElement
+import DumbContainerGroup from './DumbContainerGroup'
+import ContainerGroup from './ContainerGroup'
 declare const window:any
 
 export interface HistoryRouterProps {
@@ -21,7 +27,7 @@ export interface HistoryRouterProps {
   keyLength?: number,
   children?: ReactNode,
   zeroPage?: string,
-  location?: string  // For testing with HistoryRouter (!canUseWindowLocation)
+  location: string
 }
 
 type RouterPropsWithStore = HistoryRouterProps & {
@@ -34,9 +40,68 @@ export type ConnectedHistoryRouterProps = HistoryRouterProps & {
   unlistenToLocation: () => any
 }
 
-class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
+/**
+ * Recursively gets the children of a component for simlated rendering
+ * so that the containers are initialized even if they're hidden inside tabs
+ */
+function getChildren(component) {
+  if (!(component instanceof Component) && !component.type) {
+    return []
+  }
+  else if (component instanceof ContainerGroup || component.type === ContainerGroup ||
+    component instanceof DumbContainerGroup || component.type === DumbContainerGroup) {
+    return [component]  // Stop if you find a ContainerGroup
+  }
+  else if (component.props && component.props.children) {
+    if (component.props.children instanceof Function) {
+      return getChildren(createElement(component.props.children))
+    }
+    else {
+      const children = Children.toArray(component.props.children)
+      return R.flatten(children.map(c => getChildren(c)))
+    }
+  }
+  else if (component.type instanceof Function && !component.type.name) {
+    try {
+      return getChildren(component.type())
+    }
+    catch(e) {
+      return getChildren(new component.type(component.props).render())
+    }
 
-  componentWillMount() {
+  }
+  else {  // no children
+    return [component]
+  }
+}
+
+class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
+  constructor(props) {
+    super(props)
+
+    class R extends Component<{children: ReactNode}, undefined> {
+      static childContextTypes = {
+        initializing: PropTypes.bool,
+        router: PropTypes.object
+      }
+
+      getChildContext() {
+        return {
+          initializing: true,
+          router: {
+            location: {pathname: '/'},
+            listen: () => {},
+            push: () => {},
+            replace: () => {}
+          }
+        }
+      }
+
+      render() {
+        return <div>{this.props.children}</div>
+      }
+    }
+
     const onStep = (currentUrl:string) => {
       const {titles} = this.props
       const title = getTitleForUrl(titles, currentUrl)
@@ -50,6 +115,34 @@ class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
       }
     }
     addStepListener({before: onStep, after: onStep})
+    const {zeroPage, listenToLocation} = this.props
+    loadActions()
+    if (zeroPage) {
+      setZeroPage(zeroPage)
+    }
+    startup()
+
+    // Initialize the Containers in this group
+    // (since most tab libraries lazy load tabs)
+    const children = getChildren(this)
+    children.forEach(c => renderToStaticMarkup(<R children={c} />))
+
+    listenToStore()
+    listenToLocation && listenToLocation()
+
+    if (!isInitialized()) {
+      loadFromUrl(this.getLocation())
+    }
+  }
+
+  componentWillMount() {
+
+  }
+
+  componentWillUnmount() {
+    const {unlistenToLocation} = this.props
+    //this.unlistenToStore()
+    unlistenToLocation && unlistenToLocation()
   }
 
   getLocation():string {
@@ -68,20 +161,9 @@ class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
     }
   }
 
-  getCreateHistory():(options:any)=>History {
-    return canUseWindowLocation ? createBrowserHistory : createMemoryHistory
-  }
-
   render() {
-    const pathname:string = this.getLocation()
-    const createHistory:(options:any) => History = this.getCreateHistory()
-
     return (
-      <DumbHistoryRouter
-        {...this.props}
-        createHistory={createHistory}
-        pathname={pathname}
-      />
+      <DumbHistoryRouter{...this.props} />
     )
   }
 }

@@ -6,7 +6,7 @@ import compression from 'compression'
 import React from 'react'
 import App from '../src/components/App'
 import {renderToString} from 'react-dom/server'
-import {StaticRouter} from 'react-router'
+import {HistoryRouter} from 'react-router-nested-history'
 
 const app = express()
 app.use('/static', express.static(path.join(__dirname, 'build')))
@@ -19,9 +19,9 @@ app.use((req, res) => {
   const context = {};
 
   const html = renderToString(
-    <StaticRouter location={req.url} context={context}>
+    <HistoryRouter location={req.url} context={context}>
       <App />
-    </StaticRouter>,
+    </HistoryRouter>,
   );
 
   if (context.url) {
