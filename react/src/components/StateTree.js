@@ -55,7 +55,7 @@ export default class extends Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.unlisten = addChangeListener(({state:{groups}}) => {
       this.setState({
         groups
