@@ -5,6 +5,7 @@ import LocationTitle from '../../react/model/LocationTitle'
 interface IUpdateData {
   readonly lastAction: Action
   readonly state: IState
+  readonly actions: Action[]
 }
 
 export default IUpdateData

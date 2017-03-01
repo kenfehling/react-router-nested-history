@@ -1,46 +1,8 @@
-import {createStepsSince} from './util/actions'
-import * as browser from './browserFunctions'
-import {Location} from 'history'
-import * as Queue from 'promise-queue'
-import IState from './model/IState'
 import Group from './model/Group'
 import Page from './model/Page'
-import Step from './model/interfaces/Step'
-import Action from './model/Action'
-import UpdateBrowser from './model/actions/UpdateBrowser'
-import IUpdateData from './model/interfaces/IUpdateData'
-import {canUseWindowLocation} from './browserFunctions'
-
-const queue = new Queue(1, Infinity)  // maxConcurrent = 1, maxQueue = Infinity
-let unlisten
-const stepListeners:({before:(currentUrl:string) => void,
-                      after:(currentUrl:string) => void})[] = []
-const changeListeners:((data:IUpdateData)=>void)[] = []
-
-export const addStepListener = listener => stepListeners.push(listener)
-
-export const addChangeListener = listener => {
-  changeListeners.push(listener)
-  if (isInitialized()) {
-    updateChangeListeners()
-  }
-}
-
-const unlistenPromise = () => new Promise(resolve => {
-  unlisten()
-  return resolve()
-})
-
-const startListeningPromise = () => new Promise(resolve => {
-  startListeningForPopState()
-  return resolve()
-})
 
 export const getGroupByName = (name:string):Group =>
     store.getState().getGroupByName(name)
-
-export const getLastAction = ():Action => store.getLastAction()
-export const getLastActionType = ():string => getLastAction().type
 
 export const getBackPageInGroup = (groupName:string):Page =>
   store.getState().getBackPageInGroup(groupName)
@@ -91,50 +53,3 @@ export const getActiveContainerNameInGroup = (groupName:string): string =>
 
 export const isGroupActive = (groupName:string): boolean =>
     store.getState().isGroupActive(groupName)
-
-function runStep(step:Step):Promise<void> {
-  const stepPromise = ():Promise<any> => {
-    const currentUrl = browser.getLocation().pathname
-    stepListeners.forEach(listener => listener.before(currentUrl))
-    step.run()
-    const p:Promise<any> = canUseWindowLocation && step.needsPopListener ?
-      browser.listenPromise() : Promise.resolve()
-    return p.then(() => {
-      const currentUrl = browser.getLocation().pathname
-      stepListeners.forEach(listener => listener.after(currentUrl))
-    })
-  }
-  return [unlistenPromise, stepPromise, startListeningPromise].reduce(
-      (p:Promise<any>, s) => p.then(s), Promise.resolve())
-}
-
-export function runSteps(steps:Step[]):Promise<void> {
-  const ps:() => Promise<void> = () =>
-      steps.reduce((p, step) => p.then(() => runStep(step)), Promise.resolve())
-  return queue.add(ps)
-}
-
-const updateChangeListeners = () => {
-  const state:IState = store.getState()
-  const data:IUpdateData = {
-    lastAction: getLastAction(),
-    state
-  }
-  changeListeners.forEach(listener => listener(data))
-}
-
-export const listenToStore = () => store.subscribe(() => {
-  if (isInitialized()) {
-    const state:IState = store.getState()
-    const lastUpdate: number = state.lastUpdate
-    const steps: Step[] = createStepsSince(store.actions, lastUpdate)
-    if (steps.length > 0) {
-      store.dispatch(new UpdateBrowser())
-      runSteps(steps).then(updateChangeListeners)
-    }
-    else {
-      updateChangeListeners()
-      updateChangeListeners()  // For some reason this helps?
-    }
-  }
-})

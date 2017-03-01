@@ -1,35 +1,49 @@
 import * as React from 'react'
-import {Component, PropTypes} from 'react'
+import {Component, ReactNode} from 'react'
 import {connect} from 'react-redux'
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import {Store} from '../../store'
 import {canUseWindowLocation} from '../../browserFunctions'
+import * as browser from '../../browserFunctions'
+import HistoryStack from '../../model/HistoryStack'
 
 type TitleSetterPropsWithStore = {
-  store: Store
+  store: Store,
+  children?: ReactNode
 }
 
-type InnerTitleSetterProps = TitleSetterPropsWithStore & {
-
+type ConnectedTitleSetterProps = TitleSetterPropsWithStore & {
+  browserHistory: HistoryStack,
+  activeUrl: string,
+  activeTitle?: string|null
 }
 
-class TitleSetter extends Component<InnerTitleSetterProps, undefined> {
-
-  componentWillMount() {
-    const onStep = (currentUrl:string) => {
-      const {titles} = this.props
-      const title = getTitleForUrl(titles, currentUrl)
-      if (canUseWindowLocation) {
-        if (title) {
-          document.title = title
-        }
-        else {
-          console.warn('Cannot find title for ' + currentUrl)
-        }
+class TitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
+  private unlistenForPopState: () => void
+  private isListening: boolean = true
+  
+  updateTitle() {
+    const {activeUrl, activeTitle} = this.props
+    if (canUseWindowLocation) {
+      if (activeTitle) {
+        document.title = activeTitle
+      }
+      else {
+        console.warn('Cannot find title for ' + activeUrl)
       }
     }
+  }
+  
+  componentWillMount() {
+    this.unlistenForPopState = browser.listen(() => {
+      if (this.isListening) {
+        this.updateTitle()
+      }
+    })
+  }
 
-    addStepListener({before: onStep, after: onStep})
+  componentWillUnmount() {
+    this.unlistenForPopState()
   }
 
   render() {
@@ -37,19 +51,13 @@ class TitleSetter extends Component<InnerTitleSetterProps, undefined> {
   }
 }
 
-const ConnectedTitleSetter = connect(
-  (state:IUpdateData, ownProps:TitleSetterPropsWithStore) => ({
-    titles: state.titles
-  })
-)(TitleSetter)
+const mapStateToProps = (state:IUpdateData, ownProps:TitleSetterPropsWithStore):
+                                                ConnectedTitleSetterProps => ({
+  ...ownProps,
+  browserHistory: state.state.browserHistory,
+  activeUrl: state.state.activeUrl,
+  activeTitle: state.state.activeTitle
+})
 
-export default class extends Component<undefined, undefined> {
-  static contextTypes = {
-    store: PropTypes.object.isRequired
-  }
-
-  render() {
-    const {store} = this.context
-    return <ConnectedTitleSetter store={store} />
-  }
-}
+const ConnectedTitleSetter = connect(mapStateToProps)(TitleSetter)
+export default ({store}) => <ConnectedTitleSetter store={store} />

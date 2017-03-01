@@ -8,7 +8,7 @@ export default class UpdateBrowser extends NonStepAction {
   static readonly type: string = 'UpdateBrowser'
   readonly type: string = UpdateBrowser.type
 
-  constructor({time}:{time?:number}) {
+  constructor({time}:{time?:number}={}) {
     super({time, origin: SYSTEM})
   }
 
