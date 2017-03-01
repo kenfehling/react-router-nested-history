@@ -38,10 +38,9 @@ export default class SwitchToContainer extends Action {
   }
 
   reduce(state:IState):IState {
-    const containerName:string = this.getName(state)
     return state.switchToContainer({
       groupName: this.groupName,
-      containerName,
+      name: this.getName(state),
       time: this.time
     })
   }

@@ -17,8 +17,8 @@ export default class UninitializedState extends IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  switchToContainer({groupName, containerName, time}:
-    {groupName:string, containerName:string, time:number}):IState {
+  switchToContainer({groupName, name, time}:
+    {groupName:string, name:string, time:number}):IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

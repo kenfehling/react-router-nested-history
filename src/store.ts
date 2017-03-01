@@ -8,6 +8,7 @@ import * as store from 'store'
 import ClearActions from './model/actions/ClearActions'
 import UpdateBrowser from './model/actions/UpdateBrowser'
 import IUpdateData from './model/interfaces/IUpdateData'
+import * as browser from './util/browserFunctions'
 
 export const deriveState = (actions:Action[],
                             state:IState=new UninitializedState()):IState =>
@@ -30,6 +31,12 @@ export class Store implements ReduxStore<IUpdateData> {
       if (objects) {
         this.actions = objects.map(obj => deserialize(obj))
       }
+    }
+  }
+
+  clearActions():void {
+    if (store.enabled) {
+      this.actions = []
     }
   }
 
@@ -111,7 +118,12 @@ export class Store implements ReduxStore<IUpdateData> {
 
 export const createStore = ():Store => {
   const store:Store = new Store()
-  store.loadActions()
+  if (browser.wasLoadedFromRefresh) {
+    store.loadActions()
+  }
+  else {
+    store.clearActions()
+  }
   return store
 }
 

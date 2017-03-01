@@ -31,8 +31,8 @@ abstract class IState {
   abstract getIndexedContainerStackOrderForGroup(groupName:string):number[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):IState
 
-  abstract switchToContainer({groupName, containerName, time}:
-      {groupName:string, containerName:string, time:number}):IState
+  abstract switchToContainer({groupName, name, time}:
+      {groupName:string, name:string, time:number}):IState
 
   abstract getContainerLinkUrl(groupName:string, containerName:string):string
   abstract getRootGroupOfGroupByName(name:string):Group

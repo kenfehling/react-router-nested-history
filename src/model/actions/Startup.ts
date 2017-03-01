@@ -2,7 +2,6 @@ import Action, {SYSTEM} from '../Action'
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 import NonStepAction from './NonStepAction'
-import SetZeroPage from './SetZeroPage'
 
 @Serializable
 export default class Startup extends NonStepAction {
@@ -30,6 +29,7 @@ export default class Startup extends NonStepAction {
     if (this.fromRefresh) {
       return [...actions.map(a => a.updateAfterRefresh(this.time))]
     }
+    /*
     else {
       if (actions.length > 0 && actions[0] instanceof SetZeroPage) {
         return [actions[0], this]
@@ -38,5 +38,6 @@ export default class Startup extends NonStepAction {
         return [this]
       }
     }
+    */
   }
 }

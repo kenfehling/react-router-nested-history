@@ -17,10 +17,10 @@ export default class InitializedState extends IState {
     return this.replaceGroup(group.activate(time))
   }
 
-  switchToContainer({groupName, containerName, time}:
-      {groupName:string, containerName:string, time:number}):IState {
+  switchToContainer({groupName, name, time}:
+      {groupName:string, name:string, time:number}):IState {
     const group:Group = this.getGroupByName(groupName)
-    return this.replaceGroup(group.activateContainer(containerName, time))
+    return this.replaceGroup(group.activateContainer(name, time))
   }
 
   get backPage():Page {

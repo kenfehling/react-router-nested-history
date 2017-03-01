@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {addChangeListener, isGroupActive} from 'react-router-nested-history'
+import {connectToStore} from 'react-router-nested-history'
 import './StateTree.css'
 
 const HistoryTree = ({history, className}) => (
@@ -16,7 +16,7 @@ const HistoryTree = ({history, className}) => (
   </div>
 )
 
-const GroupTree = ({group}) => (
+const GroupTree = ({group, isGroupActive}) => (
   <div>
     <div>{'Group: ' + group.name}</div>
     <HistoryTree history={group.history}
@@ -36,38 +36,19 @@ const GroupTree = ({group}) => (
   </div>
 )
 
-const StateTree = ({groups, activeGroup}) => (
+const DumbStateTree = ({groups, isGroupActive}) => (
   <div className="state-tree">
     {groups.map(group => (
       <GroupTree key={group.name}
                  group={group}
-                 activeGroup={activeGroup}
+                 isGroupActive={isGroupActive}
       />
     ))}
   </div>
 )
 
-export default class extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      groups: []
-    }
-  }
+const StateTree = ({state}) => (
+  <DumbStateTree groups={state.groups} isGroupActive={state.isGroupActive} />
+)
 
-  componentDidMount() {
-    this.unlisten = addChangeListener(({state:{groups}}) => {
-      this.setState({
-        groups
-      })
-    })
-  }
-
-  componentWillUnmount() {
-    this.unlisten()
-  }
-
-  render() {
-    return <StateTree {...this.state} />
-  }
-}
+export default connectToStore(StateTree)
