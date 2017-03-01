@@ -3,6 +3,7 @@ import {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import {Store} from '../../store'
+import {canUseWindowLocation} from '../../browserFunctions'
 
 type TitleSetterPropsWithStore = {
   store: Store

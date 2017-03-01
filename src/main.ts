@@ -2,18 +2,14 @@ import {createStepsSince} from './util/actions'
 import * as browser from './browserFunctions'
 import {Location} from 'history'
 import * as Queue from 'promise-queue'
-import {canUseWindowLocation} from './util/location'
 import IState from './model/IState'
 import Group from './model/Group'
 import Page from './model/Page'
 import Step from './model/interfaces/Step'
 import Action from './model/Action'
 import UpdateBrowser from './model/actions/UpdateBrowser'
-import LoadFromUrl from './model/actions/LoadFromUrl'
-import PopState from './model/actions/PopState'
-import Startup from './model/actions/Startup'
-import InitializedState from './model/InitializedState'
 import IUpdateData from './model/interfaces/IUpdateData'
+import {canUseWindowLocation} from './browserFunctions'
 
 const queue = new Queue(1, Infinity)  // maxConcurrent = 1, maxQueue = Infinity
 let unlisten
@@ -28,16 +24,6 @@ export const addChangeListener = listener => {
   if (isInitialized()) {
     updateChangeListeners()
   }
-}
-
-const startListeningForPopState = () => {
-  unlisten = browser.listen((location:Location) => {
-    if (location.state) {
-      const page:Page = new Page(location.state)
-      const state:IState = store.getState()
-      store.dispatch(new PopState({n: state.getShiftAmount(page)}))
-    }
-  })
 }
 
 const unlistenPromise = () => new Promise(resolve => {
@@ -152,5 +138,3 @@ export const listenToStore = () => store.subscribe(() => {
     }
   }
 })
-
-startListeningForPopState()

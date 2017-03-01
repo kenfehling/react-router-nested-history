@@ -2,20 +2,24 @@ import * as React from 'react'
 import {Component, Children, ReactNode, PropTypes, createElement} from 'react'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {Route} from 'react-router'
+import {connect, Dispatch} from 'react-redux'
+import {Location} from 'history'
 import {createStore, Store} from '../../store'
-import {canUseWindowLocation} from '../../util/location'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import * as R from 'ramda'
 import cloneElement = React.cloneElement
 import DumbContainerGroup from './DumbContainerGroup'
 import ContainerGroup from './ContainerGroup'
-import {connect, Dispatch} from 'react-redux'
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import Startup from '../../model/actions/Startup'
 import * as browser from '../../browserFunctions'
 import InitializedState from '../../model/InitializedState'
 import LoadFromUrl from '../../model/actions/LoadFromUrl'
 import SetZeroPage from '../../model/actions/SetZeroPage'
+import PopState from '../../model/actions/PopState'
+import HistoryStack from '../../model/HistoryStack'
+import Page from '../../model/Page'
+import {canUseWindowLocation} from '../../browserFunctions'
 declare const window:any
 
 export interface HistoryRouterProps {
@@ -33,10 +37,12 @@ type RouterPropsWithStore = HistoryRouterProps & {
 }
 
 type ConnectedRouterProps = RouterPropsWithStore & {
+  browserHistory: HistoryStack
   isInitialized: boolean
   startup: () => void
   loadFromUrl: (url:string) => void
   setZeroPage: (url:string) => void
+  popstate: (page:Page) => void
 }
 
 /**
@@ -75,6 +81,8 @@ function getChildren(component) {
 }
 
 class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
+  private unlistenForPopState: () => void
+
   static childContextTypes = {
     store: PropTypes.object.isRequired
   }
@@ -152,6 +160,20 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
     }
   }
 
+  componentWillMount() {
+    const {popstate} = this.props
+    this.unlistenForPopState = browser.listen((location:Location) => {
+      if (location.state) {
+        const page:Page = new Page(location.state)
+        popstate(page)
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    this.unlistenForPopState()
+  }
+
   render() {
     return (
       <DumbHistoryRouter{...this.props} />
@@ -160,7 +182,8 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
 }
 
 const mapStateToProps = (state:IUpdateData) => ({
-  isInitialized: state.state instanceof InitializedState
+  isInitialized: state.state instanceof InitializedState,
+  browserHistory: state.state.browserHistory
 })
 
 const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
@@ -179,7 +202,10 @@ const mergeProps = (stateProps, dispatchProps,
                     ownProps:RouterPropsWithStore):ConnectedRouterProps => ({
   ...stateProps,
   ...dispatchProps,
-  ...ownProps
+  ...ownProps,
+  popstate: (page:Page) => dispatchProps.dispatch(new PopState({
+    n: stateProps.browserHistory.getShiftAmount(page)
+  }))
 })
 
 const ConnectedHistoryRouter = connect(

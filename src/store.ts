@@ -8,7 +8,10 @@ import * as store from 'store'
 import ClearActions from './model/actions/ClearActions'
 import UpdateBrowser from './model/actions/UpdateBrowser'
 import IUpdateData from './model/interfaces/IUpdateData'
-import Startup from './model/actions/Startup'
+
+export const deriveState = (actions:Action[],
+                            state:IState=new UninitializedState()):IState =>
+  actions.reduce((s:IState, a:Action):IState => a.reduce(s), state)
 
 export class Store implements ReduxStore<IUpdateData> {
   actions: Action[]
@@ -49,10 +52,6 @@ export class Store implements ReduxStore<IUpdateData> {
     }
   }
 
-  deriveState(actions:Action[], state:IState=new UninitializedState()):IState {
-    return actions.reduce((s:IState, a:Action):IState => a.reduce(s), state)
-  }
-
   /**
    * Derives the state from the list of actions
    * Caches the last derived state for performance
@@ -71,12 +70,12 @@ export class Store implements ReduxStore<IUpdateData> {
       const prevTime:number = this.actions.length > 1 ?
           R.takeLast(2, this.actions)[0].time : lastTime
       if (lastTime === prevTime && prevTime === this.timeStored) {  // Rare case
-        this.storedState = this.deriveState(this.actions)     // Just derive all
+        this.storedState = deriveState(this.actions)     // Just derive all
       }
       else {
         const newActions:Action[] =
             this.actions.filter(a => a.time > this.timeStored)
-        this.storedState = this.deriveState(newActions, this.storedState)
+        this.storedState = deriveState(newActions, this.storedState)
         this.timeStored = lastTime
       }
       return {
