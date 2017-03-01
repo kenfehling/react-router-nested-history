@@ -46,8 +46,10 @@ abstract class IState {
   abstract goForward(n:number, time:number):IState
   abstract canGoBack(n:number):boolean
   abstract canGoForward(n:number):boolean
-  abstract top({groupName, time, reset}:
-      {groupName?:string, time:number, reset?:boolean}):IState
+  abstract isContainerAtTopPage(groupName:string, containerName:string):boolean
+  abstract top({groupName, containerName, time, reset}:
+      {groupName:string, containerName:string,
+        time:number, reset?:boolean}):IState
 
   abstract getShiftAmount(page:Page):number
 
@@ -75,7 +77,7 @@ abstract class IState {
   abstract get activeGroup():Group
   abstract isGroupActive(groupName:string):boolean
   abstract get activeContainer():IContainer
-  abstract getContainer(groupName:string, containerName:string):Container
+  abstract getContainer(groupName:string, containerName:string):IContainer
   abstract isActiveContainer(groupName:string, containerName:string):boolean
   abstract getContainerNameByIndex(groupName:string, index:number):string
 

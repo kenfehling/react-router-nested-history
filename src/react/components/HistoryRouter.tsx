@@ -127,9 +127,6 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
     // Initialize the ContainerGroups
     // (since most tab libraries lazy load tabs)
     const children = getChildren(this)
-
-    console.log(children)
-
     children.forEach(c => renderToStaticMarkup(<R children={c} />))
 
     if (!isInitialized) {

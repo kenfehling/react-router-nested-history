@@ -50,8 +50,13 @@ export default class UninitializedState extends IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
+  isContainerAtTopPage(groupName:string, containerName:string):boolean {
+    throw new Error(UNINITIALIZED_MESSAGE)
+  }
+
   top({groupName, time, reset=false}:
-    {groupName?:string, time:number, reset?:boolean}):IState {
+      {groupName:string, containerName:string, time:number,
+        reset?:boolean}):IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -151,7 +156,7 @@ export default class UninitializedState extends IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  getContainer(groupName:string, containerName:string):Container {
+  getContainer(groupName:string, containerName:string):IContainer {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

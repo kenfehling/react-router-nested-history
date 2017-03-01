@@ -37,11 +37,16 @@ export default class Push extends Action {
   }
 
   filter(state:IState):Action[] {
-    const data = {groupName: this.groupName, origin: this, time: this.time}
-    return [
-      new SwitchToGroup(data),
-      new SwitchToContainer({...data, name: this.containerName}),
-      this
-    ]
+    if (state.activeUrl === this.url) {
+      return []
+    }
+    else {
+      const data = {groupName: this.groupName, origin: this, time: this.time}
+      return [
+        new SwitchToGroup(data),
+        new SwitchToContainer({...data, name: this.containerName}),
+        this
+      ]
+    }
   }
 }

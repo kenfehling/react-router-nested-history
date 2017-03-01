@@ -23,7 +23,7 @@ export default class SwitchToContainer extends Action {
     this.index = index
   }
 
-  getName(state:IState):string {
+  private getContainerName(state:IState):string {
     if (this.name) {
       return this.name
     }
@@ -38,17 +38,18 @@ export default class SwitchToContainer extends Action {
   reduce(state:IState):IState {
     return state.switchToContainer({
       groupName: this.groupName,
-      name: this.getName(state),
+      name: this.getContainerName(state),
       time: this.time
     })
   }
 
-  filter(state:IState):Action[] {
-    if (state.isContainerActive(this.groupName, this.getName(state))) {
+  filter(state:IState):Action[]​ {
+    const containerName:string = this.getContainerName(state)
+    if (state.isContainerActive(this.groupName, containerName)) {
       if (!(this.origin instanceof ActionOrigin)) {
         const group:Group = state.getGroupByName(this.groupName)
         if (group.gotoTopOnSelectActive) {
-          return [new Top({groupName: this.groupName})]
+          return [new Top({groupName: this.groupName, containerName})]
         }
       }
       return []

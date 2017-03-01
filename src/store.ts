@@ -40,23 +40,22 @@ export function createStore() {
     }
   }
 
+  function _dispatch(action:Action):void {
+    actions = action.store(actions)
+    if (action instanceof ClearActions) {
+      timeStored = 0
+      storedState = new UninitializedState()
+    }
+    listeners.forEach(fn => fn())
+    if (store.enabled) {  // if can use localStorage
+      store.set('actions', actions.map(a => serialize(a)))
+    }
+  }
+
   function dispatch(action:Action):void {
     const state = getState()
     const as:Action[] = action.filter(state.state)
-    if (as.length === 1 && as[0] === action) {
-      actions = action.store(actions)
-      if (action instanceof ClearActions) {
-        timeStored = 0
-        storedState = new UninitializedState()
-      }
-      listeners.forEach(fn => fn())
-      if (store.enabled) {  // if can use localStorage
-        store.set('actions', actions.map(a => serialize(a)))
-      }
-    }
-    else {
-      as.forEach(dispatch)
-    }
+    as.forEach(a => (a === action ? _dispatch : dispatch)(a))
   }
 
   /**

@@ -38,8 +38,9 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
       const steps: Step[] = createStepsSince(actions, lastUpdate)
       if (steps.length > 0) {
         recordBrowserUpdate()
-        this.isListening = false
-        runSteps(steps).then(() => this.isListening = true)
+        const before = () => this.isListening = false
+        const after = () => this.isListening = true
+        runSteps(steps, before, after)
       }
     }
   }
@@ -72,7 +73,8 @@ const mapStateToProps = (state:IUpdateData) => ({
 
 const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
                             ownProps:StepRunnerProps) => ({
-  recordBrowserUpdate: () => dispatch(new UpdateBrowser())
+  recordBrowserUpdate: () => dispatch(new UpdateBrowser()),
+  dispatch
 })
 
 const mergeProps = (stateProps, dispatchProps,

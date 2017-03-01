@@ -53,6 +53,10 @@ export default class Container implements Comparable, IContainer {
     })
   }
 
+  get isAtTopPage():boolean {
+    return !this.canGoBack()
+  }
+
   patternsMatch(url:string):boolean {
     return patternsMatch(this.patterns, url)
   }
