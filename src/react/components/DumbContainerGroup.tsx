@@ -106,7 +106,12 @@ export default class DumbContainerGroup extends
       'currentContainerIndex',
       'currentContainerName',
       'onContainerActivate',
-      'gotoTopOnSelectActive'
+      'gotoTopOnSelectActive',
+      'createGroup',
+      'switchToContainerIndex',
+      'switchToContainerName',
+      'parentUsesDefault',
+      'parentGroupName'
     ], this.props)
     const divStyle={
       ...style,

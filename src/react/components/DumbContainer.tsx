@@ -96,7 +96,9 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'isOnTop',
       'store',
       'initializing',
-      'useDefaultContainer'
+      'useDefaultContainer',
+      'isInitialized',
+      'createContainer'
     ], this.props)
     if (!hideInactiveContainers || matchesLocation) {
       return (

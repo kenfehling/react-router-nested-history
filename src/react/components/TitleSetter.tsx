@@ -4,7 +4,6 @@ import {connect} from 'react-redux'
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import {Store} from '../../store'
 import {canUseWindowLocation} from '../../util/browserFunctions'
-import * as browser from '../../util/browserFunctions'
 import HistoryStack from '../../model/HistoryStack'
 
 type TitleSetterPropsWithStore = {
@@ -19,11 +18,9 @@ type ConnectedTitleSetterProps = TitleSetterPropsWithStore & {
 }
 
 class TitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
-  private unlistenForPopState: () => void
-  private isListening: boolean = true
-  
-  updateTitle() {
-    const {activeUrl, activeTitle} = this.props
+
+  componentWillReceiveProps(newProps) {
+    const {activeUrl, activeTitle} = newProps
     if (canUseWindowLocation) {
       if (activeTitle) {
         document.title = activeTitle
@@ -32,18 +29,6 @@ class TitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
         console.warn('Cannot find title for ' + activeUrl)
       }
     }
-  }
-  
-  componentWillMount() {
-    this.unlistenForPopState = browser.listen(() => {
-      if (this.isListening) {
-        this.updateTitle()
-      }
-    })
-  }
-
-  componentWillUnmount() {
-    this.unlistenForPopState()
   }
 
   render() {

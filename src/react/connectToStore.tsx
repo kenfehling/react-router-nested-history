@@ -15,7 +15,7 @@ export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
 
   return class extends Component<P, any> {
     static contextTypes = {
-      state: PropTypes.object.isRequired
+      store: PropTypes.object.isRequired
     }
     render() {
       return <ConnectedComponent {...this.context} {...this.props} />
