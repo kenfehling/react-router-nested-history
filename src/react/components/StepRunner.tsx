@@ -49,6 +49,9 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
     const {popstate} = this.props
     this.unlistenForPopState = browser.listen((location:Location) => {
       if (this.isListening && location.state) {
+
+        console.log("I thought I heard a pop!")
+
         const page:Page = new Page(location.state)
         popstate(page)
       }
