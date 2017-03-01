@@ -13,20 +13,16 @@ type TitleSetterPropsWithStore = {
 
 type ConnectedTitleSetterProps = TitleSetterPropsWithStore & {
   browserHistory: HistoryStack,
-  activeUrl: string,
   activeTitle?: string|null
 }
 
 class TitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
 
   componentWillReceiveProps(newProps) {
-    const {activeUrl, activeTitle} = newProps
+    const {activeTitle} = newProps
     if (canUseWindowLocation) {
       if (activeTitle) {
         document.title = activeTitle
-      }
-      else {
-        console.warn('Cannot find title for ' + activeUrl)
       }
     }
   }
@@ -40,7 +36,6 @@ const mapStateToProps = (state:IUpdateData, ownProps:TitleSetterPropsWithStore):
                                                 ConnectedTitleSetterProps => ({
   ...ownProps,
   browserHistory: state.state.browserHistory,
-  activeUrl: state.state.activeUrl,
   activeTitle: state.state.activeTitle
 })
 

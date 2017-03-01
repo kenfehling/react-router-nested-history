@@ -1,4 +1,5 @@
 const path = (p) => 'http://localhost:8080' + p
+const PAUSE = 1500
 
 export default {
   'Check content when other group loaded': (client) => {
@@ -16,14 +17,32 @@ export default {
       .end()
   },
 
+  'Push': (client) => {
+    client
+      .url(path('/tabs/1'))
+      .click('#react-tabs-1 a')
+      .pause(PAUSE)
+      .assert.urlEquals(path('/tabs/1/balloon'))
+      .end()
+  },
+
+  'Push, back': (client) => {
+    client
+      .url(path('/tabs/1'))
+      .click('#react-tabs-1 a')
+      .back()
+      .pause(PAUSE)
+      .assert.urlEquals(path('/tabs/1'))
+      .end()
+  },
+
   'Push, back, forward': (client) => {
     client
       .url(path('/tabs/1'))
       .click('#react-tabs-1 a')
-      .assert.urlEquals(path('/tabs/1/balloon'))
       .back()
-      .assert.urlEquals(path('/tabs/1'))
       .forward()
+      .pause(PAUSE)
       .assert.urlEquals(path('/tabs/1/balloon'))
       .end()
   },

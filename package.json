@@ -25,8 +25,8 @@
     "build:umd": "webpack src/index.js dist/react-router-nested-history.js --config webpack.config.development.js",
     "build:umd:min": "webpack src/index.js dist/react-router-nested-history.min.js --config webpack.config.production.js",
     "build": "npm run build:umd && npm run build:umd:min",
-    "build:examples": "cd examples/react; npm uninstall react-router-nested-history; npm install react-router-nested-history; npm run build",
-    "publish:examples": "git subtree push --prefix examples/react origin heroku"
+    "build:examples": "cd examples; npm uninstall react-router-nested-history; npm install react-router-nested-history; npm run build",
+    "publish:examples": "git subtree push --prefix examples origin heroku"
   },
   "keywords": [
     "nested",
