@@ -32,17 +32,14 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   private unlistenForPopState: () => void
   private isListening: boolean = true
 
-  componentWillReceiveProps() {
-    const {isInitialized, actions, lastUpdate, recordBrowserUpdate} = this.props
+  componentWillReceiveProps(newProps) {
+    const {isInitialized, actions, lastUpdate, recordBrowserUpdate} = newProps
     if (isInitialized) {
       const steps: Step[] = createStepsSince(actions, lastUpdate)
       if (steps.length > 0) {
         recordBrowserUpdate()
         const before = () => this.isListening = false
         const after = () => this.isListening = true
-
-        console.log("RUNNING STEPS", steps)
-
         runSteps(steps, before, after)
       }
     }
