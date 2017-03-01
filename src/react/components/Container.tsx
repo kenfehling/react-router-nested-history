@@ -1,14 +1,15 @@
 import * as React from 'react'
 import { Component, PropTypes, ReactNode } from 'react'
-import {connect, Store} from 'react-redux'
+import {connect} from 'react-redux'
 import DumbContainer from './DumbContainer'
-import LocationState from '../model/LocationState'
 import {getOrCreateContainer} from '../../main'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {addTitle} from '../actions/LocationActions'
 import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
 import {canUseDOM} from 'history/ExecutionEnvironment'
+import {Store} from '../../store'
+import IUpdateData from '../../model/interfaces/IUpdateData'
 
 interface ContainerProps {
   children?: ReactNode,
@@ -22,7 +23,7 @@ interface ContainerProps {
 }
 
 type ContainerPropsWithStore = ContainerProps & {
-  store: Store<LocationState>
+  store: Store
 }
 
 type InnerContainerProps = ContainerPropsWithStore & {
@@ -119,12 +120,10 @@ class Container extends Component<InnerContainerProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:LocationState,
-                         ownProps:ContainerPropsWithStore) => {
-  return {
-    pathname: state.pathname
-  }
-}
+const mapStateToProps = (state:IUpdateData,
+                         ownProps:ContainerPropsWithStore) => ({
+  pathname: state.pathname
+})
 
 const ConnectedContainer = connect(
   mapStateToProps,
