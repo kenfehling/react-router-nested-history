@@ -27,13 +27,11 @@ export default class SwitchToContainer extends Action {
     if (this.name) {
       return this.name
     }
+    else if (this.index != null) {
+      return state.getContainerNameByIndex(this.groupName, this.index)
+    }
     else {
-      if (this.index) {
-        return state.getContainerNameByIndex(this.groupName, this.index)
-      }
-      else {
-        throw new Error('Need to pass name or index to SwitchToContainer')
-      }
+      throw new Error('Need to pass name or index to SwitchToContainer')
     }
   }
 
