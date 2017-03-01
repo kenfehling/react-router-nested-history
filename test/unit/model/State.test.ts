@@ -4,6 +4,8 @@ import Page from '../../../src/model/Page'
 import HistoryStack from '../../../src/model/HistoryStack'
 import * as fixtures from '../fixtures'
 import IContainer from '../../../src/model/interfaces/IContainer'
+import InitializedState from '../../../src/model/InitializedState'
+import {push} from '../../../src/util/browserFunctions'
 declare const describe:any
 declare const it:any
 declare const expect:any
@@ -107,6 +109,40 @@ describe('IState', () => {
         expect(amount).toEqual(-1)
       })
     })
+
+    describe('isContainerAtTopPage', () => {
+      const f = (s: IState, name: string) => s.isContainerAtTopPage('Group 1', name)
+
+      it('is at first', () => {
+        expect(f(state, 'Container 1')).toBeTruthy()
+      })
+
+      describe('after push', () => {
+        const pushedState: IState = state.push(new Page({
+          url: '/a/2',
+          params: {id: '2'},
+          groupName: 'Group 1',
+          containerName: 'Container 1'
+        }))
+
+        it('is not after a push', () => {
+          expect(f(pushedState, 'Container 1')).toBeFalsy()
+        })
+
+        describe('after switch', () => {
+          const switchedState: IState = pushedState.switchToContainer({
+            groupName: 'Group 1',
+            name: 'Container 2',
+            time: 3000
+          })
+
+          it('is not after switch, but new container is', () => {
+            expect(f(switchedState, 'Container 1')).toBeFalsy()
+            expect(f(switchedState, 'Container 2')).toBeTruthy()
+          })
+        })
+      })
+    })
   })
 
   describe('nested group', () => {
@@ -173,6 +209,41 @@ describe('IState', () => {
         expect(newState.browserHistory.current).toEqual(newState.getZeroPage())
         expect(newState.browserHistory.forward.length).toBe(1)
         expect(newState.browserHistory.forward[0].url).toBe('/a')
+      })
+    })
+
+    describe('isContainerAtTopPage', () => {
+      const f = (s: IState, name: string) =>
+          s.isContainerAtTopPage(nestedGroup1.name, name)
+
+      it('is at first', () => {
+        expect(f(state, 'Container 1')).toBeTruthy()
+      })
+
+      describe('after push', () => {
+        const pushedState: IState = state.push(new Page({
+          url: '/a/2',
+          params: {id: '2'},
+          groupName:nestedGroup1.name,
+          containerName: 'Container 1'
+        }))
+
+        it('is not after a push', () => {
+          expect(f(pushedState, 'Container 1')).toBeFalsy()
+        })
+
+        describe('after switch', () => {
+          const switchedState: IState = pushedState.switchToContainer({
+            groupName: nestedGroup1.name,
+            name: 'Container 2',
+            time: 3000
+          })
+
+          it('is not after switch, but new container is', () => {
+            expect(f(switchedState, 'Container 1')).toBeFalsy()
+            expect(f(switchedState, 'Container 2')).toBeTruthy()
+          })
+        })
       })
     })
   })

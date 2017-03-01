@@ -1,4 +1,4 @@
-import Action from '../Action'
+import Action, {Origin} from '../Action'
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 
@@ -10,9 +10,10 @@ export default class Top extends Action {
   readonly containerName: string
   readonly reset: boolean
 
-  constructor({time, groupName, containerName, reset=false}:
-      {time?:number, groupName:string, containerName:string, reset?:boolean}) {
-    super({time})
+  constructor({time, origin, groupName, containerName, reset=false}:
+              {time?:number, origin:Origin, groupName:string,
+                containerName:string, reset?:boolean}) {
+    super({time, origin})
     this.groupName = groupName
     this.containerName = containerName
     this.reset = reset

@@ -1,10 +1,9 @@
-import Action from '../Action'
+import Action, {USER, ActionOrigin} from '../Action'
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 import Top from './Top'
 import Group from '../Group'
 import {Origin} from '../Action'
-import {ActionOrigin} from '../Action'
 
 @Serializable
 export default class SwitchToContainer extends Action {
@@ -46,10 +45,14 @@ export default class SwitchToContainer extends Action {
   filter(state:IState):Action[]​ {
     const containerName:string = this.getContainerName(state)
     if (state.isContainerActive(this.groupName, containerName)) {
-      if (!(this.origin instanceof ActionOrigin)) {
+      if (this.origin === USER) {
         const group:Group = state.getGroupByName(this.groupName)
         if (group.gotoTopOnSelectActive) {
-          return [new Top({groupName: this.groupName, containerName})]
+          return [new Top({
+            groupName: this.groupName,
+            containerName,
+            origin: new ActionOrigin(this)
+          })]
         }
       }
       return []

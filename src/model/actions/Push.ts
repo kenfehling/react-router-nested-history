@@ -1,6 +1,6 @@
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
-import Action, {Origin} from '../Action'
+import Action, {Origin, ActionOrigin} from '../Action'
 import Page from '../Page'
 import {parseParamsFromPatterns} from '../../util/url'
 import SwitchToGroup from './SwitchToGroup'
@@ -41,7 +41,11 @@ export default class Push extends Action {
       return []
     }
     else {
-      const data = {groupName: this.groupName, origin: this, time: this.time}
+      const data = {
+        groupName: this.groupName,
+        origin: new ActionOrigin(this),
+        time: this.time
+      }
       return [
         new SwitchToGroup(data),
         new SwitchToContainer({...data, name: this.containerName}),
