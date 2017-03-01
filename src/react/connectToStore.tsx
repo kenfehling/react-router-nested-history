@@ -6,8 +6,8 @@ import IUpdateData from '../model/interfaces/IUpdateData'
 export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
 
   const mapStateToProps = (state:IUpdateData, ownProps:P):P => ({
-    ...state,
-    ...Object(ownProps)
+    ...Object(ownProps),
+    ...state
   })
 
   const WrappedComponent = (props:P) => createElement(component, props)

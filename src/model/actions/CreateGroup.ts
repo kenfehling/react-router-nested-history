@@ -8,18 +8,20 @@ export default class CreateGroup extends NonStepAction {
   static readonly type: string = 'CreateGroup'
   readonly type: string = CreateGroup.type
   readonly name: string
-  readonly parentGroupName: string|null
-  readonly parentUsesDefault: boolean|null
+  readonly parentGroupName: string|undefined
+  readonly parentUsesDefault: boolean|undefined
   readonly resetOnLeave: boolean
   readonly gotoTopOnSelectActive: boolean
 
-  constructor({time, name, parentGroupName=null,
-    parentUsesDefault=parentGroupName?true:null,
+  constructor({time, name, parentGroupName=undefined,
+    parentUsesDefault=parentGroupName?true:undefined,
     resetOnLeave=false, gotoTopOnSelectActive=false}:
-    {time?:number, name:string, parentGroupName?:null, parentUsesDefault?:null,
-      resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}|
-    {time?:number, name:string, parentGroupName:string, parentUsesDefault:boolean,
-      resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}) {
+    {time?:number, name:string, parentGroupName?:undefined,
+      parentUsesDefault?:undefined, resetOnLeave?:boolean,
+      gotoTopOnSelectActive?:boolean}|
+    {time?:number, name:string, parentGroupName:string,
+      parentUsesDefault:boolean, resetOnLeave?:boolean,
+      gotoTopOnSelectActive?:boolean}) {
     super({time, origin: SYSTEM})
     this.name = name
     this.parentGroupName = parentGroupName

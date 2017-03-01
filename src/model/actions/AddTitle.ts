@@ -1,4 +1,4 @@
-import Action from '../Action'
+import Action, {SYSTEM} from '../Action'
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 
@@ -11,7 +11,7 @@ export default class AddTitle extends Action {
 
   constructor({time, pathname, title}:
               {time?:number, pathname:string, title:string}) {
-    super({time})
+    super({time, origin: SYSTEM})
     this.pathname = pathname
     this.title = title
   }
@@ -21,5 +21,10 @@ export default class AddTitle extends Action {
       pathname: this.pathname,
       title: this.title
     })
+  }
+
+
+  filter(state: IState): Action[] {
+    return state.hasTitleForPath(this.pathname) ? [] : [this]
   }
 }

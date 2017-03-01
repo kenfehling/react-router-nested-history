@@ -24,12 +24,15 @@ const GroupTree = ({group, isGroupActive}) => (
     <div>
       {group.containers.map(container =>
         <div key={group.name + ' ' + container.name}>
-          {container.isGroup ? <GroupTree group={container} /> : (
-            <div>
-              <div>{'Container: ' + container.name}</div>
-              <HistoryTree history={container.history} className={`container`} />
-            </div>
-          )}
+          {container.isGroup ?
+            <GroupTree group={container} isGroupActive={isGroupActive} />
+            : (
+              <div>
+                <div>{'Container: ' + container.name}</div>
+                <HistoryTree history={container.history} className={`container`} />
+              </div>
+            )
+          }
         </div>
       )}
     </div>
@@ -48,7 +51,7 @@ const DumbStateTree = ({groups, isGroupActive}) => (
 )
 
 const StateTree = ({state}) => (
-  <DumbStateTree groups={state.groups} isGroupActive={state.isGroupActive} />
+  <DumbStateTree groups={state.groups} isGroupActive={g => state.isGroupActive(g)} />
 )
 
 export default connectToStore(StateTree)

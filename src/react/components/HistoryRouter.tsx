@@ -9,6 +9,7 @@ import * as R from 'ramda'
 import cloneElement = React.cloneElement
 import DumbContainerGroup from './DumbContainerGroup'
 import ContainerGroup from './ContainerGroup'
+import WindowGroup from './WindowGroup'
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import Startup from '../../model/actions/Startup'
 import * as browser from '../../util/browserFunctions'
@@ -50,6 +51,7 @@ function getChildren(component) {
     return []
   }
   else if (component instanceof ContainerGroup || component.type === ContainerGroup ||
+    component instanceof WindowGroup || component.type === WindowGroup ||
     component instanceof DumbContainerGroup || component.type === DumbContainerGroup) {
     return [component]  // Stop if you find a ContainerGroup
   }
@@ -122,9 +124,12 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
     }
     startup()
 
-    // Initialize the Containers in this group
+    // Initialize the ContainerGroups
     // (since most tab libraries lazy load tabs)
     const children = getChildren(this)
+
+    console.log(children)
+
     children.forEach(c => renderToStaticMarkup(<R children={c} />))
 
     if (!isInitialized) {

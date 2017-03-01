@@ -57,6 +57,10 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   componentWillUnmount() {
     this.unlistenForPopState()
   }
+
+  render() {
+    return <div></div>
+  }
 }
 
 const mapStateToProps = (state:IUpdateData) => ({

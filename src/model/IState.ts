@@ -16,14 +16,15 @@ abstract class IState {
   readonly isOnZeroPage: boolean
 
   constructor({groups=[], zeroPage, lastUpdate=0,
-    loadedFromRefresh=false, isOnZeroPage=false}:
+    loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
     {groups?:Group[], zeroPage?:Page, lastUpdate?:number,
-      loadedFromRefresh?:boolean, isOnZeroPage?:boolean}={}) {
+      loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
     this.zeroPage = zeroPage
     this.lastUpdate = lastUpdate
     this.loadedFromRefresh = loadedFromRefresh
     this.isOnZeroPage = isOnZeroPage
+    this.titles = titles
   }
 
   abstract assign(obj:Object):IState
@@ -189,6 +190,10 @@ abstract class IState {
   getTitleForPath(pathname:string):string|null {
     const found = R.find(t => t.pathname === pathname, this.titles)
     return found ? found.title : null
+  }
+
+  hasTitleForPath(pathname:string):boolean {
+    return !!this.getTitleForPath(pathname)
   }
 
   get activeTitle() {

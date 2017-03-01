@@ -46,8 +46,8 @@ function getChildren(component, depth:number=0) {
 
 
 export interface ContainerGroupProps {
-  name: string,
-  children?: ChildrenType,
+  name: string
+  children?: ChildrenType
   currentContainerIndex?: number
   currentContainerName?: string
   onContainerActivate?: OnContainerSwitch
@@ -59,6 +59,8 @@ export interface ContainerGroupProps {
 
 type GroupPropsWithStore = ContainerGroupProps & {
   store: Store
+  parentGroupName: string
+  parentUsesDefault: boolean
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
@@ -71,20 +73,18 @@ type ConnectedGroupProps = GroupPropsWithStore & {
 }
 
 class ContainerGroup extends Component<ConnectedGroupProps, undefined> {
-  constructor(props, context) {
-    super(props, context)
+  constructor(props) {
+    super(props)
     const {
+      store,
       name,
       useDefaultContainer,
       resetOnLeave,
       gotoTopOnSelectActive,
-      createGroup
+      createGroup,
+      parentGroupName,
+      parentUsesDefault
     } = this.props
-
-    const parentGroupName:string = this.context ?
-      this.context.groupName : undefined
-    const parentUsesDefault:boolean = this.context ?
-      this.context.useDefaultContainer : undefined
 
     createGroup(new CreateGroup({
       name,
@@ -96,6 +96,7 @@ class ContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
     class G extends Component<{children: ReactNode}, undefined> {
       static childContextTypes = {
+        store: PropTypes.object.isRequired,
         groupName: PropTypes.string.isRequired,
         useDefaultContainer: PropTypes.bool,
         initializing: PropTypes.bool
@@ -103,6 +104,7 @@ class ContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
       getChildContext() {
         return {
+          store,
           groupName: name,
           useDefaultContainer,
           initializing: true
@@ -172,6 +174,13 @@ export default class extends Component<ContainerGroupProps, undefined> {
   }
 
   render() {
-    return <ConnectedContainerGroup {...this.context} />
+    const {useDefaultContainer, groupName, store} = this.context
+    return (
+      <ConnectedContainerGroup parentUsesDefault={useDefaultContainer}
+                               parentGroupName={groupName}
+                               store={store}
+                               {...this.props}
+      />
+    )
   }
 }

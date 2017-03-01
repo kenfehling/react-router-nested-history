@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Component, PropTypes, ReactNode } from 'react'
+import {Component, PropTypes, ReactNode} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import DumbContainer from './DumbContainer'
 import {renderToStaticMarkup} from 'react-dom/server'
@@ -12,6 +12,7 @@ import AddTitle from '../../model/actions/AddTitle'
 import PathTitle from '../../model/interfaces/PathTitle'
 import IState from '../../model/IState'
 import InitializedState from '../../model/InitializedState'
+import SwitchToGroup from '../../model/actions/SwitchToGroup'
 
 interface ContainerProps {
   children?: ReactNode
@@ -36,6 +37,9 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
   createContainer: (action:CreateContainer) => void
   pathname: string
   addTitle: (title:PathTitle) => any
+  isInitialized: boolean
+  matchesLocation: boolean
+  switchToGroup: () => void
 }
 
 class Container extends Component<ConnectedContainerProps, undefined> {
@@ -49,22 +53,21 @@ class Container extends Component<ConnectedContainerProps, undefined> {
     }
   }
 
-  constructor(props, context) {
-    super(props, context)
+  constructor(props) {
+    super(props)
     const {
+      store,
       children,
       name,
       patterns,
       initialUrl,
       animate=true,
       resetOnLeave=false,
-      createContainer
-    } = this.props
-    const {
+      createContainer,
       groupName,
       initializing=false,
       useDefaultContainer=true
-    } = this.context
+    } = this.props
 
     createContainer(new CreateContainer({
       name,
@@ -77,10 +80,14 @@ class Container extends Component<ConnectedContainerProps, undefined> {
 
     if (initializing) {
       class T extends Component<undefined, undefined> {
-        static childContextTypes = DumbContainer.childContextTypes
+        static childContextTypes = {
+          ...DumbContainer.childContextTypes,
+          store: PropTypes.object.isRequired
+        }
 
         getChildContext() {
           return {
+            store,
             groupName,
             animate,
             containerName: name,
@@ -109,35 +116,29 @@ class Container extends Component<ConnectedContainerProps, undefined> {
   }
 
   render() {
-    const {initializing} = this.context
+    const {initializing} = this.props
     if (initializing) {
       return <div></div>
     }
     else {
       const {animate=true} = this.props
-      const props = {...this.props, ...this.context, animate}
+      const props = {...this.props, animate}
       return <DumbContainer {...props} />
     }
   }
 }
 
 const matchesLocation = (state:IState, groupName:string, patterns:string[]) => {
-  const isInitialized:boolean = state instanceof InitializedState
-  if (isInitialized) {
-    const pathname:string = state.activeUrl
-    const activeGroupUrl:string = state.getActiveUrlInGroup(groupName)
-    const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
-    const isGroupActive:boolean = state.urlMatchesGroup(pathname, groupName)
-    if (isActiveInGroup) {
-      if (isGroupActive) {
-        return pathname === activeGroupUrl
-      }
-      else {
-        return true
-      }
+  const pathname:string = state.activeUrl
+  const activeGroupUrl:string = state.getActiveUrlInGroup(groupName)
+  const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
+  const isGroupActive:boolean = state.urlMatchesGroup(pathname, groupName)
+  if (isActiveInGroup) {
+    if (isGroupActive) {
+      return pathname === activeGroupUrl
     }
     else {
-      return false
+      return true
     }
   }
   else {
@@ -146,14 +147,21 @@ const matchesLocation = (state:IState, groupName:string, patterns:string[]) => {
 }
 
 const mapStateToProps = ({state}:IUpdateData,
-                         ownProps:ContainerPropsWithStore) => ({
-  pathname: state.activeUrl,
-  matchesLocation: matchesLocation(state, ownProps.groupName, ownProps.patterns)
-})
+                         ownProps:ContainerPropsWithStore) => {
+  const isInitialized:boolean = state instanceof InitializedState
+  return {
+    isInitialized: isInitialized,
+    pathname: isInitialized ? state.activeUrl : null,
+    matchesLocation: isInitialized ?
+        matchesLocation(state, ownProps.groupName, ownProps.patterns) : false
+  }
+}
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>) => ({
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+                            ownProps:ContainerPropsWithStore) => ({
   createContainer: (action:CreateContainer) => dispatch(action),
-  addTitle: (title:PathTitle) => dispatch(new AddTitle(title))
+  addTitle: (title:PathTitle) => dispatch(new AddTitle(title)),
+  switchToGroup: () => dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
 })
 
 const mergeProps = (stateProps, dispatchProps,
@@ -179,6 +187,6 @@ export default class extends Component<ContainerProps, undefined> {
   }
 
   render() {
-    return <ConnectedContainer {...this.context} />
+    return <ConnectedContainer {...this.context} {...this.props} />
   }
 }
