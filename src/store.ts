@@ -101,7 +101,7 @@ export function createStore() {
     return () => {  // unsubscribe
       listeners = [
         ...listeners.slice(0, index),
-        ...listeners.slice(index)
+        ...listeners.slice(index + 1)
       ]
     }
   }
