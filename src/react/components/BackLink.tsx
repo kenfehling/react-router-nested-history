@@ -25,7 +25,7 @@ type ConnectedBackLinkProps = BackLinkPropsWithStore & {
 
 class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   componentDidMount() {
-    if (this.context.groupName == null) {
+    if (this.props.groupName == null) {
       throw new Error('BackLink needs to be inside a ContainerGroup')
     }
   }
@@ -53,7 +53,6 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 }
 
-
 const mapStateToProps = (state:IUpdateData,
                          ownProps:BackLinkPropsWithStore) => ({
   backPage: state.state.getBackPageInGroup(ownProps.groupName)
@@ -79,9 +78,6 @@ export default class extends Component<BackLinkProps, undefined> {
   }
 
   render() {
-    const {store, groupName} = this.context
-    return (
-      <ConnectedBackLink store={store} groupName={groupName} {...this.props} />
-    )
+    return  <ConnectedBackLink {...this.context} {...this.props} />
   }
 }

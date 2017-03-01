@@ -1,4 +1,4 @@
-import Page from './model/Page'
+import Page from '../model/Page'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import createBrowserHistory from 'history/createBrowserHistory'
 import createMemoryHistory from 'history/createMemoryHistory'

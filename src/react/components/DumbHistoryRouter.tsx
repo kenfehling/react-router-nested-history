@@ -2,7 +2,7 @@ import * as React from 'react'
 import {Component, ReactNode} from 'react'
 import {Router, StaticRouter} from 'react-router'
 import createBrowserHistory from 'history/createBrowserHistory'
-import {canUseWindowLocation} from '../../util/location'
+import {canUseWindowLocation} from '../../util/browserFunctions'
 declare const window:any
 
 export interface DumbHistoryRouterProps {

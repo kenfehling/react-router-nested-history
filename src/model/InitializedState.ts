@@ -152,6 +152,14 @@ export default class InitializedState extends IState {
     return this.getGroupByName(groupName).activePage
   }
 
+  getActiveUrlInGroup(groupName:string):string {
+    return this.getActivePageInGroup(groupName).url
+  }
+
+  urlMatchesGroup(url:string, groupName:string):boolean {
+    return this.getGroupByName(groupName).patternsMatch(url)
+  }
+
   get activePage():Page {
     return this.activeGroup.activePage
   }

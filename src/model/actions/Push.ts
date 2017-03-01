@@ -24,7 +24,8 @@ export default class Push extends Action {
   }
 
   reduce(state:IState):IState {
-    const params:Object = parseParamsFromPatterns(patterns, url)
+    const container =  state.getContainer(this.groupName, this.containerName)
+    const params:Object = parseParamsFromPatterns(container.patterns, this.url)
     const page:Page = new Page({
       params,
       url: this.url,
@@ -39,7 +40,7 @@ export default class Push extends Action {
     const data = {groupName: this.groupName, origin: this, time: this.time}
     return [
       new SwitchToGroup(data),
-      new SwitchToContainer({...data, containerName: this.containerName}),
+      new SwitchToContainer({...data, name: this.containerName}),
       this
     ]
   }

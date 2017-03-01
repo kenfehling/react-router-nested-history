@@ -1,44 +1,44 @@
 import * as React from 'react'
 import { Component, PropTypes, ReactNode } from 'react'
-import {connect} from 'react-redux'
+import {connect, Dispatch} from 'react-redux'
 import DumbContainer from './DumbContainer'
-import {getOrCreateContainer} from '../../main'
 import {renderToStaticMarkup} from 'react-dom/server'
-import {addTitle} from '../actions/LocationActions'
 import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
 import {canUseDOM} from 'history/ExecutionEnvironment'
 import {Store} from '../../store'
 import IUpdateData from '../../model/interfaces/IUpdateData'
+import AddTitle from '../../model/actions/AddTitle'
+import PathTitle from '../../model/interfaces/PathTitle'
+import IState from '../../model/IState'
+import InitializedState from '../../model/InitializedState'
 
 interface ContainerProps {
-  children?: ReactNode,
-  name: string,
-  animate?: boolean,
-  initialUrl: string,
-  patterns: string[],
-  resetOnLeave?: boolean,
-  className?: string,
+  children?: ReactNode
+  name: string
+  animate?: boolean
+  initialUrl: string
+  patterns: string[]
+  resetOnLeave?: boolean
+  className?: string
   style?: any
 }
 
 type ContainerPropsWithStore = ContainerProps & {
   store: Store
+  groupName: string
+  initializing: boolean
+  useDefaultContainer: boolean
+  hideInactiveContainers: boolean
 }
 
-type InnerContainerProps = ContainerPropsWithStore & {
-  pathname: string,
-  addTitle: (LocationTitle) => any
+type ConnectedContainerProps = ContainerPropsWithStore & {
+  createContainer: (action:CreateContainer) => void
+  pathname: string
+  addTitle: (title:PathTitle) => any
 }
 
-class Container extends Component<InnerContainerProps, undefined> {
-  static contextTypes = {
-    groupName: PropTypes.string.isRequired,
-    initializing: PropTypes.bool,
-    useDefaultContainer: PropTypes.bool,
-    hideInactiveContainers: PropTypes.bool
-  }
-
+class Container extends Component<ConnectedContainerProps, undefined> {
   addTitleForPath(pathname:string) {
     const {addTitle} = this.props
     if (canUseDOM) {
@@ -58,6 +58,7 @@ class Container extends Component<InnerContainerProps, undefined> {
       initialUrl,
       animate=true,
       resetOnLeave=false,
+      createContainer
     } = this.props
     const {
       groupName,
@@ -65,7 +66,7 @@ class Container extends Component<InnerContainerProps, undefined> {
       useDefaultContainer=true
     } = this.context
 
-    getOrCreateContainer(new CreateContainer({
+    createContainer(new CreateContainer({
       name,
       groupName,
       initialUrl,
@@ -120,23 +121,64 @@ class Container extends Component<InnerContainerProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:IUpdateData,
+const matchesLocation = (state:IState, groupName:string, patterns:string[]) => {
+  const isInitialized:boolean = state instanceof InitializedState
+  if (isInitialized) {
+    const pathname:string = state.activeUrl
+    const activeGroupUrl:string = state.getActiveUrlInGroup(groupName)
+    const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
+    const isGroupActive:boolean = state.urlMatchesGroup(pathname, groupName)
+    if (isActiveInGroup) {
+      if (isGroupActive) {
+        return pathname === activeGroupUrl
+      }
+      else {
+        return true
+      }
+    }
+    else {
+      return false
+    }
+  }
+  else {
+    return false
+  }
+}
+
+const mapStateToProps = ({state}:IUpdateData,
                          ownProps:ContainerPropsWithStore) => ({
-  pathname: state.pathname
+  pathname: state.activeUrl,
+  matchesLocation: matchesLocation(state, ownProps.groupName, ownProps.patterns)
+})
+
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>) => ({
+  createContainer: (action:CreateContainer) => dispatch(action),
+  addTitle: (title:PathTitle) => dispatch(new AddTitle(title))
+})
+
+const mergeProps = (stateProps, dispatchProps,
+                    ownProps:ContainerPropsWithStore):ConnectedContainerProps => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps
 })
 
 const ConnectedContainer = connect(
   mapStateToProps,
-  {addTitle}
+  mapDispatchToProps,
+  mergeProps
 )(Container)
 
 export default class extends Component<ContainerProps, undefined> {
   static contextTypes = {
-    store: PropTypes.object.isRequired
+    store: PropTypes.object.isRequired,
+    groupName: PropTypes.string.isRequired,
+    initializing: PropTypes.bool,
+    useDefaultContainer: PropTypes.bool,
+    hideInactiveContainers: PropTypes.bool
   }
 
   render() {
-    const {store} = this.context
-    return <ConnectedContainer store={store} {...this.props} />
+    return <ConnectedContainer {...this.context} />
   }
 }

@@ -61,8 +61,7 @@ export class Store implements ReduxStore<IUpdateData> {
       return {
         state: new UninitializedState(),
         lastAction: this.getLastAction(),
-        pathname: '/',
-        titles: []
+        actions: []
       }
     }
     else {
@@ -81,8 +80,7 @@ export class Store implements ReduxStore<IUpdateData> {
       return {
         state: this.storedState,
         lastAction: this.getLastAction(),
-        pathname: this.storedState.activeUrl,
-        titles: []
+        actions: this.actions
       }
     }
   }

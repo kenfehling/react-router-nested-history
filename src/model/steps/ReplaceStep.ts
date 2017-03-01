@@ -1,5 +1,5 @@
 import Step from '../interfaces/Step'
-import * as browser from '../../browserFunctions'
+import * as browser from '../../util/browserFunctions'
 import Page from '../Page'
 
 export default class ReplaceStep implements Step {

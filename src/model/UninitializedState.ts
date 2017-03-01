@@ -111,6 +111,14 @@ export default class UninitializedState extends IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
+  getActiveUrlInGroup(groupName:string):string {
+    throw new Error(UNINITIALIZED_MESSAGE)
+  }
+
+  urlMatchesGroup(url:string, groupName:string):boolean {
+    throw new Error(UNINITIALIZED_MESSAGE)
+  }
+
   isGroupActive(groupName:string):boolean {
     return false
   }

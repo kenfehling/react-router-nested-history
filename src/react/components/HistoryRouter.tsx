@@ -11,12 +11,13 @@ import DumbContainerGroup from './DumbContainerGroup'
 import ContainerGroup from './ContainerGroup'
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import Startup from '../../model/actions/Startup'
-import * as browser from '../../browserFunctions'
+import * as browser from '../../util/browserFunctions'
 import InitializedState from '../../model/InitializedState'
 import LoadFromUrl from '../../model/actions/LoadFromUrl'
 import SetZeroPage from '../../model/actions/SetZeroPage'
-import {canUseWindowLocation} from '../../browserFunctions'
+import {canUseWindowLocation} from '../../util/browserFunctions'
 import StepRunner from './StepRunner'
+import TitleSetter from './TitleSetter'
 declare const window:any
 
 export interface HistoryRouterProps {

@@ -64,6 +64,8 @@ abstract class IState {
   abstract getActiveContainerNameInGroup(groupName:string)
   abstract getActiveContainerIndexInGroup(groupName:string)
   abstract getActivePageInGroup(groupName:string):Page
+  abstract getActiveUrlInGroup(groupName:string):string
+  abstract urlMatchesGroup(url:string, groupName:string):boolean
   abstract get activePage():Page
   abstract isContainerActive(groupName:string, containerName:string):boolean
   abstract get activeUrl():string

@@ -1,6 +1,6 @@
 import Action from '../../src/model/Action'
 import {runSteps, push} from '../../src/main'
-import {_history, _resetHistory} from '../../src/browserFunctions'
+import {_history, _resetHistory} from '../../src/util/browserFunctions'
 import {
   createContainers1, createContainers3, createGroup1,
   createGroup3, createGroup2, createContainers2

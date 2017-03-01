@@ -3,8 +3,8 @@ import {Component, ReactNode} from 'react'
 import {connect} from 'react-redux'
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import {Store} from '../../store'
-import {canUseWindowLocation} from '../../browserFunctions'
-import * as browser from '../../browserFunctions'
+import {canUseWindowLocation} from '../../util/browserFunctions'
+import * as browser from '../../util/browserFunctions'
 import HistoryStack from '../../model/HistoryStack'
 
 type TitleSetterPropsWithStore = {

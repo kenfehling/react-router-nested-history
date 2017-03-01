@@ -14,9 +14,9 @@ export default class SwitchToContainer extends Action {
   readonly name: string|null
   readonly index: number|null
 
-  constructor({time, origin, groupName, name, index}:
-      {time?:number, origin:Origin, groupName:string, name:string, index:null}|
-      {time?:number, origin:Origin, groupName:string, name:null, index:number}) {
+  constructor({time, origin, groupName, name=null, index=null}:
+      {time?:number, origin?:Origin, groupName:string, name:string, index?:null}|
+      {time?:number, origin?:Origin, groupName:string, name?:null, index:number}) {
     super({time, origin})
     this.groupName = groupName
     this.name = name

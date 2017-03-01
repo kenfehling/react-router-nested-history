@@ -1,6 +1,5 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {switchToContainerIndex, switchToContainer} from '../../main'
 import * as R from 'ramda'
 import ReactElement = React.ReactElement
 
@@ -31,24 +30,19 @@ export interface DumbContainerGroupProps {
   storedIndexedStackOrder: number[]
   storedCurrentContainerIndex: number,
   storedCurrentContainerName: string|null,
-  style?: any
+  style?: any,
+
+  switchToContainerIndex: (index:number) => void
+  switchToContainerName: (name:string) => void
 }
 
 export default class DumbContainerGroup extends
     Component<DumbContainerGroupProps, undefined> {
-  switchContainerIndex: (index:number) => void
-  switchContainerName: (name:string) => void
 
   static childContextTypes = {
     groupName: PropTypes.string.isRequired,
     useDefaultContainer: PropTypes.bool,
     hideInactiveContainers: PropTypes.bool
-  }
-
-  constructor(props:DumbContainerGroupProps) {
-    super(props)
-    this.switchContainerIndex = R.curry(switchToContainerIndex)(props.name)
-    this.switchContainerName = R.curry(switchToContainer)(props.name)
   }
 
   getChildContext() {
@@ -91,10 +85,10 @@ export default class DumbContainerGroup extends
       this.update(newSI, newIndexedStackOrder)
     }
     else if (newII != null && newII !== oldII && newII !== newSI) {
-      this.switchContainerIndex(newII)
+      this.props.switchToContainerIndex(newII)
     }
     else if (newIN && newIN !== oldIN && newIN !== newSN) {
-      this.switchContainerName(newIN)
+      this.props.switchToContainerName(newIN)
     }
   }
 
@@ -128,15 +122,17 @@ export default class DumbContainerGroup extends
     const {
       children,
       storedCurrentContainerIndex,
-      storedIndexedStackOrder
+      storedIndexedStackOrder,
+      switchToContainerName,
+      switchToContainerIndex
     } = this.props
 
     if (children instanceof Function) {
       const args:ChildrenFunctionArgs = {
         currentContainerIndex: storedCurrentContainerIndex,
         indexedStackOrder: storedIndexedStackOrder,
-        setCurrentContainerIndex: this.switchContainerIndex,
-        setCurrentContainerName: this.switchContainerName
+        setCurrentContainerIndex: switchToContainerIndex,
+        setCurrentContainerName: switchToContainerName
       }
       return this.renderDiv(children(args))
     }
