@@ -1,4 +1,4 @@
-import Action from '../Action'
+import Action, {SYSTEM} from '../Action'
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 import NonStepAction from './NonStepAction'
@@ -11,7 +11,7 @@ export default class Startup extends NonStepAction {
   readonly fromRefresh: boolean
 
   constructor({time, fromRefresh=false}:{time?:number, fromRefresh?:boolean}={}) {
-    super({time})
+    super({time, origin: SYSTEM})
     this.fromRefresh = fromRefresh
   }
 

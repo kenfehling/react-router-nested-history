@@ -1,6 +1,7 @@
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 import NonStepAction from './NonStepAction'
+import Action, {SYSTEM} from '../Action'
 
 @Serializable
 export default class CreateGroup extends NonStepAction {
@@ -19,7 +20,7 @@ export default class CreateGroup extends NonStepAction {
       resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}|
     {time?:number, name:string, parentGroupName:string, parentUsesDefault:boolean,
       resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}) {
-    super({time})
+    super({time, origin: SYSTEM})
     this.name = name
     this.parentGroupName = parentGroupName
     this.parentUsesDefault = parentUsesDefault
@@ -44,5 +45,9 @@ export default class CreateGroup extends NonStepAction {
         gotoTopOnSelectActive: this.gotoTopOnSelectActive
       })
     }
+  }
+
+  filter(state:IState):Action[] {
+    return state.hasGroupWithName(this.name) ? [] : [this]
   }
 }

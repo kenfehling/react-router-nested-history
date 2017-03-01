@@ -2,18 +2,17 @@ import IState from './IState'
 import Comparable from './interfaces/Comparable'
 import Step from './interfaces/Step'
 import {diffStateToSteps} from '../util/reconciler'
-import {ISerializable} from '../util/serializer'
+import {ISerializable, Serializable} from '../util/serializer'
 
 abstract class Action implements Comparable, ISerializable {
   abstract readonly type: string
   readonly time: number
+  readonly origin: Origin
 
-  constructor({time=new Date().getTime()}:{time?:number}={}) {
+  constructor({time=new Date().getTime(), origin=USER}:
+              {time?:number, origin?:Origin}={}) {
     this.time = time
-  }
-
-  updateAfterRefresh<A extends Action>(time:number):A {
-    return this.constructor({...Object(this), time}) as A
+    this.origin = origin
   }
 
   /**
@@ -23,6 +22,16 @@ abstract class Action implements Comparable, ISerializable {
    */
   reduce(state:IState):IState {
     return state
+  }
+
+  /**
+   * Runs before store()
+   * Can reject or bring in other actions
+   * @param state The current state
+   * @returns {[Action]} - [this], replacement/additional actions to run, or []
+   */
+  filter(state:IState):Action[] {
+    return [this]
   }
 
   /**
@@ -44,9 +53,40 @@ abstract class Action implements Comparable, ISerializable {
     return [...steps, ...diffStateToSteps(state, newState)]
   }
 
+  updateAfterRefresh<A extends Action>(time:number):A {
+    return this.constructor({...Object(this), time}) as A
+  }
+
   compareTo(other:Action):number {
     return other.time - this.time
   }
 }
+
+export interface Origin {}
+
+@Serializable
+export class SystemOrigin implements Origin {
+  static type:string = 'system'
+  type:string = SystemOrigin.type
+}
+
+@Serializable
+export class UserOrigin implements Origin {
+  static type:string = 'user'
+  type:string = UserOrigin.type
+}
+
+@Serializable
+export class ActionOrigin implements Origin {
+  static type:string = 'action'
+  type:string = ActionOrigin.type
+  readonly action: Action
+  constructor(action:Action) {
+    this.action = action
+  }
+}
+
+export const SYSTEM = new SystemOrigin()
+export const USER = new UserOrigin()
 
 export default Action

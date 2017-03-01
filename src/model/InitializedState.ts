@@ -5,7 +5,6 @@ import Group from './Group'
 import IState from './IState'
 import HistoryStack from './HistoryStack'
 import Container from './Container'
-import IGroupContainer from './interfaces/IGroupContainer'
 
 export default class InitializedState extends IState {
 
@@ -195,6 +194,18 @@ export default class InitializedState extends IState {
 
   getContainer(groupName:string, containerName:string):Container {
     return this.getGroupByName(groupName).containers[containerName]
+  }
+
+  getContainerNameByIndex(groupName: string, index: number): string {
+    const group:Group = this.getGroupByName(groupName)
+    const container:IContainer = group.containers[index]
+    if (container) {
+      return container.name
+    }
+    else {
+      throw new Error(`No container found at index ${index} in '${groupName}' ` +
+        `(size: ${group.containers.length})`)
+    }
   }
 
   isActiveContainer(groupName:string, containerName:string):boolean {

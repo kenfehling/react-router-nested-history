@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { Component, PropTypes, ReactNode } from 'react'
 import {connect, Store} from 'react-redux'
-import store from '../store'
 import DumbContainer from './DumbContainer'
 import LocationState from '../model/LocationState'
 import {getOrCreateContainer} from '../../main'
@@ -9,7 +8,6 @@ import {renderToStaticMarkup} from 'react-dom/server'
 import {addTitle} from '../actions/LocationActions'
 import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
-import * as R from 'ramda'
 import {canUseDOM} from 'history/ExecutionEnvironment'
 
 interface ContainerProps {
@@ -23,13 +21,13 @@ interface ContainerProps {
   style?: any
 }
 
-type InnerContainerProps = ContainerProps & {
-  pathname: string,
-  addTitle: (LocationTitle) => any
+type ContainerPropsWithStore = ContainerProps & {
+  store: Store<LocationState>
 }
 
-type ConnectedContainerProps = InnerContainerProps & {
-  store: Store<LocationState>
+type InnerContainerProps = ContainerPropsWithStore & {
+  pathname: string,
+  addTitle: (LocationTitle) => any
 }
 
 class Container extends Component<InnerContainerProps, undefined> {
@@ -122,9 +120,8 @@ class Container extends Component<InnerContainerProps, undefined> {
 }
 
 const mapStateToProps = (state:LocationState,
-                         ownProps:ConnectedContainerProps):InnerContainerProps => {
+                         ownProps:ContainerPropsWithStore) => {
   return {
-    ...ownProps,
     pathname: state.pathname
   }
 }
@@ -134,4 +131,13 @@ const ConnectedContainer = connect(
   {addTitle}
 )(Container)
 
-export default props => <ConnectedContainer store={store} {...props} />
+export default class extends Component<ContainerProps, undefined> {
+  static contextTypes = {
+    store: PropTypes.object.isRequired
+  }
+
+  render() {
+    const {store} = this.context
+    return <ConnectedContainer store={store} {...this.props} />
+  }
+}

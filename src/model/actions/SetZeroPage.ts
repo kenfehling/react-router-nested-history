@@ -1,4 +1,5 @@
 import NonStepAction from './NonStepAction'
+import {SYSTEM} from '../Action'
 import IState from '../IState'
 import Page from '../Page'
 import {Serializable} from '../../util/serializer'
@@ -10,7 +11,7 @@ export default class SetZeroPage extends NonStepAction {
   readonly url: string|null
 
   constructor({time, url}:{time?:number, url:string|null}) {
-    super({time})
+    super({time, origin: SYSTEM})
     this.url = url
   }
 

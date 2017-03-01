@@ -9,7 +9,6 @@ import Action from '../../model/Action'
 import PopState from '../../model/actions/PopState'
 import {connect, Store} from 'react-redux'
 import LocationState from '../model/LocationState'
-import store from '../store'
 
 interface AnimatedPageProps {
   children?: ReactNode
@@ -165,7 +164,12 @@ const mapStateToProps = (state:LocationState,
 const ConnectedPage = connect(mapStateToProps)(AnimatedPage)
 
 export default class extends Component<AnimatedPageProps, undefined> {
+  static contextTypes = {
+    store: PropTypes.object.isRequired
+  }
+
   render() {
+    const {store} = this.context
     return <ConnectedPage {...this.props} store={store} />
   }
 }

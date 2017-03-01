@@ -1,10 +1,8 @@
 import {createStepsSince} from './util/actions'
 import * as browser from './browserFunctions'
 import {Location} from 'history'
-import store from './store'
 import * as Queue from 'promise-queue'
 import {canUseWindowLocation} from './util/location'
-import {parseParamsFromPatterns} from './util/url'
 import IState from './model/IState'
 import Group from './model/Group'
 import Page from './model/Page'
@@ -12,18 +10,7 @@ import Step from './model/interfaces/Step'
 import Action from './model/Action'
 import UpdateBrowser from './model/actions/UpdateBrowser'
 import LoadFromUrl from './model/actions/LoadFromUrl'
-import IContainer from './model/interfaces/IContainer'
-import CreateGroup from './model/actions/CreateGroup'
-import Go from './model/actions/Go'
-import Back from './model/actions/Back'
-import Forward from './model/actions/Forward'
-import Top from './model/actions/Top'
-import SetZeroPage from './model/actions/SetZeroPage'
-import Push from './model/actions/Push'
-import SwitchToContainer from './model/actions/SwitchToContainer'
 import PopState from './model/actions/PopState'
-import CreateContainer from './model/actions/CreateContainer'
-import SwitchToGroup from './model/actions/SwitchToGroup'
 import Startup from './model/actions/Startup'
 import InitializedState from './model/InitializedState'
 import IUpdateData from './model/interfaces/IUpdateData'
@@ -66,92 +53,6 @@ const startListeningPromise = () => new Promise(resolve => {
 export const getGroupByName = (name:string):Group =>
     store.getState().getGroupByName(name)
 
-export const hasGroupWithName = (name:string):boolean =>
-    store.getState().hasGroupWithName(name)
-
-const createGroup = (action:CreateGroup):Group => {
-  store.dispatch(action)
-  return store.getState().getGroupByName(action.name)
-}
-
-export const getOrCreateGroup = (action:CreateGroup):Group => {
-  if (hasGroupWithName(action.name)) {
-    return getGroupByName(action.name)
-  }
-  else {
-    return createGroup(action)
-  }
-}
-
-const createContainer = (action:CreateContainer):IContainer => {
-  store.dispatch(action)
-  return store.getState().getGroupByName(action.groupName)
-      .getContainerByName(action.name)
-}
-
-export const getOrCreateContainer = (action:CreateContainer):IContainer => {
-  const state:IState = store.getState()
-  const group:Group = state.getGroupByName(action.groupName)
-  if (group.hasContainerWithName(action.name)) {
-    return group.getContainerByName(action.name)
-  }
-  else {
-    return createContainer(action)
-  }
-}
-
-export const switchToGroup = (groupName:string):void => {
-  if (!isGroupActive(groupName)) {
-    store.dispatch(new SwitchToGroup({groupName}))
-  }
-}
-
-const switchToContainerName = (groupName:string,
-                                  containerName:string,
-                                  fromPush:boolean=false):void => {
-  if (isContainerActive(groupName, containerName)) {
-    if (!fromPush) {
-      const group:Group = getGroupByName(groupName)
-      if (group.gotoTopOnSelectActive) {
-        store.dispatch(new Top({groupName}))
-      }
-    }
-  }
-  else {
-    store.dispatch(new SwitchToContainer({groupName, containerName}))
-  }
-}
-
-export const switchToContainer = (groupName:string, containerName:string):void =>
-    switchToContainerName(groupName, containerName, false)
-
-export const switchToContainerIndex = (groupName:string, index:number):void => {
-  const group:Group = getGroupByName(groupName)
-  const container:IContainer = group.containers[index]
-  if (container) {
-    return switchToContainerName(groupName, container.name)
-  }
-  else {
-    throw new Error(`No container found at index ${index} in '${groupName}' ` +
-                    `(size: ${group.containers.length})`)
-  }
-}
-
-export const push = (groupName:string, containerName:string, url:string,
-                     patterns:string[]):void => {
-  const params:Object = parseParamsFromPatterns(patterns, url)
-  const page:Page = new Page({
-    url,
-    params,
-    groupName,
-    containerName,
-    lastVisited: new Date().getTime()
-  })
-  switchToGroup(groupName)
-  switchToContainerName(groupName, containerName, true)
-  store.dispatch(new Push({page}))
-}
-
 export const startup = ():void =>
     store.dispatch(new Startup({fromRefresh: browser.wasLoadedFromRefresh}))
 
@@ -161,16 +62,9 @@ export const loadFromUrl = (url:string):void =>
       fromRefresh: browser.wasLoadedFromRefresh
     }))
 
-export const setZeroPage = (url:string|null):void =>
-    store.dispatch(new SetZeroPage({url}))
 
 export const getLastAction = ():Action => store.getLastAction()
 export const getLastActionType = ():string => getLastAction().type
-export const loadActions = ():void => store.loadActions()
-export const top = (action:Top):void => store.dispatch(action)
-export const go = (n:number=1):void => store.dispatch(new Go({n}))
-export const back = (n:number=1):void => store.dispatch(new Back({n}))
-export const forward = (n:number=1):void => store.dispatch(new Forward({n}))
 
 export const getBackPageInGroup = (groupName:string):Page =>
   store.getState().getBackPageInGroup(groupName)

@@ -1,7 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, Children, ReactNode} from 'react'
 import {connect, Store} from 'react-redux'
-import store from '../store'
 import DumbContainerGroup, {
   OnContainerSwitch,
   DumbContainerGroupProps, ChildrenType
@@ -80,8 +79,9 @@ const ConnectedContainerGroup = connect(mapStateToProps)(DumbContainerGroup)
 
 export default class ContainerGroup extends Component<ContainerGroupProps, undefined> {
   static contextTypes = {
-    groupName: PropTypes.string,         // Parent group name (if any)
-    useDefaultContainer: PropTypes.bool  // From parent (if any)
+    groupName: PropTypes.string,          // Parent group name (if any)
+    useDefaultContainer: PropTypes.bool,  // From parent (if any)
+    store: PropTypes.object.isRequired
   }
 
   constructor(props, context) {
@@ -133,11 +133,7 @@ export default class ContainerGroup extends Component<ContainerGroupProps, undef
   }
 
   render() {
-    return (
-      <ConnectedContainerGroup
-          store={store}
-          {...this.props}
-      />
-    )
+    const {store} = this.context
+    return  <ConnectedContainerGroup store={store} {...this.props} />
   }
 }

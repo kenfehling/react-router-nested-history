@@ -5,9 +5,11 @@ import * as R from 'ramda'
 import IContainer from './interfaces/IContainer'
 import ISubGroup from './interfaces/ISubGroup'
 import Group from './Group'
+import PathTitle from './interfaces/PathTitle'
 
 abstract class IState {
   readonly groups: Group[]
+  readonly titles: PathTitle[]
   readonly zeroPage?: Page
   readonly lastUpdate: number
   readonly loadedFromRefresh: boolean
@@ -72,6 +74,7 @@ abstract class IState {
   abstract get activeContainer():IContainer
   abstract getContainer(groupName:string, containerName:string):Container
   abstract isActiveContainer(groupName:string, containerName:string):boolean
+  abstract getContainerNameByIndex(groupName:string, index:number):string
 
   replaceGroup(group:Group):IState {
     if (group.parentGroupName) {
@@ -180,6 +183,22 @@ abstract class IState {
       return false
     }
   }
+
+  getTitleForPath(pathname:string):string|null {
+    const found = R.find(t => t.pathname === pathname, this.titles)
+    return found ? found.title : null
+  }
+
+  get activeTitle() {
+    return this.getTitleForPath(this.activeUrl)
+  }
+
+  addTitle({pathname, title}:{pathname:string, title:string}):IState {
+    const existingTitle = this.getTitleForPath(pathname)
+    return existingTitle ? this :
+      this.assign({titles: [...this.titles, {pathname, title}]})
+  }
+
 
   /**
    * Gets the zero page, or if it's not set defaults to using

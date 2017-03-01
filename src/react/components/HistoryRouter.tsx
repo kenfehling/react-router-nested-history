@@ -1,19 +1,13 @@
 import * as React from 'react'
 import {Component, Children, ReactNode, PropTypes, createElement} from 'react'
 import {renderToStaticMarkup} from 'react-dom/server'
-import {connect, Store} from 'react-redux'
 import {Route} from 'react-router'
-import store from '../store'
-import {listenToLocation, unlistenToLocation} from '../actions/LocationActions'
+import {createStore, Store} from '../../store'
 import {
-  setZeroPage, loadFromUrl, startup, listenToStore, isInitialized, loadActions,
-  addStepListener
+  setZeroPage, loadFromUrl, startup, isInitialized, loadActions
 } from '../../main'
 import {canUseWindowLocation} from '../../util/location'
-import LocationState from '../model/LocationState'
 import DumbHistoryRouter from './DumbHistoryRouter'
-import LocationTitle from '../model/LocationTitle'
-import {getTitleForUrl} from '../util/titles'
 import * as R from 'ramda'
 import cloneElement = React.cloneElement
 import DumbContainerGroup from './DumbContainerGroup'
@@ -27,17 +21,7 @@ export interface HistoryRouterProps {
   keyLength?: number,
   children?: ReactNode,
   zeroPage?: string,
-  location: string
-}
-
-type RouterPropsWithStore = HistoryRouterProps & {
-  store: Store<LocationState>
-}
-
-export type ConnectedHistoryRouterProps = HistoryRouterProps & {
-  titles: LocationTitle[],
-  listenToLocation: () => any,
-  unlistenToLocation: () => any
+  location?: string
 }
 
 /**
@@ -75,18 +59,28 @@ function getChildren(component) {
   }
 }
 
-class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
+export default class HistoryRouter extends Component<HistoryRouterProps, undefined> {
+  private store:Store
+
+  static childContextTypes = {
+    store: PropTypes.object.isRequired
+  }
+
   constructor(props) {
     super(props)
+    const store:Store = createStore()
+    this.store = store
 
     class R extends Component<{children: ReactNode}, undefined> {
       static childContextTypes = {
+        store: PropTypes.object.isRequired,
         initializing: PropTypes.bool,
-        router: PropTypes.object
+        router: PropTypes.object,
       }
 
       getChildContext() {
         return {
+          store,
           initializing: true,
           router: {
             location: {pathname: '/'},
@@ -102,20 +96,7 @@ class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
       }
     }
 
-    const onStep = (currentUrl:string) => {
-      const {titles} = this.props
-      const title = getTitleForUrl(titles, currentUrl)
-      if (canUseWindowLocation) {
-        if (title) {
-          document.title = title
-        }
-        else {
-          console.warn('Cannot find title for ' + currentUrl)
-        }
-      }
-    }
-    addStepListener({before: onStep, after: onStep})
-    const {zeroPage, listenToLocation} = this.props
+    const {zeroPage} = this.props
     loadActions()
     if (zeroPage) {
       setZeroPage(zeroPage)
@@ -127,22 +108,15 @@ class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
     const children = getChildren(this)
     children.forEach(c => renderToStaticMarkup(<R children={c} />))
 
-    listenToStore()
-    listenToLocation && listenToLocation()
-
     if (!isInitialized()) {
       loadFromUrl(this.getLocation())
     }
   }
 
-  componentWillMount() {
-
-  }
-
-  componentWillUnmount() {
-    const {unlistenToLocation} = this.props
-    //this.unlistenToStore()
-    unlistenToLocation && unlistenToLocation()
+  getChildContext() {
+    return {
+      store: this.store
+    }
   }
 
   getLocation():string {
@@ -167,14 +141,3 @@ class HistoryRouter extends Component<ConnectedHistoryRouterProps, undefined> {
     )
   }
 }
-
-const ConnectedHistoryRouter = connect(
-  (state:LocationState, ownProps:RouterPropsWithStore) => ({
-    titles: state.titles
-  }),
-  {listenToLocation, unlistenToLocation}
-)(HistoryRouter)
-
-export default (props:HistoryRouterProps) => (
-  <ConnectedHistoryRouter store={store} {...props} />
-)

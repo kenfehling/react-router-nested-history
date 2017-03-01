@@ -1,4 +1,5 @@
 import {serialize, deserialize, ISerialized} from './util/serializer'
+import {Store as ReduxStore} from 'redux'
 import Action from './model/Action'
 import * as R from 'ramda'
 import UninitializedState from './model/UninitializedState'
@@ -6,8 +7,10 @@ import IState from './model/IState'
 import * as store from 'store'
 import ClearActions from './model/actions/ClearActions'
 import UpdateBrowser from './model/actions/UpdateBrowser'
+import IUpdateData from './model/interfaces/IUpdateData'
+import Startup from './model/actions/Startup'
 
-class Store {
+export class Store implements ReduxStore<IUpdateData> {
   actions: Action[]
   storedState: IState
   timeStored: number = 0
@@ -27,16 +30,22 @@ class Store {
     }
   }
 
-  dispatch(action:Action) {
-    this.actions = action.store(this.actions)
-    if (action instanceof ClearActions) {
-      this.timeStored = 0
-      this.storedState = new UninitializedState()
+  dispatch(action:Action):void {
+    const state = this.getState()
+    const actions:Action[] = action.filter(state.state)
+    if (actions.length === 1 && actions[0] === action) {
+      this.actions = action.store(this.actions)
+      if (action instanceof ClearActions) {
+        this.timeStored = 0
+        this.storedState = new UninitializedState()
+      }
+      this.listeners.forEach(fn => fn())
+      if (store.enabled) {  // if can use localStorage
+        store.set('actions', this.actions.map(a => serialize(a)))
+      }
     }
-
-    this.listeners.forEach(fn => fn())
-    if (store.enabled) {  // if can use localStorage
-      store.set('actions', this.actions.map(a => serialize(a)))
+    else {
+      actions.forEach(this.dispatch)
     }
   }
 
@@ -48,9 +57,14 @@ class Store {
    * Derives the state from the list of actions
    * Caches the last derived state for performance
    */
-  getState():IState {
+  getState():IUpdateData {
     if (this.actions.length === 0) {
-      return new UninitializedState()
+      return {
+        state: new UninitializedState(),
+        lastAction: this.getLastAction(),
+        pathname: '/',
+        titles: []
+      }
     }
     else {
       const lastTime:number = R.last(this.actions).time
@@ -65,7 +79,12 @@ class Store {
         this.storedState = this.deriveState(newActions, this.storedState)
         this.timeStored = lastTime
       }
-      return this.storedState
+      return {
+        state: this.storedState,
+        lastAction: this.getLastAction(),
+        pathname: this.storedState.activeUrl,
+        titles: []
+      }
     }
   }
 
@@ -74,12 +93,24 @@ class Store {
   }
 
   getLastUpdate():number {
-    return this.getState().lastUpdate
+    return this.getState().state.lastUpdate
   }
 
-  subscribe(fn:()=>void):void {
-    this.listeners.push(fn)
+  subscribe(listener:()=>void):()=>void {
+    this.listeners.push(listener)
+    const index = this.listeners.indexOf(listener)
+    return () => {  // unsubscribe
+      this.listeners = [
+        ...this.listeners.slice(0, index),
+        ...this.listeners.slice(index)
+      ]
+    }
+  }
+
+  replaceReducer(nextReducer) {
+    throw new Error('Not implemented')
   }
 }
 
-export default new Store()
+export const createStore = () => new Store()
+
