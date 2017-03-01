@@ -112,5 +112,9 @@ export class Store implements ReduxStore<IUpdateData> {
   }
 }
 
-export const createStore = () => new Store()
+export const createStore = ():Store => {
+  const store:Store = new Store()
+  store.loadActions()
+  return store
+}
 

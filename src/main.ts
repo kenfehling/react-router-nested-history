@@ -53,16 +53,6 @@ const startListeningPromise = () => new Promise(resolve => {
 export const getGroupByName = (name:string):Group =>
     store.getState().getGroupByName(name)
 
-export const startup = ():void =>
-    store.dispatch(new Startup({fromRefresh: browser.wasLoadedFromRefresh}))
-
-export const loadFromUrl = (url:string):void =>
-    store.dispatch(new LoadFromUrl({
-      url,
-      fromRefresh: browser.wasLoadedFromRefresh
-    }))
-
-
 export const getLastAction = ():Action => store.getLastAction()
 export const getLastActionType = ():string => getLastAction().type
 
@@ -115,9 +105,6 @@ export const getActiveContainerNameInGroup = (groupName:string): string =>
 
 export const isGroupActive = (groupName:string): boolean =>
     store.getState().isGroupActive(groupName)
-
-export const isInitialized = (): boolean =>
-    store.getState() instanceof InitializedState
 
 function runStep(step:Step):Promise<void> {
   const stepPromise = ():Promise<any> => {

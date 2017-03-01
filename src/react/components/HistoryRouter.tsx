@@ -3,25 +3,40 @@ import {Component, Children, ReactNode, PropTypes, createElement} from 'react'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {Route} from 'react-router'
 import {createStore, Store} from '../../store'
-import {
-  setZeroPage, loadFromUrl, startup, isInitialized, loadActions
-} from '../../main'
 import {canUseWindowLocation} from '../../util/location'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import * as R from 'ramda'
 import cloneElement = React.cloneElement
 import DumbContainerGroup from './DumbContainerGroup'
 import ContainerGroup from './ContainerGroup'
+import {connect, Dispatch} from 'react-redux'
+import IUpdateData from '../../model/interfaces/IUpdateData'
+import Startup from '../../model/actions/Startup'
+import * as browser from '../../browserFunctions'
+import InitializedState from '../../model/InitializedState'
+import LoadFromUrl from '../../model/actions/LoadFromUrl'
+import SetZeroPage from '../../model/actions/SetZeroPage'
 declare const window:any
 
 export interface HistoryRouterProps {
-  basename?: string,
-  forceRefresh?: boolean,
-  getUserConfirmation?: Function,
-  keyLength?: number,
-  children?: ReactNode,
-  zeroPage?: string,
+  basename?: string
+  forceRefresh?: boolean
+  getUserConfirmation?: Function
+  keyLength?: number
+  children?: ReactNode
+  zeroPage?: string
   location?: string
+}
+
+type RouterPropsWithStore = HistoryRouterProps & {
+  store: Store
+}
+
+type ConnectedRouterProps = RouterPropsWithStore & {
+  isInitialized: boolean
+  startup: () => void
+  loadFromUrl: (url:string) => void
+  setZeroPage: (url:string) => void
 }
 
 /**
@@ -59,17 +74,21 @@ function getChildren(component) {
   }
 }
 
-export default class HistoryRouter extends Component<HistoryRouterProps, undefined> {
-  private store:Store
-
+class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
   static childContextTypes = {
     store: PropTypes.object.isRequired
   }
 
   constructor(props) {
     super(props)
-    const store:Store = createStore()
-    this.store = store
+    const {
+      store,
+      zeroPage,
+      setZeroPage,
+      startup,
+      loadFromUrl,
+      isInitialized
+    } = this.props
 
     class R extends Component<{children: ReactNode}, undefined> {
       static childContextTypes = {
@@ -96,8 +115,6 @@ export default class HistoryRouter extends Component<HistoryRouterProps, undefin
       }
     }
 
-    const {zeroPage} = this.props
-    loadActions()
     if (zeroPage) {
       setZeroPage(zeroPage)
     }
@@ -108,14 +125,14 @@ export default class HistoryRouter extends Component<HistoryRouterProps, undefin
     const children = getChildren(this)
     children.forEach(c => renderToStaticMarkup(<R children={c} />))
 
-    if (!isInitialized()) {
+    if (!isInitialized) {
       loadFromUrl(this.getLocation())
     }
   }
 
   getChildContext() {
     return {
-      store: this.store
+      store: this.props.store
     }
   }
 
@@ -141,3 +158,36 @@ export default class HistoryRouter extends Component<HistoryRouterProps, undefin
     )
   }
 }
+
+const mapStateToProps = (state:IUpdateData) => ({
+  isInitialized: state.state instanceof InitializedState
+})
+
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+                            ownProps:RouterPropsWithStore) => ({
+  startup: () => dispatch(new Startup({
+    fromRefresh: browser.wasLoadedFromRefresh
+  })),
+  loadFromUrl: (url:string) => dispatch(new LoadFromUrl({
+    url,
+    fromRefresh: browser.wasLoadedFromRefresh
+  })),
+  setZeroPage: (url:string) => dispatch(new SetZeroPage({url}))
+})
+
+const mergeProps = (stateProps, dispatchProps,
+                    ownProps:RouterPropsWithStore):ConnectedRouterProps => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps
+})
+
+const ConnectedHistoryRouter = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  mergeProps
+)(HistoryRouter)
+
+export default (props:HistoryRouterProps) => (
+  <ConnectedHistoryRouter store={createStore()} {...props} />
+)
