@@ -14,7 +14,7 @@ import ForwardStep from '../../../src/model/steps/ForwardStep'
 import SetZeroPage from '../../../src/model/actions/SetZeroPage'
 import Action from '../../../src/model/Action'
 import {createStepsSince} from '../../../src/util/actions'
-import store from '../../../src/store'
+import * as store from '../../../src/store'
 import GoStep from '../../../src/model/steps/GoStep'
 import * as R from 'ramda'
 import Startup from '../../../src/model/actions/Startup'
@@ -189,7 +189,7 @@ describe('action utils', () => {
         it('switch to container', () => {
           const actions:Action[] = [...loadActions, new SwitchToContainer({
             groupName: 'Group 1',
-            containerName: 'Container 2',
+            name: 'Container 2',
             time: 1002
           })]
           expect(createStepsSince(actions, 1000)).toEqual([
@@ -236,7 +236,7 @@ describe('action utils', () => {
               }),
               new SwitchToContainer({
                 groupName: 'Group 1',
-                containerName: 'Container 2',
+                name: 'Container 2',
                 time: 4000
               }),
               new PopState({
@@ -261,7 +261,7 @@ describe('action utils', () => {
           const switchActions:Action[] = [...loadActions,
             new SwitchToContainer({
               groupName: 'Group 1',
-              containerName: 'Container 2',
+              name: 'Container 2',
               time: 2000
             })
           ]
@@ -305,17 +305,13 @@ describe('action utils', () => {
                 }),
                 new SwitchToContainer({
                   groupName: 'Group 2',
-                  containerName: 'Container 2',
+                  name: 'Container 2',
                   time: 4000
                 }),
                 new Push({
-                  page: new Page({
-                    url: '/f/1',
-                    params: {id: '1'},
-                    groupName: 'Group 2',
-                    containerName: 'Container 2',
-                    firstVisited: 5000
-                  }),
+                  url: '/f/1',
+                  groupName: 'Group 2',
+                  containerName: 'Container 2',
                   time: 5000
                 }),
                 new Back({
@@ -323,7 +319,7 @@ describe('action utils', () => {
                 }),
                 new SwitchToContainer({
                   groupName: 'Group 2',
-                  containerName: 'Container 1',
+                  name: 'Container 1',
                   time: 7000
                 }),
               ]
@@ -434,7 +430,7 @@ describe('action utils', () => {
           }),
           new SwitchToContainer({
             groupName: createSubGroup1.name,
-            containerName: 'Container 2',
+            name: 'Container 2',
             time: 2000
           })
         ]

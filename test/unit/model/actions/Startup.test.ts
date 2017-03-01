@@ -2,9 +2,7 @@ import CreateContainer from '../../../../src/model/actions/CreateContainer'
 import CreateGroup from '../../../../src/model/actions/CreateGroup'
 import Startup from '../../../../src/model/actions/Startup'
 import Push from '../../../../src/model/actions/Push'
-import Page from '../../../../src/model/Page'
 import Action from '../../../../src/model/Action'
-import {serialize, deserialize} from '../../../../src/util/serializer'
 import LoadFromUrl from '../../../../src/model/actions/LoadFromUrl'
 declare const describe:any
 declare const it:any
@@ -30,20 +28,11 @@ describe('Startup action', () => {
       url: '/a/1'
     }),
     new Push({
-      page: new Page({
-        url: '/a/2',
-        params: {id: '2'},
-        groupName: 'Group 1',
-        containerName: 'Container 1'
-      })
+      url: '/a/2',
+      groupName: 'Group 1',
+      containerName: 'Container 1'
     })
   ]
-
-  it('cleans all original actions if not from browser refresh', () => {
-    const action:Startup = new Startup({fromRefresh: false})
-    const actions:Action[] = action.store(originalActions)
-    expect(actions.length).toEqual(1)
-  })
 
   it('simply updates the old actions if from a browser refresh', () => {
     const action:Startup = new Startup({fromRefresh: true})

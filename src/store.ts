@@ -40,6 +40,15 @@ export function createStore() {
     }
   }
 
+  function init():void {
+    if (browser.wasLoadedFromRefresh) {
+      loadActions()
+    }
+    else {
+      clearActions()
+    }
+  }
+
   function _dispatch(action:Action):void {
     actions = action.store(actions)
     if (action instanceof ClearActions) {
@@ -55,6 +64,10 @@ export function createStore() {
   function dispatch(action:Action):void {
     const state = getState()
     const as:Action[] = action.filter(state.state)
+
+    //console.log('Action: ' + action.type)
+    //console.log('Actions: ' + as.map(a => a.type + ' '))
+
     as.forEach(a => (a === action ? _dispatch : dispatch)(a))
   }
 
@@ -105,13 +118,8 @@ export function createStore() {
       ]
     }
   }
-  
-  if (browser.wasLoadedFromRefresh) {
-    loadActions()
-  }
-  else {
-    clearActions()
-  }
+
+  init()
   
   return {
     dispatch,

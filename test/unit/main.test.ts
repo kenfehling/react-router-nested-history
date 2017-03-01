@@ -1,14 +1,12 @@
 import Action from '../../src/model/Action'
-import {runSteps, push} from '../../src/main'
 import {_history, _resetHistory} from '../../src/util/browserFunctions'
 import {
   createContainers1, createContainers3, createGroup1,
   createGroup3, createGroup2, createContainers2
 } from './fixtures'
-import store from '../../src/store'
+import {createStore, Store} from '../../src/store'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
 import Push from '../../src/model/actions/Push'
-import Page from '../../src/model/Page'
 import IState from '../../src/model/IState'
 import Step from '../../src/model/interfaces/Step'
 import {MemoryHistory} from 'history'
@@ -22,6 +20,8 @@ import {createStepsSince} from '../../src/util/actions'
 import Startup from '../../src/model/actions/Startup'
 import ClearActions from '../../src/model/actions/ClearActions'
 import SwitchToGroup from '../../src/model/actions/SwitchToGroup'
+import {runSteps} from '../../src/util/stepRunner'
+import InitializedState from '../../src/model/InitializedState'
 declare const describe:any
 declare const it:any
 declare const expect:any
@@ -29,7 +29,15 @@ declare const beforeEach:any
 declare const afterEach:any
 
 describe('main', () => {
-  afterEach(() => store.dispatch(new ClearActions()))
+  let store:Store
+
+  beforeEach(() => {
+    store = createStore()
+  })
+
+  afterEach(() => {
+    store.dispatch(new ClearActions())
+  })
 
   const dispatchAll = (actions: Action[]) =>
       actions.forEach(store.dispatch.bind(store))
@@ -45,24 +53,18 @@ describe('main', () => {
           url: '/a'
         }),
         new Push({
-          page: new Page({
-            url: '/a/1',
-            params: {index: '1'},
-            groupName: 'Group 1',
-            containerName: 'Container 1'
-          })
+          url: '/a/1',
+          groupName: 'Group 1',
+          containerName: 'Container 1'
         }),
         new Push({
-          page: new Page({
-            url: '/a/2',
-            params: {index: '1'},
-            groupName: 'Group 1',
-            containerName: 'Container 1'
-          })
-        }),
-        new Startup()
+          url: '/a/2',
+          groupName: 'Group 1',
+          containerName: 'Container 1'
+        })
       ])
-      expect(store.actions.length).toBe(1)
+      store = createStore()
+      expect(store.getState().actions.length).toBe(0)
     })
 
     it('loads to a non-default page', () => {
@@ -76,7 +78,7 @@ describe('main', () => {
         })
       ])
 
-      const state:IState = store.getState()
+      const state:IState = store.getState().state
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).toBe(1);
@@ -105,12 +107,12 @@ describe('main', () => {
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
-          containerName: 'Container 2',
+          name: 'Container 2',
           time: 2000
         })
       ])
 
-      const state:IState = store.getState()
+      const state:IState = store.getState().state
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).toBe(1);
@@ -146,31 +148,25 @@ describe('main', () => {
           time: 1000
         }),
         new Push({
-          page: new Page({
-            url: '/j/1/cat',
-            params: {id: '1', name: 'cat'},
-            groupName: 'Group 3',
-            containerName: 'Container 1',
-            firstVisited: 2000
-          }),
+          url: '/j/1/cat',
+          groupName: 'Group 3',
+          containerName: 'Container 1',
+          time: 2000
         }),
         new Push({
-          page: new Page({
-            url: '/j/2/dog',
-            params: {id: '2', containerName: 'dog'},
-            groupName: 'Group 3',
-            containerName: 'Container 1',
-            firstVisited: 3000
-          })
+          url: '/j/2/dog',
+          groupName: 'Group 3',
+          containerName: 'Container 1',
+          time: 3000
         }),
         new SwitchToContainer({
           groupName: 'Group 3',
-          containerName: 'Container 2',
+          name: 'Container 2',
           time: 4000
         })
       ])
 
-      const state:IState = store.getState()
+      const state:IState = store.getState().state
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).toBe(0);
@@ -203,9 +199,13 @@ describe('main', () => {
           time: 1000
         })
       ])
-      push('Group 2', 'Container 1', '/e/1', ['/e', '/e/:id'])
+      store.dispatch(new Push({
+        groupName: 'Group 2',
+        containerName: 'Container 1',
+        url: '/e/1'
+      }))
 
-      const state:IState = store.getState()
+      const state:IState = store.getState().state
       const groups = state.groups
 
       expect(groups[0].containers[0].history.back.length).toBe(0);
@@ -238,7 +238,7 @@ describe('main', () => {
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
-          containerName: 'Container 2',
+          name: 'Container 2',
           time: 2000
         }),
         new PopState({
@@ -247,7 +247,7 @@ describe('main', () => {
         })
       ])
 
-      const state:IState = store.getState()
+      const state:IState = store.getState().state
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).toBe(1);
@@ -279,17 +279,29 @@ describe('main', () => {
     afterEach(() => _resetHistory())
 
     const run = (actions:Action[]):Promise<MemoryHistory> => {
-      dispatchAll(actions)
-      const steps:Step[] = createStepsSince(actions, store.getLastUpdate())
-      return runSteps(steps).then(() => {
+      const ps:Promise<any> = actions.reduce((p:Promise<any>, action:Action) =>
+        new Promise(resolve => {
+          store.dispatch(action)
+          const state:IState = store.getState().state
+          const actions:Action[] = store.getState().actions
+          if (state instanceof InitializedState) {
+            const steps:Step[] = createStepsSince(actions, state.lastUpdate)
+            if (steps.length > 0) {
+              return runSteps(steps).then(resolve)
+            }
+          }
+          resolve()
+        }),
+        Promise.resolve()
+      )
+      return ps.then(() => {
         const h: MemoryHistory = _history as MemoryHistory
         return Promise.resolve(
           h.entries.length === 0 || h.entries[0].state ? h : {
-            entries: R.tail(h.entries),  // remove '/' at beginning
-            index: h.index - 1
-          })
-        }
-      )
+              entries: R.tail(h.entries),  // remove '/' at beginning
+              index: h.index - 1
+            })
+      })
     }
 
     it('loads the initial page', async () => {
@@ -308,6 +320,7 @@ describe('main', () => {
       })
     })
 
+    /*
     it('reloads the initial page', async () => {
       await run([
         new Startup({time: 0}),
@@ -352,6 +365,7 @@ describe('main', () => {
         expect(entries.length).toBe(0)
       })
     })
+    */
 
     it('push', async () => {
       await run([
@@ -362,14 +376,14 @@ describe('main', () => {
           url: '/a',
           time: 1000
         }),
+        new UpdateBrowser({
+          time: 1100
+        }),
         new Push({
-          page: new Page({
-            url: '/a/1',
-            params: {id: '1'},
-            groupName: 'Group 1',
-            containerName: 'Container 1',
-            firstVisited: 2000
-          })
+          url: '/a/1',
+          groupName: 'Group 1',
+          containerName: 'Container 1',
+          time: 2000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(3)
@@ -398,13 +412,9 @@ describe('main', () => {
           time: 3
         }),
         new PopState({
-          page: new Page({
-            url: '/a/1',
-            params: {id: '1'},
-            groupName: 'Group 1',
-            containerName: 'Container 1',
-            firstVisited: 2
-          }),
+          url: '/a/1',
+          groupName: 'Group 1',
+          containerName: 'Container 1',
           time: 4
         })
       ]).then(({entries, index}) => {
@@ -426,19 +436,22 @@ describe('main', () => {
           url: '/a',
           time: 1000
         }),
+        new UpdateBrowser({
+          time: 1100
+        }),
         new SwitchToContainer({
           groupName: 'Group 1',
-          containerName: 'Container 2',
+          name: 'Container 2',
           time: 2000
         }),
+        new UpdateBrowser({
+          time: 2200
+        }),
         new Push({
-          page: new Page({
-            url: '/b/1',
-            params: {id: '1'},
-            groupName: 'Group 1',
-            containerName: 'Container 2',
-            firstVisited: 3000
-          })
+          url: '/b/1',
+          groupName: 'Group 1',
+          containerName: 'Container 2',
+          time: 3000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(4)
@@ -461,18 +474,21 @@ describe('main', () => {
           url: '/a',
           time: 1000
         }),
+        new UpdateBrowser({
+          time: 1100
+        }),
         new SwitchToGroup({
           groupName: 'Group 2',
           time: 2000
         }),
+        new UpdateBrowser({
+          time: 2200
+        }),
         new Push({
-          page: new Page({
-            url: '/e/1',
-            params: {id: '1'},
-            groupName: 'Group 2',
-            containerName: 'Container 1',
-            firstVisited: 3000
-          })
+          url: '/e/1',
+          groupName: 'Group 2',
+          containerName: 'Container 1',
+          time: 3000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).toBe(3)
@@ -492,23 +508,26 @@ describe('main', () => {
           url: '/a',
           time: 1000
         }),
-        new Push({
-          page: new Page({
-            url: '/a/1',
-            params: {id: '1'},
-            groupName: 'Group 1',
-            containerName: 'Container 1',
-            firstVisited: 2000
-          })
+        new UpdateBrowser({
+          time: 1100
         }),
         new Push({
-          page: new Page({
-            url: '/a/2',
-            params: {id: '2'},
-            groupName: 'Group 1',
-            containerName: 'Container 1',
-            firstVisited: 3000
-          })
+          url: '/a/1',
+          groupName: 'Group 1',
+          containerName: 'Container 1',
+          time: 2000
+        }),
+        new UpdateBrowser({
+          time: 2200
+        }),
+        new Push({
+          url: '/a/2',
+          groupName: 'Group 1',
+          containerName: 'Container 1',
+          time: 3000
+        }),
+        new UpdateBrowser({
+          time: 3300
         }),
         new Back({
           time: 4000
@@ -532,31 +551,38 @@ describe('main', () => {
           url: '/j',
           time: 1000
         }),
-        new Push({
-          page: new Page({
-            url: '/j/1/cat',
-            params: {id: '1', containerName: 'cat'},
-            groupName: 'Group 3',
-            containerName: 'Container 1',
-            firstVisited: 2000
-          })
+        new UpdateBrowser({
+          time: 1100
         }),
         new Push({
-          page: new Page({
-            url: '/j/2/dog',
-            params: {id: '2', containerName: 'dog'},
-            groupName: 'Group 3',
-            containerName: 'Container 1',
-            firstVisited: 3000
-          })
+          url: '/j/1/cat',
+          groupName: 'Group 3',
+          containerName: 'Container 1',
+          time: 2000
+        }),
+        new UpdateBrowser({
+          time: 2200
+        }),
+        new Push({
+          url: '/j/2/dog',
+          groupName: 'Group 3',
+          containerName: 'Container 1',
+          time: 3000
+        }),
+        new UpdateBrowser({
+          time: 3300
         }),
         new Top({
           groupName: 'Group 3',
+          containerName: 'Container 1',
           time: 4000
+        }),
+        new UpdateBrowser({
+          time: 4400
         }),
         new SwitchToContainer({
           groupName: 'Group 3',
-          containerName: 'Container 2',
+          name: 'Container 2',
           time: 5000
         })
       ]).then(({entries, index}) => {
@@ -578,27 +604,29 @@ describe('main', () => {
             url: '/a',
             time: 1000
           }),
+          new UpdateBrowser({
+            time: 1100
+          }),
           new Push({
-            page: new Page({
-              url: '/a/1',
-              params: {id: '1'},
-              groupName: 'Group 1',
-              containerName: 'Container 1',
-              firstVisited: 2000
-            }),
+            url: '/a/1',
+            groupName: 'Group 1',
+            containerName: 'Container 1',
             time: 2000
+          }),
+          new UpdateBrowser({
+            time: 2200
           }),
           new UpdateBrowser({
             time: 3000
           }),
+          new UpdateBrowser({
+            time: 3300
+          }),
           new Push({
-            page: new Page({
-              url: '/a/2',
-              params: {id: '2'},
-              groupName: 'Group 1',
-              containerName: 'Container 1',
-              firstVisited: 4000
-            })
+            url: '/a/2',
+            groupName: 'Group 1',
+            containerName: 'Container 1',
+            time: 4000
           })
         ]).then(({entries, index}) => {
           expect(entries.length).toBe(1)
@@ -618,18 +646,21 @@ describe('main', () => {
             url: '/a',
             time: 1000
           }),
+          new UpdateBrowser({
+            time: 1100
+          }),
           new PopState({  // User popped back to zero page
             n: -1,
             time: 2000
           }),
+          new UpdateBrowser({
+            time: 2200
+          }),
           new Push({
-            page: new Page({
-              url: '/a/1',
-              params: {id: '1'},
-              groupName: 'Group 1',
-              containerName: 'Container 1',
-              firstVisited: 3000
-            })
+            url: '/a/1',
+            groupName: 'Group 1',
+            containerName: 'Container 1',
+            time: 3000
           })
         ]).then(({entries, index}) => {
           expect(entries.length).toBe(3)
@@ -649,13 +680,19 @@ describe('main', () => {
             url: '/a',
             time: 1000
           }),
+          new UpdateBrowser({
+            time: 1100
+          }),
           new PopState({  // User popped back to zero page
             n: -1,
             time: 2000
           }),
+          new UpdateBrowser({
+            time: 2200
+          }),
           new SwitchToContainer({
             groupName: 'Group 1',
-            containerName: 'Container 2',
+            name: 'Container 2',
             time: 3000
           })
         ]).then(({entries, index}) => {
