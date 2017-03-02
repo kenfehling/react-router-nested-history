@@ -12173,13 +12173,13 @@ function _getChildren(component, stopAt, stopAtNested, depth) {
             return next(component.type(component.props));
         }
         catch (e) {
-            console.log(component.type);
-            return next(new component.type(component.props).render());
+            try {
+                return next(new component.type(component.props).render());
+            }
+            catch (e) { }
         }
     }
-    else {
-        return [component];
-    }
+    return [component];
 }
 /**
  * Recursively gets the children of a component for simlated rendering

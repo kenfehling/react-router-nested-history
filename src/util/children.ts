@@ -30,14 +30,14 @@ function _getChildren(component:any,
       return next(component.type(component.props))
     }
     catch(e) {
-      console.log(component.type)
-      return next(new component.type(component.props).render())
+      try {
+        return next(new component.type(component.props).render())
+      }
+      catch(e) {}
     }
 
   }
-  else {  // no children
-    return [component]
-  }
+  return [component]
 }
 
 /**
