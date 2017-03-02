@@ -42,7 +42,7 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
   switchToGroup: () => void
 }
 
-class Container extends Component<ConnectedContainerProps, undefined> {
+class InnerContainer extends Component<ConnectedContainerProps, undefined> {
   addTitleForPath(pathname:string) {
     const {addTitle} = this.props
     if (canUseDOM) {
@@ -175,9 +175,9 @@ const ConnectedContainer = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(Container)
+)(InnerContainer)
 
-export default class extends Component<ContainerProps, undefined> {
+export default class Container extends Component<ContainerProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,

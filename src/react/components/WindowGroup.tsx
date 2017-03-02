@@ -38,7 +38,7 @@ class WindowWrapper extends Component<WindowWrapperProps, undefined> {
   }
 }
 
-export default ({children, ...groupProps}:ContainerGroupProps) => (
+const WindowGroup = ({children, ...groupProps}:ContainerGroupProps) => (
   <ContainerGroup {...changeDefaults(groupProps)}>
     {(props:ChildrenFunctionArgs) => {
       const c:ReactNode = children instanceof Function ?
@@ -60,3 +60,5 @@ export default ({children, ...groupProps}:ContainerGroupProps) => (
     }
   </ContainerGroup>
 )
+
+export default WindowGroup

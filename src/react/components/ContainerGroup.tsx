@@ -7,42 +7,14 @@ import DumbContainerGroup, {
 import Container from './Container'
 import DumbContainer from './DumbContainer'
 import {renderToStaticMarkup} from 'react-dom/server'
-import * as R from 'ramda'
 import CreateGroup from '../../model/actions/CreateGroup'
 import createElement = React.createElement
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import InitializedState from '../../model/InitializedState'
-
-/**
- * Recursively gets the children of a component for simlated rendering
- * so that the containers are initialized even if they're hidden inside tabs
- */
-function getChildren(component, depth:number=0) {
-  if (!(component instanceof Component) && !component.type) {
-    return []
-  }
-  if (component instanceof Container || component.type === Container ||
-    component instanceof DumbContainer || component.type === DumbContainer ||
-    (depth > 0 &&
-    (component instanceof ContainerGroup || component.type === ContainerGroup ||
-    component instanceof DumbContainerGroup || component.type === DumbContainerGroup))) {
-    return [component]  // Stop if you find a Container or nested ContainerGroup
-  }
-  else if (component.props && component.props.children) {
-    if (component.props.children instanceof Function) {
-      return getChildren(createElement(component.props.children), depth + 1)
-    }
-    else {
-      const children = Children.toArray(component.props.children)
-      return R.flatten(children.map(c => getChildren(c, depth + 1)))
-    }
-  }
-  else {  // no children
-    return [component]
-  }
-}
+import {getChildren} from '../../util/children'
+import WindowGroup from './WindowGroup'
 
 export interface ContainerGroupProps {
   name: string
@@ -71,7 +43,7 @@ type ConnectedGroupProps = GroupPropsWithStore & {
   switchToContainerName: (name:string) => void
 }
 
-class ContainerGroup extends Component<ConnectedGroupProps, undefined> {
+class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
   constructor(props) {
     super(props)
     const {
@@ -117,8 +89,9 @@ class ContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
     // Initialize the Containers in this group
     // (since most tab libraries lazy load tabs)
-    const children = getChildren(this)
-    children.forEach(c => renderToStaticMarkup(<G children={c} />))
+    const cs = getChildren(this, [Container, DumbContainer],
+                                 [ContainerGroup, DumbContainerGroup, WindowGroup])
+    cs.forEach(c => renderToStaticMarkup(<G children={c} />))
   }
 
   render() {
@@ -162,9 +135,9 @@ const ConnectedContainerGroup = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(ContainerGroup)
+)(InnerContainerGroup)
 
-export default class extends Component<ContainerGroupProps, undefined> {
+export default class ContainerGroup extends Component<ContainerGroupProps, undefined> {
   static contextTypes = {
     groupName: PropTypes.string,          // Parent group name (if any)
     useDefaultContainer: PropTypes.bool,  // From parent (if any)

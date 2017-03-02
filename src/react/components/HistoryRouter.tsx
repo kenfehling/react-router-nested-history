@@ -5,7 +5,6 @@ import {Route} from 'react-router'
 import {connect, Dispatch} from 'react-redux'
 import {createStore, Store} from '../../store'
 import DumbHistoryRouter from './DumbHistoryRouter'
-import * as R from 'ramda'
 import cloneElement = React.cloneElement
 import DumbContainerGroup from './DumbContainerGroup'
 import ContainerGroup from './ContainerGroup'
@@ -19,6 +18,7 @@ import SetZeroPage from '../../model/actions/SetZeroPage'
 import {canUseWindowLocation} from '../../util/browserFunctions'
 import StepRunner from './StepRunner'
 import TitleSetter from './TitleSetter'
+import {getChildren} from '../../util/children'
 declare const window:any
 
 export interface HistoryRouterProps {
@@ -40,42 +40,6 @@ type ConnectedRouterProps = RouterPropsWithStore & {
   startup: () => void
   loadFromUrl: (url:string) => void
   setZeroPage: (url:string) => void
-}
-
-/**
- * Recursively gets the children of a component for simlated rendering
- * so that the containers are initialized even if they're hidden inside tabs
- */
-function getChildren(component) {
-  if (!(component instanceof Component) && !component.type) {
-    return []
-  }
-  else if (component instanceof ContainerGroup || component.type === ContainerGroup ||
-    component instanceof WindowGroup || component.type === WindowGroup ||
-    component instanceof DumbContainerGroup || component.type === DumbContainerGroup) {
-    return [component]  // Stop if you find a ContainerGroup
-  }
-  else if (component.props && component.props.children) {
-    if (component.props.children instanceof Function) {
-      return getChildren(createElement(component.props.children))
-    }
-    else {
-      const children = Children.toArray(component.props.children)
-      return R.flatten(children.map(c => getChildren(c)))
-    }
-  }
-  else if (component.type instanceof Function && !component.type.name) {
-    try {
-      return getChildren(component.type())
-    }
-    catch(e) {
-      return getChildren(new component.type(component.props).render())
-    }
-
-  }
-  else {  // no children
-    return [component]
-  }
 }
 
 class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
@@ -126,8 +90,8 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
 
     // Initialize the ContainerGroups
     // (since most tab libraries lazy load tabs)
-    const children = getChildren(this)
-    children.forEach(c => renderToStaticMarkup(<R children={c} />))
+    const cs = getChildren(this, [ContainerGroup, DumbContainerGroup, WindowGroup])
+    cs.forEach(c => renderToStaticMarkup(<R children={c} />))
 
     if (!isInitialized) {
       loadFromUrl(this.getLocation())
