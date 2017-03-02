@@ -16,16 +16,20 @@ export default () => (
     <div className="app-container">
       <div className='left-container'>
         <div className='top-container'>
+          {/*
           <div className="tabs-container"><Tabs /></div>
+          */}
           <div className="windows-container"><Windows /></div>
         </div>
         <div className='bottom-container'>
           <div className='nested-group-container'>
             <NestedGroup />
           </div>
+          {/*
           <div className='scroll-area-container'>
             <ScrollAreaExample />
           </div>
+          */}
         </div>
       </div>
       <div className="state-tree-container"><StateTree /></div>
