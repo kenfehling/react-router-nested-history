@@ -44,7 +44,6 @@ function getChildren(component, depth:number=0) {
   }
 }
 
-
 export interface ContainerGroupProps {
   name: string
   children?: ChildrenType
@@ -126,7 +125,6 @@ class ContainerGroup extends Component<ConnectedGroupProps, undefined> {
     return  <DumbContainerGroup {...this.props} />
   }
 }
-
 
 const mapStateToProps = ({state}:IUpdateData,
                          ownProps:GroupPropsWithStore) => {

@@ -43,7 +43,6 @@ export default ({children, ...groupProps}:ContainerGroupProps) => (
     {(props:ChildrenFunctionArgs) => {
       const c:ReactNode = children instanceof Function ?
             children(props).props.children : children
-
       return (
         <div style={{position: 'relative'}}>
           {Children.map(c, (child:ReactElement<any>, i:number) => (

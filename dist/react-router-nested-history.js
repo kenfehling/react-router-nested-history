@@ -6630,6 +6630,15 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
 var react_redux_1 = __webpack_require__(27);
@@ -6690,7 +6699,7 @@ var ContainerGroup = (function (_super) {
             }
             G.prototype.getChildContext = function () {
                 return {
-                    store: store,
+                    rrnhStore: store,
                     groupName: name,
                     useDefaultContainer: useDefaultContainer,
                     initializing: true
@@ -6702,7 +6711,7 @@ var ContainerGroup = (function (_super) {
             return G;
         }(react_1.Component));
         G.childContextTypes = {
-            store: react_1.PropTypes.object.isRequired,
+            rrnhStore: react_1.PropTypes.object.isRequired,
             groupName: react_1.PropTypes.string.isRequired,
             useDefaultContainer: react_1.PropTypes.bool,
             initializing: react_1.PropTypes.bool
@@ -6748,15 +6757,15 @@ var default_1 = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     default_1.prototype.render = function () {
-        var _a = this.context, useDefaultContainer = _a.useDefaultContainer, groupName = _a.groupName, store = _a.store;
-        return (React.createElement(ConnectedContainerGroup, __assign({ parentUsesDefault: useDefaultContainer, parentGroupName: groupName, store: store }, this.props)));
+        var _a = this.context, rrnhStore = _a.rrnhStore, context = __rest(_a, ["rrnhStore"]);
+        return (React.createElement(ConnectedContainerGroup, __assign({ store: rrnhStore }, context, this.props)));
     };
     return default_1;
 }(react_1.Component));
 default_1.contextTypes = {
     groupName: react_1.PropTypes.string,
     useDefaultContainer: react_1.PropTypes.bool,
-    store: react_1.PropTypes.object.isRequired
+    rrnhStore: react_1.PropTypes.object.isRequired
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
@@ -10773,6 +10782,15 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
 var react_redux_1 = __webpack_require__(27);
@@ -10805,7 +10823,7 @@ var Container = (function (_super) {
                 }
                 T.prototype.getChildContext = function () {
                     return {
-                        store: store,
+                        rrnhStore: store,
                         groupName: groupName,
                         animate: animate,
                         containerName: name,
@@ -10818,7 +10836,7 @@ var Container = (function (_super) {
                 };
                 return T;
             }(react_1.Component));
-            T.childContextTypes = __assign({}, DumbContainer_1.default.childContextTypes, { store: react_1.PropTypes.object.isRequired });
+            T.childContextTypes = __assign({}, DumbContainer_1.default.childContextTypes, { rrnhStore: react_1.PropTypes.object.isRequired });
             server_1.renderToStaticMarkup(React.createElement(T, null));
             _this.addTitleForPath(initialUrl);
         }
@@ -10894,12 +10912,13 @@ var default_1 = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     default_1.prototype.render = function () {
-        return React.createElement(ConnectedContainer, __assign({}, this.context, this.props));
+        var _a = this.context, rrnhStore = _a.rrnhStore, context = __rest(_a, ["rrnhStore"]);
+        return React.createElement(ConnectedContainer, __assign({ store: rrnhStore }, context, this.props));
     };
     return default_1;
 }(react_1.Component));
 default_1.contextTypes = {
-    store: react_1.PropTypes.object.isRequired,
+    rrnhStore: react_1.PropTypes.object.isRequired,
     groupName: react_1.PropTypes.string.isRequired,
     initializing: react_1.PropTypes.bool,
     useDefaultContainer: react_1.PropTypes.bool,
@@ -11991,6 +12010,7 @@ var DumbContainerGroup = (function (_super) {
     };
     DumbContainerGroup.prototype.renderDiv = function (divChildren) {
         var _a = R.omit([
+            'groupName',
             'children',
             'storedCurrentContainerIndex',
             'storedIndexedStackOrder',
@@ -18355,6 +18375,15 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
 var react_redux_1 = __webpack_require__(27);
@@ -18405,12 +18434,13 @@ var default_1 = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     default_1.prototype.render = function () {
-        return React.createElement(ConnectedBackLink, __assign({}, this.context, this.props));
+        var _a = this.context, rrnhStore = _a.rrnhStore, context = __rest(_a, ["rrnhStore"]);
+        return React.createElement(ConnectedBackLink, __assign({ store: rrnhStore }, context, this.props));
     };
     return default_1;
 }(react_1.Component));
 default_1.contextTypes = {
-    store: react_1.PropTypes.object.isRequired,
+    rrnhStore: react_1.PropTypes.object.isRequired,
     groupName: react_1.PropTypes.string.isRequired
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -18434,6 +18464,15 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
         for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
             t[p] = s[p];
     }
+    return t;
+};
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
     return t;
 };
 var React = __webpack_require__(2);
@@ -18486,12 +18525,13 @@ var default_1 = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     default_1.prototype.render = function () {
-        return React.createElement(ConnectedHeaderLink, __assign({}, this.context, this.props));
+        var _a = this.context, rrnhStore = _a.rrnhStore, context = __rest(_a, ["rrnhStore"]);
+        return React.createElement(ConnectedHeaderLink, __assign({ store: rrnhStore }, context, this.props));
     };
     return default_1;
 }(react_1.Component));
 default_1.contextTypes = {
-    store: react_1.PropTypes.object.isRequired,
+    rrnhStore: react_1.PropTypes.object.isRequired,
     groupName: react_1.PropTypes.string.isRequired
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -18517,6 +18557,15 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
 var PathUtils_1 = __webpack_require__(46);
@@ -18540,7 +18589,7 @@ var HistoryLink = (function (_super) {
         return typeof (to) === 'string' ? to : PathUtils_1.createPath(to);
     };
     HistoryLink.prototype.onClick = function (event) {
-        var _a = this.props, containerName = _a.containerName, groupName = _a.groupName, push = _a.push;
+        var push = this.props.push;
         push(this.getUrl());
         event.preventDefault();
     };
@@ -18563,11 +18612,13 @@ var default_1 = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     default_1.prototype.render = function () {
-        return React.createElement(ConnectedHistoryLink, __assign({}, this.context, this.props));
+        var _a = this.context, rrnhStore = _a.rrnhStore, context = __rest(_a, ["rrnhStore"]);
+        return React.createElement(ConnectedHistoryLink, __assign({ store: rrnhStore }, context, this.props));
     };
     return default_1;
 }(react_1.Component));
 default_1.contextTypes = {
+    rrnhStore: react_1.PropTypes.object.isRequired,
     groupName: react_1.PropTypes.string.isRequired,
     containerName: react_1.PropTypes.string.isRequired
 };
@@ -18658,7 +18709,7 @@ var HistoryRouter = (function (_super) {
             }
             R.prototype.getChildContext = function () {
                 return {
-                    store: store,
+                    rrnhStore: store,
                     initializing: true,
                     router: {
                         location: { pathname: '/' },
@@ -18674,7 +18725,7 @@ var HistoryRouter = (function (_super) {
             return R;
         }(react_1.Component));
         R.childContextTypes = {
-            store: react_1.PropTypes.object.isRequired,
+            rrnhStore: react_1.PropTypes.object.isRequired,
             initializing: react_1.PropTypes.bool,
             router: react_1.PropTypes.object,
         };
@@ -18693,7 +18744,7 @@ var HistoryRouter = (function (_super) {
     }
     HistoryRouter.prototype.getChildContext = function () {
         return {
-            store: this.props.store
+            rrnhStore: this.props.store
         };
     };
     HistoryRouter.prototype.getLocation = function () {
@@ -18720,7 +18771,7 @@ var HistoryRouter = (function (_super) {
     return HistoryRouter;
 }(react_1.Component));
 HistoryRouter.childContextTypes = {
-    store: react_1.PropTypes.object.isRequired
+    rrnhStore: react_1.PropTypes.object.isRequired
 };
 var mapStateToProps = function (state) { return ({
     isInitialized: state.state instanceof InitializedState_1.default
@@ -18921,12 +18972,13 @@ function default_1(component) {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
             class_1.prototype.render = function () {
-                return React.createElement(ConnectedComponent, __assign({}, this.context, this.props));
+                var rrnhStore = this.context.rrnhStore;
+                return React.createElement(ConnectedComponent, __assign({ store: rrnhStore }, this.props));
             };
             return class_1;
         }(react_1.Component)),
         _a.contextTypes = {
-            store: react_1.PropTypes.object.isRequired
+            rrnhStore: react_1.PropTypes.object.isRequired
         },
         _a;
     var _a;
@@ -20308,13 +20360,13 @@ var default_1 = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     default_1.prototype.render = function () {
-        var store = this.context.store;
-        return React.createElement(ConnectedPage, __assign({}, this.props, { store: store }));
+        var rrnhStore = this.context.rrnhStore;
+        return React.createElement(ConnectedPage, __assign({}, this.props, { store: rrnhStore }));
     };
     return default_1;
 }(react_1.Component));
 default_1.contextTypes = {
-    store: react_1.PropTypes.object.isRequired
+    rrnhStore: react_1.PropTypes.object.isRequired
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;

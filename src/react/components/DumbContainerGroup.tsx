@@ -1,7 +1,6 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode} from 'react'
+import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
-import ReactElement = React.ReactElement
 
 export type OnContainerSwitchArgs = {
   currentContainerIndex:number,
