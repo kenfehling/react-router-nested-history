@@ -18,10 +18,10 @@ export default class InitializedState extends IState {
     return this.replaceGroup(group.activate(time))
   }
 
-  switchToContainer({groupName, containerName, time}:
-      {groupName:string, containerName:string, time:number}):IState {
+  switchToContainer({groupName, name, time}:
+      {groupName:string, name:string, time:number}):IState {
     const group:Group = this.getGroupByName(groupName)
-    return this.replaceGroup(group.activateContainer(containerName, time))
+    return this.replaceGroup(group.activateContainer(name, time))
   }
 
   get backPage():Page {
@@ -66,11 +66,17 @@ export default class InitializedState extends IState {
     return this.activeGroup.canGoForward(n)
   }
 
-  top({groupName, time, reset=false}:
-    {groupName?:string, time:number, reset?:boolean}):IState {
-    const group:Group = groupName != null ?
-      this.getGroupByName(groupName) : this.activeGroup
-    return this.replaceGroup(group.top(time, reset))
+  isContainerAtTopPage(groupName:string, containerName:string):boolean {
+    const container:IContainer = this.getContainer(groupName, containerName)
+    return container.isAtTopPage
+  }
+
+  top({groupName, containerName, time, reset=false}:
+      {groupName:string, containerName:string,
+        time:number, reset?:boolean}):IState {
+    const group:Group = this.getGroupByName(groupName)
+    const container:IGroupContainer = group.getContainerByName(containerName)
+    return this.replaceGroup(group.replaceContainer(container.top(time, reset)))
   }
 
   getShiftAmount(page:Page):number {
@@ -153,6 +159,14 @@ export default class InitializedState extends IState {
     return this.getGroupByName(groupName).activePage
   }
 
+  getActiveUrlInGroup(groupName:string):string {
+    return this.getActivePageInGroup(groupName).url
+  }
+
+  urlMatchesGroup(url:string, groupName:string):boolean {
+    return this.getGroupByName(groupName).patternsMatch(url)
+  }
+
   get activePage():Page {
     return this.activeGroup.activePage
   }
@@ -193,8 +207,20 @@ export default class InitializedState extends IState {
     return this.activeGroup.activeContainer
   }
 
-  getContainer(groupName:string, containerName:string):Container {
-    return this.getGroupByName(groupName).containers[containerName]
+  getContainer(groupName:string, containerName:string):IContainer {
+    return this.getGroupByName(groupName).getContainerByName(containerName)
+  }
+
+  getContainerNameByIndex(groupName: string, index: number): string {
+    const group:Group = this.getGroupByName(groupName)
+    const container:IContainer = group.containers[index]
+    if (container) {
+      return container.name
+    }
+    else {
+      throw new Error(`No container found at index ${index} in '${groupName}' ` +
+        `(size: ${group.containers.length})`)
+    }
   }
 
   isActiveContainer(groupName:string, containerName:string):boolean {

@@ -1,9 +1,8 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {
-  switchToContainer, getContainerLinkUrl,
-  isContainerActive
-} from '../../main'
+import {Dispatch, connect} from 'react-redux'
+import IUpdateData from '../../model/interfaces/IUpdateData'
+import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 
 export interface HeaderLinkProps {
@@ -13,35 +12,38 @@ export interface HeaderLinkProps {
   activeClassName?: string
 }
 
-export default class HeaderLink extends Component<HeaderLinkProps, undefined> {
-  static contextTypes = {
-    groupName: PropTypes.string.isRequired
-  }
+type HeaderLinkPropsWithStore = HeaderLinkProps & {
+  store: Store
+  groupName: string
+}
+
+type ConnectedHeaderLinkProps = HeaderLinkPropsWithStore & {
+  url: string
+  onClick: () => void
+  isActive: boolean
+}
+
+class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
 
   componentDidMount() {
-    if (this.context.groupName == null) {
+    if (this.props.groupName == null) {
       throw new Error('HeaderLink needs to be inside a ContainerGroup')
     }
   }
 
   onClick(event):void {
-    const {groupName} = this.context
-    const {toContainer} = this.props
-    switchToContainer(groupName, toContainer)
+    const {onClick} = this.props
+    onClick()
     event.preventDefault()
   }
 
   getClassName():string {
-    const {groupName} = this.context
-    const {toContainer, className, activeClassName} = this.props
-    const isActive:boolean = isContainerActive(groupName, toContainer)
+    const {className, activeClassName, isActive} = this.props
     return isActive && activeClassName ? activeClassName : className || ''
   }
 
   render() {
-    const {groupName} = this.context
-    const {children, toContainer} = this.props
-    const url:string = getContainerLinkUrl(groupName, toContainer)
+    const {children, url} = this.props
     return (
       <a href={url}
          className={this.getClassName()}
@@ -49,5 +51,42 @@ export default class HeaderLink extends Component<HeaderLinkProps, undefined> {
         {children}
       </a>
     )
+  }
+}
+
+const mapStateToProps = ({state}:IUpdateData, ownProps) => ({
+  url: state.getContainerLinkUrl(ownProps.groupName, ownProps.toContainer),
+  isActive: state.isContainerActive(ownProps.groupName, ownProps.toContainer)
+})
+
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+                            ownProps:HeaderLinkPropsWithStore) => ({
+  onClick: () => dispatch(new SwitchToContainer({
+    groupName: ownProps.groupName,
+    name: ownProps.toContainer
+  }))
+})
+
+const mergeProps = (stateProps, dispatchProps,
+                    ownProps:HeaderLinkPropsWithStore):ConnectedHeaderLinkProps => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps
+})
+
+const ConnectedHeaderLink = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  mergeProps
+)(HeaderLink)
+
+export default class extends Component<HeaderLinkProps, undefined> {
+  static contextTypes = {
+    store: PropTypes.object.isRequired,
+    groupName: PropTypes.string.isRequired
+  }
+
+  render() {
+    return <ConnectedHeaderLink {...this.context} {...this.props} />
   }
 }

@@ -1,4 +1,5 @@
 const path = (p) => 'http://localhost:8080' + p
+const PAUSE = 1500
 
 export default {
   'Check content when other group loaded': (client) => {
@@ -16,14 +17,35 @@ export default {
       .end()
   },
 
+  'Push': (client) => {
+    client
+      .url(path('/tabs/1'))
+      .click('.tabs .tab1 a')
+      .pause(PAUSE)
+      .assert.containsText('.tabs .page-content', 'Page: balloon')
+      .assert.urlEquals(path('/tabs/1/balloon'))
+      .end()
+  },
+
+  'Push, back': (client) => {
+    client
+      .url(path('/tabs/1'))
+      .click('.tabs .tab1 a')
+      .pause(PAUSE)
+      .back()
+      .pause(PAUSE)
+      .assert.containsText('.tabs .tab-title', 'Tab 1')
+      .assert.urlEquals(path('/tabs/1'))
+      .end()
+  },
+
   'Push, back, forward': (client) => {
     client
       .url(path('/tabs/1'))
-      .click('#react-tabs-1 a')
-      .assert.urlEquals(path('/tabs/1/balloon'))
+      .click('.tabs .tab1 a')
       .back()
-      .assert.urlEquals(path('/tabs/1'))
       .forward()
+      .pause(PAUSE)
       .assert.urlEquals(path('/tabs/1/balloon'))
       .end()
   },
@@ -31,46 +53,30 @@ export default {
   'Push, back, switch, back, forward': (client) => {
     client
       .url(path('/tabs/1'))
-      .click('#react-tabs-1 a')
+      .click('.tabs .tab1 a')
       .back()
-      .click('li[id=react-tabs-2]')
+      .click('.tabs li:nth-of-type(2)')
       .back()
-      .assert.containsText('.tab-title', 'Tab 1')
+      .assert.containsText('.tabs .tab-title', 'Tab 1')
       .forward()
-      .assert.containsText('.tab-content .page-content', 'Page: balloon')
-      .end()
-  },
-
-  'Back': (client) => {
-    client
-      .url(path('/tabs/1'))
-      .click('li[id=react-tabs-2]')
-      .pause(1)
-      .assert.containsText('.tab-title', 'Tab 2')
-      .assert.urlEquals(path('/tabs/2'))
-      .back()
-      .assert.containsText('.tab-title', 'Tab 1')
-      .assert.urlEquals(path('/tabs/1'))
-      .forward()
-      .assert.containsText('.tab-title', 'Tab 1')  // Can't go forward
-      .assert.urlEquals(path('/tabs/1'))
+      .assert.containsText('.tabs .page-content', 'Page: balloon')
       .end()
   },
 
   'Push, switch, back': (client) => {
     client
       .url(path('/tabs/1'))
-      .click('#react-tabs-1 a')
-      .click('li[id=react-tabs-2]')
+      .click('.tabs .tab1 a')
+      .click('.tabs li:nth-of-type(2)')
       .back()
-      .assert.containsText('.tab-content .page-content', 'Page: balloon')
+      .assert.containsText('.tabs .page-content', 'Page: balloon')
       .end()
   },
 
   'Load inner page': (client) => {
     client
       .url(path('/tabs/1/balloon'))
-      .assert.containsText('.tab-content .page-content', 'Page: balloon')
+      .assert.containsText('.tabs .page-content', 'Page: balloon')
       .assert.urlEquals(path('/tabs/1/balloon'))
       .end()
   },
@@ -79,7 +85,7 @@ export default {
     client
       .url(path('/tabs/1'))
       .url(path('/tabs/1/balloon'))
-      .assert.containsText('.tab-content .page-content', 'Page: balloon')
+      .assert.containsText('.tabs .page-content', 'Page: balloon')
       .assert.urlEquals(path('/tabs/1/balloon'))
       .end()
   }

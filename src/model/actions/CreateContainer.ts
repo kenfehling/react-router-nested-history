@@ -1,6 +1,7 @@
-import Action from '../Action'
+import Action, {SYSTEM} from '../Action'
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
+import Group from '../Group'
 
 @Serializable
 export default class CreateContainer extends Action {
@@ -17,7 +18,7 @@ export default class CreateContainer extends Action {
       useDefault=true, resetOnLeave=false}:
       {time?:number, name:string, groupName:string, initialUrl:string,
         patterns:string[], useDefault?:boolean, resetOnLeave?:boolean}) {
-    super({time})
+    super({time, origin: SYSTEM})
     this.name = name
     this.groupName = groupName
     this.initialUrl = initialUrl
@@ -37,4 +38,8 @@ export default class CreateContainer extends Action {
     })
   }
 
+  filter(state:IState):Action[] {
+    const group:Group = state.getGroupByName(this.groupName)
+    return group.hasContainerWithName(this.name) ? [] : [this]
+  }
 }

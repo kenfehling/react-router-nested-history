@@ -7,9 +7,9 @@ import Forward from '../../model/actions/Forward'
 import Top from '../../model/actions/Top'
 import Action from '../../model/Action'
 import PopState from '../../model/actions/PopState'
-import {connect, Store} from 'react-redux'
-import LocationState from '../model/LocationState'
-import store from '../store'
+import {connect} from 'react-redux'
+import {Store} from '../../store'
+import IUpdateData from '../../model/interfaces/IUpdateData'
 
 interface AnimatedPageProps {
   children?: ReactNode
@@ -17,7 +17,7 @@ interface AnimatedPageProps {
 }
 
 type ConnectedProps = AnimatedPageProps & {
-  store: Store<LocationState>
+  store: Store
 }
 
 type InnerProps = ConnectedProps & {
@@ -156,16 +156,19 @@ class AnimatedPage extends Component<InnerProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:LocationState,
-                         ownProps:ConnectedProps):InnerProps => ({
-  lastAction: state.lastAction,
-  ...ownProps
+const mapStateToProps = (state:IUpdateData, ownProps:ConnectedProps) => ({
+  lastAction: state.lastAction
 })
 
 const ConnectedPage = connect(mapStateToProps)(AnimatedPage)
 
 export default class extends Component<AnimatedPageProps, undefined> {
+  static contextTypes = {
+    store: PropTypes.object.isRequired
+  }
+
   render() {
+    const {store} = this.context
     return <ConnectedPage {...this.props} store={store} />
   }
 }

@@ -48,5 +48,5 @@ const _compareSize = (p1, p2) => R.values(p1).length - R.values(p2).length
 
 export const parseParamsFromPatterns = (patterns:string[], url:string):Object => {
   const paramResults:Object[] = patterns.map(p => parseParams(p, url))
-  return R.last(R.sort(_compareSize, paramResults))
+  return R.last(R.sort(_compareSize, paramResults)) || {}
 }

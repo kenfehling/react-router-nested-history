@@ -2,20 +2,27 @@ import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import {LinkProps} from 'react-router'
 import {createPath} from 'history/PathUtils'
-import {push} from '../../main'
+import {connect, Dispatch} from 'react-redux'
+import Push from '../../model/actions/Push'
+import {Store} from '../../store'
+import IUpdateData from '../../model/interfaces/IUpdateData'
 
-export default class HistoryLink extends Component<LinkProps, undefined> {
-  static contextTypes = {
-    groupName: PropTypes.string.isRequired,
-    containerName: PropTypes.string.isRequired,
-    patterns: PropTypes.arrayOf(PropTypes.string)
-  }
+type HistoryLinkPropsWithStore = LinkProps & {
+  store: Store
+  groupName: string
+}
+
+type ConnectedHistoryLinkProps = HistoryLinkPropsWithStore & {
+  push: (url:string) => void
+}
+
+class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
 
   componentDidMount() {
-    if (this.context.groupName == null) {
+    if (this.props.groupName == null) {
       throw new Error('HistoryLink needs to be inside a ContainerGroup')
     }
-    if (this.context.containerName == null) {
+    if (this.props.containerName == null) {
       throw new Error('HistoryLink needs to be inside a Container')
     }
   }
@@ -26,20 +33,42 @@ export default class HistoryLink extends Component<LinkProps, undefined> {
   }
 
   onClick(event) {
-    const {containerName, groupName, patterns} = this.context
-    push(groupName, containerName, this.getUrl(), patterns)
+    const {containerName, groupName, push} = this.props
+    push(this.getUrl())
     event.preventDefault()
   }
 
   render() {
-    /*
-    return <Link
-        {...this.props}
-        onClick={this.onClick.bind(this)}
-    />
-    */
-    return (<a href={this.getUrl()} onClick={this.onClick.bind(this)}>
-      {this.props.children}
-    </a>)
+
+    return (
+      <a href={this.getUrl()} onClick={this.onClick.bind(this)}>
+        {this.props.children}
+      </a>
+    )
+  }
+}
+
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+                            ownProps:HistoryLinkPropsWithStore) => ({
+  push: (url:string) => dispatch(new Push({
+    url,
+    groupName: ownProps.groupName,
+    containerName: ownProps.containerName
+  }))
+})
+
+const ConnectedHistoryLink = connect(
+  () => ({}),
+  mapDispatchToProps,
+)(HistoryLink)
+
+export default class extends Component<LinkProps, undefined> {
+  static contextTypes = {
+    groupName: PropTypes.string.isRequired,
+    containerName: PropTypes.string.isRequired
+  }
+
+  render() {
+    return <ConnectedHistoryLink {...this.context} {...this.props} />
   }
 }

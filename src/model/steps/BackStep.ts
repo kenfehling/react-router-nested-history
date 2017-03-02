@@ -1,5 +1,5 @@
 import Step from '../interfaces/Step'
-import * as browser from '../../browserFunctions'
+import * as browser from '../../util/browserFunctions'
 
 export default class BackStep implements Step {
   readonly n:number

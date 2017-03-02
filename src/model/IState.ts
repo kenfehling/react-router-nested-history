@@ -5,23 +5,26 @@ import * as R from 'ramda'
 import IContainer from './interfaces/IContainer'
 import ISubGroup from './interfaces/ISubGroup'
 import Group from './Group'
+import PathTitle from './interfaces/PathTitle'
 
 abstract class IState {
   readonly groups: Group[]
+  readonly titles: PathTitle[]
   readonly zeroPage?: Page
   readonly lastUpdate: number
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
   constructor({groups=[], zeroPage, lastUpdate=0,
-    loadedFromRefresh=false, isOnZeroPage=false}:
+    loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
     {groups?:Group[], zeroPage?:Page, lastUpdate?:number,
-      loadedFromRefresh?:boolean, isOnZeroPage?:boolean}={}) {
+      loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
     this.zeroPage = zeroPage
     this.lastUpdate = lastUpdate
     this.loadedFromRefresh = loadedFromRefresh
     this.isOnZeroPage = isOnZeroPage
+    this.titles = titles
   }
 
   abstract assign(obj:Object):IState
@@ -29,8 +32,8 @@ abstract class IState {
   abstract getIndexedContainerStackOrderForGroup(groupName:string):number[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):IState
 
-  abstract switchToContainer({groupName, containerName, time}:
-      {groupName:string, containerName:string, time:number}):IState
+  abstract switchToContainer({groupName, name, time}:
+      {groupName:string, name:string, time:number}):IState
 
   abstract getContainerLinkUrl(groupName:string, containerName:string):string
   abstract getRootGroupOfGroupByName(name:string):Group
@@ -43,8 +46,10 @@ abstract class IState {
   abstract goForward(n:number, time:number):IState
   abstract canGoBack(n:number):boolean
   abstract canGoForward(n:number):boolean
-  abstract top({groupName, time, reset}:
-      {groupName?:string, time:number, reset?:boolean}):IState
+  abstract isContainerAtTopPage(groupName:string, containerName:string):boolean
+  abstract top({groupName, containerName, time, reset}:
+      {groupName:string, containerName:string,
+        time:number, reset?:boolean}):IState
 
   abstract getShiftAmount(page:Page):number
 
@@ -62,6 +67,8 @@ abstract class IState {
   abstract getActiveContainerNameInGroup(groupName:string)
   abstract getActiveContainerIndexInGroup(groupName:string)
   abstract getActivePageInGroup(groupName:string):Page
+  abstract getActiveUrlInGroup(groupName:string):string
+  abstract urlMatchesGroup(url:string, groupName:string):boolean
   abstract get activePage():Page
   abstract isContainerActive(groupName:string, containerName:string):boolean
   abstract get activeUrl():string
@@ -70,8 +77,9 @@ abstract class IState {
   abstract get activeGroup():Group
   abstract isGroupActive(groupName:string):boolean
   abstract get activeContainer():IContainer
-  abstract getContainer(groupName:string, containerName:string):Container
+  abstract getContainer(groupName:string, containerName:string):IContainer
   abstract isActiveContainer(groupName:string, containerName:string):boolean
+  abstract getContainerNameByIndex(groupName:string, index:number):string
 
   replaceGroup(group:Group):IState {
     if (group.parentGroupName) {
@@ -180,6 +188,26 @@ abstract class IState {
       return false
     }
   }
+
+  getTitleForPath(pathname:string):string|null {
+    const found = R.find(t => t.pathname === pathname, this.titles)
+    return found ? found.title : null
+  }
+
+  hasTitleForPath(pathname:string):boolean {
+    return !!this.getTitleForPath(pathname)
+  }
+
+  get activeTitle() {
+    return this.getTitleForPath(this.activeUrl)
+  }
+
+  addTitle({pathname, title}:{pathname:string, title:string}):IState {
+    const existingTitle = this.getTitleForPath(pathname)
+    return existingTitle ? this :
+      this.assign({titles: [...this.titles, {pathname, title}]})
+  }
+
 
   /**
    * Gets the zero page, or if it's not set defaults to using

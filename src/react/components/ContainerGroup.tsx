@@ -1,22 +1,19 @@
 import * as React from 'react'
 import {Component, PropTypes, Children, ReactNode} from 'react'
-import {connect, Store} from 'react-redux'
-import store from '../store'
+import {connect, Dispatch} from 'react-redux'
 import DumbContainerGroup, {
-  OnContainerSwitch,
-  DumbContainerGroupProps, ChildrenType
+  OnContainerSwitch, ChildrenType
 } from './DumbContainerGroup'
-import {
-  getIndexedContainerStackOrder, getOrCreateGroup,
-  getActiveContainerIndexInGroup, isInitialized, getActiveContainerNameInGroup,
-} from '../../main'
 import Container from './Container'
 import DumbContainer from './DumbContainer'
 import {renderToStaticMarkup} from 'react-dom/server'
 import * as R from 'ramda'
 import CreateGroup from '../../model/actions/CreateGroup'
-import LocationState from '../model/LocationState'
 import createElement = React.createElement
+import IUpdateData from '../../model/interfaces/IUpdateData'
+import {Store} from '../../store'
+import SwitchToContainer from '../../model/actions/SwitchToContainer'
+import InitializedState from '../../model/InitializedState'
 
 /**
  * Recursively gets the children of a component for simlated rendering
@@ -49,8 +46,8 @@ function getChildren(component, depth:number=0) {
 
 
 export interface ContainerGroupProps {
-  name: string,
-  children?: ChildrenType,
+  name: string
+  children?: ChildrenType
   currentContainerIndex?: number
   currentContainerName?: string
   onContainerActivate?: OnContainerSwitch
@@ -60,45 +57,36 @@ export interface ContainerGroupProps {
   gotoTopOnSelectActive?: boolean
 }
 
-type CreatedGroupProps = ContainerGroupProps & {
-  store: Store<LocationState>
+type GroupPropsWithStore = ContainerGroupProps & {
+  store: Store
+  parentGroupName: string
+  parentUsesDefault: boolean
 }
 
-const mapStateToProps = (state:LocationState,
-                         ownProps:CreatedGroupProps):DumbContainerGroupProps => {
-  const {name} = ownProps
-  const initialized:boolean = isInitialized()
-  return {
-    name,
-    storedCurrentContainerIndex: getActiveContainerIndexInGroup(name),
-    storedCurrentContainerName: initialized ? getActiveContainerNameInGroup(name) : null,
-    storedIndexedStackOrder: getIndexedContainerStackOrder(name)
-  }
+type ConnectedGroupProps = GroupPropsWithStore & {
+  createGroup: (action:CreateGroup) => void
+  storedIndexedStackOrder: number[]
+  storedCurrentContainerIndex: number
+  storedCurrentContainerName: string|null
+  switchToContainerIndex: (index:number) => void
+  switchToContainerName: (name:string) => void
 }
 
-const ConnectedContainerGroup = connect(mapStateToProps)(DumbContainerGroup)
-
-export default class ContainerGroup extends Component<ContainerGroupProps, undefined> {
-  static contextTypes = {
-    groupName: PropTypes.string,         // Parent group name (if any)
-    useDefaultContainer: PropTypes.bool  // From parent (if any)
-  }
-
-  constructor(props, context) {
-    super(props, context)
+class ContainerGroup extends Component<ConnectedGroupProps, undefined> {
+  constructor(props) {
+    super(props)
     const {
+      store,
       name,
       useDefaultContainer,
       resetOnLeave,
-      gotoTopOnSelectActive
+      gotoTopOnSelectActive,
+      createGroup,
+      parentGroupName,
+      parentUsesDefault
     } = this.props
 
-    const parentGroupName:string = this.context ?
-      this.context.groupName : undefined
-    const parentUsesDefault:boolean = this.context ?
-      this.context.useDefaultContainer : undefined
-
-    getOrCreateGroup(new CreateGroup({
+    createGroup(new CreateGroup({
       name,
       parentGroupName,
       parentUsesDefault,
@@ -108,6 +96,7 @@ export default class ContainerGroup extends Component<ContainerGroupProps, undef
 
     class G extends Component<{children: ReactNode}, undefined> {
       static childContextTypes = {
+        store: PropTypes.object.isRequired,
         groupName: PropTypes.string.isRequired,
         useDefaultContainer: PropTypes.bool,
         initializing: PropTypes.bool
@@ -115,6 +104,7 @@ export default class ContainerGroup extends Component<ContainerGroupProps, undef
 
       getChildContext() {
         return {
+          store,
           groupName: name,
           useDefaultContainer,
           initializing: true
@@ -133,10 +123,63 @@ export default class ContainerGroup extends Component<ContainerGroupProps, undef
   }
 
   render() {
+    return  <DumbContainerGroup {...this.props} />
+  }
+}
+
+
+const mapStateToProps = ({state}:IUpdateData,
+                         ownProps:GroupPropsWithStore) => {
+  const {name} = ownProps
+  const isInitialized = state instanceof InitializedState
+  const ccn = isInitialized ? state.getActiveContainerNameInGroup(name) : null
+  return {
+    storedIndexedStackOrder: state.getIndexedContainerStackOrderForGroup(name),
+    storedCurrentContainerIndex: state.getActiveContainerIndexInGroup(name),
+    storedCurrentContainerName: ccn
+  }
+}
+
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+                            ownProps:GroupPropsWithStore) => ({
+  createGroup: (action:CreateGroup) => dispatch(action),
+  switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({
+    groupName: ownProps.name,
+    index
+  })),
+  switchToContainerName: (name:string) => dispatch(new SwitchToContainer({
+    groupName: ownProps.name,
+    name
+  }))
+})
+
+const mergeProps = (stateProps, dispatchProps,
+                    ownProps:GroupPropsWithStore):ConnectedGroupProps => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps
+})
+
+const ConnectedContainerGroup = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  mergeProps
+)(ContainerGroup)
+
+export default class extends Component<ContainerGroupProps, undefined> {
+  static contextTypes = {
+    groupName: PropTypes.string,          // Parent group name (if any)
+    useDefaultContainer: PropTypes.bool,  // From parent (if any)
+    store: PropTypes.object.isRequired
+  }
+
+  render() {
+    const {useDefaultContainer, groupName, store} = this.context
     return (
-      <ConnectedContainerGroup
-          store={store}
-          {...this.props}
+      <ConnectedContainerGroup parentUsesDefault={useDefaultContainer}
+                               parentGroupName={groupName}
+                               store={store}
+                               {...this.props}
       />
     )
   }

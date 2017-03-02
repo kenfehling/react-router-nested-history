@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {addChangeListener, isGroupActive} from 'react-router-nested-history'
+import {connectToStore} from 'react-router-nested-history'
 import './StateTree.css'
 
 const HistoryTree = ({history, className}) => (
@@ -16,7 +16,7 @@ const HistoryTree = ({history, className}) => (
   </div>
 )
 
-const GroupTree = ({group}) => (
+const GroupTree = ({group, isGroupActive}) => (
   <div>
     <div>{'Group: ' + group.name}</div>
     <HistoryTree history={group.history}
@@ -24,50 +24,34 @@ const GroupTree = ({group}) => (
     <div>
       {group.containers.map(container =>
         <div key={group.name + ' ' + container.name}>
-          {container.isGroup ? <GroupTree group={container} /> : (
-            <div>
-              <div>{'Container: ' + container.name}</div>
-              <HistoryTree history={container.history} className={`container`} />
-            </div>
-          )}
+          {container.isGroup ?
+            <GroupTree group={container} isGroupActive={isGroupActive} />
+            : (
+              <div>
+                <div>{'Container: ' + container.name}</div>
+                <HistoryTree history={container.history} className={`container`} />
+              </div>
+            )
+          }
         </div>
       )}
     </div>
   </div>
 )
 
-const StateTree = ({groups, activeGroup}) => (
+const DumbStateTree = ({groups, isGroupActive}) => (
   <div className="state-tree">
     {groups.map(group => (
       <GroupTree key={group.name}
                  group={group}
-                 activeGroup={activeGroup}
+                 isGroupActive={isGroupActive}
       />
     ))}
   </div>
 )
 
-export default class extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      groups: []
-    }
-  }
+const StateTree = ({state}) => (
+  <DumbStateTree groups={state.groups} isGroupActive={g => state.isGroupActive(g)} />
+)
 
-  componentWillMount() {
-    this.unlisten = addChangeListener(({state:{groups}}) => {
-      this.setState({
-        groups
-      })
-    })
-  }
-
-  componentWillUnmount() {
-    this.unlisten()
-  }
-
-  render() {
-    return <StateTree {...this.state} />
-  }
-}
+export default connectToStore(StateTree)

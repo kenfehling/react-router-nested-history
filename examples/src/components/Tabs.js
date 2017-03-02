@@ -36,7 +36,7 @@ const TabMaster3 = () => (
 )
 
 const TabPage = ({match:{params:{page}}}) => (
-  <div >
+  <div>
     <p className='page-content'>
       Page: {page}
     </p>
@@ -48,7 +48,7 @@ const TabPage = ({match:{params:{page}}}) => (
 )
 
 const Tab = ({name, initialUrl, patterns, masterComponent}) => (
-  <Container name={name} initialUrl={initialUrl} patterns={patterns}>
+  <Container name={name} className={name} initialUrl={initialUrl} patterns={patterns}>
     <HistoryRoute exact path={patterns[0]} component={masterComponent} />
     <HistoryRoute exact path={patterns[1]} component={TabPage} />
   </Container>
@@ -83,31 +83,33 @@ class Tabs extends Component {
   }
 
   render() {
-    return (<div>
-      <h2>Tabs example</h2>
-      <div className="description">
-        <p>Each tab has its own individual history.</p>
-        <p>Tab 1 is considered a default tab.</p>
-        {/* <p>Clicking on an already active tab goes to the top of its history stack.</p> */}
+    return (
+      <div>
+        <h2>Tabs example</h2>
+        <div className="description">
+          <p>Each tab has its own individual history.</p>
+          <p>Tab 1 is considered a default tab.</p>
+          {/* <p>Clicking on an already active tab goes to the top of its history stack.</p> */}
+        </div>
+        <ContainerGroup name='tabs' className='tabs'
+                        currentContainerIndex={this.state.activeTabIndex}
+                        onContainerActivate={this.onContainerActivate.bind(this)}
+                        gotoTopOnSelectActive={true}
+        >
+          <ReactTabs onSelect={activeTabIndex => this.setState({activeTabIndex})}
+                     selectedIndex={this.state.activeTabIndex}>
+            <TabList>
+              <ReactTab>One</ReactTab>
+              <ReactTab>Two</ReactTab>
+              <ReactTab>Three</ReactTab>
+            </TabList>
+            <TabPanel><div className="tab-content"><Tab1 /></div></TabPanel>
+            <TabPanel><div className="tab-content"><Tab2 /></div></TabPanel>
+            <TabPanel><div className="tab-content"><Tab3 /></div></TabPanel>
+          </ReactTabs>
+        </ContainerGroup>
       </div>
-      <ContainerGroup name='tabs'
-                      currentContainerIndex={this.state.activeTabIndex}
-                      onContainerActivate={this.onContainerActivate.bind(this)}
-                      gotoTopOnSelectActive={true}
-      >
-        <ReactTabs onSelect={activeTabIndex => this.setState({activeTabIndex})}
-                   selectedIndex={this.state.activeTabIndex}>
-          <TabList>
-            <ReactTab>One</ReactTab>
-            <ReactTab>Two</ReactTab>
-            <ReactTab>Three</ReactTab>
-          </TabList>
-          <TabPanel><div className="tab-content"><Tab1 /></div></TabPanel>
-          <TabPanel><div className="tab-content"><Tab2 /></div></TabPanel>
-          <TabPanel><div className="tab-content"><Tab3 /></div></TabPanel>
-        </ReactTabs>
-      </ContainerGroup>
-    </div>)
+    )
   }
 }
 

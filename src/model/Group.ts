@@ -410,6 +410,14 @@ export default class Group implements Comparable, IContainer {
     }
   }
 
+  get isAtTopPage():boolean {
+    return this.activeContainer.isAtTopPage
+  }
+
+  get patterns():string[] {
+    return R.flatten(this.containers.map(c => c.patterns))
+  }
+
   compareTo(other:IContainer):number {
     if (other instanceof Group) {
       const otherContainer:IGroupContainer = other.activeContainer

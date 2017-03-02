@@ -1,4 +1,4 @@
-import Action from '../Action'
+import Action, {Origin} from '../Action'
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
 
@@ -8,8 +8,9 @@ export default class SwitchToGroup extends Action {
   readonly type: string = SwitchToGroup.type
   readonly groupName: string
 
-  constructor({time, groupName}:{time?:number, groupName:string}) {
-    super({time})
+  constructor({time, origin, groupName}:
+              {time?:number, origin?:Origin, groupName:string}) {
+    super({time, origin})
     this.groupName = groupName
   }
 
@@ -18,5 +19,9 @@ export default class SwitchToGroup extends Action {
       groupName: this.groupName,
       time: this.time
     })
+  }
+
+  filter(state:IState):Action[] {
+    return state.isGroupActive(this.groupName) ? [] : [this]
   }
 }

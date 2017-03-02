@@ -1,6 +1,6 @@
 const storedActions = (storage) => JSON.parse(storage['actions'])
 const path = (p) => 'http://localhost:8080' + p
-const N = 17  // initial number of actions
+const N = 34  // initial number of actions
 
 export default {
   'localStorage': (client) => {

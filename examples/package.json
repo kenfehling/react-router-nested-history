@@ -6,13 +6,13 @@
     "react-scripts": "^0.6.0"
   },
   "dependencies": {
-    "express": "^4.14.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-helmet": "^4.0.0",
     "react-router": "4.0.0-beta.6",
     "react-router-dom": "4.0.0-beta.6",
     "react-router-nested-history": "github:kenfehling/react-router-nested-history#master",
+    "react-router-server": "^2.1.0",
     "react-tabs": "^0.8.2"
   },
   "scripts": {

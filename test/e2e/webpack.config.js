@@ -3,7 +3,7 @@ var path = require('path');
 
 module.exports = {
   context: path.resolve('./'),
-  entry: '../../examples/react/src/index.js',
+  entry: '../../examples/src/index.js',
   devtool: 'source-map',
   output: {
     path: path.resolve('./build'),
@@ -26,7 +26,7 @@ module.exports = {
         loader: 'babel-loader',
         exclude: /node_modules/,
         include: [
-          path.resolve('../../examples/react/src'),
+          path.resolve('../../examples/src'),
           path.resolve('../../src')
         ]
       }, {
@@ -49,7 +49,7 @@ module.exports = {
       'react-router-nested-history': path.resolve('../../src')
     },
     modules: [
-      path.resolve('../../examples/react/node_modules'),
+      path.resolve('../../examples/node_modules'),
       path.resolve('../../node_modules'),
       path.resolve('./node_modules'),
       'node_modules'

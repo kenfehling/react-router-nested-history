@@ -1,17 +1,13 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {
-  getActiveUrlInGroup, urlMatchesGroup, switchToGroup,
-  isInitialized
-} from '../../main'
-import { patternsMatch } from '../../util/url'
+import {patternsMatch} from '../../util/url'
 import * as R from 'ramda'
 
 export interface DumbContainerProps {
   pathname: string
   children?: ReactNode
   name: string
-  animate?: boolean,
+  animate?: boolean
   initialUrl: string
   patterns: string[]
   style?: any
@@ -19,6 +15,9 @@ export interface DumbContainerProps {
   groupName: string
   useDefaultContainer?: boolean
   hideInactiveContainers?: boolean
+  isInitialized: boolean
+  switchToGroup: () => void
+  matchesLocation: boolean
 }
 
 export default class DumbContainer extends Component<DumbContainerProps, undefined> {
@@ -46,29 +45,6 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
   matchesCurrentUrl():boolean {
     const {patterns, pathname} = this.props
     return patternsMatch(patterns, pathname)
-  }
-
-  matchesLocation({groupName, patterns}):boolean {
-    const {pathname} = this.props
-    if (isInitialized()) {
-      const activeGroupUrl:string = getActiveUrlInGroup(groupName)
-      const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
-      const isGroupActive:boolean = urlMatchesGroup(pathname, groupName)
-      if (isActiveInGroup) {
-        if (isGroupActive) {
-          return pathname === activeGroupUrl
-        }
-        else {
-          return true
-        }
-      }
-      else {
-        return false
-      }
-    }
-    else {
-      return false
-    }
   }
 
   getKey():string {
@@ -100,16 +76,13 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
     return pathname
   }
 
-  onClick() {
-    const {groupName} = this.props
-    switchToGroup(groupName)
-  }
-
   render() {
     const {
       hideInactiveContainers,
       children,
       style={},
+      switchToGroup,
+      matchesLocation,
       ...divProps
     } = R.omit([
       'animate',
@@ -123,13 +96,16 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'isOnTop',
       'store',
       'initializing',
-      'useDefaultContainer'
+      'useDefaultContainer',
+      'isInitialized',
+      'createContainer',
+      'storeSubscription'
     ], this.props)
-    if (!hideInactiveContainers || this.matchesLocation(this.props)) {
+    if (!hideInactiveContainers || matchesLocation) {
       return (
         <div {...divProps}
-          onClick={this.onClick.bind(this)}
-          style={{
+             onMouseDown={switchToGroup}
+             style={{
                ...style,
                width: '100%',
                height: '100%',
@@ -139,7 +115,8 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
                position: 'inherit',
                overflow: 'hidden'
                */
-             }}>
+             }}
+        >
           {children}
         </div>
       )
