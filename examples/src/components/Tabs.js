@@ -36,7 +36,7 @@ const TabMaster3 = () => (
 )
 
 const TabPage = ({match:{params:{page}}}) => (
-  <div >
+  <div>
     <p className='page-content'>
       Page: {page}
     </p>
@@ -48,7 +48,7 @@ const TabPage = ({match:{params:{page}}}) => (
 )
 
 const Tab = ({name, initialUrl, patterns, masterComponent}) => (
-  <Container name={name} initialUrl={initialUrl} patterns={patterns}>
+  <Container name={name} className={name} initialUrl={initialUrl} patterns={patterns}>
     <HistoryRoute exact path={patterns[0]} component={masterComponent} />
     <HistoryRoute exact path={patterns[1]} component={TabPage} />
   </Container>
@@ -91,7 +91,7 @@ class Tabs extends Component {
           <p>Tab 1 is considered a default tab.</p>
           {/* <p>Clicking on an already active tab goes to the top of its history stack.</p> */}
         </div>
-        <ContainerGroup name='tabs'
+        <ContainerGroup name='tabs' className='tabs'
                         currentContainerIndex={this.state.activeTabIndex}
                         onContainerActivate={this.onContainerActivate.bind(this)}
                         gotoTopOnSelectActive={true}

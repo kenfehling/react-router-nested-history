@@ -100,14 +100,15 @@ export default () =>(
       <p>{foodGroups[0]} is considered the default tab.</p>
       <p>When selecting an already active tab, it will go to the top of that tree.</p>
     </div>
-    <WindowGroup name='nested'>
+    <WindowGroup name='nested' className='nested'>
       <Window className='window foods'>
         <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
           <FoodsHeader />
           {foodGroups.map(c => (
             <Container
-              name={c}
               key={c}
+              name={c}
+              className={c}
               initialUrl={`/foods/${c}`}
               resetOnLeave={true}
               patterns={[

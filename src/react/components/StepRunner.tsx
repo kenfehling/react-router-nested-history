@@ -46,9 +46,9 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   }
 
   componentWillMount() {
-    const {popstate} = this.props
     this.unlistenForPopState = browser.listen((location:Location) => {
       if (this.isListening && location.state) {
+        const {popstate} = this.props
         const page:Page = new Page(location.state)
         popstate(page)
       }
@@ -64,11 +64,11 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:IUpdateData) => ({
-  actions: state.actions,
-  lastUpdate: state.state.lastUpdate,
-  browserHistory: state.state.browserHistory,
-  isInitialized: state.state instanceof InitializedState
+const mapStateToProps = ({state, actions}:IUpdateData) => ({
+  actions,
+  lastUpdate: state.lastUpdate,
+  browserHistory: state.browserHistory,
+  isInitialized: state instanceof InitializedState
 })
 
 const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
@@ -78,14 +78,20 @@ const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
 })
 
 const mergeProps = (stateProps, dispatchProps,
-                    ownProps:StepRunnerProps):ConnectedStepRunnerProps => ({
-  ...stateProps,
-  ...dispatchProps,
-  ...ownProps,
-  popstate: (page:Page) => dispatchProps.dispatch(new PopState({
-    n: stateProps.browserHistory.getShiftAmount(page)
-  }))
-})
+                    ownProps:StepRunnerProps):ConnectedStepRunnerProps => {
+
+  const popstate = (page: Page) => {
+    dispatchProps.dispatch(new PopState({
+      n: stateProps.browserHistory.getShiftAmount(page)
+    }))
+  }
+  return {
+    ...stateProps,
+    ...dispatchProps,
+    ...ownProps,
+    popstate
+  }
+}
 
 const ConnectedStepRunner = connect(
   mapStateToProps,
