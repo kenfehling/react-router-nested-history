@@ -6793,7 +6793,11 @@ var WindowGroup = function (_a) {
     return (React.createElement(ContainerGroup_1.default, __assign({}, changeDefaults(groupProps)), function (props) {
         var c = children instanceof Function ?
             children(props).props.children : children;
-        return (React.createElement("div", { style: { position: 'relative' } }, react_1.Children.map(c, function (child, i) { return (React.createElement(WindowWrapper, { key: i, onClick: function () { return props.setCurrentContainerIndex(i); }, zIndex: getWindowZIndex(props.indexedStackOrder, i), isOnTop: !!props.indexedStackOrder &&
+        return (React.createElement("div", { style: {
+                width: '100%',
+                height: '100%',
+                position: 'relative'
+            } }, react_1.Children.map(c, function (child, i) { return (React.createElement(WindowWrapper, { key: i, onClick: function () { return props.setCurrentContainerIndex(i); }, zIndex: getWindowZIndex(props.indexedStackOrder, i), isOnTop: !!props.indexedStackOrder &&
                 props.indexedStackOrder[i] === 0 }, child)); })));
     }));
 };

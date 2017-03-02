@@ -44,7 +44,11 @@ const WindowGroup = ({children, ...groupProps}:ContainerGroupProps) => (
       const c:ReactNode = children instanceof Function ?
             children(props).props.children : children
       return (
-        <div style={{position: 'relative'}}>
+        <div style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative'
+        }}>
           {Children.map(c, (child:ReactElement<any>, i:number) => (
             <WindowWrapper key={i}
                            onClick = {() => props.setCurrentContainerIndex(i)}
