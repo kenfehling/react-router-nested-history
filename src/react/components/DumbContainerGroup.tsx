@@ -111,8 +111,9 @@ export default class DumbContainerGroup extends
       'switchToContainerIndex',
       'switchToContainerName',
       'parentUsesDefault',
-      'parentGroupName'
-    ], this.props)
+      'parentGroupName',
+      'storeSubscription'
+  ], this.props)
     const divStyle={
       ...style,
       width: '100%',
