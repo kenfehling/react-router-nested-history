@@ -73,11 +73,12 @@ const ConnectedBackLink = connect(
 
 export default class extends Component<BackLinkProps, undefined> {
   static contextTypes = {
-    store: PropTypes.object.isRequired,
+    rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired
   }
 
   render() {
-    return  <ConnectedBackLink {...this.context} {...this.props} />
+    const {rrnhStore, ...context} = this.context
+    return  <ConnectedBackLink store={rrnhStore} {...context} {...this.props} />
   }
 }

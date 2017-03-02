@@ -33,7 +33,7 @@ class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 
   onClick(event) {
-    const {containerName, groupName, push} = this.props
+    const {push} = this.props
     push(this.getUrl())
     event.preventDefault()
   }
@@ -64,11 +64,13 @@ const ConnectedHistoryLink = connect(
 
 export default class extends Component<LinkProps, undefined> {
   static contextTypes = {
+    rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
     containerName: PropTypes.string.isRequired
   }
 
   render() {
-    return <ConnectedHistoryLink {...this.context} {...this.props} />
+    const {rrnhStore, ...context} = this.context
+    return <ConnectedHistoryLink store={rrnhStore} {...context} {...this.props} />
   }
 }

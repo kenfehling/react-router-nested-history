@@ -96,7 +96,7 @@ class ContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
     class G extends Component<{children: ReactNode}, undefined> {
       static childContextTypes = {
-        store: PropTypes.object.isRequired,
+        rrnhStore: PropTypes.object.isRequired,
         groupName: PropTypes.string.isRequired,
         useDefaultContainer: PropTypes.bool,
         initializing: PropTypes.bool
@@ -104,7 +104,7 @@ class ContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
       getChildContext() {
         return {
-          store,
+          rrnhStore: store,
           groupName: name,
           useDefaultContainer,
           initializing: true
@@ -170,17 +170,13 @@ export default class extends Component<ContainerGroupProps, undefined> {
   static contextTypes = {
     groupName: PropTypes.string,          // Parent group name (if any)
     useDefaultContainer: PropTypes.bool,  // From parent (if any)
-    store: PropTypes.object.isRequired
+    rrnhStore: PropTypes.object.isRequired
   }
 
   render() {
-    const {useDefaultContainer, groupName, store} = this.context
+    const {rrnhStore, ...context} = this.context
     return (
-      <ConnectedContainerGroup parentUsesDefault={useDefaultContainer}
-                               parentGroupName={groupName}
-                               store={store}
-                               {...this.props}
-      />
+      <ConnectedContainerGroup store={rrnhStore} {...context} {...this.props} />
     )
   }
 }

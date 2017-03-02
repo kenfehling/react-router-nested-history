@@ -2,10 +2,12 @@ import * as React from 'react'
 import {Component, ComponentClass, PropTypes, createElement} from 'react'
 import {connect} from 'react-redux'
 import IUpdateData from '../model/interfaces/IUpdateData'
+import {Store} from '../store'
 
 export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
+  type PS = P & {store:Store}
 
-  const mapStateToProps = (state:IUpdateData, ownProps:P):P => ({
+  const mapStateToProps = (state:IUpdateData, ownProps:PS):P => ({
     ...Object(ownProps),
     ...state
   })
@@ -15,10 +17,11 @@ export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
 
   return class extends Component<P, any> {
     static contextTypes = {
-      store: PropTypes.object.isRequired
+      rrnhStore: PropTypes.object.isRequired
     }
     render() {
-      return <ConnectedComponent {...this.context} {...this.props} />
+      const {rrnhStore} = this.context
+      return <ConnectedComponent store={rrnhStore} {...this.props} />
     }
   }
 }

@@ -164,11 +164,11 @@ const ConnectedPage = connect(mapStateToProps)(AnimatedPage)
 
 export default class extends Component<AnimatedPageProps, undefined> {
   static contextTypes = {
-    store: PropTypes.object.isRequired
+    rrnhStore: PropTypes.object.isRequired
   }
 
   render() {
-    const {store} = this.context
-    return <ConnectedPage {...this.props} store={store} />
+    const {rrnhStore} = this.context
+    return <ConnectedPage {...this.props} store={rrnhStore} />
   }
 }

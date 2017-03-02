@@ -80,7 +80,7 @@ function getChildren(component) {
 
 class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
   static childContextTypes = {
-    store: PropTypes.object.isRequired
+    rrnhStore: PropTypes.object.isRequired
   }
 
   constructor(props) {
@@ -96,14 +96,14 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
 
     class R extends Component<{children: ReactNode}, undefined> {
       static childContextTypes = {
-        store: PropTypes.object.isRequired,
+        rrnhStore: PropTypes.object.isRequired,
         initializing: PropTypes.bool,
         router: PropTypes.object,
       }
 
       getChildContext() {
         return {
-          store,
+          rrnhStore: store,
           initializing: true,
           router: {
             location: {pathname: '/'},
@@ -136,7 +136,7 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
 
   getChildContext() {
     return {
-      store: this.props.store
+      rrnhStore: this.props.store
     }
   }
 

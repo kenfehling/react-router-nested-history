@@ -82,12 +82,12 @@ class Container extends Component<ConnectedContainerProps, undefined> {
       class T extends Component<undefined, undefined> {
         static childContextTypes = {
           ...DumbContainer.childContextTypes,
-          store: PropTypes.object.isRequired
+          rrnhStore: PropTypes.object.isRequired
         }
 
         getChildContext() {
           return {
-            store,
+            rrnhStore: store,
             groupName,
             animate,
             containerName: name,
@@ -179,7 +179,7 @@ const ConnectedContainer = connect(
 
 export default class extends Component<ContainerProps, undefined> {
   static contextTypes = {
-    store: PropTypes.object.isRequired,
+    rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
     initializing: PropTypes.bool,
     useDefaultContainer: PropTypes.bool,
@@ -187,6 +187,7 @@ export default class extends Component<ContainerProps, undefined> {
   }
 
   render() {
-    return <ConnectedContainer {...this.context} {...this.props} />
+    const {rrnhStore, ...context} = this.context
+    return <ConnectedContainer store={rrnhStore} {...context} {...this.props} />
   }
 }

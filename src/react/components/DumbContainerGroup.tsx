@@ -94,6 +94,7 @@ export default class DumbContainerGroup extends
 
   renderDiv(divChildren) {
     const {style={}, ...divProps} = R.omit([
+      'groupName',
       'children',
       'storedCurrentContainerIndex',
       'storedIndexedStackOrder',
