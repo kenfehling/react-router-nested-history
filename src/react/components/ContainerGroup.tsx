@@ -172,9 +172,14 @@ export default class extends Component<ContainerGroupProps, undefined> {
   }
 
   render() {
-    const {rrnhStore, ...context} = this.context
+    const {useDefaultContainer, groupName, rrnhStore} = this.context
     return (
-      <ConnectedContainerGroup store={rrnhStore} {...context} {...this.props} />
+      <ConnectedContainerGroup parentUsesDefault={useDefaultContainer}
+                               parentGroupName={groupName}
+                               store={rrnhStore}
+                               {...this.props}
+      />
+
     )
   }
 }

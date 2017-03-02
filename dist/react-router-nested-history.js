@@ -6630,15 +6630,6 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
-            t[p[i]] = s[p[i]];
-    return t;
-};
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
 var react_redux_1 = __webpack_require__(27);
@@ -6757,8 +6748,8 @@ var default_1 = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     default_1.prototype.render = function () {
-        var _a = this.context, rrnhStore = _a.rrnhStore, context = __rest(_a, ["rrnhStore"]);
-        return (React.createElement(ConnectedContainerGroup, __assign({ store: rrnhStore }, context, this.props)));
+        var _a = this.context, useDefaultContainer = _a.useDefaultContainer, groupName = _a.groupName, rrnhStore = _a.rrnhStore;
+        return (React.createElement(ConnectedContainerGroup, __assign({ parentUsesDefault: useDefaultContainer, parentGroupName: groupName, store: rrnhStore }, this.props)));
     };
     return default_1;
 }(react_1.Component));
