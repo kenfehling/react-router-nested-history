@@ -37,7 +37,7 @@ export default {
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
     alias: {
-      'react-router-nested-history': path.resolve('../../../src')
+      'react-router-nested-history': path.resolve('../../src')
     }
   }
 }
