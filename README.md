@@ -34,7 +34,7 @@ Right now this library only works with browserHistory (HTML5 History API, not wi
 - [x] End to end tests using [Nightwatch.js](http://nightwatchjs.org)
 - [x] Support for title libraries like [react-helmet](https://github.com/nfl/react-helmet)
 - [x] Transition animations (slide-in, slide-out)
-- [ ] Support for server rendering
+- [x] Support for server rendering
 
 ## API
 
