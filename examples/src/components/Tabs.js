@@ -47,8 +47,13 @@ const TabPage = ({match:{params:{page}}}) => (
   </div>
 )
 
-const Tab = ({name, initialUrl, patterns, masterComponent}) => (
-  <Container name={name} className={name} initialUrl={initialUrl} patterns={patterns}>
+const Tab = ({name, initialUrl, patterns, masterComponent, useDefault=false}) => (
+  <Container name={name}
+             className={name}
+             initialUrl={initialUrl}
+             patterns={patterns}
+             useDefault={useDefault}
+  >
     <HistoryRoute exact path={patterns[0]} component={masterComponent} />
     <HistoryRoute exact path={patterns[1]} component={TabPage} />
   </Container>
@@ -57,7 +62,8 @@ const Tab = ({name, initialUrl, patterns, masterComponent}) => (
 const Tab1 = () => <Tab name='tab1'
                          initialUrl="/tabs/1"
                          patterns={['/tabs/1', '/tabs/1/:page']}
-                         masterComponent={TabMaster1} />
+                         masterComponent={TabMaster1}
+                         useDefault={true} />
 
 const Tab2 = () => <Tab name='tab2'
                          initialUrl="/tabs/2"

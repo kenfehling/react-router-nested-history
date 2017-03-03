@@ -13,7 +13,7 @@ export interface DumbContainerProps {
   style?: any
 
   groupName: string
-  useDefaultContainer?: boolean
+  isDefault?: boolean
   hideInactiveContainers?: boolean
   isInitialized: boolean
   switchToGroup: () => void
@@ -96,7 +96,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'isOnTop',
       'store',
       'initializing',
-      'useDefaultContainer',
+      'isDefault',
       'isInitialized',
       'createContainer',
       'storeSubscription'

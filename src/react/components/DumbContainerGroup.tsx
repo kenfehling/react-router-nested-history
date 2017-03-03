@@ -23,7 +23,6 @@ export interface DumbContainerGroupProps {
   currentContainerIndex?: number,           // from user
   currentContainerName?: string,            // from user
   onContainerActivate?: OnContainerSwitch,  // from user
-  useDefaultContainer?: boolean,
   hideInactiveContainers?: boolean,
   gotoTopOnSelectActive?: boolean,
   storedIndexedStackOrder: number[]
@@ -40,19 +39,13 @@ export default class DumbContainerGroup extends
 
   static childContextTypes = {
     groupName: PropTypes.string.isRequired,
-    useDefaultContainer: PropTypes.bool,
     hideInactiveContainers: PropTypes.bool
   }
 
   getChildContext() {
-    const {
-      name,
-      useDefaultContainer=true,
-      hideInactiveContainers=true,
-    } = this.props
+    const {name, hideInactiveContainers=true} = this.props
     return {
       groupName: name,
-      useDefaultContainer,
       hideInactiveContainers
     }
   }
@@ -97,7 +90,6 @@ export default class DumbContainerGroup extends
       'children',
       'storedCurrentContainerIndex',
       'storedIndexedStackOrder',
-      'useDefaultContainer',
       'hideInactiveContainers',
       'store',
       'isOnTop',
@@ -110,7 +102,7 @@ export default class DumbContainerGroup extends
       'createGroup',
       'switchToContainerIndex',
       'switchToContainerName',
-      'parentUsesDefault',
+      'isDefault',
       'parentGroupName',
       'storeSubscription'
   ], this.props)

@@ -22,16 +22,15 @@ export interface ContainerGroupProps {
   currentContainerIndex?: number
   currentContainerName?: string
   onContainerActivate?: OnContainerSwitch
-  useDefaultContainer?: boolean
   resetOnLeave?: boolean
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
+  isDefault: boolean
 }
 
 type GroupPropsWithStore = ContainerGroupProps & {
   store: Store
   parentGroupName: string
-  parentUsesDefault: boolean
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
@@ -49,18 +48,17 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
     const {
       store,
       name,
-      useDefaultContainer,
       resetOnLeave,
       gotoTopOnSelectActive,
       createGroup,
       parentGroupName,
-      parentUsesDefault
+      isDefault
     } = this.props
 
     createGroup(new CreateGroup({
       name,
       parentGroupName,
-      parentUsesDefault,
+      isDefault,
       resetOnLeave,
       gotoTopOnSelectActive
     }))
@@ -69,7 +67,6 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       static childContextTypes = {
         rrnhStore: PropTypes.object.isRequired,
         groupName: PropTypes.string.isRequired,
-        useDefaultContainer: PropTypes.bool,
         initializing: PropTypes.bool
       }
 
@@ -77,7 +74,6 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
         return {
           rrnhStore: store,
           groupName: name,
-          useDefaultContainer,
           initializing: true
         }
       }
@@ -139,16 +135,14 @@ const ConnectedContainerGroup = connect(
 
 export default class ContainerGroup extends Component<ContainerGroupProps, undefined> {
   static contextTypes = {
-    groupName: PropTypes.string,          // Parent group name (if any)
-    useDefaultContainer: PropTypes.bool,  // From parent (if any)
+    groupName: PropTypes.string,  // Parent group name (if any)
     rrnhStore: PropTypes.object.isRequired
   }
 
   render() {
-    const {useDefaultContainer, groupName, rrnhStore} = this.context
+    const {groupName, rrnhStore} = this.context
     return (
-      <ConnectedContainerGroup parentUsesDefault={useDefaultContainer}
-                               parentGroupName={groupName}
+      <ConnectedContainerGroup parentGroupName={groupName}
                                store={rrnhStore}
                                {...this.props}
       />

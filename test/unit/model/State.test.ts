@@ -4,7 +4,6 @@ import Page from '../../../src/model/Page'
 import HistoryStack from '../../../src/model/HistoryStack'
 import * as fixtures from '../fixtures'
 import IContainer from '../../../src/model/interfaces/IContainer'
-import InitializedState from '../../../src/model/InitializedState'
 import {push} from '../../../src/util/browserFunctions'
 declare const describe:any
 declare const it:any

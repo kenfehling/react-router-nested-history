@@ -1,7 +1,4 @@
-import IState from '../../../../src/model/IState'
 import * as fixtures from '../../fixtures'
-import PopState from '../../../../src/model/actions/PopState'
-import HistoryStack from '../../../../src/model/HistoryStack'
 import Group from '../../../../src/model/Group'
 import UninitializedState from '../../../../src/model/UninitializedState'
 import LoadFromUrl from '../../../../src/model/actions/LoadFromUrl'

@@ -104,12 +104,13 @@ export default () =>(
       <Window className='window foods'>
         <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
           <FoodsHeader />
-          {foodGroups.map(c => (
+          {foodGroups.map((c, i) => (
             <Container
               key={c}
               name={c}
               className={c}
               initialUrl={`/foods/${c}`}
+              isDefault={i === 0}
               resetOnLeave={true}
               patterns={[
                 `/foods/${regex(c)}`,

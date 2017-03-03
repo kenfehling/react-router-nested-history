@@ -165,6 +165,13 @@ Use this component to wrap one or more `HistoryRoute` components to enable histo
           <td>A list of path patterns that will load in this container from a URL in the address bar</td>
         </tr>
         <tr>
+          <td>isDefault</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Consider this the default tab</td>
+        </tr>
+        <tr>
             <td>animate</td>
             <td>boolean</td>
             <td>true</td>
@@ -218,11 +225,11 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>Runs when a new container is activated</td>
         </tr>
         <tr>
-          <td>useDefaultContainer</td>
+          <td>isDefault</td>
           <td>boolean</td>
-          <td>true</td>
+          <td>false</td>
           <td></td>
-          <td>Consider the first container in the group as the default</td>
+          <td>Consider this the default tab (only for nested group)</td>
         </tr>
         <tr>
           <td>gotoTopOnSelectActive</td>
@@ -318,7 +325,7 @@ creating a group of `Window` components that overlap and are layered in
 the order that they were last accessed.
 
 #### props
-Same as `WindowGroup` but with some changes in defaults.
+Same as `WindowGroup` but with changes in defaults.
 <table class="table table-bordered table-striped">
     <thead>
     <tr>
@@ -330,13 +337,6 @@ Same as `WindowGroup` but with some changes in defaults.
     </tr>
     </thead>
     <tbody>
-        <tr>
-          <td>useDefaultContainer</td>
-          <td>boolean</td>
-          <td>false</td>
-          <td></td>
-          <td>Consider the first container in the group as the default</td>
-        </tr>
         <tr>
           <td>hideInactiveContainers</td>
           <td>boolean</td>

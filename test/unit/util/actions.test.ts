@@ -58,7 +58,7 @@ describe('action utils', () => {
       name: 'Container 1',
       initialUrl: '/a',
       patterns: ['/a', '/a/:id'],
-      useDefault: true,
+      isDefault: true,
       time: 1000
     }),
     new CreateContainer({
@@ -66,7 +66,6 @@ describe('action utils', () => {
       name: 'Container 2',
       initialUrl: '/b',
       patterns: ['/b', '/b/:id'],
-      useDefault: true,
       time: 1000
     }),
     new CreateContainer({
@@ -74,7 +73,6 @@ describe('action utils', () => {
       name: 'Container 1',
       initialUrl: '/e',
       patterns: ['/e', '/e/:id'],
-      useDefault: false,
       time: 1000
     }),
     new CreateContainer({
@@ -82,7 +80,6 @@ describe('action utils', () => {
       name: 'Container 2',
       initialUrl: '/f',
       patterns: ['/f', '/f/:id'],
-      useDefault: false,
       time: 1000
     })
   ]

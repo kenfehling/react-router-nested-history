@@ -11,19 +11,19 @@ export default class CreateContainer extends Action {
   readonly groupName: string
   readonly initialUrl: string
   readonly patterns: string[]
-  readonly useDefault: boolean
+  readonly isDefault: boolean
   readonly resetOnLeave: boolean
 
   constructor({time, name, groupName, initialUrl, patterns,
-      useDefault=true, resetOnLeave=false}:
+      isDefault=true, resetOnLeave=false}:
       {time?:number, name:string, groupName:string, initialUrl:string,
-        patterns:string[], useDefault?:boolean, resetOnLeave?:boolean}) {
+        patterns:string[], isDefault?:boolean, resetOnLeave?:boolean}) {
     super({time, origin: SYSTEM})
     this.name = name
     this.groupName = groupName
     this.initialUrl = initialUrl
     this.patterns = patterns
-    this.useDefault = useDefault
+    this.isDefault = isDefault
     this.resetOnLeave = resetOnLeave
   }
 
@@ -32,7 +32,7 @@ export default class CreateContainer extends Action {
       name: this.name,
       groupName: this.groupName,
       initialUrl: this.initialUrl,
-      useDefault: this.useDefault,
+      isDefault: this.isDefault,
       resetOnLeave: this.resetOnLeave,
       patterns: this.patterns
     })

@@ -17,9 +17,10 @@ import SwitchToGroup from '../../model/actions/SwitchToGroup'
 interface ContainerProps {
   children?: ReactNode
   name: string
-  animate?: boolean
   initialUrl: string
   patterns: string[]
+  animate?: boolean
+  isDefault?: boolean
   resetOnLeave?: boolean
   className?: string
   style?: any
@@ -29,7 +30,6 @@ type ContainerPropsWithStore = ContainerProps & {
   store: Store
   groupName: string
   initializing: boolean
-  useDefaultContainer: boolean
   hideInactiveContainers: boolean
 }
 
@@ -66,7 +66,7 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
       createContainer,
       groupName,
       initializing=false,
-      useDefaultContainer=true
+      isDefault=false
     } = this.props
 
     createContainer(new CreateContainer({
@@ -75,7 +75,7 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
       initialUrl,
       patterns,
       resetOnLeave,
-      useDefault: useDefaultContainer
+      isDefault
     }))
 
     if (initializing) {
@@ -182,7 +182,6 @@ export default class Container extends Component<ContainerProps, undefined> {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
     initializing: PropTypes.bool,
-    useDefaultContainer: PropTypes.bool,
     hideInactiveContainers: PropTypes.bool
   }
 

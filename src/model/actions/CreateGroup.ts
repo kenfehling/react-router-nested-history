@@ -9,33 +9,31 @@ export default class CreateGroup extends NonStepAction {
   readonly type: string = CreateGroup.type
   readonly name: string
   readonly parentGroupName: string|undefined
-  readonly parentUsesDefault: boolean|undefined
+  readonly isDefault: boolean|undefined
   readonly resetOnLeave: boolean
   readonly gotoTopOnSelectActive: boolean
 
   constructor({time, name, parentGroupName=undefined,
-    parentUsesDefault=parentGroupName?true:undefined,
+    isDefault=parentGroupName?true:undefined,
     resetOnLeave=false, gotoTopOnSelectActive=false}:
-    {time?:number, name:string, parentGroupName?:undefined,
-      parentUsesDefault?:undefined, resetOnLeave?:boolean,
-      gotoTopOnSelectActive?:boolean}|
-    {time?:number, name:string, parentGroupName:string,
-      parentUsesDefault:boolean, resetOnLeave?:boolean,
-      gotoTopOnSelectActive?:boolean}) {
+    {time?:number, name:string, parentGroupName?:undefined, isDefault?:undefined,
+      resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}|
+    {time?:number, name:string, parentGroupName:string, isDefault:boolean,
+      resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}) {
     super({time, origin: SYSTEM})
     this.name = name
     this.parentGroupName = parentGroupName
-    this.parentUsesDefault = parentUsesDefault
+    this.isDefault = isDefault
     this.resetOnLeave = resetOnLeave
     this.gotoTopOnSelectActive = gotoTopOnSelectActive
   }
 
   reduce(state:IState):IState {
-    if (this.parentGroupName && this.parentUsesDefault != null) {
+    if (this.parentGroupName && this.isDefault != null) {
       return state.addSubGroup({
         name: this.name,
         parentGroupName: this.parentGroupName,
-        parentUsesDefault: this.parentUsesDefault,
+        isDefault: this.isDefault,
         resetOnLeave: this.resetOnLeave,
         gotoTopOnSelectActive: this.gotoTopOnSelectActive
       })

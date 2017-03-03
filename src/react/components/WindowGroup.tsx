@@ -12,7 +12,6 @@ const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
 
 const changeDefaults = (props:ContainerGroupProps):ContainerGroupProps => ({
   ...props,
-  useDefaultContainer: defaultToFalse(props.useDefaultContainer),
   hideInactiveContainers: defaultToFalse(props.hideInactiveContainers)
 })
 

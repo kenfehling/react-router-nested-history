@@ -117,25 +117,24 @@ abstract class IState {
     return this.replaceGroup(group)
   }
 
-  addSubGroup({name, parentGroupName, parentUsesDefault=true,
+  addSubGroup({name, parentGroupName, isDefault=true,
     resetOnLeave=false, gotoTopOnSelectActive=false}:
-    {name:string, parentGroupName:string, parentUsesDefault:boolean,
+    {name:string, parentGroupName:string, isDefault:boolean,
       resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}):IState {
-    const parentGroup:Group = this.getGroupByName(parentGroupName)
     const group:Group = new Group({
       name,
       resetOnLeave,
       gotoTopOnSelectActive,
       parentGroupName,
-      isDefault: parentUsesDefault ? parentGroup.containers.length === 0 : null
+      isDefault
     })
     return this.replaceGroup(group)
   }
 
-  addContainer({name, groupName, initialUrl, useDefault=true,
+  addContainer({name, groupName, initialUrl, isDefault=false,
     resetOnLeave=false, patterns}:
     {name:string, groupName:string, initialUrl:string, patterns:string[],
-      useDefault:boolean, resetOnLeave:boolean}):IState {
+      isDefault:boolean, resetOnLeave:boolean}):IState {
     const group:Group = this.getGroupByName(groupName)
     const container:Container = new Container({
       initialUrl,
@@ -143,7 +142,7 @@ abstract class IState {
       resetOnLeave,
       groupName,
       name,
-      isDefault: group.containers.length === 0 && useDefault
+      isDefault
     })
     return this.replaceGroup(group.replaceContainer(container))
   }
