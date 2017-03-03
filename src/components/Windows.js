@@ -31,23 +31,25 @@ const WindowPage = ({match:{params:{page}}}) => (
 )
 
 const ExampleWindow = ({index, masterComponent}) => (
-  <Window className={`window ${windowName(index)}`} children={({isOnTop}) => (
-    <Container name={windowName(index)}
-               animate={false}
-               className={isOnTop ? 'top container' : 'container'}
-               initialUrl={windowUrl(index)}
-               patterns={[windowUrl(index), windowUrl(index) + '/:page']}
-    >
-      <HistoryRoute exact
-                    path={windowUrl(index)}
-                    component={masterComponent}
-      />
-      <HistoryRoute exact
-                    path={windowUrl(index) + '/:page'}
-                    component={WindowPage}
-      />
-    </Container>
-  )} />
+  <Window forName={windowName(index)} className={`window ${windowName(index)}`}>
+    {({isOnTop}) => (
+      <Container name={windowName(index)}
+                 animate={false}
+                 className={isOnTop ? 'top container' : 'container'}
+                 initialUrl={windowUrl(index)}
+                 patterns={[windowUrl(index), windowUrl(index) + '/:page']}
+      >
+        <HistoryRoute exact
+                      path={windowUrl(index)}
+                      component={masterComponent}
+        />
+        <HistoryRoute exact
+                      path={windowUrl(index) + '/:page'}
+                      component={WindowPage}
+        />
+      </Container>
+    )}
+  </Window>
 )
 
 export default class Windows extends Component {
