@@ -278,9 +278,14 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>The index of the current container</td>
         </tr>
         <tr>
-          <td>indexedStackOrder</td>
-          <td>number[]</td>
-          <td>The indexed stack order of the containers</td>
+          <td>currentContainerName</td>
+          <td>string</td>
+          <td>The name of the current container</td>
+        </tr>
+        <tr>
+          <td>stackOrder</td>
+          <td>Container[]</td>
+          <td>The containers ordered by how recently they were activated</td>
         </tr>
     </tbody>
 </table>
@@ -301,9 +306,14 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>The index of the current container</td>
         </tr>
         <tr>
-          <td>indexedStackOrder</td>
-          <td>number[]</td>
-          <td>The indexed stack order of the containers</td>
+          <td>currentContainerName</td>
+          <td>string</td>
+          <td>The name of the current container</td>
+        </tr>
+        <tr>
+          <td>stackOrder</td>
+          <td>Container[]</td>
+          <td>The containers ordered by how recently they were activated</td>
         </tr>
         <tr>
           <td>setCurrentContainerIndex</td>
@@ -361,6 +371,12 @@ A single window inside a `WindowGroup`
     </tr>
     </thead>
     <tbody>
+        <tr>
+          <td>forName</td>
+          <td>string</td>
+          <td align="center">✓</td>
+          <td>The name of the `Container` or `Group` this window wraps</td>
+        </tr>
         <tr>
           <td>top</td>
           <td>number</td>

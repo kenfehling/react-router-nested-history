@@ -92,14 +92,6 @@ export default class UninitializedState extends IState {
     return []
   }
 
-  /**
-   * Gets the stack order values as an array of numbers,
-   * in original group index order instead of stack order
-   */
-  get indexedGroupStackOrder():number[] {
-    return []
-  }
-
   getBackPageInGroup(groupName:string):Page {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
@@ -169,10 +161,6 @@ export default class UninitializedState extends IState {
   }
 
   getContainerStackOrderForGroup(groupName:string):IContainer[] {
-    return []
-  }
-
-  getIndexedContainerStackOrderForGroup(groupName:string):number[] {
     return []
   }
 }

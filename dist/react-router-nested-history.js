@@ -3579,20 +3579,6 @@ var InitializedState = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(InitializedState.prototype, "indexedGroupStackOrder", {
-        /**
-         * Gets the stack order values as an array of numbers,
-         * in original group index order instead of stack order
-         */
-        get: function () {
-            var order = this.groupStackOrder;
-            return this.groups.map(function (orig) {
-                return R.findIndex(function (g) { return orig.name === g.name; }, order);
-            });
-        },
-        enumerable: true,
-        configurable: true
-    });
     InitializedState.prototype.getBackPageInGroup = function (groupName) {
         return this.getGroupByName(groupName).backPage;
     };
@@ -3679,9 +3665,6 @@ var InitializedState = (function (_super) {
     };
     InitializedState.prototype.getContainerStackOrderForGroup = function (groupName) {
         return this.getGroupByName(groupName).containerStackOrder;
-    };
-    InitializedState.prototype.getIndexedContainerStackOrderForGroup = function (groupName) {
-        return this.getGroupByName(groupName).indexedContainerStackOrder;
     };
     return InitializedState;
 }(IState_1.default));
@@ -6691,11 +6674,11 @@ var mapStateToProps = function (_a, ownProps) {
     var state = _a.state;
     var name = ownProps.name;
     var isInitialized = state instanceof InitializedState_1.default;
-    var ccn = isInitialized ? state.getActiveContainerNameInGroup(name) : null;
     return {
-        storedIndexedStackOrder: state.getIndexedContainerStackOrderForGroup(name),
+        storedStackOrder: state.getContainerStackOrderForGroup(name),
         storedCurrentContainerIndex: state.getActiveContainerIndexInGroup(name),
-        storedCurrentContainerName: ccn
+        storedCurrentContainerName: isInitialized ?
+            state.getActiveContainerNameInGroup(name) : null
     };
 };
 var mapDispatchToProps = function (dispatch, ownProps) { return ({
@@ -6761,42 +6744,36 @@ var __rest = (this && this.__rest) || function (s, e) {
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
 var ContainerGroup_1 = __webpack_require__(82);
-var R = __webpack_require__(15);
-var getWindowZIndex = function (iOrder, index) {
-    return iOrder && iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1;
-};
 var defaultToFalse = function (p) { return p == null ? false : p; };
 var changeDefaults = function (props) { return (__assign({}, props, { hideInactiveContainers: defaultToFalse(props.hideInactiveContainers) })); };
-var WindowWrapper = (function (_super) {
-    __extends(WindowWrapper, _super);
-    function WindowWrapper() {
+var InnerWindowGroup = (function (_super) {
+    __extends(InnerWindowGroup, _super);
+    function InnerWindowGroup() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    WindowWrapper.prototype.getChildContext = function () {
-        return R.pick(['zIndex', 'isOnTop'], this.props);
+    InnerWindowGroup.prototype.getChildContext = function () {
+        var _a = this.props, stackOrder = _a.stackOrder, setCurrentContainerName = _a.setCurrentContainerName;
+        return {
+            stackOrder: stackOrder,
+            setCurrentContainerName: setCurrentContainerName
+        };
     };
-    WindowWrapper.prototype.render = function () {
-        var _a = this.props, onClick = _a.onClick, children = _a.children;
-        return React.createElement("div", { onClick: onClick }, children);
-    };
-    return WindowWrapper;
-}(react_1.Component));
-WindowWrapper.childContextTypes = {
-    zIndex: react_1.PropTypes.number.isRequired,
-    isOnTop: react_1.PropTypes.bool.isRequired
-};
-var WindowGroup = function (_a) {
-    var children = _a.children, groupProps = __rest(_a, ["children"]);
-    return (React.createElement(ContainerGroup_1.default, __assign({}, changeDefaults(groupProps)), function (props) {
-        var c = children instanceof Function ?
-            children(props).props.children : children;
+    InnerWindowGroup.prototype.render = function () {
         return (React.createElement("div", { style: {
                 width: '100%',
                 height: '100%',
                 position: 'relative'
-            } }, react_1.Children.map(c, function (child, i) { return (React.createElement(WindowWrapper, { key: i, onClick: function () { return props.setCurrentContainerIndex(i); }, zIndex: getWindowZIndex(props.indexedStackOrder, i), isOnTop: !!props.indexedStackOrder &&
-                props.indexedStackOrder[i] === 0 }, child)); })));
-    }));
+            } }, this.props.children));
+    };
+    return InnerWindowGroup;
+}(react_1.Component));
+InnerWindowGroup.childContextTypes = {
+    stackOrder: react_1.PropTypes.arrayOf(react_1.PropTypes.object).isRequired,
+    setCurrentContainerName: react_1.PropTypes.func.isRequired
+};
+var WindowGroup = function (_a) {
+    var children = _a.children, groupProps = __rest(_a, ["children"]);
+    return (React.createElement(ContainerGroup_1.default, __assign({}, changeDefaults(groupProps)), function (props) { return (React.createElement(InnerWindowGroup, { stackOrder: props.stackOrder, setCurrentContainerName: props.setCurrentContainerName }, children)); }));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = WindowGroup;
@@ -11395,17 +11372,6 @@ var UninitializedState = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(UninitializedState.prototype, "indexedGroupStackOrder", {
-        /**
-         * Gets the stack order values as an array of numbers,
-         * in original group index order instead of stack order
-         */
-        get: function () {
-            return [];
-        },
-        enumerable: true,
-        configurable: true
-    });
     UninitializedState.prototype.getBackPageInGroup = function (groupName) {
         throw new Error(UNINITIALIZED_MESSAGE);
     };
@@ -11474,9 +11440,6 @@ var UninitializedState = (function (_super) {
         return false;
     };
     UninitializedState.prototype.getContainerStackOrderForGroup = function (groupName) {
-        return [];
-    };
-    UninitializedState.prototype.getIndexedContainerStackOrderForGroup = function (groupName) {
         return [];
     };
     return UninitializedState;
@@ -11938,14 +11901,24 @@ var DumbContainerGroup = (function (_super) {
             hideInactiveContainers: hideInactiveContainers
         };
     };
-    DumbContainerGroup.prototype.update = function (currentContainerIndex, indexedStackOrder) {
-        if (this.props.onContainerActivate) {
-            this.props.onContainerActivate({ currentContainerIndex: currentContainerIndex, indexedStackOrder: indexedStackOrder });
+    DumbContainerGroup.prototype.update = function (_a) {
+        var currentContainerIndex = _a.currentContainerIndex, currentContainerName = _a.currentContainerName, stackOrder = _a.stackOrder;
+        if (this.props.onContainerActivate &&
+            currentContainerIndex != null && currentContainerName && stackOrder) {
+            this.props.onContainerActivate({
+                currentContainerIndex: currentContainerIndex,
+                currentContainerName: currentContainerName,
+                stackOrder: stackOrder
+            });
         }
     };
     DumbContainerGroup.prototype.componentDidMount = function () {
-        var _a = this.props, storedCurrentContainerIndex = _a.storedCurrentContainerIndex, storedIndexedStackOrder = _a.storedIndexedStackOrder;
-        this.update(storedCurrentContainerIndex, storedIndexedStackOrder);
+        var _a = this.props, storedCurrentContainerIndex = _a.storedCurrentContainerIndex, storedCurrentContainerName = _a.storedCurrentContainerName, storedStackOrder = _a.storedStackOrder;
+        this.update({
+            currentContainerIndex: storedCurrentContainerIndex,
+            currentContainerName: storedCurrentContainerName,
+            stackOrder: storedStackOrder
+        });
     };
     DumbContainerGroup.prototype.componentWillReceiveProps = function (nextProps) {
         var oldII = this.props.currentContainerIndex;
@@ -11956,11 +11929,15 @@ var DumbContainerGroup = (function (_super) {
         var oldSN = this.props.storedCurrentContainerName;
         var newIN = nextProps.currentContainerName;
         var newSN = nextProps.storedCurrentContainerName;
-        var oldIndexedStackOrder = this.props.storedIndexedStackOrder;
-        var newIndexedStackOrder = nextProps.storedIndexedStackOrder;
+        var oldStackOrder = this.props.storedStackOrder;
+        var newStackOrder = nextProps.storedStackOrder;
         if (newSI !== oldSI || newSN !== oldSN ||
-            !R.equals(oldIndexedStackOrder, newIndexedStackOrder)) {
-            this.update(newSI, newIndexedStackOrder);
+            !R.equals(oldStackOrder, newStackOrder)) {
+            this.update({
+                currentContainerIndex: newSI,
+                currentContainerName: newSN,
+                stackOrder: newStackOrder
+            });
         }
         else if (newII != null && newII !== oldII && newII !== newSI) {
             this.props.switchToContainerIndex(newII);
@@ -11974,7 +11951,7 @@ var DumbContainerGroup = (function (_super) {
             'groupName',
             'children',
             'storedCurrentContainerIndex',
-            'storedIndexedStackOrder',
+            'storedStackOrder',
             'hideInactiveContainers',
             'store',
             'isOnTop',
@@ -11995,13 +11972,14 @@ var DumbContainerGroup = (function (_super) {
         return React.createElement("div", __assign({ style: divStyle }, divProps), divChildren);
     };
     DumbContainerGroup.prototype.render = function () {
-        var _a = this.props, children = _a.children, storedCurrentContainerIndex = _a.storedCurrentContainerIndex, storedIndexedStackOrder = _a.storedIndexedStackOrder, switchToContainerName = _a.switchToContainerName, switchToContainerIndex = _a.switchToContainerIndex;
+        var _a = this.props, children = _a.children, storedCurrentContainerIndex = _a.storedCurrentContainerIndex, storedCurrentContainerName = _a.storedCurrentContainerName, storedStackOrder = _a.storedStackOrder, switchToContainerName = _a.switchToContainerName, switchToContainerIndex = _a.switchToContainerIndex;
         if (children instanceof Function) {
             var args = {
                 currentContainerIndex: storedCurrentContainerIndex,
-                indexedStackOrder: storedIndexedStackOrder,
+                currentContainerName: storedCurrentContainerName,
+                stackOrder: storedStackOrder,
                 setCurrentContainerIndex: switchToContainerIndex,
-                setCurrentContainerName: switchToContainerName
+                setCurrentContainerName: switchToContainerName,
             };
             return this.renderDiv(children(args));
         }
@@ -18895,6 +18873,23 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
+var R = __webpack_require__(15);
+var getWindowZIndex = function (stackOrder, name) {
+    if (stackOrder && !R.isEmpty(stackOrder)) {
+        var index = R.findIndex(function (c) { return c.name === name; }, stackOrder);
+        if (index !== -1) {
+            return stackOrder.length - index + 1;
+        }
+    }
+    return 1;
+};
+var isWindowOnTop = function (stackOrder, name) {
+    if (stackOrder && !R.isEmpty(stackOrder)) {
+        var index = R.findIndex(function (c) { return c.name === name; }, stackOrder);
+        return index === 0;
+    }
+    return false;
+};
 var Window = (function (_super) {
     __extends(Window, _super);
     function Window() {
@@ -18902,16 +18897,18 @@ var Window = (function (_super) {
     }
     Window.prototype.render = function () {
         // Pass through all props you could want on a div
-        var _a = this.props, top = _a.top, left = _a.left, children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["top", "left", "children", "style"]);
-        var _c = this.context, zIndex = _c.zIndex, isOnTop = _c.isOnTop;
-        return (React.createElement("div", __assign({}, divProps, { style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }), children instanceof Function ? children({ isOnTop: isOnTop }) :
+        var _a = this.props, forName = _a.forName, top = _a.top, left = _a.left, children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["forName", "top", "left", "children", "style"]);
+        var _c = this.context, stackOrder = _c.stackOrder, setCurrentContainerName = _c.setCurrentContainerName;
+        var zIndex = getWindowZIndex(stackOrder, forName);
+        var isOnTop = isWindowOnTop(stackOrder, forName);
+        return (React.createElement("div", __assign({}, divProps, { onClick: function () { return setCurrentContainerName(forName); }, style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }), children instanceof Function ? children({ isOnTop: isOnTop }) :
             react_1.cloneElement(react_1.Children.only(children), { isOnTop: isOnTop })));
     };
     return Window;
 }(react_1.Component));
 Window.contextTypes = {
-    zIndex: react_1.PropTypes.number.isRequired,
-    isOnTop: react_1.PropTypes.bool.isRequired
+    stackOrder: react_1.PropTypes.arrayOf(react_1.PropTypes.object),
+    setCurrentContainerName: react_1.PropTypes.func //.isRequired
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Window;
@@ -19253,20 +19250,6 @@ var Group = (function () {
     Object.defineProperty(Group.prototype, "containerStackOrder", {
         get: function () {
             return R.sort(function (c1, c2) { return c1.compareTo(c2); }, this.containers);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Group.prototype, "indexedContainerStackOrder", {
-        /**
-         * Gets the stack order values as an array of numbers,
-         * in original container index order instead of stack order
-         */
-        get: function () {
-            var order = this.containerStackOrder;
-            return this.containers.map(function (orig) {
-                return R.findIndex(function (c) { return orig.name === c.name; }, order);
-            });
         },
         enumerable: true,
         configurable: true

@@ -15,15 +15,7 @@ const checkLoadWindowZIndex = (client, windowNumber) => {
 
 export default {
   'Check original default window z-index': (client) => {
-    checkWindowZIndex(client.url(path('/tabs/1')), 1, 3).end()
-  },
-
-  'Back from /windows/1 should go to zero page': (client) => {
-    client
-      .url(path('/windows/1'))
-      .back()
-      .assert.urlEquals(path('/tabs/1'))
-      .end()
+    checkWindowZIndex(client.url(path('/foods/Fruit')), 1, 3).end()
   },
 
   'Check /windows/1 zIndex': (client) => checkLoadWindowZIndex(client, 1).end(),

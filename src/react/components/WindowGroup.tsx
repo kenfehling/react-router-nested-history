@@ -1,12 +1,9 @@
 import * as React from 'react'
-import {Component, PropTypes, Children, ReactNode, ReactElement} from 'react'
+import {Component, PropTypes} from 'react'
 import ContainerGroup from './ContainerGroup'
 import {ContainerGroupProps} from './ContainerGroup'
 import {ChildrenFunctionArgs} from './DumbContainerGroup'
-import * as R from 'ramda'
-
-const getWindowZIndex = (iOrder, index) =>
-    iOrder && iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1
+import IContainer from '../../model/interfaces/IContainer'
 
 const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
 
@@ -15,52 +12,46 @@ const changeDefaults = (props:ContainerGroupProps):ContainerGroupProps => ({
   hideInactiveContainers: defaultToFalse(props.hideInactiveContainers)
 })
 
-interface WindowWrapperProps {
-  zIndex: number,
-  isOnTop: boolean,
-  onClick: () => void
+interface InnerWindowGroupProps {
+  stackOrder: IContainer[]|null
+  setCurrentContainerName: (name:string) => void
 }
 
-class WindowWrapper extends Component<WindowWrapperProps, undefined> {
+class InnerWindowGroup extends Component<InnerWindowGroupProps, undefined> {
   static childContextTypes = {
-    zIndex: PropTypes.number.isRequired,
-    isOnTop: PropTypes.bool.isRequired
+    stackOrder: PropTypes.arrayOf(PropTypes.object).isRequired,
+    setCurrentContainerName: PropTypes.func.isRequired
   }
 
   getChildContext() {
-    return R.pick(['zIndex', 'isOnTop'], this.props)
+    const {stackOrder, setCurrentContainerName} = this.props
+    return {
+      stackOrder,
+      setCurrentContainerName
+    }
   }
 
   render() {
-    const {onClick, children} = this.props
-    return <div onClick={onClick}>{children}</div>
+    return (
+      <div style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative'
+      }}>
+        {this.props.children}
+      </div>
+    )
   }
 }
 
 const WindowGroup = ({children, ...groupProps}:ContainerGroupProps) => (
   <ContainerGroup {...changeDefaults(groupProps)}>
-    {(props:ChildrenFunctionArgs) => {
-      const c:ReactNode = children instanceof Function ?
-            children(props).props.children : children
-      return (
-        <div style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative'
-        }}>
-          {Children.map(c, (child:ReactElement<any>, i:number) => (
-            <WindowWrapper key={i}
-                           onClick = {() => props.setCurrentContainerIndex(i)}
-                           zIndex={getWindowZIndex(props.indexedStackOrder, i)}
-                           isOnTop={!!props.indexedStackOrder &&
-                                    props.indexedStackOrder[i] === 0}
-            >
-              {child}
-            </WindowWrapper>
-          ))}
-        </div>
-      )}
-    }
+    {(props:ChildrenFunctionArgs) => (
+      <InnerWindowGroup stackOrder={props.stackOrder}
+                        setCurrentContainerName={props.setCurrentContainerName}>
+        {children}
+      </InnerWindowGroup>
+    )}
   </ContainerGroup>
 )
 

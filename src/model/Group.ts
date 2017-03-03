@@ -135,16 +135,6 @@ export default class Group implements Comparable, IContainer {
     return R.sort((c1, c2) => c1.compareTo(c2), this.containers)
   }
 
-  /**
-   * Gets the stack order values as an array of numbers,
-   * in original container index order instead of stack order
-   */
-  get indexedContainerStackOrder():number[] {
-    const order:IGroupContainer[] = this.containerStackOrder
-    return this.containers.map((orig:IGroupContainer) =>
-      R.findIndex((c:IGroupContainer) => orig.name === c.name, order))
-  }
-
   get history():HistoryStack {
     return this.getHistory()
   }

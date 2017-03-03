@@ -133,16 +133,6 @@ export default class InitializedState extends IState {
     return R.sort((g1, g2) => g1.compareTo(g2), this.groups)
   }
 
-  /**
-   * Gets the stack order values as an array of numbers,
-   * in original group index order instead of stack order
-   */
-  get indexedGroupStackOrder():number[] {
-    const order:Group[] = this.groupStackOrder
-    return this.groups.map((orig:Group) =>
-      R.findIndex((g:Group) => orig.name === g.name, order))
-  }
-
   getBackPageInGroup(groupName:string):Page {
     return this.getGroupByName(groupName).backPage
   }
@@ -230,9 +220,5 @@ export default class InitializedState extends IState {
 
   getContainerStackOrderForGroup(groupName:string):IContainer[] {
     return this.getGroupByName(groupName).containerStackOrder
-  }
-
-  getIndexedContainerStackOrderForGroup(groupName:string):number[] {
-    return this.getGroupByName(groupName).indexedContainerStackOrder
   }
 }

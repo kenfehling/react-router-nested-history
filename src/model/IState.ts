@@ -29,7 +29,6 @@ abstract class IState {
 
   abstract assign(obj:Object):IState
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
-  abstract getIndexedContainerStackOrderForGroup(groupName:string):number[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):IState
 
   abstract switchToContainer({groupName, name, time}:
@@ -56,13 +55,6 @@ abstract class IState {
   abstract containsPage(page:Page):boolean
   protected abstract getHistory(maintainFwd:boolean):HistoryStack
   abstract get groupStackOrder():Group[]
-
-  /**
-   * Gets the stack order values as an array of numbers,
-   * in original group index order instead of stack order
-   */
-  abstract get indexedGroupStackOrder():number[]
-
   abstract getBackPageInGroup(groupName:string)
   abstract getActiveContainerNameInGroup(groupName:string)
   abstract getActiveContainerIndexInGroup(groupName:string)

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Component, PropTypes, Children, ReactNode} from 'react'
+import {Component, PropTypes, ReactNode} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import DumbContainerGroup, {
   OnContainerSwitch, ChildrenType
@@ -15,6 +15,7 @@ import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import InitializedState from '../../model/InitializedState'
 import {getChildren} from '../../util/children'
 import WindowGroup from './WindowGroup'
+import IContainer from '../../model/interfaces/IContainer'
 
 export interface ContainerGroupProps {
   name: string
@@ -35,8 +36,8 @@ type GroupPropsWithStore = ContainerGroupProps & {
 
 type ConnectedGroupProps = GroupPropsWithStore & {
   createGroup: (action:CreateGroup) => void
-  storedIndexedStackOrder: number[]
-  storedCurrentContainerIndex: number
+  storedStackOrder: IContainer[]|null
+  storedCurrentContainerIndex: number|null
   storedCurrentContainerName: string|null
   switchToContainerIndex: (index:number) => void
   switchToContainerName: (name:string) => void
@@ -99,11 +100,11 @@ const mapStateToProps = ({state}:IUpdateData,
                          ownProps:GroupPropsWithStore) => {
   const {name} = ownProps
   const isInitialized = state instanceof InitializedState
-  const ccn = isInitialized ? state.getActiveContainerNameInGroup(name) : null
   return {
-    storedIndexedStackOrder: state.getIndexedContainerStackOrderForGroup(name),
+    storedStackOrder: state.getContainerStackOrderForGroup(name),
     storedCurrentContainerIndex: state.getActiveContainerIndexInGroup(name),
-    storedCurrentContainerName: ccn
+    storedCurrentContainerName: isInitialized ?
+                                state.getActiveContainerNameInGroup(name) : null
   }
 }
 

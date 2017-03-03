@@ -101,7 +101,7 @@ export default () =>(
       <p>When selecting an already active tab, it will go to the top of that tree.</p>
     </div>
     <WindowGroup name='nested' className='nested'>
-      <Window className='window foods'>
+      <Window forName='foods' className='window foods'>
         <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
           <FoodsHeader />
           {foodGroups.map((c, i) => (
@@ -130,7 +130,7 @@ export default () =>(
           ))}
         </ContainerGroup>
       </Window>
-      <Window className='window nested-window notes'>
+      <Window forName='notes' className='window nested-window notes'>
         <Container name='notes' animate={false} initialUrl='/notes' patterns={['/notes']}>
           <HistoryRoute path='/notes' exact component={Notes} />
         </Container>

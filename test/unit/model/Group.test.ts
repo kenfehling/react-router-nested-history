@@ -60,16 +60,6 @@ describe('Group', () => {
           expect(newOrder[1].initialUrl).toEqual('/a')
         })
       })
-
-      describe('indexedContainerStackOrder', () => {
-        it('returns the original order if all else is equal', () => {
-          expect(group.indexedContainerStackOrder).toEqual([0, 1, 2])
-        })
-
-        it('gets containers in latest active order', () => {
-          expect(newGroup.indexedContainerStackOrder).toEqual([1, 2, 0])
-        })
-      })
     })
 
     describe('history', () => {
@@ -252,20 +242,6 @@ describe('Group', () => {
           expect(newOrder[0].initialUrl).toEqual('/e')
           expect(newOrder[0].lastVisited).toEqual(now + 2)
           expect(newOrder[1].initialUrl).toEqual('/a')
-        })
-      })
-
-      describe('indexedContainerStackOrder', () => {
-        it('returns the original order if all else is equal', () => {
-          expect(group.indexedContainerStackOrder).toEqual([0, 1])
-          expect((group.containers[0] as Group)
-              .indexedContainerStackOrder).toEqual([0, 1, 2])
-        })
-
-        it('gets containers in latest active order', () => {
-          expect(newGroup.indexedContainerStackOrder).toEqual([1, 0])
-          expect((group.containers[0] as Group)
-            .indexedContainerStackOrder).toEqual([0, 1, 2])
         })
       })
     })
