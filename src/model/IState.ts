@@ -117,7 +117,7 @@ abstract class IState {
     return this.replaceGroup(group)
   }
 
-  addSubGroup({name, parentGroupName, isDefault=true,
+  addSubGroup({name, parentGroupName, isDefault=false,
     resetOnLeave=false, gotoTopOnSelectActive=false}:
     {name:string, parentGroupName:string, isDefault:boolean,
       resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}):IState {

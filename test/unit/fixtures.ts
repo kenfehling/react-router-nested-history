@@ -23,20 +23,20 @@ const createCreateGroup = (name:string):CreateGroup =>
     new CreateGroup({name, time: TIME})
 
 const createCreateSubGroup =
-  ({name, parentGroupName, parentUsesDefault}:
-  {name:string, parentGroupName:string, parentUsesDefault}):CreateGroup =>
-    new CreateGroup({name, parentGroupName, parentUsesDefault, time: TIME})
+  ({name, parentGroupName, isDefault=false}:
+  {name:string, parentGroupName:string, isDefault?:boolean}):CreateGroup =>
+    new CreateGroup({name, parentGroupName, isDefault, time: TIME})
 
 const createCreateContainers =
-  ({groupName, initialUrls, useDefault, resetOnLeave}:
-  {groupName:string, initialUrls:string[], useDefault:boolean,
-  resetOnLeave:boolean}):CreateContainer[] =>
+  ({groupName, initialUrls, useDefault=false, resetOnLeave=false}:
+  {groupName:string, initialUrls:string[], useDefault?:boolean,
+  resetOnLeave?:boolean}):CreateContainer[] =>
     initialUrls.map((initialUrl:string, i:number) => new CreateContainer({
       groupName,
       name: 'Container ' + (i + 1),
       initialUrl,
       patterns: [initialUrl, `${initialUrl}/:id`, `${initialUrl}/:id/:name`],
-      useDefault,
+      isDefault: useDefault && i === 0,
       resetOnLeave,
       time: TIME
     }))
@@ -48,27 +48,23 @@ export const createGroup3:CreateGroup = createCreateGroup('Group 3')
 export const createSubGroup1:CreateGroup = createCreateSubGroup({
   name: 'SubGroup 1',
   parentGroupName: 'Group 1',
-  parentUsesDefault: true
+  isDefault: true
 })
 
 export const createSubGroup2:CreateGroup = createCreateSubGroup({
   name: 'SubGroup 2',
   parentGroupName: 'Group 1',
-  parentUsesDefault: false
 })
 
 export const createContainers1:CreateContainer[] = createCreateContainers({
   groupName: 'Group 1',
   initialUrls: ['/a', '/b', '/c'],
   useDefault: true,
-  resetOnLeave: false
 })
 
 export const createContainers2:CreateContainer[] = createCreateContainers({
   groupName: 'Group 2',
   initialUrls: ['/e', '/f'],
-  useDefault: false,
-  resetOnLeave: false
 })
 
 export const createContainers3:CreateContainer[] = createCreateContainers({
@@ -113,14 +109,12 @@ const group2:Group = new Group({
       groupName: 'Group 2',
       initialUrl: '/e',
       patterns: ['/e', '/e/:id'],
-      isDefault: false
     }),
     new Container({
       name: 'Container 2',
       groupName: 'Group 2',
       initialUrl: '/f',
       patterns: ['/f', '/f/:id'],
-      isDefault: false
     }),
   ]
 })
@@ -140,7 +134,6 @@ const group3:Group = new Group({
       groupName: 'Group 3',
       initialUrl: '/h',
       patterns: ['/h', '/a/1'],
-      isDefault: false
     })
   ]
 })

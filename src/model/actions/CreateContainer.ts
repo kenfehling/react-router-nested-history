@@ -15,7 +15,7 @@ export default class CreateContainer extends Action {
   readonly resetOnLeave: boolean
 
   constructor({time, name, groupName, initialUrl, patterns,
-      isDefault=true, resetOnLeave=false}:
+      isDefault=false, resetOnLeave=false}:
       {time?:number, name:string, groupName:string, initialUrl:string,
         patterns:string[], isDefault?:boolean, resetOnLeave?:boolean}) {
     super({time, origin: SYSTEM})

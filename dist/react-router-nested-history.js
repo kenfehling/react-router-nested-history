@@ -6646,11 +6646,11 @@ var InnerContainerGroup = (function (_super) {
     __extends(InnerContainerGroup, _super);
     function InnerContainerGroup(props) {
         var _this = _super.call(this, props) || this;
-        var _a = _this.props, store = _a.store, name = _a.name, useDefaultContainer = _a.useDefaultContainer, resetOnLeave = _a.resetOnLeave, gotoTopOnSelectActive = _a.gotoTopOnSelectActive, createGroup = _a.createGroup, parentGroupName = _a.parentGroupName, parentUsesDefault = _a.parentUsesDefault;
+        var _a = _this.props, store = _a.store, name = _a.name, resetOnLeave = _a.resetOnLeave, gotoTopOnSelectActive = _a.gotoTopOnSelectActive, createGroup = _a.createGroup, parentGroupName = _a.parentGroupName, isDefault = _a.isDefault;
         createGroup(new CreateGroup_1.default({
             name: name,
             parentGroupName: parentGroupName,
-            parentUsesDefault: parentUsesDefault,
+            isDefault: isDefault,
             resetOnLeave: resetOnLeave,
             gotoTopOnSelectActive: gotoTopOnSelectActive
         }));
@@ -6663,7 +6663,6 @@ var InnerContainerGroup = (function (_super) {
                 return {
                     rrnhStore: store,
                     groupName: name,
-                    useDefaultContainer: useDefaultContainer,
                     initializing: true
                 };
             };
@@ -6675,7 +6674,6 @@ var InnerContainerGroup = (function (_super) {
         G.childContextTypes = {
             rrnhStore: react_1.PropTypes.object.isRequired,
             groupName: react_1.PropTypes.string.isRequired,
-            useDefaultContainer: react_1.PropTypes.bool,
             initializing: react_1.PropTypes.bool
         };
         // Initialize the Containers in this group
@@ -6719,14 +6717,13 @@ var ContainerGroup = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     ContainerGroup.prototype.render = function () {
-        var _a = this.context, useDefaultContainer = _a.useDefaultContainer, groupName = _a.groupName, rrnhStore = _a.rrnhStore;
-        return (React.createElement(ConnectedContainerGroup, __assign({ parentUsesDefault: useDefaultContainer, parentGroupName: groupName, store: rrnhStore }, this.props)));
+        var _a = this.context, groupName = _a.groupName, rrnhStore = _a.rrnhStore;
+        return (React.createElement(ConnectedContainerGroup, __assign({ parentGroupName: groupName, store: rrnhStore }, this.props)));
     };
     return ContainerGroup;
 }(react_1.Component));
 ContainerGroup.contextTypes = {
     groupName: react_1.PropTypes.string,
-    useDefaultContainer: react_1.PropTypes.bool,
     rrnhStore: react_1.PropTypes.object.isRequired
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -6769,7 +6766,7 @@ var getWindowZIndex = function (iOrder, index) {
     return iOrder && iOrder.length > index ? iOrder.length - iOrder[index] + 1 : 1;
 };
 var defaultToFalse = function (p) { return p == null ? false : p; };
-var changeDefaults = function (props) { return (__assign({}, props, { useDefaultContainer: defaultToFalse(props.useDefaultContainer), hideInactiveContainers: defaultToFalse(props.hideInactiveContainers) })); };
+var changeDefaults = function (props) { return (__assign({}, props, { hideInactiveContainers: defaultToFalse(props.hideInactiveContainers) })); };
 var WindowWrapper = (function (_super) {
     __extends(WindowWrapper, _super);
     function WindowWrapper() {
@@ -10840,14 +10837,14 @@ var InnerContainer = (function (_super) {
     __extends(InnerContainer, _super);
     function InnerContainer(props) {
         var _this = _super.call(this, props) || this;
-        var _a = _this.props, store = _a.store, children = _a.children, name = _a.name, patterns = _a.patterns, initialUrl = _a.initialUrl, _b = _a.animate, animate = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, createContainer = _a.createContainer, groupName = _a.groupName, _d = _a.initializing, initializing = _d === void 0 ? false : _d, _e = _a.useDefaultContainer, useDefaultContainer = _e === void 0 ? true : _e;
+        var _a = _this.props, store = _a.store, children = _a.children, name = _a.name, patterns = _a.patterns, initialUrl = _a.initialUrl, _b = _a.animate, animate = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, createContainer = _a.createContainer, groupName = _a.groupName, _d = _a.initializing, initializing = _d === void 0 ? false : _d, _e = _a.isDefault, isDefault = _e === void 0 ? false : _e;
         createContainer(new CreateContainer_1.default({
             name: name,
             groupName: groupName,
             initialUrl: initialUrl,
             patterns: patterns,
             resetOnLeave: resetOnLeave,
-            useDefault: useDefaultContainer
+            isDefault: isDefault
         }));
         if (initializing) {
             var T = (function (_super) {
@@ -10955,7 +10952,6 @@ Container.contextTypes = {
     rrnhStore: react_1.PropTypes.object.isRequired,
     groupName: react_1.PropTypes.string.isRequired,
     initializing: react_1.PropTypes.bool,
-    useDefaultContainer: react_1.PropTypes.bool,
     hideInactiveContainers: react_1.PropTypes.bool
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -11192,19 +11188,18 @@ var IState = (function () {
         return this.replaceGroup(group);
     };
     IState.prototype.addSubGroup = function (_a) {
-        var name = _a.name, parentGroupName = _a.parentGroupName, _b = _a.parentUsesDefault, parentUsesDefault = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, _d = _a.gotoTopOnSelectActive, gotoTopOnSelectActive = _d === void 0 ? false : _d;
-        var parentGroup = this.getGroupByName(parentGroupName);
+        var name = _a.name, parentGroupName = _a.parentGroupName, _b = _a.isDefault, isDefault = _b === void 0 ? false : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, _d = _a.gotoTopOnSelectActive, gotoTopOnSelectActive = _d === void 0 ? false : _d;
         var group = new Group_1.default({
             name: name,
             resetOnLeave: resetOnLeave,
             gotoTopOnSelectActive: gotoTopOnSelectActive,
             parentGroupName: parentGroupName,
-            isDefault: parentUsesDefault ? parentGroup.containers.length === 0 : null
+            isDefault: isDefault
         });
         return this.replaceGroup(group);
     };
     IState.prototype.addContainer = function (_a) {
-        var name = _a.name, groupName = _a.groupName, initialUrl = _a.initialUrl, _b = _a.useDefault, useDefault = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, patterns = _a.patterns;
+        var name = _a.name, groupName = _a.groupName, initialUrl = _a.initialUrl, _b = _a.isDefault, isDefault = _b === void 0 ? false : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, patterns = _a.patterns;
         var group = this.getGroupByName(groupName);
         var container = new Container_1.default({
             initialUrl: initialUrl,
@@ -11212,7 +11207,7 @@ var IState = (function () {
             resetOnLeave: resetOnLeave,
             groupName: groupName,
             name: name,
-            isDefault: group.containers.length === 0 && useDefault
+            isDefault: isDefault
         });
         return this.replaceGroup(group.replaceContainer(container));
     };
@@ -11874,7 +11869,7 @@ var DumbContainer = (function (_super) {
             'isOnTop',
             'store',
             'initializing',
-            'useDefaultContainer',
+            'isDefault',
             'isInitialized',
             'createContainer',
             'storeSubscription'
@@ -11937,10 +11932,9 @@ var DumbContainerGroup = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     DumbContainerGroup.prototype.getChildContext = function () {
-        var _a = this.props, name = _a.name, _b = _a.useDefaultContainer, useDefaultContainer = _b === void 0 ? true : _b, _c = _a.hideInactiveContainers, hideInactiveContainers = _c === void 0 ? true : _c;
+        var _a = this.props, name = _a.name, _b = _a.hideInactiveContainers, hideInactiveContainers = _b === void 0 ? true : _b;
         return {
             groupName: name,
-            useDefaultContainer: useDefaultContainer,
             hideInactiveContainers: hideInactiveContainers
         };
     };
@@ -11981,7 +11975,6 @@ var DumbContainerGroup = (function (_super) {
             'children',
             'storedCurrentContainerIndex',
             'storedIndexedStackOrder',
-            'useDefaultContainer',
             'hideInactiveContainers',
             'store',
             'isOnTop',
@@ -11994,7 +11987,7 @@ var DumbContainerGroup = (function (_super) {
             'createGroup',
             'switchToContainerIndex',
             'switchToContainerName',
-            'parentUsesDefault',
+            'isDefault',
             'parentGroupName',
             'storeSubscription'
         ], this.props), _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["style"]);
@@ -12020,7 +12013,6 @@ var DumbContainerGroup = (function (_super) {
 }(react_1.Component));
 DumbContainerGroup.childContextTypes = {
     groupName: react_1.PropTypes.string.isRequired,
-    useDefaultContainer: react_1.PropTypes.bool,
     hideInactiveContainers: react_1.PropTypes.bool
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -19772,14 +19764,14 @@ var serializer_1 = __webpack_require__(9);
 var CreateContainer = CreateContainer_1 = (function (_super) {
     __extends(CreateContainer, _super);
     function CreateContainer(_a) {
-        var time = _a.time, name = _a.name, groupName = _a.groupName, initialUrl = _a.initialUrl, patterns = _a.patterns, _b = _a.useDefault, useDefault = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c;
+        var time = _a.time, name = _a.name, groupName = _a.groupName, initialUrl = _a.initialUrl, patterns = _a.patterns, _b = _a.isDefault, isDefault = _b === void 0 ? false : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c;
         var _this = _super.call(this, { time: time, origin: Action_1.SYSTEM }) || this;
         _this.type = CreateContainer_1.type;
         _this.name = name;
         _this.groupName = groupName;
         _this.initialUrl = initialUrl;
         _this.patterns = patterns;
-        _this.useDefault = useDefault;
+        _this.isDefault = isDefault;
         _this.resetOnLeave = resetOnLeave;
         return _this;
     }
@@ -19788,7 +19780,7 @@ var CreateContainer = CreateContainer_1 = (function (_super) {
             name: this.name,
             groupName: this.groupName,
             initialUrl: this.initialUrl,
-            useDefault: this.useDefault,
+            isDefault: this.isDefault,
             resetOnLeave: this.resetOnLeave,
             patterns: this.patterns
         });
@@ -19835,22 +19827,22 @@ var Action_1 = __webpack_require__(13);
 var CreateGroup = CreateGroup_1 = (function (_super) {
     __extends(CreateGroup, _super);
     function CreateGroup(_a) {
-        var time = _a.time, name = _a.name, _b = _a.parentGroupName, parentGroupName = _b === void 0 ? undefined : _b, _c = _a.parentUsesDefault, parentUsesDefault = _c === void 0 ? parentGroupName ? true : undefined : _c, _d = _a.resetOnLeave, resetOnLeave = _d === void 0 ? false : _d, _e = _a.gotoTopOnSelectActive, gotoTopOnSelectActive = _e === void 0 ? false : _e;
+        var time = _a.time, name = _a.name, _b = _a.parentGroupName, parentGroupName = _b === void 0 ? undefined : _b, _c = _a.isDefault, isDefault = _c === void 0 ? parentGroupName ? true : undefined : _c, _d = _a.resetOnLeave, resetOnLeave = _d === void 0 ? false : _d, _e = _a.gotoTopOnSelectActive, gotoTopOnSelectActive = _e === void 0 ? false : _e;
         var _this = _super.call(this, { time: time, origin: Action_1.SYSTEM }) || this;
         _this.type = CreateGroup_1.type;
         _this.name = name;
         _this.parentGroupName = parentGroupName;
-        _this.parentUsesDefault = parentUsesDefault;
+        _this.isDefault = isDefault;
         _this.resetOnLeave = resetOnLeave;
         _this.gotoTopOnSelectActive = gotoTopOnSelectActive;
         return _this;
     }
     CreateGroup.prototype.reduce = function (state) {
-        if (this.parentGroupName && this.parentUsesDefault != null) {
+        if (this.parentGroupName && this.isDefault != null) {
             return state.addSubGroup({
                 name: this.name,
                 parentGroupName: this.parentGroupName,
-                parentUsesDefault: this.parentUsesDefault,
+                isDefault: this.isDefault,
                 resetOnLeave: this.resetOnLeave,
                 gotoTopOnSelectActive: this.gotoTopOnSelectActive
             });
