@@ -18399,9 +18399,9 @@ var BackLink = (function (_super) {
         event.preventDefault();
     };
     BackLink.prototype.render = function () {
-        var _a = this.props, children = _a.children, _b = _a.nameFn, nameFn = _b === void 0 ? function () { return 'Back'; } : _b, backPage = _a.backPage;
+        var _a = this.props, children = _a.children, nameFn = _a.nameFn, backPage = _a.backPage;
         if (backPage) {
-            return (React.createElement("a", { href: backPage.url, onClick: this.onClick.bind(this) }, children || nameFn({ params: backPage.params })));
+            return (React.createElement("a", { href: backPage.url, onClick: this.onClick.bind(this) }, children || nameFn ? nameFn({ params: backPage.params }) : 'Back'));
         }
         else {
             return React.createElement("span", null, " ");
@@ -18412,21 +18412,17 @@ var BackLink = (function (_super) {
 var mapStateToProps = function (_a, ownProps) {
     var state = _a.state;
     var isInitialized = state instanceof InitializedState_1.default;
-    var forName = ownProps.forName, groupName = ownProps.groupName;
     return {
         isInitialized: isInitialized,
-        backPage: isInitialized ? state.getBackPageInGroup(forName || groupName) : null
+        backPage: isInitialized ? state.getBackPageInGroup(ownProps.groupName) : null
     };
 };
-var mapDispatchToProps = function (dispatch, ownProps) {
-    var forName = ownProps.forName, groupName = ownProps.groupName;
-    return {
-        goBack: function () {
-            dispatch(new SwitchToGroup_1.default({ groupName: forName || groupName }));
-            dispatch(new Back_1.default());
-        }
-    };
-};
+var mapDispatchToProps = function (dispatch, ownProps) { return ({
+    goBack: function () {
+        dispatch(new SwitchToGroup_1.default({ groupName: ownProps.groupName }));
+        dispatch(new Back_1.default());
+    }
+}); };
 var ConnectedBackLink = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(BackLink);
 var default_1 = (function (_super) {
     __extends(default_1, _super);
