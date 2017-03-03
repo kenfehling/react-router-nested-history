@@ -79,7 +79,7 @@ export default class Group implements Comparable, IContainer {
       }
       else {
         if (to.isDefault) {
-          if (maintainFwd && fromHistory.lastVisited > toHistory.activePage.firstVisited) {
+          if (maintainFwd && fromHistory.lastVisited > 0) {
             return keepFwdTabBehavior.B_to_A(toHistory, fromHistory)
           }
           else {

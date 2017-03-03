@@ -25,9 +25,8 @@ export default class Container implements Comparable, IContainer {
    */
   constructor({name, initialUrl, patterns, isDefault=false,
       resetOnLeave=false, groupName, history}:
-      {name: string, initialUrl: string, patterns: string[],
-        isDefault?: boolean, resetOnLeave?: boolean, groupName:string,
-        history?: HistoryStack}) {
+      {name: string, initialUrl: string, patterns: string[], isDefault?: boolean,
+        resetOnLeave?: boolean, groupName:string, history?: HistoryStack}) {
     this.name = name
     this.initialUrl = initialUrl
     this.patterns = patterns
