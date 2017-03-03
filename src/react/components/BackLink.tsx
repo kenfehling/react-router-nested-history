@@ -6,10 +6,12 @@ import {Store} from '../../store'
 import Page from '../../model/Page'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import Back from '../../model/actions/Back'
+import InitializedState from '../../model/InitializedState'
 
 export interface BackLinkProps {
-  children: ReactNode;
-  nameFn: (params:Object) => string
+  children: ReactNode
+  forName?: string
+  nameFn?: (params:Object) => string
 }
 
 type BackLinkPropsWithStore = BackLinkProps & {
@@ -18,7 +20,8 @@ type BackLinkPropsWithStore = BackLinkProps & {
 }
 
 type ConnectedBackLinkProps = BackLinkPropsWithStore & {
-  backPage: Page,
+  isInitialized: boolean
+  backPage: Page|null
   goBack: () => void
 
 }
@@ -30,8 +33,9 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
     }
   }
 
-  shouldComponentUpdate() {
-    return false  // Don't disappear when transitioning back to previous page
+  // Don't disappear when transitioning back to previous page
+  shouldComponentUpdate(newProps) {
+    return !this.props.isInitialized && newProps.isInitialized
   }
 
   onClick(event) {
@@ -41,10 +45,10 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 
   render() {
-    const {children, nameFn, groupName, backPage} = this.props
+    const {children, nameFn=()=>'Back', backPage} = this.props
     if (backPage) {
       return (<a href={backPage.url} onClick={this.onClick.bind(this)}>
-        {children || nameFn ? nameFn({params: backPage.params}) : 'Back'}
+        {children || nameFn({params: backPage.params})}
       </a>)
     }
     else {
@@ -53,18 +57,27 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:IUpdateData,
-                         ownProps:BackLinkPropsWithStore) => ({
-  backPage: state.state.getBackPageInGroup(ownProps.groupName)
-})
+const mapStateToProps = ({state}:IUpdateData,
+                         ownProps:BackLinkPropsWithStore) => {
+  const isInitialized:boolean = state instanceof InitializedState
+  const {forName, groupName} = ownProps
+  return {
+    isInitialized,
+    backPage: isInitialized ? state.getBackPageInGroup(forName || groupName) : null
+  }
+
+}
 
 const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
-                            ownProps:BackLinkPropsWithStore) => ({
-  goBack: () => {
-    dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
-    dispatch(new Back())
+                            ownProps:BackLinkPropsWithStore) => {
+  const {forName, groupName} = ownProps
+  return {
+    goBack: () => {
+      dispatch(new SwitchToGroup({groupName: forName || groupName}))
+      dispatch(new Back())
+    }
   }
-})
+}
 
 const ConnectedBackLink = connect(
   mapStateToProps,

@@ -1,10 +1,10 @@
 const path = (p) => 'http://localhost:8080' + p
-const PAUSE = 1500
+const PAUSE = 1600
 
 export default {
-  'Nested': (client) => {
+  'Back link': (client) => {
     client
-      .url(path('/tabs/1'))
+      .url(path('/windows/1'))
       .click('a[href="/foods/Fruit/Apple"]')
       .pause(PAUSE)
       .assert.containsText('.food-title', 'Fruit > Apple')

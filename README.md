@@ -120,6 +120,15 @@ Use this to place a back link (which only shows if there is back history)
     </thead>
     <tbody>
         <tr>
+          <td>forName</td>
+          <td>string</td>
+          <td align="center"></td>
+          <td>
+            The name of the `Container` or `Group` the back link operates on.
+            If not defined, it defaults to the closest parent `Group`
+        </td>
+        </tr>
+        <tr>
           <td>nameFn</td>
           <td>({params}) =&gt; string</td>
           <td align="center"></td>

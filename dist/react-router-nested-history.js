@@ -143,7 +143,7 @@ module.exports = function _curry1(fn) {
 "use strict";
 
 
-module.exports = __webpack_require__(41);
+module.exports = __webpack_require__(42);
 
 
 /***/ }),
@@ -1044,7 +1044,7 @@ module.exports = {
   adjust: __webpack_require__(155),
   all: __webpack_require__(307),
   allPass: __webpack_require__(308),
-  always: __webpack_require__(39),
+  always: __webpack_require__(40),
   and: __webpack_require__(156),
   any: __webpack_require__(157),
   anyPass: __webpack_require__(309),
@@ -1155,7 +1155,7 @@ module.exports = {
   mapObjIndexed: __webpack_require__(412),
   match: __webpack_require__(413),
   mathMod: __webpack_require__(414),
-  max: __webpack_require__(40),
+  max: __webpack_require__(41),
   maxBy: __webpack_require__(415),
   mean: __webpack_require__(191),
   median: __webpack_require__(416),
@@ -3283,160 +3283,6 @@ module.exports = reactProdInvariant;
 /* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _curry1 = __webpack_require__(1);
-
-
-/**
- * Returns a function that always returns the given value. Note that for
- * non-primitives the value returned is a reference to the original value.
- *
- * This function is known as `const`, `constant`, or `K` (for K combinator) in
- * other languages and libraries.
- *
- * @func
- * @memberOf R
- * @since v0.1.0
- * @category Function
- * @sig a -> (* -> a)
- * @param {*} val The value to wrap in a function
- * @return {Function} A Function :: * -> val.
- * @example
- *
- *      var t = R.always('Tee');
- *      t(); //=> 'Tee'
- */
-module.exports = _curry1(function always(val) {
-  return function() {
-    return val;
-  };
-});
-
-
-/***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _curry2 = __webpack_require__(0);
-
-
-/**
- * Returns the larger of its two arguments.
- *
- * @func
- * @memberOf R
- * @since v0.1.0
- * @category Relation
- * @sig Ord a => a -> a -> a
- * @param {*} a
- * @param {*} b
- * @return {*}
- * @see R.maxBy, R.min
- * @example
- *
- *      R.max(789, 123); //=> 789
- *      R.max('a', 'b'); //=> 'b'
- */
-module.exports = _curry2(function max(a, b) { return b > a ? b : a; });
-
-
-/***/ }),
-/* 41 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
-
-
-var _assign = __webpack_require__(7);
-
-var ReactChildren = __webpack_require__(584);
-var ReactComponent = __webpack_require__(125);
-var ReactPureComponent = __webpack_require__(588);
-var ReactClass = __webpack_require__(585);
-var ReactDOMFactories = __webpack_require__(586);
-var ReactElement = __webpack_require__(37);
-var ReactPropTypes = __webpack_require__(587);
-var ReactVersion = __webpack_require__(589);
-
-var onlyChild = __webpack_require__(591);
-var warning = __webpack_require__(5);
-
-var createElement = ReactElement.createElement;
-var createFactory = ReactElement.createFactory;
-var cloneElement = ReactElement.cloneElement;
-
-if (true) {
-  var ReactElementValidator = __webpack_require__(239);
-  createElement = ReactElementValidator.createElement;
-  createFactory = ReactElementValidator.createFactory;
-  cloneElement = ReactElementValidator.cloneElement;
-}
-
-var __spread = _assign;
-
-if (true) {
-  var warned = false;
-  __spread = function () {
-     true ? warning(warned, 'React.__spread is deprecated and should not be used. Use ' + 'Object.assign directly or another helper function with similar ' + 'semantics. You may be seeing this warning due to your compiler. ' + 'See https://fb.me/react-spread-deprecation for more details.') : void 0;
-    warned = true;
-    return _assign.apply(null, arguments);
-  };
-}
-
-var React = {
-
-  // Modern
-
-  Children: {
-    map: ReactChildren.map,
-    forEach: ReactChildren.forEach,
-    count: ReactChildren.count,
-    toArray: ReactChildren.toArray,
-    only: onlyChild
-  },
-
-  Component: ReactComponent,
-  PureComponent: ReactPureComponent,
-
-  createElement: createElement,
-  cloneElement: cloneElement,
-  isValidElement: ReactElement.isValidElement,
-
-  // Classic
-
-  PropTypes: ReactPropTypes,
-  createClass: ReactClass.createClass,
-  createFactory: createFactory,
-  createMixin: function (mixin) {
-    // Currently a noop. Will be used to validate and trace mixins.
-    return mixin;
-  },
-
-  // This looks DOM specific but these are actually isomorphic helpers
-  // since they are just generating DOM strings.
-  DOM: ReactDOMFactories,
-
-  version: ReactVersion,
-
-  // Deprecated hook for JSX spread, don't use this for anything.
-  __spread: __spread
-};
-
-module.exports = React;
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 
 var __extends = (this && this.__extends) || function (d, b) {
@@ -3671,6 +3517,160 @@ var InitializedState = (function (_super) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = InitializedState;
 
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _curry1 = __webpack_require__(1);
+
+
+/**
+ * Returns a function that always returns the given value. Note that for
+ * non-primitives the value returned is a reference to the original value.
+ *
+ * This function is known as `const`, `constant`, or `K` (for K combinator) in
+ * other languages and libraries.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category Function
+ * @sig a -> (* -> a)
+ * @param {*} val The value to wrap in a function
+ * @return {Function} A Function :: * -> val.
+ * @example
+ *
+ *      var t = R.always('Tee');
+ *      t(); //=> 'Tee'
+ */
+module.exports = _curry1(function always(val) {
+  return function() {
+    return val;
+  };
+});
+
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _curry2 = __webpack_require__(0);
+
+
+/**
+ * Returns the larger of its two arguments.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category Relation
+ * @sig Ord a => a -> a -> a
+ * @param {*} a
+ * @param {*} b
+ * @return {*}
+ * @see R.maxBy, R.min
+ * @example
+ *
+ *      R.max(789, 123); //=> 789
+ *      R.max('a', 'b'); //=> 'b'
+ */
+module.exports = _curry2(function max(a, b) { return b > a ? b : a; });
+
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ */
+
+
+
+var _assign = __webpack_require__(7);
+
+var ReactChildren = __webpack_require__(584);
+var ReactComponent = __webpack_require__(125);
+var ReactPureComponent = __webpack_require__(588);
+var ReactClass = __webpack_require__(585);
+var ReactDOMFactories = __webpack_require__(586);
+var ReactElement = __webpack_require__(37);
+var ReactPropTypes = __webpack_require__(587);
+var ReactVersion = __webpack_require__(589);
+
+var onlyChild = __webpack_require__(591);
+var warning = __webpack_require__(5);
+
+var createElement = ReactElement.createElement;
+var createFactory = ReactElement.createFactory;
+var cloneElement = ReactElement.cloneElement;
+
+if (true) {
+  var ReactElementValidator = __webpack_require__(239);
+  createElement = ReactElementValidator.createElement;
+  createFactory = ReactElementValidator.createFactory;
+  cloneElement = ReactElementValidator.cloneElement;
+}
+
+var __spread = _assign;
+
+if (true) {
+  var warned = false;
+  __spread = function () {
+     true ? warning(warned, 'React.__spread is deprecated and should not be used. Use ' + 'Object.assign directly or another helper function with similar ' + 'semantics. You may be seeing this warning due to your compiler. ' + 'See https://fb.me/react-spread-deprecation for more details.') : void 0;
+    warned = true;
+    return _assign.apply(null, arguments);
+  };
+}
+
+var React = {
+
+  // Modern
+
+  Children: {
+    map: ReactChildren.map,
+    forEach: ReactChildren.forEach,
+    count: ReactChildren.count,
+    toArray: ReactChildren.toArray,
+    only: onlyChild
+  },
+
+  Component: ReactComponent,
+  PureComponent: ReactPureComponent,
+
+  createElement: createElement,
+  cloneElement: cloneElement,
+  isValidElement: ReactElement.isValidElement,
+
+  // Classic
+
+  PropTypes: ReactPropTypes,
+  createClass: ReactClass.createClass,
+  createFactory: createFactory,
+  createMixin: function (mixin) {
+    // Currently a noop. Will be used to validate and trace mixins.
+    return mixin;
+  },
+
+  // This looks DOM specific but these are actually isomorphic helpers
+  // since they are just generating DOM strings.
+  DOM: ReactDOMFactories,
+
+  version: ReactVersion,
+
+  // Deprecated hook for JSX spread, don't use this for anything.
+  __spread: __spread
+};
+
+module.exports = React;
 
 /***/ }),
 /* 43 */
@@ -6622,7 +6622,7 @@ var DumbContainer_1 = __webpack_require__(141);
 var server_1 = __webpack_require__(121);
 var CreateGroup_1 = __webpack_require__(260);
 var SwitchToContainer_1 = __webpack_require__(84);
-var InitializedState_1 = __webpack_require__(42);
+var InitializedState_1 = __webpack_require__(39);
 var children_1 = __webpack_require__(144);
 var WindowGroup_1 = __webpack_require__(83);
 var InnerContainerGroup = (function (_super) {
@@ -8797,7 +8797,7 @@ module.exports = KeyEscapeUtils;
 
 var _prodInvariant = __webpack_require__(6);
 
-var React = __webpack_require__(41);
+var React = __webpack_require__(42);
 var ReactPropTypesSecret = __webpack_require__(221);
 
 var invariant = __webpack_require__(4);
@@ -10808,7 +10808,7 @@ var url_1 = __webpack_require__(62);
 var CreateContainer_1 = __webpack_require__(259);
 var ExecutionEnvironment_1 = __webpack_require__(149);
 var AddTitle_1 = __webpack_require__(257);
-var InitializedState_1 = __webpack_require__(42);
+var InitializedState_1 = __webpack_require__(39);
 var SwitchToGroup_1 = __webpack_require__(85);
 var InnerContainer = (function (_super) {
     __extends(InnerContainer, _super);
@@ -13462,7 +13462,7 @@ module.exports = _curry2(function constructN(n, Fn) {
 var _curry2 = __webpack_require__(0);
 var _map = __webpack_require__(72);
 var curryN = __webpack_require__(14);
-var max = __webpack_require__(40);
+var max = __webpack_require__(41);
 var pluck = __webpack_require__(53);
 var reduce = __webpack_require__(26);
 
@@ -15031,7 +15031,7 @@ module.exports = _curry2(function uniqBy(fn, list) {
 
 var _curry3 = __webpack_require__(3);
 var adjust = __webpack_require__(155);
-var always = __webpack_require__(39);
+var always = __webpack_require__(40);
 
 
 /**
@@ -18378,6 +18378,7 @@ var react_1 = __webpack_require__(2);
 var react_redux_1 = __webpack_require__(27);
 var SwitchToGroup_1 = __webpack_require__(85);
 var Back_1 = __webpack_require__(136);
+var InitializedState_1 = __webpack_require__(39);
 var BackLink = (function (_super) {
     __extends(BackLink, _super);
     function BackLink() {
@@ -18388,8 +18389,9 @@ var BackLink = (function (_super) {
             throw new Error('BackLink needs to be inside a ContainerGroup');
         }
     };
-    BackLink.prototype.shouldComponentUpdate = function () {
-        return false; // Don't disappear when transitioning back to previous page
+    // Don't disappear when transitioning back to previous page
+    BackLink.prototype.shouldComponentUpdate = function (newProps) {
+        return !this.props.isInitialized && newProps.isInitialized;
     };
     BackLink.prototype.onClick = function (event) {
         var goBack = this.props.goBack;
@@ -18397,9 +18399,9 @@ var BackLink = (function (_super) {
         event.preventDefault();
     };
     BackLink.prototype.render = function () {
-        var _a = this.props, children = _a.children, nameFn = _a.nameFn, groupName = _a.groupName, backPage = _a.backPage;
+        var _a = this.props, children = _a.children, _b = _a.nameFn, nameFn = _b === void 0 ? function () { return 'Back'; } : _b, backPage = _a.backPage;
         if (backPage) {
-            return (React.createElement("a", { href: backPage.url, onClick: this.onClick.bind(this) }, children || nameFn ? nameFn({ params: backPage.params }) : 'Back'));
+            return (React.createElement("a", { href: backPage.url, onClick: this.onClick.bind(this) }, children || nameFn({ params: backPage.params })));
         }
         else {
             return React.createElement("span", null, " ");
@@ -18407,15 +18409,24 @@ var BackLink = (function (_super) {
     };
     return BackLink;
 }(react_1.Component));
-var mapStateToProps = function (state, ownProps) { return ({
-    backPage: state.state.getBackPageInGroup(ownProps.groupName)
-}); };
-var mapDispatchToProps = function (dispatch, ownProps) { return ({
-    goBack: function () {
-        dispatch(new SwitchToGroup_1.default({ groupName: ownProps.groupName }));
-        dispatch(new Back_1.default());
-    }
-}); };
+var mapStateToProps = function (_a, ownProps) {
+    var state = _a.state;
+    var isInitialized = state instanceof InitializedState_1.default;
+    var forName = ownProps.forName, groupName = ownProps.groupName;
+    return {
+        isInitialized: isInitialized,
+        backPage: isInitialized ? state.getBackPageInGroup(forName || groupName) : null
+    };
+};
+var mapDispatchToProps = function (dispatch, ownProps) {
+    var forName = ownProps.forName, groupName = ownProps.groupName;
+    return {
+        goBack: function () {
+            dispatch(new SwitchToGroup_1.default({ groupName: forName || groupName }));
+            dispatch(new Back_1.default());
+        }
+    };
+};
 var ConnectedBackLink = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(BackLink);
 var default_1 = (function (_super) {
     __extends(default_1, _super);
@@ -18645,7 +18656,7 @@ var ContainerGroup_1 = __webpack_require__(82);
 var WindowGroup_1 = __webpack_require__(83);
 var Startup_1 = __webpack_require__(264);
 var browser = __webpack_require__(19);
-var InitializedState_1 = __webpack_require__(42);
+var InitializedState_1 = __webpack_require__(39);
 var LoadFromUrl_1 = __webpack_require__(262);
 var SetZeroPage_1 = __webpack_require__(263);
 var browserFunctions_1 = __webpack_require__(19);
@@ -19929,7 +19940,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var Action_1 = __webpack_require__(13);
 var serializer_1 = __webpack_require__(9);
-var InitializedState_1 = __webpack_require__(42);
+var InitializedState_1 = __webpack_require__(39);
 var load = function (state, url, time) {
     return new InitializedState_1.default(state.groups.reduce(function (s, group) {
         return s.replaceGroup(group.loadFromUrl(url, time));
@@ -20401,7 +20412,7 @@ var react_redux_1 = __webpack_require__(27);
 var Page_1 = __webpack_require__(43);
 var PopState_1 = __webpack_require__(137);
 var browser = __webpack_require__(19);
-var InitializedState_1 = __webpack_require__(42);
+var InitializedState_1 = __webpack_require__(39);
 var actions_1 = __webpack_require__(273);
 var UpdateBrowser_1 = __webpack_require__(140);
 var stepRunner_1 = __webpack_require__(274);
@@ -21864,7 +21875,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* global defi
 /* 303 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var always = __webpack_require__(39);
+var always = __webpack_require__(40);
 
 
 /**
@@ -21889,7 +21900,7 @@ module.exports = always(false);
 /* 304 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var always = __webpack_require__(39);
+var always = __webpack_require__(40);
 
 
 /**
@@ -22043,7 +22054,7 @@ module.exports = _curry2(_dispatchable(['all'], _xall, function all(fn, list) {
 
 var _curry1 = __webpack_require__(1);
 var curryN = __webpack_require__(14);
-var max = __webpack_require__(40);
+var max = __webpack_require__(41);
 var pluck = __webpack_require__(53);
 var reduce = __webpack_require__(26);
 
@@ -22094,7 +22105,7 @@ module.exports = _curry1(function allPass(preds) {
 
 var _curry1 = __webpack_require__(1);
 var curryN = __webpack_require__(14);
-var max = __webpack_require__(40);
+var max = __webpack_require__(41);
 var pluck = __webpack_require__(53);
 var reduce = __webpack_require__(26);
 
@@ -22215,7 +22226,7 @@ var _curry1 = __webpack_require__(1);
 var apply = __webpack_require__(158);
 var curryN = __webpack_require__(14);
 var map = __webpack_require__(17);
-var max = __webpack_require__(40);
+var max = __webpack_require__(41);
 var pluck = __webpack_require__(53);
 var reduce = __webpack_require__(26);
 var values = __webpack_require__(210);
@@ -22618,7 +22629,7 @@ module.exports = function composeP() {
 var _arity = __webpack_require__(24);
 var _curry1 = __webpack_require__(1);
 var map = __webpack_require__(17);
-var max = __webpack_require__(40);
+var max = __webpack_require__(41);
 var reduce = __webpack_require__(26);
 
 
@@ -27327,7 +27338,7 @@ module.exports = _curry3(function remove(start, count, list) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var always = __webpack_require__(39);
+var always = __webpack_require__(40);
 var times = __webpack_require__(206);
 
 
@@ -27435,7 +27446,7 @@ module.exports = _curry3(function scan(fn, acc, list) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry3 = __webpack_require__(3);
-var always = __webpack_require__(39);
+var always = __webpack_require__(40);
 var over = __webpack_require__(197);
 
 
@@ -30826,7 +30837,7 @@ module.exports = ReactComponentBrowserEnvironment;
 var _prodInvariant = __webpack_require__(6),
     _assign = __webpack_require__(7);
 
-var React = __webpack_require__(41);
+var React = __webpack_require__(42);
 var ReactComponentEnvironment = __webpack_require__(111);
 var ReactCurrentOwner = __webpack_require__(33);
 var ReactErrorUtils = __webpack_require__(112);
@@ -33163,7 +33174,7 @@ module.exports = ReactDOMInput;
 
 var _assign = __webpack_require__(7);
 
-var React = __webpack_require__(41);
+var React = __webpack_require__(42);
 var ReactDOMComponentTree = __webpack_require__(12);
 var ReactDOMSelect = __webpack_require__(216);
 
@@ -35352,7 +35363,7 @@ module.exports = ReactMultiChild;
 
 var _prodInvariant = __webpack_require__(6);
 
-var React = __webpack_require__(41);
+var React = __webpack_require__(42);
 
 var invariant = __webpack_require__(4);
 
@@ -35828,7 +35839,7 @@ module.exports = ReactServerBatchingStrategy;
 
 var _prodInvariant = __webpack_require__(6);
 
-var React = __webpack_require__(41);
+var React = __webpack_require__(42);
 var ReactDOMContainerInfo = __webpack_require__(511);
 var ReactDefaultBatchingStrategy = __webpack_require__(217);
 var ReactInstrumentation = __webpack_require__(22);
