@@ -11,7 +11,6 @@
   width: 240px;
   height: 360px;
   background-color: #EEE;
-  border-radius: 4px;
   box-sizing: border-box;
   border: thin solid #CCC;
 }
@@ -50,12 +49,6 @@
   line-height: 38px;
 }
 
-.phone .mobile-page .nav .back, .phone .mobile-page .nav .title {
-  margin: 0;
-  font-size: inherit;
-  line-height: inherit;
-}
-
 .phone .mobile-page .nav .back {
   position: absolute;
   line-height: inherit;
@@ -83,8 +76,10 @@
 
 .phone .mobile-page .nav .title {
   width: 100%;
+  margin: 0;
   text-align: center;
   font-size: inherit;
+  line-height: 37px;
 }
 
 .phone .mobile-page .content {

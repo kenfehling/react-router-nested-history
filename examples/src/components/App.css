@@ -40,10 +40,7 @@ a {
   margin: 10px 0;
 }
 
-.tabs-container,
-.windows-container,
-.nested-group-container,
-.scroll-area-container {
+.example-container {
   margin: 0 auto;
 }
 
@@ -68,7 +65,7 @@ a {
 
 .mobile-container {
   width: 240px;
-  height: 500px;
+  height: 550px;
 }
 
 .state-tree-container {

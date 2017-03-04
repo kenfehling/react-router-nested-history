@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode} from 'react'
+import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import {Store} from '../../store'
@@ -8,9 +8,15 @@ import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import Back from '../../model/actions/Back'
 import InitializedState from '../../model/InitializedState'
 
+export type ChildrenFunctionArgs = {
+  params: Object
+}
+
+export type ChildrenType =
+  ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
+
 export interface BackLinkProps {
-  children: ReactNode;
-  nameFn: (params:Object) => string
+  children?: ChildrenType
 }
 
 type BackLinkPropsWithStore = BackLinkProps & {
@@ -32,10 +38,12 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
     }
   }
 
+  /*
   // Don't disappear when transitioning back to previous page
   shouldComponentUpdate(newProps) {
     return !this.props.isInitialized && newProps.isInitialized
   }
+  */
 
   onClick(event) {
     const {goBack} = this.props
@@ -50,14 +58,16 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 
   render() {
-    const {children, nameFn, backPage} = this.props
+    const {children, backPage} = this.props
     if (backPage) {
       return (
         <a href={backPage.url}
            onMouseDown={this.onMouseDown.bind(this)}
            onClick={this.onClick.bind(this)}
         >
-          {children || nameFn ? nameFn({params: backPage.params}) : 'Back'}
+          {children ?
+            (children instanceof Function ? children({params: backPage.params})
+              : children) : 'Back'}
         </a>
       )
     }

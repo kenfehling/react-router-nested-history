@@ -121,10 +121,10 @@ Use this to place a back link (which only shows if there is back history)
     </thead>
     <tbody>
         <tr>
-          <td>nameFn</td>
-          <td>({params}) =&gt; string</td>
+          <td>children</td>
+          <td>ReactNode or ({params}) =&gt; ReactNode</td>
           <td align="center"></td>
-          <td>A function that takes URL params and returns name to show as back link text</td>
+          <td>Defines what appears in the back link (default: 'Back')</td>
         </tr>
     </tbody>
 </table>
