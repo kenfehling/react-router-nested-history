@@ -24,6 +24,7 @@ export interface ContainerGroupProps {
   currentContainerName?: string
   onContainerActivate?: OnContainerSwitch
   resetOnLeave?: boolean
+  allowInterContainerHistory?: boolean
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
   isDefault: boolean
@@ -50,6 +51,7 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       store,
       name,
       resetOnLeave,
+      allowInterContainerHistory,
       gotoTopOnSelectActive,
       createGroup,
       parentGroupName,
@@ -61,6 +63,7 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       parentGroupName,
       isDefault,
       resetOnLeave,
+      allowInterContainerHistory,
       gotoTopOnSelectActive
     }))
 

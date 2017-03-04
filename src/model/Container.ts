@@ -23,10 +23,11 @@ export default class Container implements Comparable, IContainer {
    * @param groupName - The name of this container's group
    * @param history - Optional but only if time is specified
    */
-  constructor({name, initialUrl, patterns, isDefault=false,
+  constructor({time, name, initialUrl, patterns, isDefault=false,
       resetOnLeave=false, groupName, history}:
-      {name: string, initialUrl: string, patterns: string[], isDefault?: boolean,
-        resetOnLeave?: boolean, groupName:string, history?: HistoryStack}) {
+      {time:number, name: string, initialUrl: string, patterns: string[],
+        isDefault?: boolean, resetOnLeave?: boolean, groupName:string,
+        history?: HistoryStack}) {
     this.name = name
     this.initialUrl = initialUrl
     this.patterns = patterns
@@ -39,7 +40,9 @@ export default class Container implements Comparable, IContainer {
         url: initialUrl,
         params: parseParamsFromPatterns(patterns, initialUrl),
         containerName: name,
-        groupName
+        groupName,
+        firstVisited: 0,
+        lastVisited: isDefault ? time : 0
       }),
       forward: []
     })
@@ -75,7 +78,7 @@ export default class Container implements Comparable, IContainer {
         containerName: this.name,
         groupName: this.groupName
       })
-      return this.push(page.touch(time))
+      return this.activate(time -1).push(page.touch(time))
     }
   }
 

@@ -1,9 +1,10 @@
-
 import Comparable from './interfaces/Comparable'
 import HistoryStack from './HistoryStack'
 import * as R from 'ramda'
 import * as defaultBehavior from '../behaviors/defaultBehavior'
 import * as nonDefaultBehavior from '../behaviors/nonDefaultBehavior'
+import * as interContainerHistory from '../behaviors/interContainerHistory'
+import * as nonInterContainerHistory from '../behaviors/nonInterContainerHistory'
 import * as keepFwdTabBehavior from '../behaviors/keepFwdTabBehavior'
 import Page from './Page'
 import IHistory from './interfaces/IHistory'
@@ -19,22 +20,26 @@ type CanGoFn = <H extends IHistory> (h:H) => boolean
 export default class Group implements Comparable, IContainer {
   readonly name: string
   readonly containers: IGroupContainer[]
-  readonly parentGroupName: string|null
-  readonly isDefault: boolean|null
+  readonly allowInterContainerHistory: boolean
   readonly resetOnLeave: boolean
   readonly gotoTopOnSelectActive: boolean
+  readonly parentGroupName: string|null
+  readonly isDefault: boolean|null  // Only applies if this has a parent group
 
-  constructor({name, parentGroupName=null, containers=[],
-    isDefault=false, resetOnLeave=false, gotoTopOnSelectActive=false}:
-      {name:string, parentGroupName?:string|null, containers?:IGroupContainer[],
-        isDefault?:boolean|null, resetOnLeave?:boolean,
-        gotoTopOnSelectActive?:boolean}) {
+  constructor({name, containers=[], allowInterContainerHistory=false,
+    resetOnLeave=false, gotoTopOnSelectActive=false,
+    parentGroupName=null, isDefault=false}:
+      {name:string, containers?:IGroupContainer[],
+        allowInterContainerHistory?:boolean, resetOnLeave?:boolean,
+        gotoTopOnSelectActive?:boolean,
+        parentGroupName?:string|null, isDefault?:boolean|null}) {
     this.name = name
-    this.parentGroupName = parentGroupName
     this.containers = containers
-    this.isDefault = isDefault
+    this.allowInterContainerHistory = allowInterContainerHistory
     this.resetOnLeave = resetOnLeave
     this.gotoTopOnSelectActive = gotoTopOnSelectActive
+    this.parentGroupName = parentGroupName
+    this.isDefault = isDefault
   }
 
   replaceContainer(container:IGroupContainer):Group {
@@ -68,56 +73,87 @@ export default class Group implements Comparable, IContainer {
     }
   }
 
-  computeHistory(from:Container, to:Container, maintainFwd:boolean):HistoryStack {
-    const defaulT:IGroupContainer = this.defaultContainer
-    const fromHistory:HistoryStack = from.history
-    const toHistory:HistoryStack = to.history
+  private computeInterContainer(from:HistoryStack, to:HistoryStack):HistoryStack {
+    return this.allowInterContainerHistory ?
+      interContainerHistory.D_to_E(to, from, to) :
+      nonInterContainerHistory.D_to_E(to, from, to)
+  }
+  
+  private static computeDefault(h:HistoryStack, defaulT:HistoryStack|null,
+                         from:HistoryStack, to:HistoryStack,
+                         fromDefault:boolean|null, toDefault:boolean|null) {
     if (defaulT) {
-      const defaultHistory:HistoryStack = defaulT.history
-      if (from.isDefault) {
-        return defaultBehavior.A_to_B(fromHistory, toHistory)
+      if (fromDefault) {
+        return defaultBehavior.A_to_B(h, from, to)
       }
       else {
-        if (to.isDefault) {
-          if (maintainFwd && fromHistory.lastVisited > 0) {
-            return keepFwdTabBehavior.B_to_A(toHistory, fromHistory)
-          }
-          else {
-            return defaultBehavior.B_to_A(toHistory, fromHistory)
-          }
+        if (toDefault) {
+          return defaultBehavior.B_to_A(h, from, to)
         }
         else {
-          return defaultBehavior.B_to_C(defaultHistory, fromHistory, toHistory)
+          return defaultBehavior.B_to_C(h, defaulT, from, to)
         }
       }
     }
     else {
-      return nonDefaultBehavior.B_to_C(null, fromHistory, toHistory)
+      return nonDefaultBehavior.B_to_C(h, null, from, to)
     }
   }
 
-  getHistory(maintainFwd:boolean=false) {
+  private static computeKeepFwd(h:HistoryStack, from:HistoryStack, to:HistoryStack) {
+    if (from.lastVisited > 0) {
+      return keepFwdTabBehavior.E_to_D(h, from, to)
+    }
+    else {
+      return h
+    }
+  }
+  
+  computeHistory(from:IContainer, to:IContainer,
+                 maintainFwd:boolean):HistoryStack {
+    const defaulT:IGroupContainer|undefined = this.defaultContainer
+    const fromHistory:HistoryStack = from.history
+    const toHistory:HistoryStack = to.history
+    const defaultHistory:HistoryStack|null = defaulT ? defaulT.history : null
+    const h1:HistoryStack = this.computeInterContainer(fromHistory, toHistory)
+    const h2:HistoryStack = Group.computeDefault(
+        h1, defaultHistory, fromHistory, toHistory, from.isDefault, to.isDefault)
+    return maintainFwd ? Group.computeKeepFwd(h2, fromHistory, toHistory) : h2
+  }
+
+  private static getSingleHistory(container:IGroupContainer, keepFwd:boolean) {
+    if (container instanceof Group) {
+      return container.getHistory(keepFwd)
+    }
+    else {
+      return container.history
+    }
+  }
+
+  getHistory(keepFwd:boolean=false) {
     const containers:IGroupContainer[] = this.containerStackOrder
+    const defaultContainer:IGroupContainer|undefined = this.defaultContainer
     switch(containers.length) {
       case 0: throw new Error(`'${this.name}' has no containers`)
       case 1: {
-        if (containers[0] instanceof Group) {
-          return (containers[0] as Group).getHistory(maintainFwd)
-        }
-        else {
-          return containers[0].history
-        }
+        return defaultContainer ?
+            Group.getSingleHistory(defaultContainer, keepFwd) :
+            Group.getSingleHistory(containers[0], keepFwd)
       }
       default: {
-        const from: IGroupContainer = containers[1]
-        const to: IGroupContainer = containers[0]
-        if (to instanceof Group) {
-          // history doesn't cross Group boundary
-          return (to as Group).getHistory(maintainFwd)
-        }
-        else {
-          return this.computeHistory(
-            (from as Container), (to as Container), maintainFwd)
+        const visitedContainers = containers.filter(c => c.lastVisited > 0)
+        switch (visitedContainers.length) {
+          case 0: {
+            return Group.getSingleHistory(containers[0], keepFwd)
+          }
+          case 1: {
+            return Group.getSingleHistory(visitedContainers[0], keepFwd)
+          }
+          default: {
+            const from: IGroupContainer = visitedContainers[1]
+            const to: IGroupContainer = visitedContainers[0]
+            return this.computeHistory(from, to, keepFwd)
+          }
         }
       }
     }
@@ -197,7 +233,7 @@ export default class Group implements Comparable, IContainer {
     }
   }
 
-  get defaultContainer():IGroupContainer {
+  get defaultContainer():IGroupContainer|undefined {
     return R.find((c:IGroupContainer) => c.isDefault, this.containers)
   }
 

@@ -229,7 +229,14 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>boolean</td>
           <td>false</td>
           <td></td>
-          <td>Consider this the default tab (only for nested group)</td>
+          <td>Consider this the default tab (only for a nested group)</td>
+        </tr>
+        <tr>
+          <td>allowInterContainerHistory</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td></td>
+          <td>Allow history that would cause containers to switch</td>
         </tr>
         <tr>
           <td>gotoTopOnSelectActive</td>
@@ -254,7 +261,7 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
         </tr>
         <tr>
           <td>children</td>
-          <td>ReactNode or function</td>
+          <td>ReactNode or Function</td>
           <td></td>
           <td></td>
           <td>The children of this ContainerGroup</td>

@@ -12,8 +12,6 @@ declare const beforeEach: any
 declare const afterEach:any
 
 describe('Group', () => {
-  const now:number = new Date().getTime()
-  const later:number = now + 1000
   const containers:Map<string, Container> = new Map<string, Container>()
 
   describe('simple group', () => {
@@ -22,6 +20,7 @@ describe('Group', () => {
     describe('replaceContainer', () => {
       it('creates a new container if needed', () => {
         const newGroup:Group = group.replaceContainer(new Container({
+          time: 2000,
           name: 'Container X',
           groupName: group.name,
           initialUrl: '/x',
@@ -46,7 +45,7 @@ describe('Group', () => {
     })
 
     describe('stack orders', () => {
-      const newGroup:Group = group.activateContainer('Container 3', now + 1)
+      const newGroup:Group = group.activateContainer('Container 3', 2000)
 
       describe('containerStackOrder', () => {
         it('returns the original order if all else is equal', () => {
@@ -56,7 +55,7 @@ describe('Group', () => {
         it('gets containers in latest active order', () => {
           const newOrder:IContainer[] = newGroup.containerStackOrder
           expect(newOrder[0].initialUrl).toEqual('/c')
-          expect(newOrder[0].lastVisited).toEqual(now + 2)
+          expect(newOrder[0].lastVisited).toEqual(2001)
           expect(newOrder[1].initialUrl).toEqual('/a')
         })
       })
@@ -71,7 +70,7 @@ describe('Group', () => {
       })
 
       it('returns history based on container history 2', () => {
-        const newGroup:Group = group.activateContainer('Container 3', later)
+        const newGroup:Group = group.activateContainer('Container 3', 2000)
         const history:HistoryStack = newGroup.history
         expect(history.back.length).toBe(1)
         expect(history.back[0].url).toBe('/a')
@@ -91,7 +90,7 @@ describe('Group', () => {
 
     describe('activateContainer', () => {
       it('switches the current container', () => {
-        const history:HistoryStack = group.activateContainer('Container 3', later).history
+        const history:HistoryStack = group.activateContainer('Container 3', 2000).history
         expect(history.back.length).toBe(1)
         expect(history.back[0].url).toBe('/a')
         expect(history.current.url).toBe('/c')
@@ -99,7 +98,7 @@ describe('Group', () => {
       })
 
       it('switches to a container', () => {
-        const g:Group = group.activateContainer('Container 3', later)
+        const g:Group = group.activateContainer('Container 3', 2000)
         expect(g.activeContainerName).toBe('Container 3')
         const history:HistoryStack = g.history
         expect(history.back.length).toBe(1)
@@ -117,7 +116,7 @@ describe('Group', () => {
           groupName: 'Group 1',
           containerName: 'Container 1'
         })
-        const g:Group = group.push(page).go(-1, later)
+        const g:Group = group.push(page).go(-1, 2000)
         const history:HistoryStack = g.history
         expect(history.back.length).toBe(0)
         expect(history.current.url).toBe('/a')
@@ -126,7 +125,7 @@ describe('Group', () => {
       })
 
       it('switches container when the current one runs out', () => {
-        const g:Group = group.activateContainer('Container 3', later).go(-1, later)
+        const g:Group = group.activateContainer('Container 3', 2000).go(-1, 3000)
         const history:HistoryStack = g.history
         expect(history.back.length).toBe(0)
         expect(history.current.url).toBe('/a')
@@ -134,7 +133,7 @@ describe('Group', () => {
       })
 
       it('throws an error if you try to go past the history', () => {
-        expect(() => group.go(-1, later)).toThrow()
+        expect(() => group.go(-1, 2000)).toThrow()
       })
     })
 
@@ -145,7 +144,7 @@ describe('Group', () => {
           params: {id: '1'},
           groupName: 'Group 1',
           containerName: 'Container 2',
-          lastVisited: later
+          lastVisited: 2000
         })
         expect(group.push(page).activeContainerName).toBe('Container 2')
       })
@@ -190,7 +189,7 @@ describe('Group', () => {
           groupName: 'Group 1',
           containerName: 'Container 1'
         })
-        const g:Group = group.push(page).top(later)
+        const g:Group = group.push(page).top(2000)
         const history:HistoryStack = g.history
         expect(history.back.length).toBe(0)
         expect(history.current.url).toBe('/a')
@@ -204,10 +203,12 @@ describe('Group', () => {
     const group = fixtures.nestedState.groups[0]
     const nestedGroup1:Group = group.containers[0] as Group
     const nestedGroup2:Group = group.containers[1] as Group
+    const nestedGroup3:Group = group.containers[2] as Group
 
     describe('replaceContainer', () => {
       it('creates a new container if needed', () => {
         const newGroup:Group = group.replaceContainer(new Container({
+          time: 2000,
           name: 'Container X',
           groupName: group.name,
           initialUrl: '/x',
@@ -230,7 +231,7 @@ describe('Group', () => {
     })
 
     describe('stack orders', () => {
-      const newGroup:Group = group.activateContainer('Group 2', now + 1)
+      const newGroup:Group = group.activateContainer('Group 2', 2000)
 
       describe('containerStackOrder', () => {
         it('returns the original order if all else is equal', () => {
@@ -240,7 +241,7 @@ describe('Group', () => {
         it('gets containers in latest active order', () => {
           const newOrder:IContainer[] = newGroup.containerStackOrder
           expect(newOrder[0].initialUrl).toEqual('/e')
-          expect(newOrder[0].lastVisited).toEqual(now + 2)
+          expect(newOrder[0].lastVisited).toEqual(2001)
           expect(newOrder[1].initialUrl).toEqual('/a')
         })
       })
@@ -254,10 +255,11 @@ describe('Group', () => {
         expect(history.forward.length).toBe(0)
       })
 
-      it('doesn\'t cross the Group boundary', () => {
-        const newGroup:Group = group.activateContainer('Group 2', later)
+      it('Crosses the group boundary in the case of a default group', () => {
+        const newGroup:Group = group.activateContainer('Group 2', 2000)
         const history:HistoryStack = newGroup.history
-        expect(history.back.length).toBe(0)
+        expect(history.back.length).toBe(1)
+        expect(history.back[0].url).toBe('/a')
         expect(history.current.url).toBe('/e')
         expect(history.forward.length).toBe(0)
       })
@@ -271,7 +273,7 @@ describe('Group', () => {
           groupName: 'Group 1',
           containerName: 'Container 1'
         })
-        const newGroup:Group = group.push(page).go(-1, later)
+        const newGroup:Group = group.push(page).go(-1, 2000)
         const history:HistoryStack = newGroup.history
         expect(history.back.length).toBe(0)
         expect(history.current.url).toBe('/a')
@@ -279,14 +281,18 @@ describe('Group', () => {
         expect(history.forward[0].url).toBe('/a/1')
       })
 
-      it('cannot go back to Group because history doesn\'t cross its boundary', () => {
-        const g:Group = group.activateContainer('Group 2', later)
+      it('cannot go back to Group 2 because history doesn\'t cross its boundary', () => {
+        const g:Group = group.activateContainer('Group 2', 2000)
+                             .activateContainer('Group 3', 3000)
         const history:HistoryStack = g.history
-        expect(history.canGoBack()).toBeFalsy()
+        expect(history.back.length).toBe(1)
+        expect(history.back[0].url).toBe('/a')
+        expect(history.current.url).toBe('/g')
+        expect(history.forward.length).toBe(0)
       })
 
       it('throws an error if you try to go past the history', () => {
-        expect(() => group.go(-1, later)).toThrow()
+        expect(() => group.go(-1, 2000)).toThrow()
       })
     })
 
@@ -297,7 +303,7 @@ describe('Group', () => {
           params: {id: '1'},
           groupName: nestedGroup2.name,
           containerName: nestedGroup2.containers[1].name,
-          lastVisited: later
+          lastVisited: 2000
         })
         const newGroup = group.push(page)
         expect(newGroup.activeContainerName).toBe(nestedGroup2.name)
@@ -325,7 +331,7 @@ describe('Group', () => {
           groupName: nestedGroup1.name,
           containerName: nestedGroup1.containers[0].name
         })
-        const newGroup = group.push(page).top(later)
+        const newGroup = group.push(page).top(2000)
         expect(newGroup.history.back.length).toBe(0)
         expect(newGroup.history.current.url).toBe('/a')
         expect(newGroup.history.forward.length).toBe(1)

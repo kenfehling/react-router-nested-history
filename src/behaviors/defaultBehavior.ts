@@ -1,18 +1,26 @@
-import HistoryStack from '../model/HistoryStack'
+import H from '../model/HistoryStack'
 
 /**
  * Switch tab using mobile-app like behavior (with a default tab: A)
  */
-export const A_to_B = (A:HistoryStack, B:HistoryStack) => new HistoryStack({
-  back: [...A.back, A.current, ...B.back],
-  current: B.current,
-  forward: B.forward
+
+/**
+ * Default to non-default
+ */
+export const A_to_B = (h:H, A:H, B:H) => new H({
+  ...h,
+  back: [...A.back, A.current, ...h.back]
 })
 
-export const B_to_C = (A:HistoryStack, B:HistoryStack, C:HistoryStack) => new HistoryStack({
-  back: [...A.back, A.current, ...C.back],
-  current: C.current,
-  forward: C.forward
-})
+/**
+ * Non-default to default
+ */
+export const B_to_A = (h:H, A:H, B:H) => h
 
-export const B_to_A = (A:HistoryStack, B:HistoryStack) => A
+/**
+ * Non-default to non-default
+ */
+export const B_to_C = (h:H, A:H, B:H, C:H) => new H({
+  ...h,
+  back: [...A.back, A.current, ...h.back]
+})

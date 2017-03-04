@@ -97,12 +97,15 @@ abstract class IState {
     }
   }
 
-  addTopLevelGroup({name, resetOnLeave=false, gotoTopOnSelectActive=false}:
-    {name:string, resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}):IState {
+  addTopLevelGroup({name, resetOnLeave=false, allowInterContainerHistory=false,
+    gotoTopOnSelectActive=false}:
+    {name:string, resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
+      gotoTopOnSelectActive?:boolean}):IState {
     const group:Group = new Group({
       name,
       resetOnLeave,
       gotoTopOnSelectActive,
+      allowInterContainerHistory,
       parentGroupName: null,
       isDefault: null
     })
@@ -110,25 +113,29 @@ abstract class IState {
   }
 
   addSubGroup({name, parentGroupName, isDefault=false,
-    resetOnLeave=false, gotoTopOnSelectActive=false}:
+    allowInterContainerHistory=false, resetOnLeave=false,
+    gotoTopOnSelectActive=false}:
     {name:string, parentGroupName:string, isDefault:boolean,
+      allowInterContainerHistory?:boolean,
       resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}):IState {
     const group:Group = new Group({
       name,
       resetOnLeave,
       gotoTopOnSelectActive,
+      allowInterContainerHistory,
       parentGroupName,
       isDefault
     })
     return this.replaceGroup(group)
   }
 
-  addContainer({name, groupName, initialUrl, isDefault=false,
+  addContainer({time, name, groupName, initialUrl, isDefault=false,
     resetOnLeave=false, patterns}:
-    {name:string, groupName:string, initialUrl:string, patterns:string[],
+    {time:number, name:string, groupName:string, initialUrl:string, patterns:string[],
       isDefault:boolean, resetOnLeave:boolean}):IState {
     const group:Group = this.getGroupByName(groupName)
     const container:Container = new Container({
+      time,
       initialUrl,
       patterns,
       resetOnLeave,

@@ -2,7 +2,6 @@ import CreateContainer from '../../src/model/actions/CreateContainer'
 import CreateGroup from '../../src/model/actions/CreateGroup'
 import Group from '../../src/model/Group'
 import Container from '../../src/model/Container'
-import IState from '../../src/model/IState'
 import ISubGroup from '../../src/model/interfaces/ISubGroup'
 import UninitializedState from '../../src/model/UninitializedState'
 import InitializedState from '../../src/model/InitializedState'
@@ -78,6 +77,7 @@ const group1:Group = new Group({
   name: 'Group 1',
   containers: [
     new Container({
+      time: TIME,
       name: 'Container 1',
       groupName: 'Group 1',
       initialUrl: '/a',
@@ -85,18 +85,18 @@ const group1:Group = new Group({
       isDefault: true
     }),
     new Container({
+      time: TIME,
       name: 'Container 2',
       groupName: 'Group 1',
       initialUrl: '/b',
-      patterns: ['/b', '/b/:id'],
-      isDefault: false
+      patterns: ['/b', '/b/:id']
     }),
     new Container({
+      time: TIME,
       name: 'Container 3',
       groupName: 'Group 1',
       initialUrl: '/c',
-      patterns: ['/c', '/c/:id'],
-      isDefault: false
+      patterns: ['/c', '/c/:id']
     })
   ]
 })
@@ -105,12 +105,14 @@ const group2:Group = new Group({
   name: 'Group 2',
   containers: [
     new Container({
+      time: TIME,
       name: 'Container 1',
       groupName: 'Group 2',
       initialUrl: '/e',
       patterns: ['/e', '/e/:id'],
     }),
     new Container({
+      time: TIME,
       name: 'Container 2',
       groupName: 'Group 2',
       initialUrl: '/f',
@@ -123,13 +125,14 @@ const group3:Group = new Group({
   name: 'Group 3',
   containers: [
     new Container({
+      time: TIME,
       name: 'Container 1',
       groupName: 'Group 3',
       initialUrl: '/g',
-      patterns: ['/g', '/a/:id'],
-      isDefault: true
+      patterns: ['/g', '/a/:id']
     }),
     new Container({
+      time: TIME,
       name: 'Container 2',
       groupName: 'Group 3',
       initialUrl: '/h',
@@ -153,13 +156,20 @@ const nestedGroup2 = new Group({
   parentGroupName: 'Nested Group 1'
 })
 
+const nestedGroup3 = new Group({
+  ...Object(group3),
+  parentGroupName: 'Nested Group 1',
+  allowInterContainerHistory: true
+})
+
 export const nestedState = new UninitializedState({
   groups: [
     new Group({
       name: 'Nested Group 1',
       containers: [
         nestedGroup1 as ISubGroup,
-        nestedGroup2 as ISubGroup
+        nestedGroup2 as ISubGroup,
+        nestedGroup3 as ISubGroup
       ]
     }),
     group3

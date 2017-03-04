@@ -29,6 +29,7 @@ export default class CreateContainer extends Action {
 
   reduce(state:IState):IState {
     return state.addContainer({
+      time: this.time,
       name: this.name,
       groupName: this.groupName,
       initialUrl: this.initialUrl,

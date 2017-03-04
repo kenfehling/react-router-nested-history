@@ -11,19 +11,23 @@ export default class CreateGroup extends NonStepAction {
   readonly parentGroupName: string|undefined
   readonly isDefault: boolean|undefined
   readonly resetOnLeave: boolean
+  readonly allowInterContainerHistory: boolean
   readonly gotoTopOnSelectActive: boolean
 
-  constructor({time, name, parentGroupName=undefined,
-    isDefault=parentGroupName?true:undefined,
+  constructor({time, name, allowInterContainerHistory=false,
+    parentGroupName=undefined, isDefault=parentGroupName?true:undefined,
     resetOnLeave=false, gotoTopOnSelectActive=false}:
     {time?:number, name:string, parentGroupName?:undefined, isDefault?:undefined,
-      resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}|
+      resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
+      gotoTopOnSelectActive?:boolean}|
     {time?:number, name:string, parentGroupName:string, isDefault:boolean,
-      resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}) {
+      resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
+      gotoTopOnSelectActive?:boolean}) {
     super({time, origin: SYSTEM})
     this.name = name
     this.parentGroupName = parentGroupName
     this.isDefault = isDefault
+    this.allowInterContainerHistory = allowInterContainerHistory
     this.resetOnLeave = resetOnLeave
     this.gotoTopOnSelectActive = gotoTopOnSelectActive
   }
@@ -35,6 +39,7 @@ export default class CreateGroup extends NonStepAction {
         parentGroupName: this.parentGroupName,
         isDefault: this.isDefault,
         resetOnLeave: this.resetOnLeave,
+        allowInterContainerHistory: this.allowInterContainerHistory,
         gotoTopOnSelectActive: this.gotoTopOnSelectActive
       })
     }
@@ -42,6 +47,7 @@ export default class CreateGroup extends NonStepAction {
       return state.addTopLevelGroup({
         name: this.name,
         resetOnLeave: this.resetOnLeave,
+        allowInterContainerHistory: this.allowInterContainerHistory,
         gotoTopOnSelectActive: this.gotoTopOnSelectActive
       })
     }

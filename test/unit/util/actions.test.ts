@@ -124,7 +124,8 @@ describe('action utils', () => {
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 1',
-              firstVisited: 0
+              firstVisited: 0,
+              lastVisited: 1000,
             })),
             new PushStep(new Page({
               url: '/b',
@@ -147,13 +148,16 @@ describe('action utils', () => {
               url: '/a',
               params: {},
               groupName: 'Group 1',
-              containerName: 'Container 1'
+              containerName: 'Container 1',
+              firstVisited: 0,
+              lastVisited: 1000,
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: 'Group 1',
-              containerName: 'Container 2'
+              containerName: 'Container 2',
+              firstVisited: 1000
             })),
             new PushStep(new Page({
               url: '/b/1',
@@ -290,7 +294,7 @@ describe('action utils', () => {
           const loadActions:Action[] = [...originalSimpleActions,
             new LoadFromUrl({
               url: '/e/1',
-              time: 1000
+              time: 1500
             })
           ]
 
@@ -327,7 +331,7 @@ describe('action utils', () => {
                   params: {},
                   groupName: 'Group 2',
                   containerName: 'Container 1',
-                  firstVisited: 3000,
+                  firstVisited: 1499,
                   lastVisited: 7001
                 })),
                 new PushStep(new Page({
@@ -335,7 +339,7 @@ describe('action utils', () => {
                   params: {id: '1'},
                   groupName: 'Group 2',
                   containerName: 'Container 1',
-                  firstVisited: 1000
+                  firstVisited: 1500
                 })),
                 new BackStep()
               ])
@@ -375,7 +379,9 @@ describe('action utils', () => {
               url: '/a',
               params: {},
               groupName: createSubGroup1.name,
-              containerName: 'Container 1'
+              containerName: 'Container 1',
+              firstVisited: 0,
+              lastVisited: 1000,
             })),
             new PushStep(new Page({
               url: '/b',
@@ -399,14 +405,15 @@ describe('action utils', () => {
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
-              lastVisited: 0
+              firstVisited: 0,
+              lastVisited: 1000,
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
-              lastVisited: 0
+              firstVisited: 1000
             })),
             new PushStep(new Page({
               url: '/b/1',
