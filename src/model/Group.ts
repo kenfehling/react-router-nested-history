@@ -4,7 +4,6 @@ import * as R from 'ramda'
 import * as defaultBehavior from '../behaviors/defaultBehavior'
 import * as nonDefaultBehavior from '../behaviors/nonDefaultBehavior'
 import * as interContainerHistory from '../behaviors/interContainerHistory'
-import * as nonInterContainerHistory from '../behaviors/nonInterContainerHistory'
 import * as keepFwdTabBehavior from '../behaviors/keepFwdTabBehavior'
 import Page from './Page'
 import IHistory from './interfaces/IHistory'
@@ -73,10 +72,11 @@ export default class Group implements Comparable, IContainer {
     }
   }
 
-  private computeInterContainer(from:HistoryStack, to:HistoryStack):HistoryStack {
-    return this.allowInterContainerHistory ?
-      interContainerHistory.D_to_E(to, from, to) :
-      nonInterContainerHistory.D_to_E(to, from, to)
+  private computeInterContainer(from:HistoryStack, to:HistoryStack,
+                                fromDefault:boolean|null,
+                                toDefault:boolean|null):HistoryStack {
+    return !fromDefault && !toDefault && this.allowInterContainerHistory ?
+      interContainerHistory.D_to_E(to, from, to) : to
   }
   
   private static computeDefault(h:HistoryStack, defaulT:HistoryStack|null,
@@ -115,7 +115,8 @@ export default class Group implements Comparable, IContainer {
     const fromHistory:HistoryStack = from.history
     const toHistory:HistoryStack = to.history
     const defaultHistory:HistoryStack|null = defaulT ? defaulT.history : null
-    const h1:HistoryStack = this.computeInterContainer(fromHistory, toHistory)
+    const h1:HistoryStack = this.computeInterContainer(
+        fromHistory, toHistory, from.isDefault, to.isDefault)
     const h2:HistoryStack = Group.computeDefault(
         h1, defaultHistory, fromHistory, toHistory, from.isDefault, to.isDefault)
     return maintainFwd ? Group.computeKeepFwd(h2, fromHistory, toHistory) : h2
