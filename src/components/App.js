@@ -4,6 +4,7 @@ import Tabs from './Tabs'
 import Windows from './Windows'
 import NestedGroup from './NestedGroup'
 import ScrollAreaExample from './ScrollAreaExample'
+import MobileExample from './MobileExample'
 import StateTree from './StateTree'
 import './App.css'
 
@@ -24,6 +25,9 @@ export default () => (
         <div className='bottom-container'>
           <div className='nested-group-container'>
             <NestedGroup />
+          </div>
+          <div className='mobile-container'>
+            <MobileExample />
           </div>
           {/*
           <div className='scroll-area-container'>

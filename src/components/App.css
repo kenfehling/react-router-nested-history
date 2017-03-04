@@ -56,6 +56,11 @@ a {
   height: 300px;
 }
 
+.mobile-container {
+  width: 320px;
+  height: 480px;
+}
+
 .state-tree-container {
   margin-top: 12px;
   padding-right: 3%;

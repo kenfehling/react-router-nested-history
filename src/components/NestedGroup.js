@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {
-  Container, ContainerGroup, WindowGroup, Window, HistoryRoute, HeaderLink,
+  Container, ContainerGroup, WindowGroup, HistoryWindow, HistoryRoute, HeaderLink,
   HistoryLink, BackLink
 } from 'react-router-nested-history'
 import './NestedGroup.css'
@@ -92,7 +92,7 @@ const Notes = () => (
   </div>
 )
 
-export default () =>(
+const NestedGroup = () =>(
   <div className="nested windows">
     <h2>Nested group example</h2>
     <div className="description">
@@ -101,7 +101,7 @@ export default () =>(
       <p>When selecting an already active tab, it will go to the top of that tree.</p>
     </div>
     <WindowGroup name='nested' className='nested'>
-      <Window forName='foods' className='window foods'>
+      <HistoryWindow forName='foods' className='window foods'>
         <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
           <FoodsHeader />
           {foodGroups.map((c, i) => (
@@ -129,12 +129,14 @@ export default () =>(
             </Container>
           ))}
         </ContainerGroup>
-      </Window>
-      <Window forName='notes' className='window nested-window notes'>
+      </HistoryWindow>
+      <HistoryWindow forName='notes' className='window nested-window notes'>
         <Container name='notes' animate={false} initialUrl='/notes' patterns={['/notes']}>
           <HistoryRoute path='/notes' exact component={Notes} />
         </Container>
-      </Window>
+      </HistoryWindow>
     </WindowGroup>
   </div>
 )
+
+export default NestedGroup

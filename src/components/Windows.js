@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {
-  Container, WindowGroup, Window, HistoryRoute, HistoryLink
+  Container, WindowGroup, HistoryWindow, HistoryRoute, HistoryLink
 } from 'react-router-nested-history'
 import Helmet from 'react-helmet'
 import './Windows.css'
@@ -31,7 +31,7 @@ const WindowPage = ({match:{params:{page}}}) => (
 )
 
 const ExampleWindow = ({index, masterComponent}) => (
-  <Window forName={windowName(index)} className={`window ${windowName(index)}`}>
+  <HistoryWindow forName={windowName(index)} className={`window ${windowName(index)}`}>
     {({isOnTop}) => (
       <Container name={windowName(index)}
                  animate={false}
@@ -49,7 +49,7 @@ const ExampleWindow = ({index, masterComponent}) => (
         />
       </Container>
     )}
-  </Window>
+  </HistoryWindow>
 )
 
 export default class Windows extends Component {
