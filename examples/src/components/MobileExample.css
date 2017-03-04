@@ -3,10 +3,31 @@
 }
 
 .mobile .home-screen .icon {
-  width: 52px;
-  height: 52px;
   display: inline-block;
-  background: #CCC;
-  border: thin solid #555;
+  font-size: 10px;
+  padding-top: 30px;
+  box-sizing: border-box;
+  text-align: center;
+  width: 48px;
+  height: 48px;
+  background-color: #DDD;
+  border: thin solid #CCC;
   border-radius: 4px;
+  margin: 4px;
+  cursor: pointer;
+}
+
+.mobile .home-screen .icon:hover {
+  background-color: #9CF;
+  border-color: #69F;
+}
+
+.mobile-window {
+  width: 100%;
+  height: 100%;
+  background-color: #EEE;
+  border-radius: 4px;
+  padding: 7px;
+  box-sizing: border-box;
+  border: thin solid #CCC;
 }
