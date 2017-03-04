@@ -39,9 +39,10 @@ export function serialize(classObject:ISerializable):ISerialized {
   const keys:string[] = Object.keys(classObject)
   keys.forEach((key:string) => {
     const value:any = classObject[key]
-
-    // recursively serialize children from @Serializable classes
-    obj[key] = isSerializable(value) ? serialize(value) : value
+    if (value != null) {
+      // recursively serialize children from @Serializable classes
+      obj[key] = isSerializable(value) ? serialize(value) : value
+    }
   })
   return {
     type: classObject.constructor.name,  // The object's class name
@@ -74,7 +75,6 @@ export function deserialize(obj:ISerialized):any {
   }
   keys.forEach((key:string) => {
     const value:any = data[key]
-
     // recursively deserialize children from @Serializable classes
     classObject[key] = isSerialized(value) ? deserialize(value) : value
   })

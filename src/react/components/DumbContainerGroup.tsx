@@ -125,6 +125,7 @@ export default class DumbContainerGroup extends
       'switchToContainerName',
       'isDefault',
       'parentGroupName',
+      'allowInterContainerHistory',
       'storeSubscription'
   ], this.props)
     const divStyle={

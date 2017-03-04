@@ -547,8 +547,10 @@ function serialize(classObject) {
     var keys = Object.keys(classObject);
     keys.forEach(function (key) {
         var value = classObject[key];
-        // recursively serialize children from @Serializable classes
-        obj[key] = isSerializable(value) ? serialize(value) : value;
+        if (value != null) {
+            // recursively serialize children from @Serializable classes
+            obj[key] = isSerializable(value) ? serialize(value) : value;
+        }
     });
     return __assign({ type: classObject.constructor.name }, obj);
 }
@@ -11972,6 +11974,7 @@ var DumbContainerGroup = (function (_super) {
             'switchToContainerName',
             'isDefault',
             'parentGroupName',
+            'allowInterContainerHistory',
             'storeSubscription'
         ], this.props), _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["style"]);
         var divStyle = __assign({}, style, { width: '100%', height: '100%', position: 'inherit', overflow: 'hidden' });
