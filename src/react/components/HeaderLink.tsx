@@ -34,6 +34,7 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   onClick(event):void {
     const {onClick} = this.props
     onClick()
+    event.stopPropagation()
     event.preventDefault()
   }
 

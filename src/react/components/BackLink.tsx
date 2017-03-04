@@ -40,6 +40,7 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   onClick(event) {
     const {goBack} = this.props
     goBack()
+    event.stopPropagation()
     event.preventDefault()
   }
 

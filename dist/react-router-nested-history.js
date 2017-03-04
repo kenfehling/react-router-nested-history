@@ -18405,6 +18405,7 @@ var BackLink = (function (_super) {
     BackLink.prototype.onClick = function (event) {
         var goBack = this.props.goBack;
         goBack();
+        event.stopPropagation();
         event.preventDefault();
     };
     BackLink.prototype.render = function () {
@@ -18497,6 +18498,7 @@ var HeaderLink = (function (_super) {
     HeaderLink.prototype.onClick = function (event) {
         var onClick = this.props.onClick;
         onClick();
+        event.stopPropagation();
         event.preventDefault();
     };
     HeaderLink.prototype.getClassName = function () {
@@ -18596,6 +18598,7 @@ var HistoryLink = (function (_super) {
     HistoryLink.prototype.onClick = function (event) {
         var push = this.props.push;
         push(this.getUrl());
+        event.stopPropagation();
         event.preventDefault();
     };
     HistoryLink.prototype.render = function () {

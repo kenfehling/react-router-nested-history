@@ -35,6 +35,7 @@ class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   onClick(event) {
     const {push} = this.props
     push(this.getUrl())
+    event.stopPropagation()
     event.preventDefault()
   }
 
