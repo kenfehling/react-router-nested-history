@@ -1,8 +1,26 @@
-.mobile .home-screen {
-
+.mobile-example {
+  width: 100%;
+  height: 100%;
 }
 
-.mobile .home-screen .icon {
+.phone {
+  margin-top: 5px;
+}
+
+.phone .mobile-window {
+  width: 240px;
+  height: 360px;
+  background-color: #EEE;
+  border-radius: 4px;
+  box-sizing: border-box;
+  border: thin solid #CCC;
+}
+
+.phone .home-screen {
+  padding: 7px;
+}
+
+.phone .home-screen .icon {
   display: inline-block;
   font-size: 10px;
   padding-top: 30px;
@@ -17,17 +35,58 @@
   cursor: pointer;
 }
 
-.mobile .home-screen .icon:hover {
+.phone .home-screen .icon:hover {
   background-color: #9CF;
   border-color: #69F;
 }
 
-.mobile-window {
+.phone .mobile-page .nav {
+  font-size: 15px;
+  height: 38px;
+  background-color: #b7b6ac;
+  padding: 0 5px;
+  border-bottom: #a8a79e;
+  display: flex;
+  line-height: 38px;
+}
+
+.phone .mobile-page .nav .back, .phone .mobile-page .nav .title {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.phone .mobile-page .nav .back {
+  position: absolute;
+  line-height: inherit;
+}
+
+.phone .mobile-page .nav .back .link {
+  display: flex;
+}
+
+.phone .mobile-page .nav .back a,
+.phone .mobile-page .nav .back a:hover,
+.phone .mobile-page .nav .back a:active,
+.phone .mobile-page .nav .back a:visited {
+  font-weight: 400;
+  text-decoration: none;
+  color: #36F;
+}
+
+.phone .mobile-page .nav .back .fa-chevron-left {
+  font-weight: 100;
+  display: block;
+  line-height: inherit;
+  margin-right: 3px;
+}
+
+.phone .mobile-page .nav .title {
   width: 100%;
-  height: 100%;
-  background-color: #EEE;
-  border-radius: 4px;
+  text-align: center;
+  font-size: inherit;
+}
+
+.phone .mobile-page .content {
   padding: 7px;
-  box-sizing: border-box;
-  border: thin solid #CCC;
 }

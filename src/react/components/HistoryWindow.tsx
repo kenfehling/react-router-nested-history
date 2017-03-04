@@ -45,15 +45,22 @@ export default class HistoryWindow extends Component<WindowProps, undefined> {
     setCurrentContainerName: PropTypes.func //.isRequired
   }
 
+  onMouseDown(event) {
+    const {forName} = this.props
+    const {setCurrentContainerName} = this.context
+    setCurrentContainerName(forName)
+    event.stopPropagation()
+  }
+
   render() {
     // Pass through all props you could want on a div
     const {forName, top, left, children, style={}, ...divProps} = this.props
-    const {stackOrder, setCurrentContainerName} = this.context
+    const {stackOrder} = this.context
     const zIndex = getWindowZIndex(stackOrder, forName)
     const isOnTop = isWindowOnTop(stackOrder, forName)
     return (
       <div {...divProps}
-           onClick={() => setCurrentContainerName(forName)}
+           onMouseDown={this.onMouseDown.bind(this)}
            style={{
              ...style,
              zIndex,

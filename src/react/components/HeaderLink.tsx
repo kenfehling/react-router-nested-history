@@ -38,6 +38,11 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
     event.preventDefault()
   }
 
+  onMouseDown(event) {
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
   getClassName():string {
     const {className, activeClassName, isActive} = this.props
     return isActive && activeClassName ? activeClassName : className || ''
@@ -48,7 +53,9 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
     return (
       <a href={url}
          className={this.getClassName()}
-         onClick={this.onClick.bind(this)}>
+         onMouseDown={this.onMouseDown.bind(this)}
+         onClick={this.onClick.bind(this)}
+      >
         {children}
       </a>
     )

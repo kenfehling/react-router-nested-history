@@ -39,10 +39,18 @@ class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
     event.preventDefault()
   }
 
+  onMouseDown(event) {
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
   render() {
 
     return (
-      <a href={this.getUrl()} onClick={this.onClick.bind(this)}>
+      <a href={this.getUrl()}
+         onMouseDown={this.onMouseDown.bind(this)}
+         onClick={this.onClick.bind(this)}
+      >
         {this.props.children}
       </a>
     )

@@ -44,12 +44,22 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
     event.preventDefault()
   }
 
+  onMouseDown(event) {
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
   render() {
     const {children, nameFn, backPage} = this.props
     if (backPage) {
-      return (<a href={backPage.url} onClick={this.onClick.bind(this)}>
-        {children || nameFn ? nameFn({params: backPage.params}) : 'Back'}
-      </a>)
+      return (
+        <a href={backPage.url}
+           onMouseDown={this.onMouseDown.bind(this)}
+           onClick={this.onClick.bind(this)}
+        >
+          {children || nameFn ? nameFn({params: backPage.params}) : 'Back'}
+        </a>
+      )
     }
     else {
       return <span> </span>
