@@ -8,7 +8,6 @@ import Page from '../../model/Page'
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import PopState from '../../model/actions/PopState'
 import * as browser from '../../util/browserFunctions'
-import InitializedState from '../../model/InitializedState'
 import Action from '../../model/Action'
 import Step from '../../model/interfaces/Step'
 import {createStepsSince} from '../../util/actions'
@@ -22,7 +21,6 @@ export interface StepRunnerProps {
 type ConnectedStepRunnerProps = StepRunnerProps & {
   browserHistory: HistoryStack
   popstate: (page:Page) => void
-  isInitialized: boolean,
   actions: Action[],
   lastUpdate: number,
   recordBrowserUpdate: () => void
@@ -33,15 +31,13 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   private isListening: boolean = true
 
   componentWillReceiveProps(newProps) {
-    const {isInitialized, actions, lastUpdate, recordBrowserUpdate} = newProps
-    if (isInitialized) {
-      const steps: Step[] = createStepsSince(actions, lastUpdate)
-      if (steps.length > 0) {
-        recordBrowserUpdate()
-        const before = () => this.isListening = false
-        const after = () => this.isListening = true
-        runSteps(steps, before, after)
-      }
+    const {actions, lastUpdate, recordBrowserUpdate} = newProps
+    const steps: Step[] = createStepsSince(actions, lastUpdate)
+    if (steps.length > 0) {
+      recordBrowserUpdate()
+      const before = () => this.isListening = false
+      const after = () => this.isListening = true
+      runSteps(steps, before, after)
     }
   }
 
@@ -67,8 +63,7 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
 const mapStateToProps = ({state, actions}:IUpdateData) => ({
   actions,
   lastUpdate: state.lastUpdate,
-  browserHistory: state.browserHistory,
-  isInitialized: state instanceof InitializedState
+  browserHistory: state.browserHistory
 })
 
 const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,

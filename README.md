@@ -35,6 +35,7 @@ Right now this library only works with browserHistory (HTML5 History API, not wi
 - [x] Support for title libraries like [react-helmet](https://github.com/nfl/react-helmet)
 - [x] Transition animations (slide-in, slide-out)
 - [x] Support for server rendering
+- [] Support for components that lazy render (many existing React tab libraries)
 
 ## API
 
@@ -338,7 +339,7 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
 
 ### WindowGroup
 A convenience component that wraps a `ContainerGroup` and is meant for
-creating a group of `Window` components that overlap and are layered in
+creating a group of `HistoryWindow` components that overlap and are layered in
 the order that they were last accessed.
 
 #### props
@@ -364,7 +365,7 @@ Same as `WindowGroup` but with changes in defaults.
     </tbody>
 </table>
 
-### Window
+### HistoryWindow
 A single window inside a `WindowGroup`
 
 #### props

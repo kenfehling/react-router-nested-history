@@ -15,7 +15,7 @@ export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
   const WrappedComponent = (props:P) => createElement(component, props)
   const ConnectedComponent = connect(mapStateToProps)(WrappedComponent)
 
-  return class extends Component<P, any> {
+  return class ConntectToStore extends Component<P, any> {
     static contextTypes = {
       rrnhStore: PropTypes.object.isRequired
     }

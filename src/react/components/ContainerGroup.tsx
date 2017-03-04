@@ -1,20 +1,14 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode} from 'react'
+import {Component, PropTypes} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import DumbContainerGroup, {
   OnContainerSwitch, ChildrenType
 } from './DumbContainerGroup'
-import Container from './Container'
-import DumbContainer from './DumbContainer'
-import {renderToStaticMarkup} from 'react-dom/server'
 import CreateGroup from '../../model/actions/CreateGroup'
-import createElement = React.createElement
 import IUpdateData from '../../model/interfaces/IUpdateData'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import InitializedState from '../../model/InitializedState'
-import {getChildren} from '../../util/children'
-import WindowGroup from './WindowGroup'
 import IContainer from '../../model/interfaces/IContainer'
 
 export interface ContainerGroupProps {
@@ -48,7 +42,6 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
   constructor(props) {
     super(props)
     const {
-      store,
       name,
       resetOnLeave,
       allowInterContainerHistory,
@@ -67,6 +60,7 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       gotoTopOnSelectActive
     }))
 
+    /*
     class G extends Component<{children: ReactNode}, undefined> {
       static childContextTypes = {
         rrnhStore: PropTypes.object.isRequired,
@@ -83,7 +77,8 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       }
 
       render() {
-        return <div>{this.props.children}</div>
+        const {children} = this.props
+        return <div>{children}</div>
       }
     }
 
@@ -92,10 +87,11 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
     const cs = getChildren(this, [Container, DumbContainer],
                                  [ContainerGroup, DumbContainerGroup, WindowGroup])
     cs.forEach(c => renderToStaticMarkup(<G children={c} />))
+    */
   }
 
   render() {
-    return  <DumbContainerGroup {...this.props} />
+    return <DumbContainerGroup {...this.props} />
   }
 }
 

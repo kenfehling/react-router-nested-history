@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Component, PropTypes} from 'react'
+import {Component, Children, PropTypes, cloneElement, ReactElement} from 'react'
 import ContainerGroup from './ContainerGroup'
 import {ContainerGroupProps} from './ContainerGroup'
 import {ChildrenFunctionArgs} from './DumbContainerGroup'
@@ -49,7 +49,7 @@ const WindowGroup = ({children, ...groupProps}:ContainerGroupProps) => (
     {(props:ChildrenFunctionArgs) => (
       <InnerWindowGroup stackOrder={props.stackOrder}
                         setCurrentContainerName={props.setCurrentContainerName}>
-        {children}
+        {children instanceof Function ? children(props) : children}
       </InnerWindowGroup>
     )}
   </ContainerGroup>

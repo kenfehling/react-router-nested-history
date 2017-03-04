@@ -39,7 +39,7 @@ interface WindowProps {
   style?: Object
 }
 
-export default class Window extends Component<WindowProps, undefined> {
+export default class HistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {
     stackOrder: PropTypes.arrayOf(PropTypes.object), //.isRequired,
     setCurrentContainerName: PropTypes.func //.isRequired

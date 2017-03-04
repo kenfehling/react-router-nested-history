@@ -6,7 +6,7 @@ import store from '../../src/store'
 import Container from '../../src/react/components/Container'
 import HistoryRouter from '../../src/react/components/HistoryRouter'
 import WindowGroup from '../../src/react/components/WindowGroup'
-import Window from '../../src/react/components/Window'
+import Window from '../../src/react/components/HistoryWindow'
 import InitializedState from '../../src/model/InitializedState'
 declare const describe:any
 declare const it:any
