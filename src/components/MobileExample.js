@@ -23,15 +23,14 @@ const MobileWindow = ({name, path=toPath(name), component, children, isDefault=f
   </HistoryWindow>
 )
 
-const homeScreenIcons = [
+const apps = [
   'Map',
   'Terminal',
   'Tools',
   'Editor',
   'Social',
   'Audio',
-  'PDF',
-  'Mobile'
+  'PDF'
 ]
 
 const HomeScreenIcon = ({name, onClick}) => (
@@ -41,24 +40,13 @@ const HomeScreenIcon = ({name, onClick}) => (
 )
 
 const HomeScreen = ({onIconClick}) => (
-  <div className={'home-screen'}>
-    <div className="inner-container">
-      <div className="back-container"></div>
-      <div className="front-container">
-        {homeScreenIcons.map(name => (
-          <HomeScreenIcon key={name}
-                          name={name}
-                          onClick={() => onIconClick(name.toLowerCase())}
-          />
-        ))}
-      </div>
-    </div>
-  </div>
-)
-
-const App1 = ({}) => (
-  <div>
-    App 1
+  <div className='home-screen'>
+    {apps.map(name => (
+      <HomeScreenIcon key={name}
+                      name={name}
+                      onClick={() => onIconClick(name.toLowerCase())}
+      />
+    ))}
   </div>
 )
 
@@ -71,7 +59,13 @@ export default () => (
             <HomeScreen onIconClick={name => setCurrentContainerName(name)}/>
           )}
         </MobileWindow>
-        <MobileWindow name='app1' component={App1}/>
+        {apps.map(app => (
+          <MobileWindow key={app} name={app}>
+            {() => (
+              <div>{app}</div>
+            )}
+          </MobileWindow>
+        ))}
       </div>
     )}
   </WindowGroup>
