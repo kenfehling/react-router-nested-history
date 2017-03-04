@@ -5,19 +5,23 @@ import {
 import Helmet from 'react-helmet'
 import './MobileExample.css'
 
+const regex = a => `:app(${a})`
 const toId = name => name.toLowerCase()
 const toPath = name => `/mobile/${toId(name)}`
+const toPattern = name => `/mobile/${regex(toId(name))}`
 
 const MobilePage = ({title, children}) => (
   <div className='mobile-page'>
     <div className='nav'>
       <div className='back'>
-        <BackLink nameFn={({page='Home'}) => (
-          <div className='link'>
-            <i className="fa fa-chevron-left" />
-            <div className='text'>{page}</div>
-          </div>
-        )} />
+        <BackLink>
+          {({params: {app='Home', page=null}}) => (
+            <div className='link'>
+              <i className="fa fa-chevron-left" />
+              <div className='text'>{page || app}</div>
+            </div>
+          )}
+        </BackLink>
       </div>
       <h1 className='title'>{title}</h1>
     </div>
@@ -27,17 +31,25 @@ const MobilePage = ({title, children}) => (
   </div>
 )
 
-const MobileWindow = ({name, path=toPath(name), component, children, isDefault=false}) => (
+const MobileWindow = ({name, path=toPath(name), pattern=toPattern(name),
+                       component, children, isDefault=false}) => (
   <HistoryWindow forName={toId(name)} className='mobile-window'>
     <Container name={toId(name)}
                initialUrl={path}
-               patterns={[path]}
+               patterns={[pattern, `${[pattern]}/page`]}
                isDefault={isDefault}
     >
       {component ?
-        <HistoryRoute path={path} exact component={component}/> :
-        <HistoryRoute path={path} exact children={children} />
+        <HistoryRoute path={pattern} exact component={component}/> :
+        <HistoryRoute path={pattern} exact children={children} />
       }
+      <HistoryRoute path={`${pattern}/:page`} exact>
+        {({match:{params:{page}}}) => (
+          <MobilePage title={page}>
+            <div>{page}</div>
+          </MobilePage>
+        )}
+      </HistoryRoute>
     </Container>
   </HistoryWindow>
 )
@@ -81,7 +93,10 @@ export default () => (
     <WindowGroup name='mobile' allowInterContainerHistory={true}>
       {({setCurrentContainerName}) => (
         <div className='phone'>
-          <MobileWindow isDefault={true} name='home' path='/mobile'>
+          <MobileWindow isDefault={true}
+                        name='home'
+                        path='/mobile'
+                        pattern='/mobile'>
             {() => (
               <HomeScreen onIconClick={name => setCurrentContainerName(name)}/>
             )}
@@ -91,6 +106,9 @@ export default () => (
               {() => (
                 <MobilePage title={app}>
                   <div>{app}</div>
+                  <p>
+                    <HistoryLink to={`${toPath(app)}/page`}>page</HistoryLink>
+                  </p>
                 </MobilePage>
               )}
             </MobileWindow>
