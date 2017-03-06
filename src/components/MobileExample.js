@@ -6,9 +6,8 @@ import Helmet from 'react-helmet'
 import './MobileExample.css'
 
 const regex = a => `:app(${a})`
-const toId = name => name.toLowerCase()
-const toPath = name => `/mobile/${toId(name)}`
-const toPattern = name => `/mobile/${regex(toId(name))}`
+const toPath = name => `/mobile/${name}`
+const toPattern = name => `/mobile/${regex(name)}`
 
 const MobilePage = ({title, children}) => (
   <div className='mobile-page'>
@@ -33,10 +32,10 @@ const MobilePage = ({title, children}) => (
 
 const MobileWindow = ({name, path=toPath(name), pattern=toPattern(name),
                        component, children, isDefault=false}) => (
-  <HistoryWindow forName={toId(name)} className='mobile-window'>
-    <Container name={toId(name)}
+  <HistoryWindow forName={name} className='mobile-window'>
+    <Container name={name}
                initialUrl={path}
-               patterns={[pattern, `${[pattern]}/page`]}
+               patterns={[pattern, `${[pattern]}/:page`]}
                isDefault={isDefault}
     >
       {component ?
@@ -72,11 +71,8 @@ const HomeScreenIcon = ({name, onClick}) => (
 
 const HomeScreen = ({onIconClick}) => (
   <div className='home-screen'>
-    {apps.map(name => (
-      <HomeScreenIcon key={name}
-                      name={name}
-                      onClick={() => onIconClick(name.toLowerCase())}
-      />
+    {apps.map(app => (
+      <HomeScreenIcon key={app} name={app} onClick={() => onIconClick(app)} />
     ))}
   </div>
 )
@@ -87,14 +83,14 @@ export default () => (
     <div className="description">
       <p>
         A window group with `allowInterContainerHistory` whose
-        windows are 100% width and height, therefore hiding each other
+        windows are 100% width and height therefore hiding each other
       </p>
     </div>
     <WindowGroup name='mobile' allowInterContainerHistory={true}>
       {({setCurrentContainerName}) => (
         <div className='phone'>
           <MobileWindow isDefault={true}
-                        name='home'
+                        name='Home'
                         path='/mobile'
                         pattern='/mobile'>
             {() => (
@@ -107,7 +103,7 @@ export default () => (
                 <MobilePage title={app}>
                   <div>{app}</div>
                   <p>
-                    <HistoryLink to={`${toPath(app)}/page`}>page</HistoryLink>
+                    <HistoryLink to={`${toPath(app)}/Hello`}>Hello</HistoryLink>
                   </p>
                 </MobilePage>
               )}
