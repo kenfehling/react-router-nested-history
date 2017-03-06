@@ -5,8 +5,6 @@ import HistoryStack from '../../../../src/model/HistoryStack'
 declare const describe:any
 declare const it:any
 declare const expect:any
-declare const beforeEach: any
-declare const afterEach:any
 
 describe('PopState action', () => {
   const baseState:IState = fixtures.loadedSimpleState

@@ -1,8 +1,6 @@
 declare const describe:any
 declare const it:any
 declare const expect:any
-declare const beforeEach: any;
-declare const afterEach:any
 import * as utils from '../../../src/util/url'
 
 describe('url utils', () => {

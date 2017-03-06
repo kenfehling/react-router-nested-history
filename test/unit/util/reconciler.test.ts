@@ -1,14 +1,11 @@
 import HistoryStack from '../../../src/model/HistoryStack'
 import Page from '../../../src/model/Page'
-import {diffHistory, diffToSteps} from '../../../src/util/reconciler'
+import {HistoryDiff, diffHistory, diffToSteps} from '../../../src/util/reconciler'
 import BackStep from '../../../src/model/steps/BackStep'
 import PushStep from '../../../src/model/steps/PushStep'
-import HistoryDiff from '../../../src/model/HistoryDiff'
 declare const describe:any
 declare const it:any
 declare const expect:any
-declare const beforeEach: any
-declare const afterEach:any
 
 describe('reconciler', () => {
   const zero:Page = new Page({

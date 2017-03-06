@@ -6,6 +6,7 @@ import IContainer from './interfaces/IContainer'
 import ISubGroup from './interfaces/ISubGroup'
 import Group from './Group'
 import PathTitle from './interfaces/PathTitle'
+import Pages from './Pages'
 
 abstract class IState {
   readonly groups: Group[]
@@ -37,9 +38,7 @@ abstract class IState {
   abstract getContainerLinkUrl(groupName:string, containerName:string):string
   abstract getRootGroupOfGroupByName(name:string):Group
   abstract getRootGroupOfGroup(group:Group):Group
-  abstract push(page:Page):IState
-  abstract get backPage():Page
-  abstract get forwardPage():Page
+  abstract push(page:Page, time:number):IState
   abstract go(n:number, time:number):IState
   abstract goBack(n:number, time:number):IState
   abstract goForward(n:number, time:number):IState
@@ -206,7 +205,6 @@ abstract class IState {
       this.assign({titles: [...this.titles, {pathname, title}]})
   }
 
-
   /**
    * Gets the zero page, or if it's not set defaults to using
    * the initialUrl of the first container in the first group
@@ -214,6 +212,10 @@ abstract class IState {
   getZeroPage():Page {
     return this.zeroPage || Page.createZeroPage(
         this.groups[0].containers[0].initialUrl)
+  }
+
+  get pages():Pages {
+    return new Pages(this.browserHistory.flatten())
   }
 }
 

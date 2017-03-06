@@ -21,13 +21,11 @@ import Startup from '../../../src/model/actions/Startup'
 import {
   createGroup1, createContainers1, createContainers3,
   createContainers2, createGroup2, createGroup3, createSubGroup1,
-  createSubGroup2
+  createSubGroup2, createSubGroup3
 } from '../fixtures'
 declare const describe:any
 declare const it:any
 declare const expect:any
-declare const beforeEach: any
-declare const afterEach:any
 
 describe('action utils', () => {
   const zeroPage:Page = Page.createZeroPage('/zero')
@@ -53,6 +51,7 @@ describe('action utils', () => {
     createGroup1,
     createSubGroup1,
     createSubGroup2,
+    createSubGroup3,
     new CreateContainer({
       groupName: createSubGroup1.name,
       name: 'Container 1',
@@ -81,6 +80,20 @@ describe('action utils', () => {
       initialUrl: '/f',
       patterns: ['/f', '/f/:id'],
       time: 1000
+    }),
+    new CreateContainer({
+      groupName: createSubGroup3.name,
+      name: 'Container 1',
+      initialUrl: '/g',
+      patterns: ['/g', '/g/:id'],
+      time: 1000
+    }),
+    new CreateContainer({
+      groupName: createSubGroup3.name,
+      name: 'Container 2',
+      initialUrl: '/h',
+      patterns: ['/h', '/h/:id'],
+      time: 1000
     })
   ]
 
@@ -107,7 +120,7 @@ describe('action utils', () => {
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 1',
-              firstVisited: 1000
+              lastVisited: 1000
             }))
           ])
         })
@@ -124,15 +137,14 @@ describe('action utils', () => {
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 1',
-              firstVisited: 0,
-              lastVisited: 1000,
+              lastVisited: 1000
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 2',
-              firstVisited: 2000
+              lastVisited: 2000
             }))
           ])
         })
@@ -149,22 +161,21 @@ describe('action utils', () => {
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 1',
-              firstVisited: 0,
-              lastVisited: 1000,
+              lastVisited: 1000
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 2',
-              firstVisited: 1000
+              lastVisited: 1000
             })),
             new PushStep(new Page({
               url: '/b/1',
               params: {id: '1'},
               groupName: 'Group 1',
               containerName: 'Container 2',
-              firstVisited: 1001
+              lastVisited: 1001
             }))
           ])
         })
@@ -199,7 +210,7 @@ describe('action utils', () => {
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 2',
-              firstVisited: 1003
+              lastVisited: 1003
             }))
           ])
         })
@@ -230,7 +241,7 @@ describe('action utils', () => {
         })
 
         describe('back, switch, pop', () => {
-          it('should push forward page then go back to initial', () => {
+          it('should keep tab 1 forward history, but not tab 2', () => {
             const actions:Action[] = [...loadActions,
               new Back({
                 time: 3000
@@ -251,7 +262,7 @@ describe('action utils', () => {
                 params: {id: '1'},
                 groupName: 'Group 1',
                 containerName: 'Container 1',
-                firstVisited: 1000
+                lastVisited: 1000
               })),
               new BackStep()
             ])
@@ -281,8 +292,7 @@ describe('action utils', () => {
                 params: {id: '1'},
                 groupName: 'Group 1',
                 containerName: 'Container 1',
-                firstVisited: 1000,
-                lastVisited: R.last(actions).time + 1
+                lastVisited: 3001
               }))
             ])
           })
@@ -331,7 +341,6 @@ describe('action utils', () => {
                   params: {},
                   groupName: 'Group 2',
                   containerName: 'Container 1',
-                  firstVisited: 1499,
                   lastVisited: 7001
                 })),
                 new PushStep(new Page({
@@ -339,7 +348,7 @@ describe('action utils', () => {
                   params: {id: '1'},
                   groupName: 'Group 2',
                   containerName: 'Container 1',
-                  firstVisited: 1500
+                  lastVisited: 1500
                 })),
                 new BackStep()
               ])
@@ -363,7 +372,7 @@ describe('action utils', () => {
               params: {},
               groupName: createSubGroup1.name,
               containerName: createContainers1[0].name,
-              firstVisited: 1000
+              lastVisited: 1000
             })),
           ])
         })
@@ -380,15 +389,14 @@ describe('action utils', () => {
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
-              firstVisited: 0,
-              lastVisited: 1000,
+              lastVisited: 1000
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
-              firstVisited: 1001
+              lastVisited: 1001
             }))
           ])
         })
@@ -405,22 +413,21 @@ describe('action utils', () => {
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
-              firstVisited: 0,
-              lastVisited: 1000,
+              lastVisited: 1000
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
-              firstVisited: 1000
+              lastVisited: 1000
             })),
             new PushStep(new Page({
               url: '/b/1',
               params: {id: '1'},
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
-              firstVisited: 1001
+              lastVisited: 1001
             }))
           ])
         })
@@ -453,8 +460,52 @@ describe('action utils', () => {
               params: {id: '1'},
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
-              firstVisited: 1000,
-              lastVisited: R.last(actions).time + 1
+              lastVisited: 3001
+            }))
+          ])
+        })
+      })
+    })
+
+    describe('inter-container history (mobile)', () => {
+      describe('after switch container', () => {
+        const switchActions:Action[] = [...originalNestedActions,
+          new LoadFromUrl({
+            url: '/g/1',
+            time: 1000
+          }),
+          new SwitchToContainer({
+            groupName: createSubGroup3.name,
+            name: 'Container 2',
+            time: 2000
+          })
+        ]
+
+        it('removes forward history after going back to default screen', () => {
+          const actions:Action[] = [...switchActions,
+            new Push({
+              groupName: createSubGroup3.name,
+              containerName: 'Container 2',
+              url: '/h/1',
+              time: 3000
+            }),
+            new PopState({
+              n: -1,
+              time: 4000
+            }),
+            new PopState({
+              n: -1,
+              time: 5000
+            })
+          ]
+          expect(createStepsSince(actions, 4000)).toEqual([
+            new BackStep(),
+            new PushStep(new Page({
+              url: '/g/1',
+              params: {id: '1'},
+              groupName: createSubGroup3.name,
+              containerName: 'Container 1',
+              lastVisited: 5001
             }))
           ])
         })

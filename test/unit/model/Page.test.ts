@@ -2,8 +2,6 @@ import Page from '../../../src/model/Page'
 declare const describe:any
 declare const it:any
 declare const expect:any
-declare const beforeEach: any
-declare const afterEach:any
 
 describe('Page', () => {
   let page:Page = new Page({

@@ -8,23 +8,25 @@ import InitializedState from '../../src/model/InitializedState'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
 import Page from '../../src/model/Page'
 
-const TIME:number = 1000
-
-export const createPage = (url:string) => new Page({
+export const createPage = (url:string, firstVisited?:number,
+                           lastVisited?:number) => new Page({
   url,
   params: {},
   groupName: 'Group 1',
   containerName: 'Container 1',
-  firstVisited: 1000
+  firstVisited,
+  lastVisited
 })
 
 const createCreateGroup = (name:string):CreateGroup =>
-    new CreateGroup({name, time: TIME})
+    new CreateGroup({name, time: 500})
 
 const createCreateSubGroup =
-  ({name, parentGroupName, isDefault=false}:
-  {name:string, parentGroupName:string, isDefault?:boolean}):CreateGroup =>
-    new CreateGroup({name, parentGroupName, isDefault, time: TIME})
+  ({name, parentGroupName, isDefault=false, allowInterContainerHistory=false}:
+  {name:string, parentGroupName:string, isDefault?:boolean,
+    allowInterContainerHistory?: boolean}):CreateGroup =>
+    new CreateGroup({name, parentGroupName, isDefault,
+      allowInterContainerHistory, time: 750})
 
 const createCreateContainers =
   ({groupName, initialUrls, useDefault=false, resetOnLeave=false}:
@@ -37,7 +39,7 @@ const createCreateContainers =
       patterns: [initialUrl, `${initialUrl}/:id`, `${initialUrl}/:id/:name`],
       isDefault: useDefault && i === 0,
       resetOnLeave,
-      time: TIME
+      time: 1000 + i
     }))
 
 export const createGroup1:CreateGroup = createCreateGroup('Group 1')
@@ -46,13 +48,18 @@ export const createGroup3:CreateGroup = createCreateGroup('Group 3')
 
 export const createSubGroup1:CreateGroup = createCreateSubGroup({
   name: 'SubGroup 1',
-  parentGroupName: 'Group 1',
-  isDefault: true
+  parentGroupName: 'Group 1'
 })
 
 export const createSubGroup2:CreateGroup = createCreateSubGroup({
   name: 'SubGroup 2',
   parentGroupName: 'Group 1',
+})
+
+export const createSubGroup3:CreateGroup = createCreateSubGroup({
+  name: 'SubGroup 3',
+  parentGroupName: 'Group 1',
+  allowInterContainerHistory: true
 })
 
 export const createContainers1:CreateContainer[] = createCreateContainers({
@@ -68,7 +75,7 @@ export const createContainers2:CreateContainer[] = createCreateContainers({
 
 export const createContainers3:CreateContainer[] = createCreateContainers({
   groupName: 'Group 3',
-  initialUrls: ['/j', '/k'],
+  initialUrls: ['/g', '/h'],
   useDefault: true,
   resetOnLeave: true
 })
@@ -77,7 +84,7 @@ const group1:Group = new Group({
   name: 'Group 1',
   containers: [
     new Container({
-      time: TIME,
+      time: 1000,
       name: 'Container 1',
       groupName: 'Group 1',
       initialUrl: '/a',
@@ -85,14 +92,14 @@ const group1:Group = new Group({
       isDefault: true
     }),
     new Container({
-      time: TIME,
+      time: 1001,
       name: 'Container 2',
       groupName: 'Group 1',
       initialUrl: '/b',
       patterns: ['/b', '/b/:id']
     }),
     new Container({
-      time: TIME,
+      time: 1002,
       name: 'Container 3',
       groupName: 'Group 1',
       initialUrl: '/c',
@@ -105,14 +112,14 @@ const group2:Group = new Group({
   name: 'Group 2',
   containers: [
     new Container({
-      time: TIME,
+      time: 1003,
       name: 'Container 1',
       groupName: 'Group 2',
       initialUrl: '/e',
       patterns: ['/e', '/e/:id'],
     }),
     new Container({
-      time: TIME,
+      time: 1004,
       name: 'Container 2',
       groupName: 'Group 2',
       initialUrl: '/f',
@@ -125,18 +132,18 @@ const group3:Group = new Group({
   name: 'Group 3',
   containers: [
     new Container({
-      time: TIME,
+      time: 1005,
       name: 'Container 1',
       groupName: 'Group 3',
       initialUrl: '/g',
-      patterns: ['/g', '/a/:id']
+      patterns: ['/g', '/g/:id']
     }),
     new Container({
-      time: TIME,
+      time: 1006,
       name: 'Container 2',
       groupName: 'Group 3',
       initialUrl: '/h',
-      patterns: ['/h', '/a/1'],
+      patterns: ['/h', '/h/:id'],
     })
   ]
 })
@@ -147,8 +154,7 @@ export const simpleState = new UninitializedState({
 
 const nestedGroup1 = new Group({
   ...Object(group1),
-  parentGroupName: 'Nested Group 1',
-  isDefault: true
+  parentGroupName: 'Nested Group 1'
 })
 
 const nestedGroup2 = new Group({
@@ -171,13 +177,12 @@ export const nestedState = new UninitializedState({
         nestedGroup2 as ISubGroup,
         nestedGroup3 as ISubGroup
       ]
-    }),
-    group3
+    })
   ]
 })
 
 export const loadedSimpleState:InitializedState =
-  new LoadFromUrl({url: '/a', time: TIME}).reduce(simpleState)
+    new LoadFromUrl({url: '/a', time: 1250}).reduce(simpleState)
 
 export const loadedNestedState:InitializedState =
-    new LoadFromUrl({url: '/a', time: TIME}).reduce(nestedState)
+    new LoadFromUrl({url: '/a', time: 1250}).reduce(nestedState)

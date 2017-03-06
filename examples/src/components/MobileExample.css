@@ -46,7 +46,7 @@
   padding: 0 5px;
   border-bottom: #a8a79e;
   display: flex;
-  line-height: 38px;
+  line-height: 37px;
 }
 
 .phone .mobile-page .nav .back {
@@ -79,7 +79,7 @@
   margin: 0;
   text-align: center;
   font-size: inherit;
-  line-height: 37px;
+  line-height: 36px;
 }
 
 .phone .mobile-page .content {

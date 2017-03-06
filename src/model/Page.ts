@@ -1,9 +1,8 @@
-import Comparable from './interfaces/Comparable'
 import {Serializable} from '../util/serializer'
 import * as R from 'ramda'
 
 @Serializable
-export default class Page implements Comparable {
+export default class Page {
   static readonly type: string = 'Page'
   readonly type: string = Page.type
   readonly url: string
@@ -15,13 +14,13 @@ export default class Page implements Comparable {
   readonly isZeroPage: boolean
 
   constructor({url, params, groupName, containerName,
-      firstVisited=0, lastVisited=0, isZeroPage=false}:
+      firstVisited=0, lastVisited=firstVisited, isZeroPage=false}:
       {url:string, params:Object, groupName:string, containerName:string,
         firstVisited?:number, lastVisited?:number, isZeroPage?:boolean}) {
     this.url = url
     this.params = params
     this.firstVisited = firstVisited
-    this.lastVisited = Math.max(firstVisited, lastVisited)
+    this.lastVisited = lastVisited
     this.containerName = containerName
     this.groupName = groupName
     this.isZeroPage = isZeroPage
@@ -33,7 +32,8 @@ export default class Page implements Comparable {
       params: {},
       groupName: '',
       containerName: '',
-      isZeroPage: true
+      isZeroPage: true,
+      firstVisited: -1
     })
   }
 
@@ -49,13 +49,8 @@ export default class Page implements Comparable {
   touch(time:number):Page {
     return new Page({
       ...Object(this),
-      firstVisited: this.firstVisited === 0 ? time : this.firstVisited,
       lastVisited: time
     })
-  }
-
-  compareTo(other:Page):number {
-    return other.lastVisited - this.lastVisited
   }
 
   equals(other:Page):boolean {

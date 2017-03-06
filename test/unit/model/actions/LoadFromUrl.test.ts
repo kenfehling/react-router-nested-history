@@ -5,8 +5,6 @@ import LoadFromUrl from '../../../../src/model/actions/LoadFromUrl'
 declare const describe:any
 declare const it:any
 declare const expect:any
-declare const beforeEach: any
-declare const afterEach:any
 
 describe('LoadFromUrl', () => {
   const state:UninitializedState = fixtures.simpleState

@@ -6,6 +6,7 @@ import IState from './IState'
 import HistoryStack from './HistoryStack'
 import Container from './Container'
 import IGroupContainer from './interfaces/IGroupContainer'
+import Pages from './Pages'
 
 export default class InitializedState extends IState {
 
@@ -22,14 +23,6 @@ export default class InitializedState extends IState {
       {groupName:string, name:string, time:number}):IState {
     const group:Group = this.getGroupByName(groupName)
     return this.replaceGroup(group.activateContainer(name, time))
-  }
-
-  get backPage():Page {
-    return this.activeGroup.backPage
-  }
-
-  get forwardPage():Page {
-    return this.activeGroup.forwardPage
   }
 
   go(n:number, time:number):IState {
@@ -80,11 +73,11 @@ export default class InitializedState extends IState {
   }
 
   getShiftAmount(page:Page):number {
-    return this.browserHistory.getShiftAmount(page)
+    return this.pages.getShiftAmount(page)
   }
 
   containsPage(page:Page):boolean {
-    return this.browserHistory.containsPage(page)
+    return this.pages.containsPage(page)
   }
 
   getRootGroupOfGroupByName(name:string):Group {
@@ -101,9 +94,13 @@ export default class InitializedState extends IState {
     return this.getRootGroupOfGroupByName(group.name)
   }
 
-  push(page:Page):IState {
+  push(page:Page, time:number):IState {
+
+
+    console.trace(page.url + ' ' + time)
+
     const group:Group = this.getRootGroupOfGroupByName(page.groupName)
-    return this.replaceGroup(group.push(page))
+    return this.replaceGroup(group.push(page, time))
   }
 
   getContainerLinkUrl(groupName:string, containerName:string):string {
@@ -130,11 +127,11 @@ export default class InitializedState extends IState {
   }
 
   get groupStackOrder():Group[] {
-    return R.sort((g1, g2) => g1.compareTo(g2), this.groups)
+    return R.sort((g1, g2) => g2.lastVisited - g2.lastVisited, this.groups)
   }
 
   getBackPageInGroup(groupName:string):Page {
-    return this.getGroupByName(groupName).backPage
+    return this.getGroupByName(groupName).getBackPage()
   }
 
   getActiveContainerNameInGroup(groupName:string):string {

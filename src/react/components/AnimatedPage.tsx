@@ -32,8 +32,8 @@ enum LifecycleStage {
 }
 
 enum Side {
-  LEFT = -110,
-  RIGHT = 110
+  LEFT = -100,
+  RIGHT = 100
 }
 
 class Transition {

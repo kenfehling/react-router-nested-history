@@ -2,7 +2,6 @@ import IState from './IState'
 import IContainer from './interfaces/IContainer'
 import Page from './Page'
 import Group from './Group'
-import Container from './Container'
 import HistoryStack from './HistoryStack'
 
 const UNINITIALIZED_MESSAGE:string = 'State is uninitialized'
@@ -19,14 +18,6 @@ export default class UninitializedState extends IState {
 
   switchToContainer({groupName, name, time}:
     {groupName:string, name:string, time:number}):IState {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
-  get backPage():Page {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
-  get forwardPage():Page {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -76,7 +67,7 @@ export default class UninitializedState extends IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  push(page:Page):IState {
+  push(page:Page, time:number):IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

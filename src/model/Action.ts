@@ -1,10 +1,9 @@
 import IState from './IState'
-import Comparable from './interfaces/Comparable'
 import Step from './interfaces/Step'
 import {diffStateToSteps} from '../util/reconciler'
 import {ISerializable, Serializable} from '../util/serializer'
 
-abstract class Action implements Comparable, ISerializable {
+abstract class Action implements ISerializable {
   abstract readonly type: string
   readonly time: number
   readonly origin: Origin
@@ -55,10 +54,6 @@ abstract class Action implements Comparable, ISerializable {
 
   updateAfterRefresh<A extends Action>(time:number):A {
     return this.constructor({...Object(this), time}) as A
-  }
-
-  compareTo(other:Action):number {
-    return other.time - this.time
   }
 }
 
