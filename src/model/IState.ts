@@ -29,6 +29,7 @@ abstract class IState {
   }
 
   abstract assign(obj:Object):IState
+  abstract get pages():Pages
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):IState
 
@@ -40,8 +41,8 @@ abstract class IState {
   abstract getRootGroupOfGroup(group:Group):Group
   abstract push(page:Page, time:number):IState
   abstract go(n:number, time:number):IState
-  abstract goBack(n:number, time:number):IState
-  abstract goForward(n:number, time:number):IState
+  abstract back(n:number, time:number):IState
+  abstract forward(n:number, time:number):IState
   abstract canGoBack(n:number):boolean
   abstract canGoForward(n:number):boolean
   abstract isContainerAtTopPage(groupName:string, containerName:string):boolean
@@ -54,7 +55,7 @@ abstract class IState {
   abstract containsPage(page:Page):boolean
   protected abstract getHistory(maintainFwd:boolean):HistoryStack
   abstract get groupStackOrder():Group[]
-  abstract getBackPageInGroup(groupName:string)
+  abstract getBackPageInGroup(groupName:string):Page|undefined
   abstract getActiveContainerNameInGroup(groupName:string)
   abstract getActiveContainerIndexInGroup(groupName:string)
   abstract getActivePageInGroup(groupName:string):Page
@@ -212,10 +213,6 @@ abstract class IState {
   getZeroPage():Page {
     return this.zeroPage || Page.createZeroPage(
         this.groups[0].containers[0].initialUrl)
-  }
-
-  get pages():Pages {
-    return new Pages(this.browserHistory.flatten())
   }
 }
 

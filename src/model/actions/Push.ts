@@ -33,7 +33,7 @@ export default class Push extends Action {
       containerName: this.containerName,
       lastVisited: this.time
     })
-    return state.push(page)
+    return state.push(page, this.time)
   }
 
   filter(state:IState):Action[] {

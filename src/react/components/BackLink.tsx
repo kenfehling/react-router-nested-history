@@ -27,7 +27,7 @@ type BackLinkPropsWithStore = BackLinkProps & {
 type ConnectedBackLinkProps = BackLinkPropsWithStore & {
   isInitialized: boolean
   backPage: Page|null
-  goBack: () => void
+  back: () => void
 
 }
 
@@ -46,8 +46,8 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   */
 
   onClick(event) {
-    const {goBack} = this.props
-    goBack()
+    const {back} = this.props
+    back()
     event.stopPropagation()
     event.preventDefault()
   }
@@ -89,7 +89,7 @@ const mapStateToProps = ({state}:IUpdateData,
 
 const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
                             ownProps:BackLinkPropsWithStore) => ({
-  goBack: () => {
+  back: () => {
     dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
     dispatch(new Back())
   }

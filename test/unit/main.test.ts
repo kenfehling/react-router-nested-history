@@ -22,9 +22,9 @@ import ClearActions from '../../src/model/actions/ClearActions'
 import SwitchToGroup from '../../src/model/actions/SwitchToGroup'
 import {runSteps} from '../../src/util/stepRunner'
 import InitializedState from '../../src/model/InitializedState'
+import {expect} from 'chai'
 declare const describe:any
 declare const it:any
-declare const expect:any
 declare const beforeEach:any
 declare const afterEach:any
 
@@ -64,7 +64,7 @@ describe('main', () => {
         })
       ])
       store = createStore()
-      expect(store.getState().actions.length).toBe(0)
+      expect(store.getState().actions.length).to.equal(0)
     })
 
     it('loads to a non-default page', () => {
@@ -81,19 +81,19 @@ describe('main', () => {
       const state:IState = store.getState().state
       const group = state.groups[0]
 
-      expect(group.containers[0].history.back.length).toBe(1);
-      expect(group.containers[0].history.back[0].url).toBe('/a');
-      expect(group.containers[0].history.current.url).toBe('/a/1');
-      expect(group.containers[0].history.forward.length).toBe(0)
+      expect(group.containers[0].history.back.length).to.equal(1);
+      expect(group.containers[0].history.back[0].url).to.equal('/a');
+      expect(group.containers[0].history.current.url).to.equal('/a/1');
+      expect(group.containers[0].history.forward.length).to.equal(0)
 
-      expect(group.history.back.length).toBe(1);
-      expect(group.history.back[0].url).toBe('/a');
-      expect(group.history.current.url).toBe('/a/1');
-      expect(group.history.forward.length).toBe(0)
+      expect(group.history.back.length).to.equal(1);
+      expect(group.history.back[0].url).to.equal('/a');
+      expect(group.history.current.url).to.equal('/a/1');
+      expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(2);
-      expect(state.browserHistory.current.url).toBe('/a/1');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(2);
+      expect(state.browserHistory.current.url).to.equal('/a/1');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
 
     it('switches to container', () => {
@@ -115,27 +115,27 @@ describe('main', () => {
       const state:IState = store.getState().state
       const group = state.groups[0]
 
-      expect(group.containers[0].history.back.length).toBe(1);
-      expect(group.containers[0].history.back[0].url).toBe('/a');
-      expect(group.containers[0].history.current.url).toBe('/a/1');
-      expect(group.containers[0].history.forward.length).toBe(0)
+      expect(group.containers[0].history.back.length).to.equal(1);
+      expect(group.containers[0].history.back[0].url).to.equal('/a');
+      expect(group.containers[0].history.current.url).to.equal('/a/1');
+      expect(group.containers[0].history.forward.length).to.equal(0)
 
-      expect(group.containers[1].history.back.length).toBe(0);
-      expect(group.containers[1].history.current.url).toBe('/b');
-      expect(group.containers[1].history.forward.length).toBe(0)
+      expect(group.containers[1].history.back.length).to.equal(0);
+      expect(group.containers[1].history.current.url).to.equal('/b');
+      expect(group.containers[1].history.forward.length).to.equal(0)
 
-      expect(group.history.back.length).toBe(2);
-      expect(group.history.back[0].url).toBe('/a');
-      expect(group.history.back[1].url).toBe('/a/1');
-      expect(group.history.current.url).toBe('/b');
-      expect(group.history.forward.length).toBe(0)
+      expect(group.history.back.length).to.equal(2);
+      expect(group.history.back[0].url).to.equal('/a');
+      expect(group.history.back[1].url).to.equal('/a/1');
+      expect(group.history.current.url).to.equal('/b');
+      expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(3);
-      expect(state.browserHistory.back[0].url).toBe('/a');
-      expect(state.browserHistory.back[1].url).toBe('/a');
-      expect(state.browserHistory.back[2].url).toBe('/a/1');
-      expect(state.browserHistory.current.url).toBe('/b');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(3);
+      expect(state.browserHistory.back[0].url).to.equal('/a');
+      expect(state.browserHistory.back[1].url).to.equal('/a');
+      expect(state.browserHistory.back[2].url).to.equal('/a/1');
+      expect(state.browserHistory.current.url).to.equal('/b');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
 
     it('switches to container with resetOnLeave', () => {
@@ -169,22 +169,22 @@ describe('main', () => {
       const state:IState = store.getState().state
       const group = state.groups[0]
 
-      expect(group.containers[0].history.back.length).toBe(0);
-      expect(group.containers[0].history.current.url).toBe('/j');
-      expect(group.containers[0].history.forward.length).toBe(0)
+      expect(group.containers[0].history.back.length).to.equal(0);
+      expect(group.containers[0].history.current.url).to.equal('/j');
+      expect(group.containers[0].history.forward.length).to.equal(0)
 
-      expect(group.containers[1].history.back.length).toBe(0);
-      expect(group.containers[1].history.current.url).toBe('/k');
-      expect(group.containers[1].history.forward.length).toBe(0)
+      expect(group.containers[1].history.back.length).to.equal(0);
+      expect(group.containers[1].history.current.url).to.equal('/k');
+      expect(group.containers[1].history.forward.length).to.equal(0)
 
-      expect(group.history.back.length).toBe(1);
-      expect(group.history.back[0].url).toBe('/j');
-      expect(group.history.current.url).toBe('/k');
-      expect(group.history.forward.length).toBe(0)
+      expect(group.history.back.length).to.equal(1);
+      expect(group.history.back[0].url).to.equal('/j');
+      expect(group.history.current.url).to.equal('/k');
+      expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(2);
-      expect(state.browserHistory.current.url).toBe('/k');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(2);
+      expect(state.browserHistory.current.url).to.equal('/k');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
     
     it('pushes in a different group', () => {
@@ -208,23 +208,23 @@ describe('main', () => {
       const state:IState = store.getState().state
       const groups = state.groups
 
-      expect(groups[0].containers[0].history.back.length).toBe(0);
-      expect(groups[0].containers[0].history.current.url).toBe('/a');
-      expect(groups[0].containers[0].history.forward.length).toBe(0)
+      expect(groups[0].containers[0].history.back.length).to.equal(0);
+      expect(groups[0].containers[0].history.current.url).to.equal('/a');
+      expect(groups[0].containers[0].history.forward.length).to.equal(0)
 
-      expect(groups[1].containers[0].history.back.length).toBe(1);
-      expect(groups[1].containers[0].history.back[0].url).toBe('/e');
-      expect(groups[1].containers[0].history.current.url).toBe('/e/1');
-      expect(groups[1].containers[0].history.forward.length).toBe(0)
+      expect(groups[1].containers[0].history.back.length).to.equal(1);
+      expect(groups[1].containers[0].history.back[0].url).to.equal('/e');
+      expect(groups[1].containers[0].history.current.url).to.equal('/e/1');
+      expect(groups[1].containers[0].history.forward.length).to.equal(0)
 
-      expect(groups[1].history.back.length).toBe(1);
-      expect(groups[1].history.back[0].url).toBe('/e');
-      expect(groups[1].history.current.url).toBe('/e/1');
-      expect(groups[1].history.forward.length).toBe(0)
+      expect(groups[1].history.back.length).to.equal(1);
+      expect(groups[1].history.back[0].url).to.equal('/e');
+      expect(groups[1].history.current.url).to.equal('/e/1');
+      expect(groups[1].history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(2);
-      expect(state.browserHistory.current.url).toBe('/e/1');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(2);
+      expect(state.browserHistory.current.url).to.equal('/e/1');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
 
     it('handles popstate after container switch', () => {
@@ -250,25 +250,25 @@ describe('main', () => {
       const state:IState = store.getState().state
       const group = state.groups[0]
 
-      expect(group.containers[0].history.back.length).toBe(1);
-      expect(group.containers[0].history.back[0].url).toBe('/a');
-      expect(group.containers[0].history.current.url).toBe('/a/1');
-      expect(group.containers[0].history.forward.length).toBe(0)
+      expect(group.containers[0].history.back.length).to.equal(1);
+      expect(group.containers[0].history.back[0].url).to.equal('/a');
+      expect(group.containers[0].history.current.url).to.equal('/a/1');
+      expect(group.containers[0].history.forward.length).to.equal(0)
 
-      expect(group.containers[1].history.back.length).toBe(0);
-      expect(group.containers[1].history.current.url).toBe('/b');
-      expect(group.containers[1].history.forward.length).toBe(0)
+      expect(group.containers[1].history.back.length).to.equal(0);
+      expect(group.containers[1].history.current.url).to.equal('/b');
+      expect(group.containers[1].history.forward.length).to.equal(0)
 
-      expect(group.history.back.length).toBe(1);
-      expect(group.history.back[0].url).toBe('/a');
-      expect(group.history.current.url).toBe('/a/1');
-      expect(group.history.forward.length).toBe(0)
+      expect(group.history.back.length).to.equal(1);
+      expect(group.history.back[0].url).to.equal('/a');
+      expect(group.history.current.url).to.equal('/a/1');
+      expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(2);
-      expect(state.browserHistory.back[0].url).toBe('/a');
-      expect(state.browserHistory.back[1].url).toBe('/a');
-      expect(state.browserHistory.current.url).toBe('/a/1');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(2);
+      expect(state.browserHistory.back[0].url).to.equal('/a');
+      expect(state.browserHistory.back[1].url).to.equal('/a');
+      expect(state.browserHistory.current.url).to.equal('/a/1');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
   })
 
@@ -313,10 +313,10 @@ describe('main', () => {
           url: '/a',
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(2)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(index).toBe(1)
+        expect(entries.length).to.equal(2)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(index).to.equal(1)
       })
     })
 
@@ -335,10 +335,10 @@ describe('main', () => {
           time: 2000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(2)
-        expect(index).toBe(1)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
+        expect(entries.length).to.equal(2)
+        expect(index).to.equal(1)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
       })
     })
 
@@ -362,7 +362,7 @@ describe('main', () => {
           time: 3000,
         }),
       ]).then(({entries}) => {
-        expect(entries.length).toBe(0)
+        expect(entries.length).to.equal(0)
       })
     })
     */
@@ -386,11 +386,11 @@ describe('main', () => {
           time: 2000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(3)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(entries[2].pathname).toBe('/a/1')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(3)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(entries[2].pathname).to.equal('/a/1')
+        expect(index).to.equal(2)
       })
     })
 
@@ -418,11 +418,11 @@ describe('main', () => {
           time: 4
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(3)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(entries[2].pathname).toBe('/a/1')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(3)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(entries[2].pathname).to.equal('/a/1')
+        expect(index).to.equal(2)
       })
     })
     */
@@ -454,12 +454,12 @@ describe('main', () => {
           time: 3000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(4)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(entries[2].pathname).toBe('/b')
-        expect(entries[3].pathname).toBe('/b/1')
-        expect(index).toBe(3)
+        expect(entries.length).to.equal(4)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(entries[2].pathname).to.equal('/b')
+        expect(entries[3].pathname).to.equal('/b/1')
+        expect(index).to.equal(3)
       })
     })
 
@@ -491,11 +491,11 @@ describe('main', () => {
           time: 3000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(3)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/e')
-        expect(entries[2].pathname).toBe('/e/1')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(3)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/e')
+        expect(entries[2].pathname).to.equal('/e/1')
+        expect(index).to.equal(2)
       })
     })
 
@@ -533,12 +533,12 @@ describe('main', () => {
           time: 4000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(4)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(entries[2].pathname).toBe('/a/1')
-        expect(entries[3].pathname).toBe('/a/2')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(4)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(entries[2].pathname).to.equal('/a/1')
+        expect(entries[3].pathname).to.equal('/a/2')
+        expect(index).to.equal(2)
       })
     })
 
@@ -586,11 +586,11 @@ describe('main', () => {
           time: 5000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(3)
-        expect(entries[0].pathname).toBe('/j')  // zero page
-        expect(entries[1].pathname).toBe('/j')
-        expect(entries[2].pathname).toBe('/k')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(3)
+        expect(entries[0].pathname).to.equal('/j')  // zero page
+        expect(entries[1].pathname).to.equal('/j')
+        expect(entries[2].pathname).to.equal('/k')
+        expect(index).to.equal(2)
       })
     })
 
@@ -629,9 +629,9 @@ describe('main', () => {
             time: 4000
           })
         ]).then(({entries, index}) => {
-          expect(entries.length).toBe(1)
-          expect(entries[0].pathname).toBe('/a/2')
-          expect(index).toBe(0)
+          expect(entries.length).to.equal(1)
+          expect(entries[0].pathname).to.equal('/a/2')
+          expect(index).to.equal(0)
         })
       })
     })
@@ -663,11 +663,11 @@ describe('main', () => {
             time: 3000
           })
         ]).then(({entries, index}) => {
-          expect(entries.length).toBe(3)
-          expect(entries[0].pathname).toBe('/a')  // zero page
-          expect(entries[1].pathname).toBe('/a')
-          expect(entries[2].pathname).toBe('/a/1')
-          expect(index).toBe(2)
+          expect(entries.length).to.equal(3)
+          expect(entries[0].pathname).to.equal('/a')  // zero page
+          expect(entries[1].pathname).to.equal('/a')
+          expect(entries[2].pathname).to.equal('/a/1')
+          expect(index).to.equal(2)
         })
       })
 
@@ -696,11 +696,11 @@ describe('main', () => {
             time: 3000
           })
         ]).then(({entries, index}) => {
-          expect(entries.length).toBe(3)
-          expect(entries[0].pathname).toBe('/a')  // zero page
-          expect(entries[1].pathname).toBe('/a')
-          expect(entries[2].pathname).toBe('/b')
-          expect(index).toBe(2)
+          expect(entries.length).to.equal(3)
+          expect(entries[0].pathname).to.equal('/a')  // zero page
+          expect(entries[1].pathname).to.equal('/a')
+          expect(entries[2].pathname).to.equal('/b')
+          expect(index).to.equal(2)
         })
       })
     })

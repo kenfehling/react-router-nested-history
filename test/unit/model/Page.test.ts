@@ -1,7 +1,7 @@
 import Page from '../../../src/model/Page'
+import {expect} from 'chai'
 declare const describe:any
 declare const it:any
-declare const expect:any
 
 describe('Page', () => {
   let page:Page = new Page({
@@ -14,7 +14,7 @@ describe('Page', () => {
 
   describe('touch', () => {
     it('updates lastVisited', () => {
-      expect(page.touch(1).lastVisited).toEqual(1)
+      expect(page.touch(1).lastVisited).to.equal(1)
     })
   })
 })

@@ -3,9 +3,9 @@ import Page from '../../../src/model/Page'
 import {HistoryDiff, diffHistory, diffToSteps} from '../../../src/util/reconciler'
 import BackStep from '../../../src/model/steps/BackStep'
 import PushStep from '../../../src/model/steps/PushStep'
+import {expect} from 'chai'
 declare const describe:any
 declare const it:any
-declare const expect:any
 
 describe('reconciler', () => {
   const zero:Page = new Page({
@@ -47,7 +47,7 @@ describe('reconciler', () => {
         current: a,
         forward: [b]
       })
-      expect(diffHistory(h1, h1)).toEqual(new HistoryDiff({
+      expect(diffHistory(h1, h1)).to.equal(new HistoryDiff({
         same: [zero, a, b],
         oldCurrentIndex: 1,
         newCurrentIndex: 1
@@ -65,7 +65,7 @@ describe('reconciler', () => {
         current: b,
         forward: []
       })
-      expect(diffHistory(h1, h2)).toEqual(new HistoryDiff({
+      expect(diffHistory(h1, h2)).to.equal(new HistoryDiff({
         same: [zero, a],
         added: [b],
         oldCurrentIndex: 1,
@@ -79,7 +79,7 @@ describe('reconciler', () => {
         current: a,
         forward: []
       })
-      expect(diffHistory(null, h2)).toEqual(new HistoryDiff({
+      expect(diffHistory(null, h2)).to.equal(new HistoryDiff({
         added: [zero, a],
         oldCurrentIndex: 0,
         newCurrentIndex: 1
@@ -97,7 +97,7 @@ describe('reconciler', () => {
         current: a1,
         forward: []
       })
-      expect(diffHistory(h1, h2)).toEqual(new HistoryDiff({
+      expect(diffHistory(h1, h2)).to.equal(new HistoryDiff({
         same: [zero, a, a1],
         removed: [b],
         oldCurrentIndex: 2,
@@ -114,7 +114,7 @@ describe('reconciler', () => {
         oldCurrentIndex: 2,
         newCurrentIndex: 2
       })
-      expect(diffToSteps(diff)).toEqual([
+      expect(diffToSteps(diff)).to.equal([
         new BackStep(),
         new PushStep(a1)
       ])
@@ -128,7 +128,7 @@ describe('reconciler', () => {
         oldCurrentIndex: 1,
         newCurrentIndex: 2
       })
-      expect(diffToSteps(diff)).toEqual([
+      expect(diffToSteps(diff)).to.equal([
         new PushStep(b)
       ])
     })
@@ -141,7 +141,7 @@ describe('reconciler', () => {
         oldCurrentIndex: 1,
         newCurrentIndex: 2
       })
-      expect(diffToSteps(diff)).toEqual([
+      expect(diffToSteps(diff)).to.equal([
         new PushStep(b)
       ])
     })

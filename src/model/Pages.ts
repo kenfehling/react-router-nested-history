@@ -53,6 +53,7 @@ export default class Pages implements IHistory {
     const index:number = this.activeIndex + 1
     const newPage:Page = new Page({
       ...Object(page),
+      createdAt: time,
       firstVisited: time,
       lastVisited: time
     })
@@ -91,18 +92,19 @@ export default class Pages implements IHistory {
     const oldIndex:number = this.activeIndex
     const newIndex:number = oldIndex + n
     if (newIndex < 0 || newIndex >= this.pages.length) {
-      throw new Error(`Can't go ${n}, size = ${this.pages.length}, index = ${oldIndex}`)
+      throw new Error(
+          `Can't go ${n}, size = ${this.pages.length}, index = ${oldIndex}`)
     }
     else {
       return this.touchPageAtIndex(newIndex, time)
     }
   }
 
-  goBack(n:number=1, time:number):Pages {
+  back(n:number=1, time:number):Pages {
     return this.go(0 - n, time)
   }
 
-  goForward(n:number=1, time:number):Pages {
+  forward(n:number=1, time:number):Pages {
     return this.go(n, time)
   }
 
@@ -114,11 +116,27 @@ export default class Pages implements IHistory {
     return this.pages.length - this.activeIndex > n
   }
 
-  getBackPage(n:number=1):Page {
+  get backPages():Page[] {
+    return this.pages.slice(0, this.activeIndex)
+  }
+
+  get forwardPages():Page[] {
+    return this.pages.slice(this.activeIndex + 1)
+  }
+
+  get backLength():number {
+    return this.activeIndex
+  }
+
+  get forwardLength():number {
+    return this.length - this.activeIndex - 1
+  }
+
+  getBackPage(n:number=1):Page|undefined {
     return this.pages[this.activeIndex - n]
   }
 
-  getForwardPage(n:number=1):Page {
+  getForwardPage(n:number=1):Page|undefined {
     return this.pages[this.activeIndex + n]
   }
 
@@ -133,8 +151,7 @@ export default class Pages implements IHistory {
   get activeIndex():number {
     const current:Page = this.activePage
     const firstVisited:Page[] = this.byFirstVisited
-    const i:number = R.findIndex(p => p === current, firstVisited)
-    return i === -1 ? 0 : i
+    return R.findIndex(p => p === current, firstVisited)
   }
 
   get lastVisited():number {
@@ -149,11 +166,24 @@ export default class Pages implements IHistory {
     return this.pages.length
   }
 
+  static compareByFirstVisited(p1:Page, p2:Page):number {
+    if (p1.firstVisited === p2.firstVisited) {
+      return p1.createdAt - p2.createdAt
+    }
+    else {
+      return p1.firstVisited - p2.firstVisited
+    }
+  }
+
+  static compareByLastVisited(p1:Page, p2:Page):number {
+    return p2.lastVisited - p1.lastVisited
+  }
+
   private get byFirstVisited():Page[] {
-    return R.sort((p1, p2) => p1.firstVisited - p2.firstVisited, this.pages)
+    return R.sort(Pages.compareByFirstVisited, this.pages)
   }
 
   private get byLastVisited():Page[] {
-    return R.sort((p1, p2) => p2.lastVisited - p1.lastVisited, this.pages)
+    return R.sort(Pages.compareByLastVisited, this.pages)
   }
 }

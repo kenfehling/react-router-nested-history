@@ -40,7 +40,8 @@ export default class Container implements IContainer {
         url: initialUrl,
         params: parseParamsFromPatterns(patterns, initialUrl),
         containerName: name,
-        groupName
+        groupName,
+        createdAt: time
       })
     ])
   }
@@ -84,8 +85,7 @@ export default class Container implements IContainer {
         url,
         params: parseParamsFromPatterns(this.patterns, url),
         containerName: this.name,
-        groupName: this.groupName,
-        firstVisited: time
+        groupName: this.groupName
       })
       return this.push(page, time)
     }
@@ -93,7 +93,7 @@ export default class Container implements IContainer {
 
   loadFromUrl(url:string, time:number):Container {
     if (this.patternsMatch(url)) {
-      return this.pushUrl(url, time)
+      return this.activate(time - 1).pushUrl(url, time)
     }
     else {
       return this
@@ -112,12 +112,12 @@ export default class Container implements IContainer {
     return this.replacePages(this.pages.go(n, time))
   }
 
-  goForward(n:number=1, time:number):Container {
-    return this.replacePages(this.pages.goForward(n, time))
+  forward(n:number=1, time:number):Container {
+    return this.replacePages(this.pages.forward(n, time))
   }
 
-  goBack(n:number=1, time:number):Container {
-    return this.replacePages(this.pages.goBack(n, time))
+  back(n:number=1, time:number):Container {
+    return this.replacePages(this.pages.back(n, time))
   }
 
   canGoForward(n:number=1):boolean {
@@ -144,12 +144,28 @@ export default class Container implements IContainer {
     return this.pages.activePage
   }
 
-  getBackPage(n:number=1):Page {
+  getBackPage(n:number=1):Page|undefined {
     return this.pages.getBackPage(n)
   }
 
-  getForwardPage(n:number=1):Page {
+  getForwardPage(n:number=1):Page|undefined {
     return this.pages.getForwardPage(n)
+  }
+
+  get backPages():Page[] {
+    return this.pages.backPages
+  }
+
+  get forwardPages():Page[] {
+    return this.pages.forwardPages
+  }
+
+  get backLength():number {
+    return this.pages.backLength
+  }
+
+  get forwardLength():number {
+    return this.pages.forwardLength
   }
 
   get lastVisited():number {

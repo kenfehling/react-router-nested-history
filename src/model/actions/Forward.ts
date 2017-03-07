@@ -14,6 +14,6 @@ export default class Forward extends Action {
   }
 
   reduce(state:IState):IState {
-    return state.goForward(this.n, this.time)
+    return state.forward(this.n, this.time)
   }
 }

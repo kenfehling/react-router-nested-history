@@ -14,6 +14,6 @@ export default class Back extends Action {
   }
 
   reduce(state:IState):IState {
-    return state.goBack(this.n, this.time)
+    return state.back(this.n, this.time)
   }
 }

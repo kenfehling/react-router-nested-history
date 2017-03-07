@@ -43,12 +43,12 @@ export default class InitializedState extends IState {
     }
   }
 
-  goBack(n:number=1, time:number):IState {
-    return this.replaceGroup(this.activeGroup.goBack(n, time))
+  back(n:number=1, time:number):IState {
+    return this.replaceGroup(this.activeGroup.back(n, time))
   }
 
-  goForward(n:number=1, time:number):IState {
-    return this.replaceGroup(this.activeGroup.goForward(n, time))
+  forward(n:number=1, time:number):IState {
+    return this.replaceGroup(this.activeGroup.forward(n, time))
   }
 
   canGoBack(n:number=1):boolean {
@@ -69,7 +69,8 @@ export default class InitializedState extends IState {
         time:number, reset?:boolean}):IState {
     const group:Group = this.getGroupByName(groupName)
     const container:IGroupContainer = group.getContainerByName(containerName)
-    return this.replaceGroup(group.replaceContainer(container.top(time, reset)))
+    return this.replaceGroup(group.replaceContainer(
+        container.top(time, reset) as IGroupContainer))
   }
 
   getShiftAmount(page:Page):number {
@@ -95,10 +96,6 @@ export default class InitializedState extends IState {
   }
 
   push(page:Page, time:number):IState {
-
-
-    console.trace(page.url + ' ' + time)
-
     const group:Group = this.getRootGroupOfGroupByName(page.groupName)
     return this.replaceGroup(group.push(page, time))
   }
@@ -127,10 +124,10 @@ export default class InitializedState extends IState {
   }
 
   get groupStackOrder():Group[] {
-    return R.sort((g1, g2) => g2.lastVisited - g2.lastVisited, this.groups)
+    return R.sort((g1, g2) => g2.lastVisited - g1.lastVisited, this.groups)
   }
 
-  getBackPageInGroup(groupName:string):Page {
+  getBackPageInGroup(groupName:string):Page|undefined {
     return this.getGroupByName(groupName).getBackPage()
   }
 
@@ -217,5 +214,9 @@ export default class InitializedState extends IState {
 
   getContainerStackOrderForGroup(groupName:string):IContainer[] {
     return this.getGroupByName(groupName).containerStackOrder
+  }
+
+  get pages():Pages {
+    return new Pages(this.browserHistory.flatten())
   }
 }

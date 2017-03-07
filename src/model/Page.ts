@@ -9,14 +9,17 @@ export default class Page {
   readonly params: Object
   readonly groupName: string
   readonly containerName: string
+  readonly createdAt: number
   readonly firstVisited: number
   readonly lastVisited: number
   readonly isZeroPage: boolean
 
-  constructor({url, params, groupName, containerName,
+  constructor({createdAt=0, url, params, groupName, containerName,
       firstVisited=0, lastVisited=firstVisited, isZeroPage=false}:
-      {url:string, params:Object, groupName:string, containerName:string,
-        firstVisited?:number, lastVisited?:number, isZeroPage?:boolean}) {
+      {createdAt?:number, url:string, params:Object, groupName:string,
+        containerName:string, firstVisited?:number, lastVisited?:number,
+          isZeroPage?:boolean}) {
+    this.createdAt = createdAt
     this.url = url
     this.params = params
     this.firstVisited = firstVisited
@@ -33,7 +36,8 @@ export default class Page {
       groupName: '',
       containerName: '',
       isZeroPage: true,
-      firstVisited: -1
+      firstVisited: -1,
+      createdAt: -1
     })
   }
 
@@ -42,7 +46,8 @@ export default class Page {
       url: this.url,
       groupName: this.groupName,
       containerName: this.containerName,
-      isZeroPage: this.isZeroPage
+      isZeroPage: this.isZeroPage,
+      createdAt: this.createdAt
     }
   }
 

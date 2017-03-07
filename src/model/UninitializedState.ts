@@ -3,6 +3,7 @@ import IContainer from './interfaces/IContainer'
 import Page from './Page'
 import Group from './Group'
 import HistoryStack from './HistoryStack'
+import Pages from './Pages'
 
 const UNINITIALIZED_MESSAGE:string = 'State is uninitialized'
 
@@ -25,11 +26,11 @@ export default class UninitializedState extends IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  goBack(n:number=1, time:number):IState {
+  back(n:number=1, time:number):IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  goForward(n:number=1, time:number):IState {
+  forward(n:number=1, time:number):IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -83,7 +84,7 @@ export default class UninitializedState extends IState {
     return []
   }
 
-  getBackPageInGroup(groupName:string):Page {
+  getBackPageInGroup(groupName:string):Page|undefined {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -153,5 +154,9 @@ export default class UninitializedState extends IState {
 
   getContainerStackOrderForGroup(groupName:string):IContainer[] {
     return []
+  }
+
+  get pages():Pages {
+    return new Pages()
   }
 }

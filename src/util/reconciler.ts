@@ -7,6 +7,7 @@ import IState from '../model/IState'
 import ReplaceStep from '../model/steps/ReplaceStep'
 import GoStep from '../model/steps/GoStep'
 import Pages from '../model/Pages'
+import HistoryStack from '../model/HistoryStack'
 
 export class HistoryDiff {
   readonly same: Page[]
@@ -41,7 +42,7 @@ export class HistoryDiff {
 const getFirstDifferenceIndex = (ps1:Pages, ps2:Pages):number => {
   const n:number = Math.min(ps1.length, ps2.length)
   for (let i = 0; i < n; i++) {
-    if (!ps1[i].equals(ps2[i])) {
+    if (!ps1.pages[i].equals(ps2.pages[i])) {
       return i
     }
   }
@@ -106,3 +107,9 @@ export const diffToSteps = (diff:HistoryDiff):Step[] => {
  */
 export const diffStateToSteps = (oldState:IState, newState:IState):Step[] =>
     R.compose(diffToSteps, diffHistory)(oldState.pages, newState.pages)
+
+export const diffHistoryToSteps = (h1:HistoryStack, h2:HistoryStack):Step[] => {
+  const oldPages:Pages = new Pages(h1.flatten())
+  const newPages:Pages = new Pages(h2.flatten())
+  return R.compose(diffToSteps, diffHistory)(oldPages, newPages)
+}

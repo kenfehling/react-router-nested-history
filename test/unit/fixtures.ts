@@ -8,12 +8,13 @@ import InitializedState from '../../src/model/InitializedState'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
 import Page from '../../src/model/Page'
 
-export const createPage = (url:string, firstVisited?:number,
-                           lastVisited?:number) => new Page({
+export const createPage = (url:string, createdAt:number,
+                           firstVisited:number, lastVisited:number) => new Page({
   url,
   params: {},
   groupName: 'Group 1',
   containerName: 'Container 1',
+  createdAt,
   firstVisited,
   lastVisited
 })
