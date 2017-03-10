@@ -7,7 +7,6 @@ import * as store from 'store'
 import ClearActions from './model/actions/ClearActions'
 import UpdateBrowser from './model/actions/UpdateBrowser'
 import IUpdateData from './model/IUpdateData'
-import * as browser from './util/browserFunctions'
 
 export interface Store {
   dispatch: (action:Action) => void
@@ -19,7 +18,7 @@ export const deriveState = (actions:Action[],
                             state:IState=new UninitializedState()):IState =>
   actions.reduce((s:IState, a:Action):IState => a.reduce(s), state)
 
-export function createStore() {
+export function createStore(enablePersistance:boolean) {
   let actions: Action[] = []
   let storedState: IState
   let timeStored: number = 0
@@ -41,7 +40,7 @@ export function createStore() {
   }
 
   function init():void {
-    if (browser.wasLoadedFromRefresh) {
+    if (enablePersistance) {
       loadActions()
     }
     else {

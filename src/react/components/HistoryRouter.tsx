@@ -164,5 +164,6 @@ const ConnectedHistoryRouter = connect(
 )(HistoryRouter)
 
 export default (props:HistoryRouterProps) => (
-  <ConnectedHistoryRouter store={createStore()} {...props} />
+  <ConnectedHistoryRouter
+    {...props} store={createStore(browser.wasLoadedFromRefresh)} />
 )
