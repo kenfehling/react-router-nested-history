@@ -5,9 +5,11 @@ import IUpdateData from '../../model/IUpdateData'
 import {Store} from '../../store'
 import {canUseWindowLocation} from '../../util/browserFunctions'
 import {HistoryStack} from '../../model/Pages'
+import State from '../../model/State'
+import Action from '../../model/BaseAction'
 
 type TitleSetterPropsWithStore = {
-  store: Store,
+  store: Store<State, Action>,
   children?: ReactNode
 }
 
@@ -32,8 +34,9 @@ class TitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:IUpdateData, ownProps:TitleSetterPropsWithStore):
-                                                ConnectedTitleSetterProps => ({
+const mapStateToProps = (state:IUpdateData<State, Action>,
+                         ownProps:TitleSetterPropsWithStore):
+                         ConnectedTitleSetterProps => ({
   ...ownProps,
   browserHistory: state.state.browserHistory,
   activeTitle: state.state.activeTitle

@@ -5,11 +5,14 @@ import Push from '../../model/actions/Push'
 import Back from '../../model/actions/Back'
 import Forward from '../../model/actions/Forward'
 import Top from '../../model/actions/Top'
-import Action from '../../model/Action'
+import Action from '../../model/BaseAction'
 import PopState from '../../model/actions/PopState'
 import {connect} from 'react-redux'
 import {Store} from '../../store'
 import IUpdateData from '../../model/IUpdateData'
+import State from '../../model/State'
+import UpdateBrowser from '../../model/actions/UpdateBrowser'
+import * as R from 'ramda'
 
 interface AnimatedPageProps {
   children?: ReactNode
@@ -17,7 +20,7 @@ interface AnimatedPageProps {
 }
 
 type ConnectedProps = AnimatedPageProps & {
-  store: Store
+  store: Store<State, Action>
 }
 
 type InnerProps = ConnectedProps & {
@@ -156,8 +159,9 @@ class AnimatedPage extends Component<InnerProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:IUpdateData, ownProps:ConnectedProps) => ({
-  lastAction: state.lastAction
+const mapStateToProps = ({actions}:IUpdateData<State, Action>,
+                         ownProps:ConnectedProps) => ({
+  lastAction: R.last(actions.filter(a => !(a instanceof UpdateBrowser)))
 })
 
 const ConnectedPage = connect(mapStateToProps)(AnimatedPage)

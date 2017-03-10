@@ -14,6 +14,9 @@ import SetZeroPage from '../../model/actions/SetZeroPage'
 import {canUseWindowLocation} from '../../util/browserFunctions'
 import StepRunner from './StepRunner'
 import TitleSetter from './TitleSetter'
+import Action from '../../model/BaseAction'
+import State from '../../model/State'
+import UninitializedState from '../../model/UninitializedState'
 declare const window:any
 
 export interface HistoryRouterProps {
@@ -27,7 +30,7 @@ export interface HistoryRouterProps {
 }
 
 type RouterPropsWithStore = HistoryRouterProps & {
-  store: Store
+  store: Store<State, Action>
 }
 
 type ConnectedRouterProps = RouterPropsWithStore & {
@@ -134,11 +137,11 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:IUpdateData) => ({
+const mapStateToProps = (state:IUpdateData<State, Action>) => ({
   isInitialized: state.state instanceof InitializedState
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:RouterPropsWithStore) => ({
   startup: () => dispatch(new Startup({
     fromRefresh: browser.wasLoadedFromRefresh
@@ -165,5 +168,7 @@ const ConnectedHistoryRouter = connect(
 
 export default (props:HistoryRouterProps) => (
   <ConnectedHistoryRouter
-    {...props} store={createStore(browser.wasLoadedFromRefresh)} />
+    {...props} store={createStore<State, Action>({
+                      persist: browser.wasLoadedFromRefresh,
+                      initialState: new UninitializedState()})} />
 )

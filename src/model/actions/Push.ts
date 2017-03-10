@@ -1,6 +1,6 @@
-import IState from '../IState'
+import State from '../State'
 import {Serializable} from '../../util/serializer'
-import Action, {Origin, ActionOrigin} from '../Action'
+import Action, {Origin, ActionOrigin} from '../BaseAction'
 import Page from '../Page'
 import {parseParamsFromPatterns} from '../../util/url'
 import SwitchToGroup from './SwitchToGroup'
@@ -23,7 +23,7 @@ export default class Push extends Action {
     this.url = url
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     const container =  state.getContainer(this.groupName, this.containerName)
     const params:Object = parseParamsFromPatterns(container.patterns, this.url)
     const page:Page = new Page({
@@ -35,7 +35,7 @@ export default class Push extends Action {
     return state.push(page, this.time)
   }
 
-  filter(state:IState):Action[] {
+  filter(state:State):Action[] {
     if (state.activeUrl === this.url) {
       return []
     }

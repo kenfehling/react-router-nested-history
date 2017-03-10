@@ -1,4 +1,4 @@
-import IState from './IState'
+import State from './State'
 import IContainer from './IContainer'
 import Page from './Page'
 import Group from './Group'
@@ -6,30 +6,30 @@ import Pages, {HistoryStack} from './Pages'
 
 const UNINITIALIZED_MESSAGE:string = 'State is uninitialized'
 
-export default class UninitializedState extends IState {
+export default class UninitializedState extends State {
 
-  assign(obj:Object):IState {
+  assign(obj:Object):State {
     return new UninitializedState({...Object(this), ...obj})
   }
 
-  switchToGroup({groupName, time}:{groupName:string, time:number}):IState {
+  switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
   switchToContainer({groupName, name, time}:
-    {groupName:string, name:string, time:number}):IState {
+    {groupName:string, name:string, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  go(n:number, time:number):IState {
+  go(n:number, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  back(n:number=1, time:number):IState {
+  back(n:number=1, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  forward(n:number=1, time:number):IState {
+  forward(n:number=1, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -47,7 +47,7 @@ export default class UninitializedState extends IState {
 
   top({groupName, time, reset=false}:
       {groupName:string, containerName:string, time:number,
-        reset?:boolean}):IState {
+        reset?:boolean}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -67,7 +67,7 @@ export default class UninitializedState extends IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  push(page:Page, time:number):IState {
+  push(page:Page, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

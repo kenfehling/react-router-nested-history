@@ -1,4 +1,4 @@
-import IState from '../../../../src/model/IState'
+import State from '../../../../src/model/State'
 import * as fixtures from '../../fixtures'
 import PopState from '../../../../src/model/actions/PopState'
 import HistoryStack from '../../../../src/model/HistoryStack'
@@ -11,7 +11,7 @@ declare const describe:any
 declare const it:any
 
 describe('PopState action', () => {
-  const baseState:IState = fixtures.loadedSimpleState
+  const baseState:State = fixtures.loadedSimpleState
 
   describe('reduce', () => {
     it('shifts the state to reflect the new browser history', () => {
@@ -19,7 +19,7 @@ describe('PopState action', () => {
         n: -1,
         time: 10
       })
-      const newState:IState = action.reduce(baseState)
+      const newState:State = action.reduce(baseState)
       const h:HistoryStack = newState.browserHistory
 
       expect(h.back.length).to.equal(0)
@@ -51,7 +51,7 @@ describe('PopState action', () => {
         groupName: 'Group 1',
         containerName: 'Container 2'
       })
-      const state:IState = baseState
+      const state:State = baseState
           .push(container1page, 5000)
           .push(container2page, 10000)
       const action:PopState = new PopState({

@@ -7,6 +7,8 @@ import Page from '../../model/Page'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import Back from '../../model/actions/Back'
 import InitializedState from '../../model/InitializedState'
+import Action from '../../model/BaseAction'
+import State from '../../model/State'
 
 export type ChildrenFunctionArgs = {
   params: Object
@@ -20,7 +22,7 @@ export interface BackLinkProps {
 }
 
 type BackLinkPropsWithStore = BackLinkProps & {
-  store: Store
+  store: Store<State, Action>
   groupName: string
 }
 
@@ -77,7 +79,7 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData,
+const mapStateToProps = ({state}:IUpdateData<State, Action>,
                          ownProps:BackLinkPropsWithStore) => {
   const isInitialized:boolean = state instanceof InitializedState
   return {
@@ -87,7 +89,7 @@ const mapStateToProps = ({state}:IUpdateData,
 
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:BackLinkPropsWithStore) => ({
   back: () => {
     dispatch(new SwitchToGroup({groupName: ownProps.groupName}))

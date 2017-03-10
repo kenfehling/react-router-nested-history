@@ -2,7 +2,7 @@ import Page from './Page'
 import * as R from 'ramda'
 import IContainer from './IContainer'
 import Group from './Group'
-import IState from './IState'
+import State from './State'
 import Container from './Container'
 import IGroupContainer from './IGroupContainer'
 import Pages, {HistoryStack} from './Pages'
@@ -10,32 +10,32 @@ import SwitchToGroup from './actions/SwitchToGroup'
 import VisitedPage from './VistedPage'
 import SetZeroPage from './actions/SetZeroPage'
 
-export default class InitializedState extends IState {
+export default class InitializedState extends State {
 
-  assign(obj:Object):IState {
+  assign(obj:Object):State {
     return new InitializedState({...Object(this), ...obj})
   }
 
-  switchToGroup({groupName, time}:{groupName:string, time:number}):IState {
+  switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
     return this.replaceGroup(group.activate({time, action: SwitchToGroup}))
   }
 
   switchToContainer({groupName, name, time}:
-      {groupName:string, name:string, time:number}):IState {
+      {groupName:string, name:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
     const c = group.activateContainer(name, time)
     return this.replaceGroup(c)
   }
 
-  go(n:number, time:number):IState {
+  go(n:number, time:number):State {
     if (this.isOnZeroPage && n > 0) {
-      const state:IState = this.assign({
+      const state:State = this.assign({
         isOnZeroPage: false
       })
       return state.go(n - 1, time)
     }
-    const f = (x:number):IState => this.replaceGroup(this.activeGroup.go(x, time))
+    const f = (x:number):State => this.replaceGroup(this.activeGroup.go(x, time))
     if (n < 0 && !this.canGoBack(0 - n)) {    // if going back to zero page
       return (n < -1 ? f(n + 1) : this).assign({
         isOnZeroPage: true                    // go back through group if needed
@@ -46,11 +46,11 @@ export default class InitializedState extends IState {
     }
   }
 
-  back(n:number=1, time:number):IState {
+  back(n:number=1, time:number):State {
     return this.replaceGroup(this.activeGroup.back(n, time))
   }
 
-  forward(n:number=1, time:number):IState {
+  forward(n:number=1, time:number):State {
     return this.replaceGroup(this.activeGroup.forward(n, time))
   }
 
@@ -69,7 +69,7 @@ export default class InitializedState extends IState {
 
   top({groupName, containerName, time, reset=false}:
       {groupName:string, containerName:string,
-        time:number, reset?:boolean}):IState {
+        time:number, reset?:boolean}):State {
     const group:Group = this.getGroupByName(groupName)
     const container:IGroupContainer = group.getContainerByName(containerName)
     return this.replaceGroup(group.replaceContainer(
@@ -98,7 +98,7 @@ export default class InitializedState extends IState {
     return this.getRootGroupOfGroupByName(group.name)
   }
 
-  push(page:Page, time:number):IState {
+  push(page:Page, time:number):State {
     const group:Group = this.getRootGroupOfGroupByName(page.groupName)
     return this.replaceGroup(group.push(page, time))
   }

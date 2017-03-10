@@ -10,6 +10,8 @@ import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import InitializedState from '../../model/InitializedState'
 import IContainer from '../../model/IContainer'
+import Action from '../../model/BaseAction'
+import State from '../../model/State'
 
 export interface ContainerGroupProps {
   name: string
@@ -25,7 +27,7 @@ export interface ContainerGroupProps {
 }
 
 type GroupPropsWithStore = ContainerGroupProps & {
-  store: Store
+  store: Store<State, Action>
   parentGroupName: string
 }
 
@@ -95,7 +97,7 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData,
+const mapStateToProps = ({state}:IUpdateData<State, Action>,
                          ownProps:GroupPropsWithStore) => {
   const {name} = ownProps
   const isInitialized = state instanceof InitializedState
@@ -107,7 +109,7 @@ const mapStateToProps = ({state}:IUpdateData,
   }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:GroupPropsWithStore) => ({
   createGroup: (action:CreateGroup) => dispatch(action),
   switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({

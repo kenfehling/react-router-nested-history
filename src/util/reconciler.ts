@@ -99,8 +99,8 @@ export const diffToSteps = (diff:HistoryDiff):Step[] => {
 /**
  * Get the difference between oldState and newState and return a list of
  * browser functions to transform the browser history from oldState to newState
- * @param oldState {IState} The original historyStore state
- * @param newState {IState} The new historyStore state
+ * @param oldState {State} The original historyStore state
+ * @param newState {State} The new historyStore state
  * @returns {Step[]} An array of steps to get from old state to new state
  */
 export const diffPagesToSteps:(ps1:Pages, ps2:Pages) => Step[] =

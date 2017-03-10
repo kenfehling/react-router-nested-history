@@ -1,4 +1,4 @@
-import IState from '../../../src/model/IState'
+import State from '../../../src/model/State'
 import Group from '../../../src/model/Group'
 import Page from '../../../src/model/Page'
 import HistoryStack from '../../../src/model/HistoryStack'
@@ -8,14 +8,14 @@ import {expect} from 'chai'
 declare const describe:any
 declare const it:any
 
-describe('IState', () => {
+describe('State', () => {
 
   describe('simple group', () => {
-    const state:IState = fixtures.loadedSimpleState
+    const state:State = fixtures.loadedSimpleState
 
     describe('replaceGroup', () => {
       it('creates a new group if needed', () => {
-        const newState:IState = state.replaceGroup(new Group({
+        const newState:State = state.replaceGroup(new Group({
           name: 'Group X'
         }))
         expect(newState.groups.length).to.equal(state.groups.length + 1)
@@ -29,7 +29,7 @@ describe('IState', () => {
           groupName: group.name,
           containerName: group.containers[0].name
         }), 5000)
-        const newState:IState = state.replaceGroup(newGroup)
+        const newState:State = state.replaceGroup(newGroup)
         expect(newState.groups.length).to.equal(state.groups.length)
         expect(newState.groups[0].name).to.equal(group.name)
         expect(newState.groups[0].pages.activePage.url).to.equal('/a/1')
@@ -45,7 +45,7 @@ describe('IState', () => {
           containerName: 'Container 2'
         })
 
-        const newState:IState = state.push(page, 4000)
+        const newState:State = state.push(page, 4000)
         expect(newState.activeGroup.name).to.equal('Group 2')
         expect(newState.getActiveContainerNameInGroup('Group 2')).to.equal('Container 2')
         expect(newState.activeGroup.activeContainerName).to.equal('Container 2')
@@ -65,13 +65,13 @@ describe('IState', () => {
       })
 
       it('works after pushing multiple pages', () => {
-        const push = (s:IState, url:string, time:number) => s.push(new Page({
+        const push = (s:State, url:string, time:number) => s.push(new Page({
           url,
           params: {},
           groupName: 'Group 1',
           containerName: 'Container 1'
         }), time)
-        const newState:IState = push(push(push(state, '/d', 5000), '/d/1', 6000), '/d/1/1', 7000)
+        const newState:State = push(push(push(state, '/d', 5000), '/d/1', 6000), '/d/1/1', 7000)
         const h:HistoryStack = newState.browserHistory
         expect(h.back.length).to.equal(4)
         expect(h.back[0].url).to.equal('/a')
@@ -85,7 +85,7 @@ describe('IState', () => {
 
     describe('go', () => {
       it('goes back 1 to zero page', () => {
-        const newState:IState = state.go(-1, 1000)
+        const newState:State = state.go(-1, 1000)
         expect(newState.browserHistory.back.length).to.equal(0)
         expect(newState.browserHistory.current).to.deep.equal(newState.getZeroPage())
         expect(newState.browserHistory.forward.length).to.equal(1)
@@ -108,14 +108,14 @@ describe('IState', () => {
     })
 
     describe('isContainerAtTopPage', () => {
-      const f = (s: IState, name: string) => s.isContainerAtTopPage('Group 1', name)
+      const f = (s: State, name: string) => s.isContainerAtTopPage('Group 1', name)
 
       it('is at first', () => {
         expect(f(state, 'Container 1')).to.be.true
       })
 
       describe('after push', () => {
-        const pushedState: IState = state.push(new Page({
+        const pushedState: State = state.push(new Page({
           url: '/a/2',
           params: {id: '2'},
           groupName: 'Group 1',
@@ -127,7 +127,7 @@ describe('IState', () => {
         })
 
         describe('after switch', () => {
-          const switchedState: IState = pushedState.switchToContainer({
+          const switchedState: State = pushedState.switchToContainer({
             groupName: 'Group 1',
             name: 'Container 2',
             time: 6000
@@ -143,13 +143,13 @@ describe('IState', () => {
   })
 
   describe('nested group', () => {
-    const state:IState = fixtures.loadedNestedState
+    const state:State = fixtures.loadedNestedState
     const group:Group = fixtures.nestedState.groups[0]
     const nestedGroup1:Group = group.containers[0] as Group
 
     describe('replaceGroup', () => {
       it('creates a new group if needed', () => {
-        const newState:IState = state.replaceGroup(new Group({
+        const newState:State = state.replaceGroup(new Group({
           name: 'Group X'
         }))
         expect(newState.groups.length).to.equal(state.groups.length + 1)
@@ -158,7 +158,7 @@ describe('IState', () => {
       it('replaces an existing group', () => {
         const group:Group = state.groups[0]
         const container:IContainer = nestedGroup1.containers[0]
-        const newState:IState = state.push(new Page({
+        const newState:State = state.push(new Page({
           url: '/a/1',
           params: {id: '1'},
           groupName: nestedGroup1.name,
@@ -172,7 +172,7 @@ describe('IState', () => {
 
       it('does a switch', () => {
         const group:Group = state.groups[0]
-        const newState:IState = state.switchToGroup({
+        const newState:State = state.switchToGroup({
           groupName: group.containers[2].name,
           time: 4444
         })
@@ -189,7 +189,7 @@ describe('IState', () => {
           groupName: 'Group 2',
           containerName: 'Container 2'
         })
-        const newState:IState = state.push(page, 5000)
+        const newState:State = state.push(page, 5000)
         expect(newState.getActiveContainerNameInGroup('Group 2')).to.equal('Container 2')
         expect(newState.activeGroup.activeContainerName).to.equal(group.containers[1].name)
       })
@@ -210,7 +210,7 @@ describe('IState', () => {
 
     describe('go', () => {
       it('goes back 1 to zero page', () => {
-        const newState:IState = state.go(-1, 1000)
+        const newState:State = state.go(-1, 1000)
         expect(newState.browserHistory.back.length).to.equal(0)
         expect(newState.browserHistory.current).to.deep.equal(newState.getZeroPage())
         expect(newState.browserHistory.forward.length).to.equal(1)
@@ -219,7 +219,7 @@ describe('IState', () => {
     })
 
     describe('isContainerAtTopPage', () => {
-      const f = (s: IState, name: string) =>
+      const f = (s: State, name: string) =>
           s.isContainerAtTopPage(nestedGroup1.name, name)
 
       it('is at first', () => {
@@ -227,7 +227,7 @@ describe('IState', () => {
       })
 
       describe('after push', () => {
-        const pushedState: IState = state.push(new Page({
+        const pushedState: State = state.push(new Page({
           url: '/a/2',
           params: {id: '2'},
           groupName:nestedGroup1.name,
@@ -239,7 +239,7 @@ describe('IState', () => {
         })
 
         describe('after switch', () => {
-          const switchedState: IState = pushedState.switchToContainer({
+          const switchedState: State = pushedState.switchToContainer({
             groupName: nestedGroup1.name,
             name: 'Container 2',
             time: 3000
@@ -255,10 +255,10 @@ describe('IState', () => {
   })
 
   describe('inter-container history (mobile)', () => {
-    const getGroup = (s:IState) => s.groups[0].containers[2] as Group
+    const getGroup = (s:State) => s.groups[0].containers[2] as Group
 
     const group:Group = getGroup(fixtures.nestedState)
-    const state:IState = fixtures.loadedNestedState.switchToGroup({
+    const state:State = fixtures.loadedNestedState.switchToGroup({
       groupName: group.name,
       time: 1500
     })
@@ -268,7 +268,7 @@ describe('IState', () => {
     })
 
     describe('after switching from default', () => {
-      const switchedState:IState = state.switchToContainer({
+      const switchedState:State = state.switchToContainer({
         groupName: group.name,
         name: 'Container 2',
         time: 1700,
@@ -289,7 +289,7 @@ describe('IState', () => {
           groupName: group.name,
           containerName: 'Container 2'
         })
-        const newState:IState = switchedState
+        const newState:State = switchedState
           .push(page, 2000)
           .back(1, 3000)
           .back(1, 4000)

@@ -2,7 +2,7 @@ import CreateContainer from '../../../../src/model/actions/CreateContainer'
 import CreateGroup from '../../../../src/model/actions/CreateGroup'
 import Startup from '../../../../src/model/actions/Startup'
 import Push from '../../../../src/model/actions/Push'
-import Action from '../../../../src/model/Action'
+import Action from '../../../../src/model/BaseAction'
 import LoadFromUrl from '../../../../src/model/actions/LoadFromUrl'
 import {expect} from 'chai'
 declare const describe:any

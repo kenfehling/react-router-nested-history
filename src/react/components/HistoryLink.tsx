@@ -6,9 +6,11 @@ import {connect, Dispatch} from 'react-redux'
 import Push from '../../model/actions/Push'
 import {Store} from '../../store'
 import IUpdateData from '../../model/IUpdateData'
+import Action from '../../model/BaseAction'
+import State from '../../model/State'
 
 type HistoryLinkPropsWithStore = LinkProps & {
-  store: Store
+  store: Store<State, Action>
   groupName: string
 }
 
@@ -57,7 +59,7 @@ class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:HistoryLinkPropsWithStore) => ({
   push: (url:string) => dispatch(new Push({
     url,

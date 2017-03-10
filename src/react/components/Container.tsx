@@ -10,7 +10,8 @@ import {Store} from '../../store'
 import IUpdateData from '../../model/IUpdateData'
 import AddTitle from '../../model/actions/AddTitle'
 import PathTitle from '../../model/PathTitle'
-import IState from '../../model/IState'
+import State from '../../model/State'
+import Action from '../../model/BaseAction'
 import InitializedState from '../../model/InitializedState'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
 
@@ -27,7 +28,7 @@ interface ContainerProps {
 }
 
 type ContainerPropsWithStore = ContainerProps & {
-  store: Store
+  store: Store<State, Action>
   groupName: string
   initializing: boolean
   hideInactiveContainers: boolean
@@ -128,7 +129,7 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
   }
 }
 
-const matchesLocation = (state:IState, groupName:string, patterns:string[]) => {
+const matchesLocation = (state:State, groupName:string, patterns:string[]) => {
   const pathname:string = state.activeUrl
   const activeGroupUrl:string = state.getActiveUrlInGroup(groupName)
   const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
@@ -146,7 +147,7 @@ const matchesLocation = (state:IState, groupName:string, patterns:string[]) => {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData,
+const mapStateToProps = ({state}:IUpdateData<State, Action>,
                          ownProps:ContainerPropsWithStore) => {
   const isInitialized:boolean = state instanceof InitializedState
   return {
@@ -157,7 +158,7 @@ const mapStateToProps = ({state}:IUpdateData,
   }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:ContainerPropsWithStore) => ({
   createContainer: (action:CreateContainer) => dispatch(action),
   addTitle: (title:PathTitle) => dispatch(new AddTitle(title)),

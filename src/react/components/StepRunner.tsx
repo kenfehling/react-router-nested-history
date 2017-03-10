@@ -8,14 +8,15 @@ import Page from '../../model/Page'
 import IUpdateData from '../../model/IUpdateData'
 import PopState from '../../model/actions/PopState'
 import * as browser from '../../util/browserFunctions'
-import Action from '../../model/Action'
+import Action from '../../model/BaseAction'
 import Step from '../../model/Step'
 import {createStepsSince} from '../../util/actions'
 import UpdateBrowser from '../../model/actions/UpdateBrowser'
 import {runSteps} from '../../util/stepRunner'
+import State from '../../model/State'
 
 export interface StepRunnerProps {
-  store: Store
+  store: Store<State, Action>
 }
 
 type ConnectedStepRunnerProps = StepRunnerProps & {
@@ -60,13 +61,13 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state, actions}:IUpdateData) => ({
+const mapStateToProps = ({state, actions}:IUpdateData<State, Action>) => ({
   actions,
   lastUpdate: state.lastUpdate,
   browserHistory: state.browserHistory
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:StepRunnerProps) => ({
   recordBrowserUpdate: () => dispatch(new UpdateBrowser()),
   dispatch

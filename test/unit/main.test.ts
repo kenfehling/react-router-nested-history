@@ -1,4 +1,4 @@
-import Action from '../../src/model/Action'
+import Action from '../../src/model/BaseAction'
 import {_history, _resetHistory} from '../../src/util/browserFunctions'
 import {
   createContainers1, createContainers3, createGroup1,
@@ -7,7 +7,7 @@ import {
 import {createStore, Store} from '../../src/store'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
 import Push from '../../src/model/actions/Push'
-import IState from '../../src/model/IState'
+import State from '../../src/model/State'
 import Step from '../../src/model/Step'
 import {MemoryHistory} from 'history'
 import * as R from 'ramda'
@@ -23,16 +23,23 @@ import SwitchToGroup from '../../src/model/actions/SwitchToGroup'
 import {runSteps} from '../../src/util/stepRunner'
 import InitializedState from '../../src/model/InitializedState'
 import {expect} from 'chai'
+import UninitializedState from '../../src/model/UninitializedState'
+import BaseAction from '../../src/model/BaseAction'
 declare const describe:any
 declare const it:any
 declare const beforeEach:any
 declare const afterEach:any
 
+const makeNewStore = () => createStore<State, BaseAction>({
+  persist: false,
+  initialState: new UninitializedState()
+})
+
 describe('main', () => {
-  let store:Store
+  let store:Store<State, BaseAction>
 
   beforeEach(() => {
-    store = createStore()
+    store = makeNewStore()
   })
 
   afterEach(() => {
@@ -63,7 +70,7 @@ describe('main', () => {
           containerName: 'Container 1'
         })
       ])
-      store = createStore()
+      store = makeNewStore()
       expect(store.getState().actions.length).to.equal(0)
     })
 
@@ -78,7 +85,7 @@ describe('main', () => {
         })
       ])
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).to.equal(1);
@@ -112,7 +119,7 @@ describe('main', () => {
         })
       ])
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).to.equal(1);
@@ -166,7 +173,7 @@ describe('main', () => {
         })
       ])
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).to.equal(0);
@@ -205,7 +212,7 @@ describe('main', () => {
         url: '/e/1'
       }))
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const groups = state.groups
 
       expect(groups[0].containers[0].history.back.length).to.equal(0);
@@ -247,7 +254,7 @@ describe('main', () => {
         })
       ])
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).to.equal(1);
@@ -282,7 +289,7 @@ describe('main', () => {
       const ps:Promise<any> = actions.reduce((p:Promise<any>, action:Action) =>
         new Promise(resolve => {
           store.dispatch(action)
-          const state:IState = store.getState().state
+          const state:State = store.getState().state
           const actions:Action[] = store.getState().actions
           if (state instanceof InitializedState) {
             const steps:Step[] = createStepsSince(actions, state.lastUpdate)

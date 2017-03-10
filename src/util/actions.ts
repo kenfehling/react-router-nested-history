@@ -1,9 +1,10 @@
-import Action from '../model/Action'
-import IState from '../model/IState'
+import Action from '../model/BaseAction'
+import State from '../model/State'
 import Step from '../model/Step'
 import {deriveState} from '../store'
+import UninitializedState from '../model/UninitializedState'
 
-type StepState = {steps:Step[], state:IState}
+type StepState = {steps:Step[], state:State}
 
 function actionSteps({steps, state}:StepState, action:Action):StepState {
   return {
@@ -15,7 +16,7 @@ function actionSteps({steps, state}:StepState, action:Action):StepState {
 export function createStepsSince(actions:Action[], time:number):Step[] {
   const oldActions:Action[] = actions.filter(a => a.time <= time)
   const newActions:Action[] = actions.filter(a => a.time > time)
-  const oldState:IState = deriveState(oldActions)
+  const oldState:State = deriveState(oldActions, new UninitializedState())
   const initial:StepState = {steps: [], state: oldState}
   return newActions.reduce(actionSteps, initial).steps
 }

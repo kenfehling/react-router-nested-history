@@ -1,6 +1,6 @@
 import NonStepAction from './NonStepAction'
 import {Serializable} from '../../util/serializer'
-import Action from '../Action'
+import Action from '../BaseAction'
 
 /**
  * Only for testing purposes

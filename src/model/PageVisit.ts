@@ -1,4 +1,4 @@
-import Action from './Action'
+import Action from './BaseAction'
 
 export interface IActionClass {
   new (...args: any[]):Action

@@ -1,26 +1,25 @@
 import {serialize, deserialize, ISerialized} from './util/serializer'
 import Action from './model/Action'
 import * as R from 'ramda'
-import UninitializedState from './model/UninitializedState'
-import IState from './model/IState'
 import * as store from 'store'
 import ClearActions from './model/actions/ClearActions'
-import UpdateBrowser from './model/actions/UpdateBrowser'
 import IUpdateData from './model/IUpdateData'
+import IState from './model/IState'
 
-export interface Store {
+export interface Store<S extends IState, A extends Action> {
   dispatch: (action:Action) => void
   subscribe: (listener:()=>void) => () => void
-  getState: () => IUpdateData
+  getState: () => IUpdateData<S, A>
 }
 
-export const deriveState = (actions:Action[],
-                            state:IState=new UninitializedState()):IState =>
-  actions.reduce((s:IState, a:Action):IState => a.reduce(s), state)
+export function deriveState<S extends IState>(actions:Action[], state:S):S {
+  return actions.reduce((s: S, a: Action): S => a.reduce(s), state)
+}
 
-export function createStore(enablePersistance:boolean) {
-  let actions: Action[] = []
-  let storedState: IState
+export function createStore<S extends IState, A extends Action>(
+    {persist, initialState}:{persist:boolean, initialState:S}) {
+  let actions: A[] = []
+  let storedState: S
   let timeStored: number = 0
   let listeners: (() => void)[] = []
 
@@ -40,7 +39,7 @@ export function createStore(enablePersistance:boolean) {
   }
 
   function init():void {
-    if (enablePersistance) {
+    if (persist) {
       loadActions()
     }
     else {
@@ -52,7 +51,7 @@ export function createStore(enablePersistance:boolean) {
     actions = action.store(actions)
     if (action instanceof ClearActions) {
       timeStored = 0
-      storedState = new UninitializedState()
+      storedState = initialState
     }
     listeners.forEach(fn => fn())
     if (store.enabled) {  // if can use localStorage
@@ -74,11 +73,10 @@ export function createStore(enablePersistance:boolean) {
    * Derives the state from the list of actions
    * Caches the last derived state for performance
    */
-  function getState():IUpdateData {
+  function getState():IUpdateData<S, A> {
     if (actions.length === 0) {
       return {
-        state: new UninitializedState(),
-        lastAction: getLastAction(),
+        state: initialState,
         actions: []
       }
     }
@@ -86,8 +84,8 @@ export function createStore(enablePersistance:boolean) {
       const lastTime:number = R.last(actions).time
       const prevTime:number = actions.length > 1 ?
         R.takeLast(2, actions)[0].time : lastTime
-      if (lastTime === prevTime && prevTime === timeStored) {  // Rare case
-        storedState = deriveState(actions)     // Just derive all
+      if (lastTime === prevTime && prevTime === timeStored) { // Rare case
+        storedState = deriveState(actions, initialState)      // Just derive all
       }
       else {
         const newActions:Action[] =
@@ -97,16 +95,11 @@ export function createStore(enablePersistance:boolean) {
       }
       return {
         state: storedState,
-        lastAction: getLastAction(),
         actions: actions
       }
     }
   }
 
-  function getLastAction():Action {
-    return R.last(actions.filter(a => !(a instanceof UpdateBrowser)))
-  }
-  
   function subscribe(listener:()=>void):()=>void {
     listeners.push(listener)
     const index = listeners.indexOf(listener)

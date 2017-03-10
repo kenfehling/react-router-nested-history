@@ -1,5 +1,5 @@
-import Action, {SYSTEM} from '../Action'
-import IState from '../IState'
+import Action, {SYSTEM} from '../BaseAction'
+import State from '../State'
 import Step from '../Step'
 import {Serializable} from '../../util/serializer'
 import UninitializedState from '../UninitializedState'
@@ -7,7 +7,7 @@ import InitializedState from '../InitializedState'
 import Group from '../Group'
 
 const load = (state:UninitializedState, url:string, time:number):InitializedState =>
-    new InitializedState(state.groups.reduce((s:IState, group:Group):IState =>
+    new InitializedState(state.groups.reduce((s:State, group:Group):State =>
         s.replaceGroup(group.loadFromUrl(url, time)), state))
 
 @Serializable
@@ -33,7 +33,7 @@ export default class LoadFromUrl extends Action {
         load(state, this.url, this.time)
   }
 
-  addSteps(steps:Step[], state:IState):Step[] {
+  addSteps(steps:Step[], state:State):Step[] {
     return this.fromRefresh ? [] : super.addSteps(steps, state)
   }
 }

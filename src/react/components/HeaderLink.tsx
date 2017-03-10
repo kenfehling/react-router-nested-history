@@ -4,6 +4,8 @@ import {Dispatch, connect} from 'react-redux'
 import IUpdateData from '../../model/IUpdateData'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
+import Action from '../../model/BaseAction'
+import State from '../../model/State'
 
 export interface HeaderLinkProps {
   children: ReactNode
@@ -13,7 +15,7 @@ export interface HeaderLinkProps {
 }
 
 type HeaderLinkPropsWithStore = HeaderLinkProps & {
-  store: Store
+  store: Store<State, Action>
   groupName: string
 }
 
@@ -62,12 +64,12 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData, ownProps) => ({
+const mapStateToProps = ({state}:IUpdateData<State, Action>, ownProps) => ({
   url: state.getContainerLinkUrl(ownProps.groupName, ownProps.toContainer),
   isActive: state.isContainerActive(ownProps.groupName, ownProps.toContainer)
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:HeaderLinkPropsWithStore) => ({
   onClick: () => dispatch(new SwitchToContainer({
     groupName: ownProps.groupName,
