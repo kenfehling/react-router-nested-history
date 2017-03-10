@@ -155,14 +155,14 @@ describe('action utils', () => {
               groupName: 'Group 1',
               containerName: 'Container 2',
               visits: [
-                {time: 1000, type: VisitType.AUTO},
+                {time: 1001, type: VisitType.AUTO},
                 {time: 2000, type: VisitType.MANUAL}
               ]
             }))
           ])
         })
 
-        it('non-default 2', () => {
+        it.only('non-default 2', () => {
           const actions: Action[] = [
             ...originalSimpleActions,
             new LoadFromUrl({

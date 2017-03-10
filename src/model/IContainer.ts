@@ -2,6 +2,7 @@ import Pages, {HistoryStack} from './Pages'
 import IHistory from './IHistory'
 
 abstract class IContainer extends IHistory {
+  abstract get wasManuallyVisited(): boolean
   abstract get pages(): Pages
   abstract updatePages(pages:Pages): IHistory
   abstract get name(): string

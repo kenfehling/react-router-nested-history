@@ -61,6 +61,10 @@ export default class Container implements IContainer {
     })
   }
 
+  get wasManuallyVisited():boolean {
+    return this.isDefault || this.activePage.wasManuallyVisited
+  }
+
   get isAtTopPage():boolean {
     return !this.canGoBack()
   }
