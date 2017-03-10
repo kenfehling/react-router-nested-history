@@ -185,6 +185,12 @@ abstract class IState {
     }
   }
 
+  addTitle({pathname, title}:{pathname:string, title:string}):IState {
+    const existingTitle = this.getTitleForPath(pathname)
+    return existingTitle ? this :
+      this.assign({titles: [...this.titles, {pathname, title}]})
+  }
+
   getTitleForPath(pathname:string):string|null {
     const found = R.find(t => t.pathname === pathname, this.titles)
     return found ? found.title : null
