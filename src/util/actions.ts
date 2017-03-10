@@ -1,6 +1,6 @@
 import Action from '../model/Action'
 import IState from '../model/IState'
-import Step from '../model/interfaces/Step'
+import Step from '../model/Step'
 import {deriveState} from '../store'
 
 type StepState = {steps:Step[], state:IState}

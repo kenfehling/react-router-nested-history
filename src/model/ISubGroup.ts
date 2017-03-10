@@ -1,5 +1,5 @@
 import IGroupContainer from './IGroupContainer'
-import Group from '../Group'
+import Group from './Group'
 
 type ISubGroup = IGroupContainer & Group & {
   replaceContainer(container:IGroupContainer):ISubGroup

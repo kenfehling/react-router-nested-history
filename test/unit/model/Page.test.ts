@@ -9,12 +9,12 @@ describe('Page', () => {
     params: {},
     containerName: 'Container 1',
     groupName: 'Group 1',
-    lastVisited: 0
+    lastVisit: 0
   })
 
   describe('touch', () => {
-    it('updates lastVisited', () => {
-      expect(page.touch(1).lastVisited).to.equal(1)
+    it('updates lastVisit', () => {
+      expect(page.touch(1).lastVisit).to.equal(1)
     })
   })
 })

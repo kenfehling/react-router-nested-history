@@ -1,12 +1,14 @@
 import Page from './Page'
 import * as R from 'ramda'
-import IContainer from './interfaces/IContainer'
+import IContainer from './IContainer'
 import Group from './Group'
 import IState from './IState'
-import HistoryStack from './HistoryStack'
 import Container from './Container'
-import IGroupContainer from './interfaces/IGroupContainer'
-import Pages from './Pages'
+import IGroupContainer from './IGroupContainer'
+import Pages, {HistoryStack} from './Pages'
+import SwitchToGroup from './actions/SwitchToGroup'
+import VisitedPage from './VistedPage'
+import SetZeroPage from './actions/SetZeroPage'
 
 export default class InitializedState extends IState {
 
@@ -16,13 +18,14 @@ export default class InitializedState extends IState {
 
   switchToGroup({groupName, time}:{groupName:string, time:number}):IState {
     const group:Group = this.getGroupByName(groupName)
-    return this.replaceGroup(group.activate(time))
+    return this.replaceGroup(group.activate({time, action: SwitchToGroup}))
   }
 
   switchToContainer({groupName, name, time}:
       {groupName:string, name:string, time:number}):IState {
     const group:Group = this.getGroupByName(groupName)
-    return this.replaceGroup(group.activateContainer(name, time))
+    const c = group.activateContainer(name, time)
+    return this.replaceGroup(c)
   }
 
   go(n:number, time:number):IState {
@@ -74,11 +77,11 @@ export default class InitializedState extends IState {
   }
 
   getShiftAmount(page:Page):number {
-    return this.pages.getShiftAmount(page)
+    return this.browserHistory.toPages().getShiftAmount(page)
   }
 
   containsPage(page:Page):boolean {
-    return this.pages.containsPage(page)
+    return this.browserHistory.toPages().containsPage(page)
   }
 
   getRootGroupOfGroupByName(name:string):Group {
@@ -124,7 +127,7 @@ export default class InitializedState extends IState {
   }
 
   get groupStackOrder():Group[] {
-    return R.sort((g1, g2) => g2.lastVisited - g1.lastVisited, this.groups)
+    return R.sort((g1, g2) => g2.lastVisit.time - g1.lastVisit.time, this.groups)
   }
 
   getBackPageInGroup(groupName:string):Page|undefined {
@@ -216,7 +219,23 @@ export default class InitializedState extends IState {
     return this.getGroupByName(groupName).containerStackOrder
   }
 
-  get pages():Pages {
-    return new Pages(this.browserHistory.flatten())
+  static createZeroPage(url:string) {
+    return new VisitedPage({
+      url,
+      params: {},
+      groupName: '',
+      containerName: '',
+      isZeroPage: true,
+      visits: [{time: -1, action: SetZeroPage}]
+    })
+  }
+
+  /**
+   * Gets the zero page, or if it's not set defaults to using
+   * the initialUrl of the first container in the first group
+   */
+  getZeroPage():VisitedPage {
+    return InitializedState.createZeroPage(
+        this.zeroPage || this.groups[0].containers[0].initialUrl)
   }
 }

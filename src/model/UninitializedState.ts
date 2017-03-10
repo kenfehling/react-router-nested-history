@@ -1,9 +1,8 @@
 import IState from './IState'
-import IContainer from './interfaces/IContainer'
+import IContainer from './IContainer'
 import Page from './Page'
 import Group from './Group'
-import HistoryStack from './HistoryStack'
-import Pages from './Pages'
+import Pages, {HistoryStack} from './Pages'
 
 const UNINITIALIZED_MESSAGE:string = 'State is uninitialized'
 
@@ -154,9 +153,5 @@ export default class UninitializedState extends IState {
 
   getContainerStackOrderForGroup(groupName:string):IContainer[] {
     return []
-  }
-
-  get pages():Pages {
-    return new Pages()
   }
 }

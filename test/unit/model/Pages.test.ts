@@ -1,15 +1,46 @@
 import HistoryStack from '../../../src/model/HistoryStack'
-import {createPage} from '../fixtures'
 import Page from '../../../src/model/Page'
 import Pages from '../../../src/model/Pages'
 import {expect} from 'chai'
+import VisitedPage from '../../../src/model/VistedPage'
+import CreateContainer from '../../../src/model/actions/CreateContainer'
+import LoadFromUrl from '../../../src/model/actions/LoadFromUrl'
+import Push from '../../../src/model/actions/Push'
 declare const describe:any
 declare const it:any
 
 describe('Pages', () => {
-  const backPage = createPage('/a', 2000, 2000, 2000)
-  const currentPage = createPage('/b', 3000, 3000, 5000)
-  const forwardPage = createPage('/c', 4000, 4000, 4000)
+  const backPage = new VisitedPage({
+    url: '/a',
+    params: {},
+    groupName: 'Group 1',
+    containerName: 'Container 1',
+    visits: [
+      {time: 2000, action: CreateContainer},
+      {time: 3000, action: LoadFromUrl}
+    ]
+  })
+  const currentPage = new VisitedPage({
+    url: '/b',
+    params: {},
+    groupName: 'Group 1',
+    containerName: 'Container 1',
+    visits: [
+      {time: 2000, action: CreateContainer},
+      {time: 4000, action: Push},
+      {time: 6000, action: Push}
+    ]
+  })
+  const forwardPage = new VisitedPage({
+    url: '/c',
+    params: {},
+    groupName: 'Group 1',
+    containerName: 'Container 1',
+    visits: [
+      {time: 2000, action: CreateContainer},
+      {time: 5000, action: Push}
+    ]
+  })
   const pages:Pages = new Pages([backPage, currentPage, forwardPage])
 
   describe('toHistoryStack', () => {
@@ -20,11 +51,35 @@ describe('Pages', () => {
         forward: [forwardPage]
       }))
     })
+
+    it('excludes pages that were only visited via CreateContainer', () => {
+      const unvistedPage = new VisitedPage({
+        url: '/d',
+        params: {},
+        groupName: 'Group 1',
+        containerName: 'Container 2',
+        visits: [
+          {time: 2000, action: CreateContainer}
+        ]
+      })
+      const newPages:Pages = pages.add(unvistedPage)
+      expect(newPages.toHistoryStack()).to.deep.equal(new HistoryStack({
+        back: [backPage],
+        current: currentPage,
+        forward: [forwardPage]
+      }))
+    })
   })
 
   describe('push', () => {
     it('correctly sets the new page as active', () => {
-      const p:Pages = pages.push(createPage('/d'), 10000)
+      const page = new Page({
+        url: '/d',
+        params: {},
+        groupName: 'Group 1',
+        containerName: 'Container 1'
+      })
+      const p:Pages = pages.push(page, 10000)
       const h:HistoryStack = p.toHistoryStack()
       expect(h.back.length).to.equal(2)
       expect(h.current.url).to.equal('/d')
@@ -59,7 +114,13 @@ describe('Pages', () => {
     })
 
     it('returns false if page is not found', () => {
-      expect(pages.containsPage(createPage('/d', 10000, 10000))).to.equal(false)
+      const page = new Page({
+        url: '/d',
+        params: {},
+        groupName: 'Group 1',
+        containerName: 'Container 1'
+      })
+      expect(pages.containsPage(page)).to.equal(false)
     })
   })
 
@@ -91,7 +152,7 @@ describe('Pages', () => {
     it('updates the time of the back page', () => {
       const p:Pages = pages.back(1, 10000)
       expect(p.activePage.url).to.equal('/a')
-      expect(p.activePage.lastVisited).to.equal(10000)
+      expect(p.activePage.lastVisit.time).to.equal(10000)
     })
   })
 })

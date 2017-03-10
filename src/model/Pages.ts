@@ -1,22 +1,29 @@
-import Page from './Page'
-import HistoryStack from './HistoryStack'
 import * as R from 'ramda'
-import IHistory from './interfaces/IHistory'
+import IHistory from './IHistory'
+import PageVisit from './PageVisit'
+import VisitedPage from './VistedPage'
+import Page from './Page'
+import Push from './actions/Push'
+import Top from './actions/Top'
+import Go from './actions/Go'
+import Back from './actions/Back'
+import Forward from './actions/Forward'
+import {IActionClass} from './PageVisit'
 
 export default class Pages implements IHistory {
-  readonly pages: Page[]
+  readonly pages: VisitedPage[]
 
-  constructor(pages:Page[]=[]) {
+  constructor(pages:VisitedPage[]=[]) {
     this.pages = pages
   }
   
   toHistoryStack():HistoryStack {
-    const firstVisited:Page[] = this.byFirstVisited
+    const firstVisited:VisitedPage[] = this.byFirstVisited
     const currentIndex = this.activeIndex
     return new HistoryStack({
       back: firstVisited.slice(0, currentIndex),
       current: this.activePage,
-      forward: firstVisited.slice(currentIndex + 1)
+      forward: firstVisited.slice(currentIndex + 1).filter(Pages.manualOnly)
     })
   }
 
@@ -32,8 +39,8 @@ export default class Pages implements IHistory {
     )
   }
 
-  replacePageAtIndex(page:Page, index:number):Pages {
-    const firstVisited:Page[] = this.byFirstVisited
+  replacePageAtIndex(page:VisitedPage, index:number):Pages {
+    const firstVisited:VisitedPage[] = this.byFirstVisited
     return new Pages([
       ...firstVisited.slice(0, index),
       page,
@@ -41,21 +48,20 @@ export default class Pages implements IHistory {
     ])
   }
 
-  touchPageAtIndex(index:number, time:number):Pages {
-    return this.replacePageAtIndex(this.byFirstVisited[index].touch(time), index)
+  touchPageAtIndex(index:number, pageVisit:PageVisit):Pages {
+    const page:VisitedPage = this.byFirstVisited[index]
+    return this.replacePageAtIndex(page.touch(pageVisit), index)
   }
 
-  activate(time:number):Pages {
-    return this.touchPageAtIndex(this.activeIndex, time)
+  activate(pageVisit:PageVisit):Pages {
+    return this.touchPageAtIndex(this.activeIndex, pageVisit)
   }
 
   push(page:Page, time:number):Pages {
     const index:number = this.activeIndex + 1
-    const newPage:Page = new Page({
+    const newPage:VisitedPage = new VisitedPage({
       ...Object(page),
-      createdAt: time,
-      firstVisited: time,
-      lastVisited: time
+      visits:[{time, action: Push}]
     })
     return new Pages([...this.byFirstVisited.slice(0, index), newPage])
   }
@@ -66,9 +72,9 @@ export default class Pages implements IHistory {
    * @param reset - Should it remove the forward pages from history?
    */
   top(time:number, reset:boolean=false):Pages {
-    const firstVisited:Page[] = this.byFirstVisited
-    const page:Page = firstVisited[0].touch(time)
-    return new Pages(reset ? [page] : [page, ...firstVisited.slice(1)])
+    const firstVisit:VisitedPage[] = this.byFirstVisited
+    const page:VisitedPage = firstVisit[0].touch({time, action: Top})
+    return new Pages(reset ? [page] : [page, ...firstVisit.slice(1)])
   }
 
   /**
@@ -78,8 +84,8 @@ export default class Pages implements IHistory {
    * @throws Error if page not found
    */
   getShiftAmount(page:Page):number {
-    const firstVisited:Page[] = this.byFirstVisited
-    const index = R.findIndex((p:Page) => p.equals(page), firstVisited)
+    const firstVisit:Page[] = this.byFirstVisited
+    const index = R.findIndex((p:Page) => p.equals(page), firstVisit)
     if (index === -1) {
       throw new Error('Page not found')
     }
@@ -88,7 +94,7 @@ export default class Pages implements IHistory {
     }
   }
 
-  go(n:number, time:number):Pages {
+  go(n:number, time:number, action:IActionClass=Go):Pages {
     const oldIndex:number = this.activeIndex
     const newIndex:number = oldIndex + n
     if (newIndex < 0 || newIndex >= this.pages.length) {
@@ -96,16 +102,16 @@ export default class Pages implements IHistory {
           `Can't go ${n}, size = ${this.pages.length}, index = ${oldIndex}`)
     }
     else {
-      return this.touchPageAtIndex(newIndex, time)
+      return this.touchPageAtIndex(newIndex, {time, action})
     }
   }
 
   back(n:number=1, time:number):Pages {
-    return this.go(0 - n, time)
+    return this.go(0 - n, time, Back)
   }
 
   forward(n:number=1, time:number):Pages {
-    return this.go(n, time)
+    return this.go(n, time, Forward)
   }
 
   canGoBack(n:number=1):boolean {
@@ -144,18 +150,18 @@ export default class Pages implements IHistory {
     return this.go(this.getShiftAmount(page), time)
   }
 
-  get activePage():Page {
+  get activePage():VisitedPage {
     return this.byLastVisited[0]
   }
 
   get activeIndex():number {
     const current:Page = this.activePage
-    const firstVisited:Page[] = this.byFirstVisited
-    return R.findIndex(p => p === current, firstVisited)
+    const firstVisit:Page[] = this.byFirstVisited
+    return R.findIndex(p => p === current, firstVisit)
   }
 
-  get lastVisited():number {
-    return this.activePage.lastVisited
+  get lastVisit():PageVisit {
+    return this.activePage.lastVisit
   }
 
   containsPage(page:Page):boolean {
@@ -166,24 +172,64 @@ export default class Pages implements IHistory {
     return this.pages.length
   }
 
-  static compareByFirstVisited(p1:Page, p2:Page):number {
-    if (p1.firstVisited === p2.firstVisited) {
-      return p1.createdAt - p2.createdAt
-    }
-    else {
-      return p1.firstVisited - p2.firstVisited
-    }
+  add(page:VisitedPage):Pages {
+    return new Pages([...this.pages, page])
   }
 
-  static compareByLastVisited(p1:Page, p2:Page):number {
-    return p2.lastVisited - p1.lastVisited
+  filter(fn:(page:VisitedPage)=>boolean):Pages {
+    return new Pages([...this.pages.filter(fn)])
   }
 
-  private get byFirstVisited():Page[] {
+  static manualOnly(page:VisitedPage):boolean {
+    return page.wasManuallyVisited
+  }
+
+  static compareByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
+    return p1.firstVisit.time - p2.firstVisit.time
+  }
+
+  static compareByLastVisited(p1:VisitedPage, p2:VisitedPage):number {
+    return p2.lastVisit.time - p1.lastVisit.time
+  }
+
+  private get byFirstVisited():VisitedPage[] {
     return R.sort(Pages.compareByFirstVisited, this.pages)
   }
 
-  private get byLastVisited():Page[] {
+  private get byLastVisited():VisitedPage[] {
     return R.sort(Pages.compareByLastVisited, this.pages)
+  }
+
+  private get manualOnly():Pages {
+    return new Pages(this.filter(Pages.manualOnly).byFirstVisited)
+  }
+}
+
+/**
+ * Not really a stack in the strictest definition, rather two arrays and a value,
+ * but the name History is already built-in type in TypeScript
+ */
+export class HistoryStack {
+  readonly back: VisitedPage[]
+  readonly current: VisitedPage
+  readonly forward: VisitedPage[]
+
+  constructor({back, current, forward}:
+    {back:VisitedPage[], current:VisitedPage, forward:VisitedPage[]}) {
+    this.back = back
+    this.current = current
+    this.forward = forward
+  }
+
+  get lastVisit():PageVisit {
+    return this.current.lastVisit
+  }
+
+  flatten():VisitedPage[] {
+    return [...this.back, this.current, ...this.forward]
+  }
+
+  toPages():Pages {
+    return new Pages(this.flatten())
   }
 }

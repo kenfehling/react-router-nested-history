@@ -1,12 +1,14 @@
-import Page from '../Page'
+import Page from './Page'
+import PageVisit from './PageVisit'
+import VisitedPage from './VistedPage'
 
 abstract class IHistory {
   abstract getBackPage(n:number): Page|undefined
   abstract getForwardPage(n:number): Page|undefined
   abstract canGoBack(n: number): boolean
   abstract canGoForward(n: number): boolean
-  abstract get lastVisited(): number
-  abstract get activePage(): Page
+  abstract get lastVisit(): PageVisit
+  abstract get activePage(): VisitedPage
   abstract containsPage(page: Page): boolean
   abstract getShiftAmount(page: Page): number
 
@@ -15,7 +17,7 @@ abstract class IHistory {
   abstract get backLength():number
   abstract get forwardLength():number
 
-  abstract activate(time: number): IHistory
+  abstract activate(pageVisit: PageVisit): IHistory
   abstract push(page: Page, time:number): IHistory
   abstract top(time: number, reset: boolean): IHistory
   abstract back(n: number, time: number): IHistory

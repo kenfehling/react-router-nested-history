@@ -1,6 +1,6 @@
 import Action from '../Action'
 import IState from '../IState'
-import Step from '../interfaces/Step'
+import Step from '../Step'
 
 abstract class NonStepAction extends Action {
   addSteps(steps: Step[], state: IState): Step[] {

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import {connect, Dispatch} from 'react-redux'
-import IUpdateData from '../../model/interfaces/IUpdateData'
+import IUpdateData from '../../model/IUpdateData'
 import {Store} from '../../store'
 import Page from '../../model/Page'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'

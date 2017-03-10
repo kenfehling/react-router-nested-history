@@ -1,6 +1,6 @@
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
-import Step from '../interfaces/Step'
+import Step from '../Step'
 import {diffHistoryToSteps} from '../../util/reconciler'
 import Action from '../Action'
 

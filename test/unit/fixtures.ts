@@ -2,22 +2,10 @@ import CreateContainer from '../../src/model/actions/CreateContainer'
 import CreateGroup from '../../src/model/actions/CreateGroup'
 import Group from '../../src/model/Group'
 import Container from '../../src/model/Container'
-import ISubGroup from '../../src/model/interfaces/ISubGroup'
+import ISubGroup from '../../src/model/ISubGroup'
 import UninitializedState from '../../src/model/UninitializedState'
 import InitializedState from '../../src/model/InitializedState'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
-import Page from '../../src/model/Page'
-
-export const createPage = (url:string, createdAt:number,
-                           firstVisited:number, lastVisited:number) => new Page({
-  url,
-  params: {},
-  groupName: 'Group 1',
-  containerName: 'Container 1',
-  createdAt,
-  firstVisited,
-  lastVisited
-})
 
 const createCreateGroup = (name:string):CreateGroup =>
     new CreateGroup({name, time: 500})
@@ -137,7 +125,8 @@ const group3:Group = new Group({
       name: 'Container 1',
       groupName: 'Group 3',
       initialUrl: '/g',
-      patterns: ['/g', '/g/:id']
+      patterns: ['/g', '/g/:id'],
+      isDefault: true
     }),
     new Container({
       time: 1006,

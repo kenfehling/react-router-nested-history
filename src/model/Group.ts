@@ -1,4 +1,3 @@
-import HistoryStack from './HistoryStack'
 import * as R from 'ramda'
 import * as defaultBehavior from '../behaviors/defaultBehavior'
 import * as nonDefaultBehavior from '../behaviors/nonDefaultBehavior'
@@ -6,12 +5,18 @@ import * as interContainerHistory from '../behaviors/interContainerHistory'
 import * as keepFwdTabBehavior from '../behaviors/keepFwdTabBehavior'
 import * as removeFwdTabBehavior from '../behaviors/removeFwdTabBehavior'
 import Page from './Page'
-import IHistory from './interfaces/IHistory'
+import IHistory from './IHistory'
 import Container from './Container'
-import IGroupContainer from './interfaces/IGroupContainer'
-import IContainer from './interfaces/IContainer'
-import ISubGroup from './interfaces/ISubGroup'
-import Pages from './Pages'
+import IGroupContainer from './IGroupContainer'
+import IContainer from './IContainer'
+import ISubGroup from './ISubGroup'
+import Pages, {HistoryStack} from './Pages'
+import PageVisit, {IActionClass} from './PageVisit'
+import Go from './actions/Go'
+import Forward from './actions/Forward'
+import Back from './actions/Back'
+import SwitchToContainer from './actions/SwitchToContainer'
+import VisitedPage from './VistedPage'
 
 // Param types for _go method
 type GoFn = <H extends IHistory> (h:H, n:number, time:number) => H
@@ -85,7 +90,8 @@ export default class Group implements IContainer {
                                 fromDefault:boolean|null,
                                 toDefault:boolean|null):HistoryStack {
     if (!fromDefault && !toDefault && this.allowInterContainerHistory) {
-      if (Pages.compareByFirstVisited(from.current, to.current) < 0) {
+      const comparison = Pages.compareByFirstVisited(from.current, to.current)
+      if (comparison < 0 || (comparison === 0 && fromDefault)) {
         return interContainerHistory.D_to_E(to, from, to)
       }
       else {
@@ -119,9 +125,16 @@ export default class Group implements IContainer {
   }
 
   private static computeFwd(h:HistoryStack, keepFwd:boolean,
-                            from:HistoryStack, to:HistoryStack) {
-    if (keepFwd && from.lastVisited > 0) {
-      return keepFwdTabBehavior.E_to_D(h, from, to)
+                            from:HistoryStack, to:HistoryStack,
+                            fromDefault:boolean|null, toDefault:boolean|null) {
+    if (keepFwd && from.current.wasManuallyVisited) {
+      const comparison = Pages.compareByFirstVisited(from.current, to.current)
+      if (comparison > 0 || (comparison === 0 && toDefault)) {
+        return keepFwdTabBehavior.E_to_D(h, from, to)
+      }
+      else {
+        return keepFwdTabBehavior.D_to_E(h, from, to)
+      }
     }
     else {
       return removeFwdTabBehavior.E_to_D(h, from, to)
@@ -142,7 +155,8 @@ export default class Group implements IContainer {
         fromHistory, toHistory, from.isDefault, to.isDefault)
     const h2:HistoryStack = Group.computeDefault(
         h1, defaultHistory, fromHistory, toHistory, from.isDefault, to.isDefault)
-    const h3 = Group.computeFwd(h2, keepFwd, fromHistory, toHistory)
+    const h3 = Group.computeFwd(
+        h2, keepFwd, fromHistory, toHistory, from.isDefault, to.isDefault)
     return h3
   }
 
@@ -156,9 +170,10 @@ export default class Group implements IContainer {
   }
 
   getHistory(keepFwd:boolean=false) {
-    const containers:IGroupContainer[] = this.containerStackOrder
+    const containers:IGroupContainer[] =
+        this.containerStackOrder.filter(c => c.activePage.wasManuallyVisited)
     switch(containers.length) {
-      case 0: throw new Error(`'${this.name}' has no containers`)
+      case 0: throw new Error(`'${this.name}' has no visited containers`)
       case 1: return Group.getSingleHistory(containers[0], keepFwd)
       default: {
         const from: IGroupContainer = containers[1]
@@ -169,17 +184,31 @@ export default class Group implements IContainer {
   }
 
   activateContainer(containerName:string, time:number):Group {
+    const visit:PageVisit = {time, action: SwitchToContainer}
     const from:IGroupContainer = this.activeContainer
     const to:IGroupContainer = this.getContainerByName(containerName)
     const group:Group = from.resetOnLeave && from.name !== to.name ?
         this.replaceContainer(from.top(time, true) as IGroupContainer) :
-        this.replaceContainer(from.activate(time) as IGroupContainer)  // TODO: Still needed?
-    return group.replaceContainer(to.activate(time + 1) as IGroupContainer)
+        this.replaceContainer(from.activate(visit) as IGroupContainer)  // TODO: Still needed?
+    return group.replaceContainer(
+        to.activate({...visit, time: visit.time + 1}) as IGroupContainer)
+  }
+
+  private static sortContainers(containers:IGroupContainer[]):IGroupContainer[] {
+    return R.sort((c1, c2) => c2.lastVisit.time - c1.lastVisit.time, containers)
   }
 
   get containerStackOrder():IGroupContainer[] {
-    return R.sort((c1, c2) => c2.lastVisited - c1.lastVisited, this.containers)
-  }
+    const visited = this.containers.filter(c => c.activePage.wasManuallyVisited)
+    const unvisited = R.difference(this.containers, visited)
+    const defaultUnvisited = R.find(c => c.isDefault, unvisited)
+    const nonDefaultUnvisited = R.difference(unvisited, [defaultUnvisited])
+    return [
+      ...Group.sortContainers(visited),
+      ...(defaultUnvisited ? [defaultUnvisited] : []),
+      ...Group.sortContainers(nonDefaultUnvisited)
+    ]
+   }
 
   get history():HistoryStack {
     return this.getHistory()
@@ -200,8 +229,8 @@ export default class Group implements IContainer {
     return R.any((c:IGroupContainer):boolean => c.patternsMatch(url), this.containers)
   }
 
-  activate(time:number):Group {
-    return this.replaceContainer(this.activeContainer.activate(time) as IGroupContainer)
+  activate(visit:PageVisit):Group {
+    return this.replaceContainer(this.activeContainer.activate(visit) as IGroupContainer)
   }
 
   getContainerIndex(container:IGroupContainer):number {
@@ -251,7 +280,7 @@ export default class Group implements IContainer {
     return this.getContainerByName(containerName).activePage
   }
 
-  get activePage():Page {
+  get activePage():VisitedPage {
     return this.activeContainer.activePage
   }
 
@@ -311,10 +340,10 @@ export default class Group implements IContainer {
   }
   */
 
-  private _go(goFn:GoFn, lengthFn:LengthFn,
-              nextPageFn: NextPageFn, n:number, time:number):Group {
+  private _go(goFn:GoFn, lengthFn:LengthFn, nextPageFn: NextPageFn, n:number,
+              time:number, action:IActionClass=Go):Group {
     if (n === 0) {
-      return this.activate(time)
+      return this.activate({time, action})
     }
     const container:IGroupContainer = this.activeContainer
     const containerLength:number = lengthFn(container)
@@ -346,7 +375,7 @@ export default class Group implements IContainer {
       (c, n, t) => c.forward(n, t),
       c => c.forwardLength,
       c => c.getForwardPage(),
-      n, time)
+      n, time, Forward)
   }
 
   back(n:number=1, time):Group {
@@ -354,7 +383,7 @@ export default class Group implements IContainer {
       (c, n, t) => c.back(n, t),
       c => c.backLength,
       c => c.getBackPage(),
-      n, time)
+      n, time, Back)
   }
 
   /*
@@ -503,8 +532,8 @@ export default class Group implements IContainer {
     return new Pages(this.history.flatten())
   }
 
-  get lastVisited():number {
-    return this.activeContainer.lastVisited
+  get lastVisit():PageVisit {
+    return this.activeContainer.lastVisit
   }
 
   get backPages():Page[] {

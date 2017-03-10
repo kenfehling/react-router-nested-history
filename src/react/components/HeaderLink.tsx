@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {Dispatch, connect} from 'react-redux'
-import IUpdateData from '../../model/interfaces/IUpdateData'
+import IUpdateData from '../../model/IUpdateData'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 

@@ -5,11 +5,11 @@ import DumbContainerGroup, {
   OnContainerSwitch, ChildrenType
 } from './DumbContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
-import IUpdateData from '../../model/interfaces/IUpdateData'
+import IUpdateData from '../../model/IUpdateData'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import InitializedState from '../../model/InitializedState'
-import IContainer from '../../model/interfaces/IContainer'
+import IContainer from '../../model/IContainer'
 
 export interface ContainerGroupProps {
   name: string

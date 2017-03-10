@@ -3,7 +3,7 @@ import Group from '../../../src/model/Group'
 import Page from '../../../src/model/Page'
 import HistoryStack from '../../../src/model/HistoryStack'
 import * as fixtures from '../fixtures'
-import IContainer from '../../../src/model/interfaces/IContainer'
+import IContainer from '../../../src/model/IContainer'
 import {expect} from 'chai'
 declare const describe:any
 declare const it:any
@@ -167,7 +167,7 @@ describe('IState', () => {
         expect(newState.groups.length).to.equal(state.groups.length)
         expect(newState.groups[0].name).to.equal(group.name)
         expect(newState.groups[0].pages.activePage.url).to.equal('/a/1')
-        expect(newState.groups[0].lastVisited).to.equal(4444)
+        expect(newState.groups[0].lastVisit.time).to.equal(4444)
       })
 
       it('does a switch', () => {
@@ -177,7 +177,7 @@ describe('IState', () => {
           time: 4444
         })
         expect(newState.groups[0].pages.activePage.url).to.equal('/g')
-        expect(newState.groups[0].lastVisited).to.equal(4444)
+        expect(newState.groups[0].lastVisit.time).to.equal(4444)
       })
     })
 

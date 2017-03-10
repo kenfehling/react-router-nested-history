@@ -1,6 +1,5 @@
-import HistoryStack from '../HistoryStack'
+import Pages, {HistoryStack} from './Pages'
 import IHistory from './IHistory'
-import Pages from '../Pages'
 
 abstract class IContainer extends IHistory {
   abstract get pages(): Pages

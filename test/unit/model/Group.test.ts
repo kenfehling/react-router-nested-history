@@ -2,9 +2,9 @@ import Group from '../../../src/model/Group'
 import Container from '../../../src/model/Container'
 import HistoryStack from '../../../src/model/HistoryStack'
 import Page from '../../../src/model/Page'
-import IContainer from '../../../src/model/interfaces/IContainer'
+import IContainer from '../../../src/model/IContainer'
 import * as fixtures from '../fixtures'
-import IGroupContainer from '../../../src/model/interfaces/IGroupContainer'
+import IGroupContainer from '../../../src/model/IGroupContainer'
 import {expect} from 'chai'
 declare const describe:any
 declare const it:any
@@ -50,7 +50,7 @@ describe('Group', () => {
         it('gets containers in latest active order', () => {
           const newOrder:IContainer[] = newGroup.containerStackOrder
           expect(newOrder[0].initialUrl).to.equal('/c')
-          expect(newOrder[0].lastVisited).to.equal(7001)
+          expect(newOrder[0].lastVisit.time).to.equal(7001)
         })
       })
     })
@@ -84,7 +84,8 @@ describe('Group', () => {
 
     describe('activateContainer', () => {
       it('switches the current container', () => {
-        const h:HistoryStack = group.activateContainer('Container 3', 2000).history
+        const g:Group  =group.activateContainer('Container 3', 2000)
+        const h:HistoryStack = g.history
         expect(h.back.length).to.equal(1)
         expect(h.back[0].url).to.equal('/a')
         expect(h.current.url).to.equal('/c')
@@ -229,19 +230,14 @@ describe('Group', () => {
     describe('stack orders', () => {
       const newGroup:Group = group.activateContainer('Group 2', 2000)
 
-      describe('containerStackOrder', () => {
-        it('returns the original order if all else is equal', () => {
-          expect(group.containerStackOrder).to.deep.equal(group.containers)
-        })
-
-        it('gets containers in latest active order', () => {
-          const newOrder:IContainer[] = newGroup.containerStackOrder
-          expect(newOrder[0].initialUrl).to.equal('/e')
-          expect(newOrder[0].lastVisited).to.equal(2001)
-          expect(newOrder[1].initialUrl).to.equal('/a')
-        })
+      it('gets containers in latest active order', () => {
+        const newOrder:IContainer[] = newGroup.containerStackOrder
+        expect(newOrder[0].initialUrl).to.equal('/e')
+        expect(newOrder[0].lastVisit.time).to.equal(2001)
+        expect(newOrder[1].initialUrl).to.equal('/a')
       })
     })
+
 
     describe('history', () => {
       it('returns history based on container history', () => {

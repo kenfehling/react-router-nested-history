@@ -5,7 +5,7 @@ import {connect, Dispatch} from 'react-redux'
 import {createStore, Store} from '../../store'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import cloneElement = React.cloneElement
-import IUpdateData from '../../model/interfaces/IUpdateData'
+import IUpdateData from '../../model/IUpdateData'
 import Startup from '../../model/actions/Startup'
 import * as browser from '../../util/browserFunctions'
 import InitializedState from '../../model/InitializedState'

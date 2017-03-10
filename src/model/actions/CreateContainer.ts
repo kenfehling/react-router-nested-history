@@ -1,7 +1,6 @@
 import Action, {SYSTEM} from '../Action'
 import IState from '../IState'
 import {Serializable} from '../../util/serializer'
-import Group from '../Group'
 
 @Serializable
 export default class CreateContainer extends Action {
@@ -40,7 +39,7 @@ export default class CreateContainer extends Action {
   }
 
   filter(state:IState):Action[] {
-    const group:Group = state.getGroupByName(this.groupName)
-    return group.hasContainerWithName(this.name) ? [] : [this]
+    return state.getGroupByName(this.groupName)
+        .hasContainerWithName(this.name) ? [] : [this]
   }
 }

@@ -5,7 +5,7 @@ import {createPath} from 'history/PathUtils'
 import {connect, Dispatch} from 'react-redux'
 import Push from '../../model/actions/Push'
 import {Store} from '../../store'
-import IUpdateData from '../../model/interfaces/IUpdateData'
+import IUpdateData from '../../model/IUpdateData'
 
 type HistoryLinkPropsWithStore = LinkProps & {
   store: Store

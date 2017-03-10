@@ -30,8 +30,7 @@ export default class Push extends Action {
       params,
       url: this.url,
       groupName: this.groupName,
-      containerName: this.containerName,
-      lastVisited: this.time
+      containerName: this.containerName
     })
     return state.push(page, this.time)
   }

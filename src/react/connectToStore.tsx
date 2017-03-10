@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, ComponentClass, PropTypes, createElement} from 'react'
 import {connect} from 'react-redux'
-import IUpdateData from '../model/interfaces/IUpdateData'
+import IUpdateData from '../model/IUpdateData'
 import {Store} from '../store'
 
 export default function<P>(component:ComponentClass<P>):ComponentClass<P> {

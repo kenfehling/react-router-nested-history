@@ -1,14 +1,45 @@
 import Container from '../../../src/model/Container'
-import {createPage} from '../fixtures'
 import Pages from '../../../src/model/Pages'
 import {expect} from 'chai'
+import VisitedPage from '../../../src/model/VistedPage'
+import Push from '../../../src/model/actions/Push'
+import CreateContainer from '../../../src/model/actions/CreateContainer'
+import LoadFromUrl from '../../../src/model/actions/LoadFromUrl'
 declare const describe:any
 declare const it:any
 
 describe('Container', () => {
-  const backPage = createPage('/back', 2000, 2000, 2000)
-  const currentPage = createPage('/a', 3000, 3000, 5000)
-  const forwardPage = createPage('/forward', 4000, 4000, 4000)
+  const backPage = new VisitedPage({
+    url: '/a',
+    params: {},
+    groupName: 'Group 1',
+    containerName: 'Container 1',
+    visits: [
+      {time: 2000, action: CreateContainer},
+      {time: 3000, action: LoadFromUrl}
+    ]
+  })
+  const currentPage = new VisitedPage({
+    url: '/a/1',
+    params: {},
+    groupName: 'Group 1',
+    containerName: 'Container 1',
+    visits: [
+      {time: 2000, action: CreateContainer},
+      {time: 4000, action: Push},
+      {time: 6000, action: Push}
+    ]
+  })
+  const forwardPage = new VisitedPage({
+    url: '/a/2',
+    params: {},
+    groupName: 'Group 1',
+    containerName: 'Container 1',
+    visits: [
+      {time: 2000, action: CreateContainer},
+      {time: 5000, action: Push}
+    ]
+  })
   const container:Container = new Container({
     name: 'Container 1',
     groupName: 'Group 1',
@@ -16,7 +47,7 @@ describe('Container', () => {
     patterns: ['/a', '/a/:id'],
     isDefault: true,
     pages: new Pages([backPage, currentPage, forwardPage]),
-    time: 500
+    time: 2000
   })
 
   describe('patternsMatch', () => {
@@ -32,36 +63,35 @@ describe('Container', () => {
   })
 
   describe('pushUrl', () => {
-    const newContainer = container.pushUrl('/a/1', 6000)
+    const newContainer = container.pushUrl('/a/3', 8000)
 
     it('pushes to the container history', () => {
-      expect(newContainer.history.current.url).to.equal('/a/1')
+      expect(newContainer.history.current.url).to.equal('/a/3')
       expect(newContainer.history.back.length).to.equal(2)
-      expect(newContainer.history.back[0].url).to.equal('/back')
-      expect(newContainer.history.back[1].url).to.equal('/a')
+      expect(newContainer.history.back[0].url).to.equal('/a')
+      expect(newContainer.history.back[1].url).to.equal('/a/1')
       expect(newContainer.history.forward.length).to.equal(0)
     })
 
     it('parses params', () => {
-      expect(newContainer.history.current.params).to.deep.equal({id: '1'})
+      expect(newContainer.history.current.params).to.deep.equal({id: '3'})
     })
 
     it('works after pushing multiple pages', () => {
       const c:Container =
-          newContainer.pushUrl('/a/2', 7500).pushUrl('/a/3', 8500)
-      expect(c.history.current.url).to.equal('/a/3')
-      expect(c.history.back.length).to.equal(4)
-      expect(c.history.back[0].url).to.equal('/back')
-      expect(c.history.back[1].url).to.equal('/a')
-      expect(c.history.back[2].url).to.equal('/a/1')
-      expect(c.history.back[3].url).to.equal('/a/2')
+          newContainer.pushUrl('/a/3', 7500).pushUrl('/a/4', 8500)
+      expect(c.history.current.url).to.equal('/a/4')
+      expect(c.history.back.length).to.equal(3)
+      expect(c.history.back[0].url).to.equal('/a')
+      expect(c.history.back[1].url).to.equal('/a/1')
+      expect(c.history.back[2].url).to.equal('/a/3')
       expect(c.history.forward.length).to.equal(0)
     })
   })
 
   describe('loadFromUrl', () => {
     it('pushes if container patterns match', () => {
-      expect(container.loadFromUrl('/a/1', 7500).history.back.length).to.equal(2)
+      expect(container.loadFromUrl('/a/3', 7500).history.back.length).to.equal(2)
     })
 
     it('does nothing if patterns do not match', () => {
@@ -69,16 +99,16 @@ describe('Container', () => {
     })
 
     it('does nothing if already on this page', () => {
-      expect(container.loadFromUrl('/a', 7500).history.back.length).to.equal(1)
+      expect(container.loadFromUrl('/a/1', 7500).history.back.length).to.equal(1)
     })
   })
 
   describe('top', () => {
-    const newContainer:Container = container.top(5000)
+    const newContainer:Container = container.top(10000)
 
-    it('updates the lastVisited of the initial page', () => {
-      expect(newContainer.history.current.url).to.equal('/back')
-      expect(newContainer.history.current.lastVisited).to.equal(5000)
+    it('updates the lastVisit of the initial page', () => {
+      expect(newContainer.history.current.url).to.equal('/a')
+      expect(newContainer.history.current.lastVisit.time).to.equal(10000)
     })
   })
 })

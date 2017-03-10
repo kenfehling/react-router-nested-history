@@ -6,7 +6,7 @@ import IState from './model/IState'
 import * as store from 'store'
 import ClearActions from './model/actions/ClearActions'
 import UpdateBrowser from './model/actions/UpdateBrowser'
-import IUpdateData from './model/interfaces/IUpdateData'
+import IUpdateData from './model/IUpdateData'
 import * as browser from './util/browserFunctions'
 
 export interface Store {

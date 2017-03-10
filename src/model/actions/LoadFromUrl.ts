@@ -1,6 +1,6 @@
-import Action from '../Action'
+import Action, {SYSTEM} from '../Action'
 import IState from '../IState'
-import Step from '../interfaces/Step'
+import Step from '../Step'
 import {Serializable} from '../../util/serializer'
 import UninitializedState from '../UninitializedState'
 import InitializedState from '../InitializedState'
@@ -19,7 +19,7 @@ export default class LoadFromUrl extends Action {
 
   constructor({time, url, fromRefresh=false}:
       {time?:number, url:string, fromRefresh?:boolean}) {
-    super({time})
+    super({time, origin: SYSTEM})
     this.url = url
     this.fromRefresh = fromRefresh
   }

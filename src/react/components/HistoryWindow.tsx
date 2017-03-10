@@ -2,7 +2,7 @@ import * as React from 'react'
 import {
   Component, PropTypes, ReactNode, ReactElement, Children, cloneElement
 } from 'react'
-import IContainer from '../../model/interfaces/IContainer'
+import IContainer from '../../model/IContainer'
 import * as R from 'ramda'
 
 const getWindowZIndex = (stackOrder:IContainer[]|null, name:string) => {

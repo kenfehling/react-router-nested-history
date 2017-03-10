@@ -66,8 +66,8 @@ describe('PopState action', () => {
           groupName: 'Group 1',
           containerName: 'Container 1',
           createdAt: 5000,
-          firstVisited: 5000,
-          lastVisited: 15000
+          firstVisit: 5000,
+          lastVisit: 15000
         }))
       ])
     })

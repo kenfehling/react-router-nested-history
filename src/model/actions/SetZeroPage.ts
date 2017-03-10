@@ -1,7 +1,6 @@
 import NonStepAction from './NonStepAction'
 import {SYSTEM} from '../Action'
 import IState from '../IState'
-import Page from '../Page'
 import {Serializable} from '../../util/serializer'
 
 @Serializable
@@ -17,7 +16,7 @@ export default class SetZeroPage extends NonStepAction {
 
   reduce(state:IState):IState {
     return state.assign({
-      zeroPage: this.url ? Page.createZeroPage(this.url) : null
+      zeroPage: this.url
     })
   }
 }

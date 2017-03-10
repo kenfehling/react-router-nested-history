@@ -3,7 +3,7 @@ import {Component, Children, PropTypes, cloneElement, ReactElement} from 'react'
 import ContainerGroup from './ContainerGroup'
 import {ContainerGroupProps} from './ContainerGroup'
 import {ChildrenFunctionArgs} from './DumbContainerGroup'
-import IContainer from '../../model/interfaces/IContainer'
+import IContainer from '../../model/IContainer'
 
 const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
 

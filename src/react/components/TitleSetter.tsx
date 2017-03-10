@@ -1,10 +1,10 @@
 import * as React from 'react'
 import {Component, ReactNode} from 'react'
 import {connect} from 'react-redux'
-import IUpdateData from '../../model/interfaces/IUpdateData'
+import IUpdateData from '../../model/IUpdateData'
 import {Store} from '../../store'
 import {canUseWindowLocation} from '../../util/browserFunctions'
-import HistoryStack from '../../model/HistoryStack'
+import {HistoryStack} from '../../model/Pages'
 
 type TitleSetterPropsWithStore = {
   store: Store,

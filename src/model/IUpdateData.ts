@@ -1,5 +1,5 @@
-import IState from '../IState'
-import Action from '../Action'
+import IState from './IState'
+import Action from './Action'
 
 interface IUpdateData {
   readonly lastAction: Action

@@ -1,8 +1,12 @@
 import Page from './Page'
-import HistoryStack from './HistoryStack'
 import {parseParamsFromPatterns, patternsMatch} from '../util/url'
-import IContainer from './interfaces/IContainer'
-import Pages from './Pages'
+import IContainer from './IContainer'
+import Pages, {HistoryStack} from './Pages'
+import PageVisit, {IActionClass} from './PageVisit'
+import VisitedPage from './VistedPage'
+import Push from './actions/Push'
+import LoadFromUrl from './actions/LoadFromUrl'
+import CreateContainer from './actions/CreateContainer'
 
 export default class Container implements IContainer {
   readonly name: string
@@ -36,12 +40,12 @@ export default class Container implements IContainer {
     this.resetOnLeave = resetOnLeave
     this.groupName = groupName
     this.pages = pages || new Pages([
-      new Page({
+      new VisitedPage({
         url: initialUrl,
         params: parseParamsFromPatterns(patterns, initialUrl),
         containerName: name,
         groupName,
-        createdAt: time
+        visits: [{time, action: CreateContainer}]
       })
     ])
   }
@@ -72,13 +76,13 @@ export default class Container implements IContainer {
     return this.pages.toHistoryStack()
   }
 
-  push(page:Page, time:number):Container {
+  push(page:Page, time:number, action:IActionClass=Push):Container {
     return this.replacePages(this.pages.push(page, time))
   }
 
-  pushUrl(url:string, time:number):Container {
+  pushUrl(url:string, time:number, action:IActionClass=Push):Container {
     if (this.activePage.url === url) {
-      return this.activate(time)
+      return this.activate({time, action: Push})
     }
     else {
       const page:Page = new Page({
@@ -87,21 +91,21 @@ export default class Container implements IContainer {
         containerName: this.name,
         groupName: this.groupName
       })
-      return this.push(page, time)
+      return this.push(page, time, action)
     }
   }
 
   loadFromUrl(url:string, time:number):Container {
     if (this.patternsMatch(url)) {
-      return this.activate(time - 1).pushUrl(url, time)
+      return this.pushUrl(url, time, LoadFromUrl)
     }
     else {
       return this
     }
   }
 
-  activate(time:number):Container {
-    return this.replacePages(this.pages.activate(time))
+  activate(visit:PageVisit):Container {
+    return this.replacePages(this.pages.activate(visit))
   }
 
   top(time:number, reset:boolean=false):Container {
@@ -140,7 +144,7 @@ export default class Container implements IContainer {
     return this.pages.containsPage(page)
   }
 
-  get activePage():Page {
+  get activePage():VisitedPage {
     return this.pages.activePage
   }
 
@@ -168,8 +172,8 @@ export default class Container implements IContainer {
     return this.pages.forwardLength
   }
 
-  get lastVisited():number {
-    return this.pages.lastVisited
+  get lastVisit():PageVisit {
+    return this.pages.lastVisit
   }
 
   get isGroup():boolean {

@@ -1,5 +1,5 @@
 import * as Queue from 'promise-queue'
-import Step from '../model/interfaces/Step'
+import Step from '../model/Step'
 import * as browser from './browserFunctions'
 
 const queue = new Queue(1, Infinity)  // maxConcurrent = 1, maxQueue = Infinity

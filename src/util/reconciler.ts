@@ -1,13 +1,11 @@
 import Page from '../model/Page'
-import Step from '../model/interfaces/Step'
+import Step from '../model/Step'
 import BackStep from '../model/steps/BackStep'
 import * as R from 'ramda'
 import PushStep from '../model/steps/PushStep'
-import IState from '../model/IState'
 import ReplaceStep from '../model/steps/ReplaceStep'
 import GoStep from '../model/steps/GoStep'
-import Pages from '../model/Pages'
-import HistoryStack from '../model/HistoryStack'
+import Pages, {HistoryStack} from '../model/Pages'
 
 export class HistoryDiff {
   readonly same: Page[]
@@ -105,8 +103,8 @@ export const diffToSteps = (diff:HistoryDiff):Step[] => {
  * @param newState {IState} The new historyStore state
  * @returns {Step[]} An array of steps to get from old state to new state
  */
-export const diffStateToSteps = (oldState:IState, newState:IState):Step[] =>
-    R.compose(diffToSteps, diffHistory)(oldState.pages, newState.pages)
+export const diffPagesToSteps:(ps1:Pages, ps2:Pages) => Step[] =
+    R.compose(diffToSteps, diffHistory)
 
 export const diffHistoryToSteps = (h1:HistoryStack, h2:HistoryStack):Step[] => {
   const oldPages:Pages = new Pages(h1.flatten())

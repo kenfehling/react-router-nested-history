@@ -1,6 +1,6 @@
 import IContainer from './IContainer'
-import Page from '../Page'
-import Pages from '../Pages'
+import Page from './Page'
+import Pages from './Pages'
 
 abstract class IGroupContainer extends IContainer {
   abstract get groupName(): string

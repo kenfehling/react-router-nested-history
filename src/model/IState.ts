@@ -1,24 +1,23 @@
 import Page from './Page'
-import HistoryStack from './HistoryStack'
 import Container from './Container'
 import * as R from 'ramda'
-import IContainer from './interfaces/IContainer'
-import ISubGroup from './interfaces/ISubGroup'
+import IContainer from './IContainer'
+import ISubGroup from './ISubGroup'
 import Group from './Group'
-import PathTitle from './interfaces/PathTitle'
-import Pages from './Pages'
+import PathTitle from './PathTitle'
+import {HistoryStack} from './Pages'
 
 abstract class IState {
   readonly groups: Group[]
   readonly titles: PathTitle[]
-  readonly zeroPage?: Page
+  readonly zeroPage?: string
   readonly lastUpdate: number
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
   constructor({groups=[], zeroPage, lastUpdate=0,
     loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
-    {groups?:Group[], zeroPage?:Page, lastUpdate?:number,
+    {groups?:Group[], zeroPage?:string, lastUpdate?:number,
       loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
     this.zeroPage = zeroPage
@@ -29,7 +28,6 @@ abstract class IState {
   }
 
   abstract assign(obj:Object):IState
-  abstract get pages():Pages
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):IState
 
@@ -198,21 +196,6 @@ abstract class IState {
 
   get activeTitle() {
     return this.getTitleForPath(this.activeUrl)
-  }
-
-  addTitle({pathname, title}:{pathname:string, title:string}):IState {
-    const existingTitle = this.getTitleForPath(pathname)
-    return existingTitle ? this :
-      this.assign({titles: [...this.titles, {pathname, title}]})
-  }
-
-  /**
-   * Gets the zero page, or if it's not set defaults to using
-   * the initialUrl of the first container in the first group
-   */
-  getZeroPage():Page {
-    return this.zeroPage || Page.createZeroPage(
-        this.groups[0].containers[0].initialUrl)
   }
 }
 

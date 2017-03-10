@@ -1,4 +1,4 @@
-import H from '../model/HistoryStack'
+import {HistoryStack as H} from '../model/Pages'
 
 /**
  * Allow inter-container history (e.g. different full window screens)

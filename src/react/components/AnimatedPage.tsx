@@ -9,7 +9,7 @@ import Action from '../../model/Action'
 import PopState from '../../model/actions/PopState'
 import {connect} from 'react-redux'
 import {Store} from '../../store'
-import IUpdateData from '../../model/interfaces/IUpdateData'
+import IUpdateData from '../../model/IUpdateData'
 
 interface AnimatedPageProps {
   children?: ReactNode

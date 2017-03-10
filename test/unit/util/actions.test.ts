@@ -20,11 +20,13 @@ import {
   createSubGroup2, createSubGroup3
 } from '../fixtures'
 import {expect} from 'chai'
+import VisitedPage from '../../../src/model/VistedPage'
+import InitializedState from '../../../src/model/InitializedState'
 declare const describe:any
 declare const it:any
 
 describe('action utils', () => {
-  const zeroPage:Page = Page.createZeroPage('/zero')
+  const zeroPage:Page = InitializedState.createZeroPage('/zero')
   const baseActions:Action[] = [
     new SetZeroPage({
       url: zeroPage.url,
@@ -89,7 +91,8 @@ describe('action utils', () => {
       name: 'Container 1',
       initialUrl: '/g',
       patterns: ['/g', '/g/:id'],
-      time: 1000
+      time: 1000,
+      isDefault: true
     }),
     new CreateContainer({
       groupName: createSubGroup3.name,
@@ -108,19 +111,20 @@ describe('action utils', () => {
             ...originalSimpleActions,
             new LoadFromUrl({
               url: '/a',
-              time: 1000
+              time: 1500
             })
           ]
           expect(createStepsSince(actions, 0)).to.deep.equal([
             new ReplaceStep(zeroPage),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/a',
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 1',
-              createdAt: 1000,
-              firstVisited: 0,
-              lastVisited: 1000
+              visits: [
+                {time: 1000, action: CreateContainer},
+                {time: 1500, action: LoadFromUrl}
+              ]
             }))
           ])
         })
@@ -135,22 +139,24 @@ describe('action utils', () => {
           ]
           expect(createStepsSince(actions, 0)).to.deep.equal([
             new ReplaceStep(zeroPage),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/a',
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 1',
-              createdAt: 1000,
-              firstVisited: 0
+              visits: [
+                {time: 1000, action: CreateContainer}
+              ]
             })),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/b',
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 2',
-              createdAt: 1001,
-              firstVisited: 0,
-              lastVisited: 2000
+              visits: [
+                {time: 1000, action: CreateContainer},
+                {time: 2000, action: LoadFromUrl}
+              ]
             }))
           ])
         })
@@ -165,30 +171,32 @@ describe('action utils', () => {
           ]
           expect(createStepsSince(actions, 0)).to.deep.equal([
             new ReplaceStep(zeroPage),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/a',
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 1',
-              createdAt: 1000,
-              firstVisited: 0
+              visits: [
+                {time: 1000, action: CreateContainer}
+              ]
             })),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/b',
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 2',
-              createdAt: 1001,
-              firstVisited: 0,
-              lastVisited: 1000
+              visits: [
+                {time: 1000, action: CreateContainer}
+              ]
             })),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/b/1',
               params: {id: '1'},
               groupName: 'Group 1',
               containerName: 'Container 2',
-              createdAt: 1001,
-              firstVisited: 1001
+              visits: [
+                {time: 1500, action: LoadFromUrl}
+              ]
             }))
           ])
         })
@@ -199,7 +207,7 @@ describe('action utils', () => {
           ...originalSimpleActions,
           new LoadFromUrl({
             url: '/a/1',
-            time: 1000
+            time: 1200
           })
         ]
 
@@ -218,18 +226,19 @@ describe('action utils', () => {
             new SwitchToContainer({
               groupName: 'Group 1',
               name: 'Container 2',
-              time: 1002
+              time: 2000
             })
           ]
           expect(createStepsSince(actions, 1000)).to.deep.equal([
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/b',
               params: {},
               groupName: 'Group 1',
               containerName: 'Container 2',
-              createdAt: 1001,
-              firstVisited: 0,
-              lastVisited: 1003
+              visits: [
+                {time: 1000, action: CreateContainer},
+                {time: 2000, action: SwitchToContainer}
+              ]
             }))
           ])
         })
@@ -277,13 +286,14 @@ describe('action utils', () => {
               })
             ]
             expect(createStepsSince(actions, 4500)).to.deep.equal([
-              new PushStep(new Page({
+              new PushStep(new VisitedPage({
                 url: '/a/1',
                 params: {id: '1'},
                 groupName: 'Group 1',
                 containerName: 'Container 1',
-                createdAt: 1000,
-                firstVisited: 1000
+                visits: [
+                  {time: 1200, action: LoadFromUrl}
+                ]
               })),
               new BackStep()
             ])
@@ -310,14 +320,14 @@ describe('action utils', () => {
             ]
             expect(createStepsSince(actions, 2000)).to.deep.equal([
               new BackStep(),
-              new PushStep(new Page({
+              new PushStep(new VisitedPage({
                 url: '/a/1',
                 params: {id: '1'},
                 groupName: 'Group 1',
                 containerName: 'Container 1',
-                createdAt: 1000,
-                firstVisited: 1000,
-                lastVisited: 3002
+                visits: [
+                  {time: 1200, action: LoadFromUrl}
+                ]
               }))
             ])
           })
@@ -362,22 +372,23 @@ describe('action utils', () => {
               ]
               expect(createStepsSince(actions, 6500)).to.deep.equal([
                 new BackStep(),
-                new PushStep(new Page({
+                new PushStep(new VisitedPage({
                   url: '/e',
                   params: {},
                   groupName: 'Group 2',
                   containerName: 'Container 1',
-                  createdAt: 1000,
-                  firstVisited: 0,
-                  lastVisited: 7001
+                  visits: [
+                    {time: 1000, action: CreateContainer}
+                  ]
                 })),
-                new PushStep(new Page({
+                new PushStep(new VisitedPage({
                   url: '/e/1',
                   params: {id: '1'},
                   groupName: 'Group 2',
                   containerName: 'Container 1',
-                  createdAt: 1500,
-                  firstVisited: 1500
+                  visits: [
+                    {time: 1500, action: LoadFromUrl}
+                  ]
                 })),
                 new BackStep()
               ])
@@ -399,14 +410,15 @@ describe('action utils', () => {
           ]
           expect(createStepsSince(actions, 0)).to.deep.equal([
             new ReplaceStep(zeroPage),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/a',
               params: {},
               groupName: createSubGroup1.name,
               containerName: createContainers1[0].name,
-              createdAt: 1000,
-              firstVisited: 0,
-              lastVisited: 2000
+              visits: [
+                {time: 1000, action: CreateContainer},
+                {time: 2000, action: LoadFromUrl}
+              ]
             })),
           ])
         })
@@ -416,25 +428,29 @@ describe('action utils', () => {
             ...originalNestedActions,
             new LoadFromUrl({
               url: '/b',
-              time: 1001
+              time: 1200
             })
           ]
           expect(createStepsSince(actions, 0)).to.deep.equal([
             new ReplaceStep(zeroPage),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/a',
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
-              createdAt: 1000
+              visits: [
+                {time: 1000, action: CreateContainer}
+              ]
             })),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/b',
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
-              createdAt: 1000,
-              lastVisited: 1001
+              visits: [
+                {time: 1000, action: CreateContainer},
+                {time: 1200, action: LoadFromUrl}
+              ]
             }))
           ])
         })
@@ -449,28 +465,32 @@ describe('action utils', () => {
           ]
           expect(createStepsSince(actions, 0)).to.deep.equal([
             new ReplaceStep(zeroPage),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/a',
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
-              createdAt: 1000
+              visits: [
+                {time: 1000, action: CreateContainer}
+              ]
             })),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/b',
               params: {},
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
-              createdAt: 1000,
-              lastVisited: 1000
+              visits: [
+                {time: 1000, action: CreateContainer}
+              ]
             })),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/b/1',
               params: {id: '1'},
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
-              createdAt: 1001,
-              firstVisited: 1001
+              visits: [
+                {time: 1200, action: LoadFromUrl}
+              ]
             }))
           ])
         })
@@ -481,7 +501,7 @@ describe('action utils', () => {
           ...originalNestedActions,
           new LoadFromUrl({
             url: '/a/1',
-            time: 1000
+            time: 1200
           }),
           new SwitchToContainer({
             groupName: createSubGroup1.name,
@@ -500,14 +520,15 @@ describe('action utils', () => {
           ]
           expect(createStepsSince(actions, 2000)).to.deep.equal([
             new BackStep(),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/a/1',
               params: {id: '1'},
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
-              createdAt: 1000,
-              firstVisited: 1000,
-              lastVisited: 3002
+              visits: [
+                {time: 1000, action: CreateContainer},
+                {time: 1200, action: LoadFromUrl}
+              ]
             }))
           ])
         })
@@ -520,7 +541,7 @@ describe('action utils', () => {
           ...originalNestedActions,
           new LoadFromUrl({
             url: '/g/1',
-            time: 1000
+            time: 1200
           }),
           new SwitchToContainer({
             groupName: createSubGroup3.name,
@@ -547,14 +568,18 @@ describe('action utils', () => {
               time: 5000
             })
           ]
-          expect(createStepsSince(actions, 4000)).to.deep.equal([
+          expect(createStepsSince(actions, 3500)).to.deep.equal([
             new BackStep(),
-            new PushStep(new Page({
+            new PushStep(new VisitedPage({
               url: '/g/1',
               params: {id: '1'},
               groupName: createSubGroup3.name,
               containerName: 'Container 1',
-              lastVisited: 5001
+              visits: [
+                {time: 1000, action: CreateContainer},
+                {time: 1200, action: LoadFromUrl},
+                {time: 5000, action: PopState}
+              ]
             }))
           ])
         })

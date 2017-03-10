@@ -1,6 +1,6 @@
 import IState from './IState'
-import Step from './interfaces/Step'
-import {diffStateToSteps} from '../util/reconciler'
+import Step from './Step'
+import {diffPagesToSteps} from '../util/reconciler'
 import {ISerializable, Serializable} from '../util/serializer'
 
 abstract class Action implements ISerializable {
@@ -49,7 +49,13 @@ abstract class Action implements ISerializable {
    */
   addSteps(steps:Step[], state:IState):Step[] {
     const newState:IState = this.reduce(state)
-    return [...steps, ...diffStateToSteps(state, newState)]
+    return [
+      ...steps,
+      ...diffPagesToSteps(
+        state.browserHistory.toPages(),
+        newState.browserHistory.toPages()
+      )
+    ]
   }
 
   updateAfterRefresh<A extends Action>(time:number):A {
