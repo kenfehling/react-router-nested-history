@@ -1,6 +1,6 @@
 import Group from '../../../src/model/Group'
 import Container from '../../../src/model/Container'
-import HistoryStack from '../../../src/model/HistoryStack'
+import {HistoryStack} from '../../../src/model/Pages'
 import Page from '../../../src/model/Page'
 import IContainer from '../../../src/model/IContainer'
 import * as fixtures from '../fixtures'

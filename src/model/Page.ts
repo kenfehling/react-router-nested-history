@@ -1,5 +1,5 @@
-import {Serializable} from '../util/serializer'
 import * as R from 'ramda'
+import Serializable from '../store/decorators/Serializable'
 
 @Serializable
 export default class Page {

@@ -1,13 +1,8 @@
-import PageVisit from './PageVisit'
+import PageVisit, {VisitType} from './PageVisit'
 import Page from './Page'
 import * as R from 'ramda'
-import SetZeroPage from './actions/SetZeroPage'
-import CreateContainer from './actions/CreateContainer'
-import CreateGroup from './actions/CreateGroup'
 
 export default class VisitedPage extends Page {
-  static readonly AUTO_TYPES =
-      [SetZeroPage, CreateGroup, CreateContainer]
   readonly visits: PageVisit[]
 
   constructor({url, params, groupName, containerName, isZeroPage=false, visits=[]}:
@@ -25,8 +20,7 @@ export default class VisitedPage extends Page {
   }
 
   get wasManuallyVisited():boolean {
-    return R.any((v:PageVisit) =>
-        R.none(type => type === v.action, VisitedPage.AUTO_TYPES), this.visits)
+    return R.any((v:PageVisit) => v.type === VisitType.MANUAL, this.visits)
   }
 
   get firstVisit():PageVisit {

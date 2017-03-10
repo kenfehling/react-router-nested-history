@@ -6,6 +6,27 @@ import PushStep from '../model/steps/PushStep'
 import ReplaceStep from '../model/steps/ReplaceStep'
 import GoStep from '../model/steps/GoStep'
 import Pages, {HistoryStack} from '../model/Pages'
+import UninitializedState from '../model/UninitializedState'
+import {deriveState} from '../store/store'
+import State from '../model/State'
+import Action from '../model/BaseAction'
+
+type StepState = {steps:Step[], state:State}
+
+function actionSteps({steps, state}:StepState, action:Action):StepState {
+  return {
+    steps: action.addSteps(steps, state),
+    state: action.reduce(state)
+  }
+}
+
+export function createStepsSince(actions:Action[], time:number):Step[] {
+  const oldActions:Action[] = actions.filter(a => a.time <= time)
+  const newActions:Action[] = actions.filter(a => a.time > time)
+  const oldState:State = deriveState(oldActions, new UninitializedState())
+  const initial:StepState = {steps: [], state: oldState}
+  return newActions.reduce(actionSteps, initial).steps
+}
 
 export class HistoryDiff {
   readonly same: Page[]
@@ -106,8 +127,5 @@ export const diffToSteps = (diff:HistoryDiff):Step[] => {
 export const diffPagesToSteps:(ps1:Pages, ps2:Pages) => Step[] =
     R.compose(diffToSteps, diffHistory)
 
-export const diffHistoryToSteps = (h1:HistoryStack, h2:HistoryStack):Step[] => {
-  const oldPages:Pages = new Pages(h1.flatten())
-  const newPages:Pages = new Pages(h2.flatten())
-  return R.compose(diffToSteps, diffHistory)(oldPages, newPages)
-}
+export const diffHistoryToSteps = (h1:HistoryStack, h2:HistoryStack):Step[] =>
+    R.compose(diffToSteps, diffHistory)(h1.toPages(), h2.toPages())

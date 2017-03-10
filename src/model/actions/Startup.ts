@@ -1,7 +1,7 @@
 import Action, {SYSTEM} from '../BaseAction'
 import State from '../State'
-import {Serializable} from '../../util/serializer'
 import NonStepAction from './NonStepAction'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class Startup extends NonStepAction {

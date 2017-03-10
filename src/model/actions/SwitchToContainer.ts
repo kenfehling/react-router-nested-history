@@ -1,9 +1,9 @@
 import Action, {USER, ActionOrigin} from '../BaseAction'
 import State from '../State'
-import {Serializable} from '../../util/serializer'
 import Top from './Top'
 import Group from '../Group'
 import {Origin} from '../BaseAction'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class SwitchToContainer extends Action {

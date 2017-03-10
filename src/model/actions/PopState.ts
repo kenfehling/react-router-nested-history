@@ -1,8 +1,8 @@
 import State from '../State'
-import {Serializable} from '../../util/serializer'
 import Step from '../Step'
 import {diffHistoryToSteps} from '../../util/reconciler'
 import Action from '../BaseAction'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class PopState extends Action {

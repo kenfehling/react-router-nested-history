@@ -2,11 +2,8 @@ import Page from './Page'
 import {parseParamsFromPatterns, patternsMatch} from '../util/url'
 import IContainer from './IContainer'
 import Pages, {HistoryStack} from './Pages'
-import PageVisit, {IActionClass} from './PageVisit'
+import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
-import Push from './actions/Push'
-import LoadFromUrl from './actions/LoadFromUrl'
-import CreateContainer from './actions/CreateContainer'
 
 export default class Container implements IContainer {
   readonly name: string
@@ -45,7 +42,7 @@ export default class Container implements IContainer {
         params: parseParamsFromPatterns(patterns, initialUrl),
         containerName: name,
         groupName,
-        visits: [{time, action: CreateContainer}]
+        visits: [{time, type: VisitType.AUTO}]
       })
     ])
   }
@@ -76,13 +73,13 @@ export default class Container implements IContainer {
     return this.pages.toHistoryStack()
   }
 
-  push(page:Page, time:number, action:IActionClass=Push):Container {
-    return this.replacePages(this.pages.push(page, time))
+  push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Container {
+    return this.replacePages(this.pages.push(page, time, type))
   }
 
-  pushUrl(url:string, time:number, action:IActionClass=Push):Container {
+  pushUrl(url:string, time:number, type:VisitType=VisitType.MANUAL):Container {
     if (this.activePage.url === url) {
-      return this.activate({time, action: Push})
+      return this.activate({time, type})
     }
     else {
       const page:Page = new Page({
@@ -91,13 +88,13 @@ export default class Container implements IContainer {
         containerName: this.name,
         groupName: this.groupName
       })
-      return this.push(page, time, action)
+      return this.push(page, time, type)
     }
   }
 
   loadFromUrl(url:string, time:number):Container {
     if (this.patternsMatch(url)) {
-      return this.pushUrl(url, time, LoadFromUrl)
+      return this.pushUrl(url, time, VisitType.MANUAL)
     }
     else {
       return this

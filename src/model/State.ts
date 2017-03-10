@@ -5,7 +5,9 @@ import IContainer from './IContainer'
 import ISubGroup from './ISubGroup'
 import Group from './Group'
 import PathTitle from './PathTitle'
-import {HistoryStack} from './Pages'
+import {HistoryStack, default as Pages} from './Pages'
+import VisitedPage from './VistedPage'
+import {VisitType} from './PageVisit'
 
 abstract class State {
   readonly groups: Group[]
@@ -27,6 +29,7 @@ abstract class State {
     this.titles = titles
   }
 
+  abstract get pages():Pages
   abstract assign(obj:Object):State
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
@@ -202,6 +205,26 @@ abstract class State {
 
   get activeTitle() {
     return this.getTitleForPath(this.activeUrl)
+  }
+
+  static createZeroPage(url:string) {
+    return new VisitedPage({
+      url,
+      params: {},
+      groupName: '',
+      containerName: '',
+      isZeroPage: true,
+      visits: [{time: -1, type: VisitType.AUTO}]
+    })
+  }
+
+  /**
+   * Gets the zero page, or if it's not set defaults to using
+   * the initialUrl of the first container in the first group
+   */
+  getZeroPage():VisitedPage {
+    return State.createZeroPage(
+        this.zeroPage || this.groups[0].containers[0].initialUrl)
   }
 }
 

@@ -1,11 +1,9 @@
-import HistoryStack from '../../../src/model/HistoryStack'
+import {HistoryStack} from '../../../src/model/Pages'
 import Page from '../../../src/model/Page'
 import Pages from '../../../src/model/Pages'
 import {expect} from 'chai'
 import VisitedPage from '../../../src/model/VistedPage'
-import CreateContainer from '../../../src/model/actions/CreateContainer'
-import LoadFromUrl from '../../../src/model/actions/LoadFromUrl'
-import Push from '../../../src/model/actions/Push'
+import {VisitType} from '../../../src/model/PageVisit'
 declare const describe:any
 declare const it:any
 
@@ -16,8 +14,8 @@ describe('Pages', () => {
     groupName: 'Group 1',
     containerName: 'Container 1',
     visits: [
-      {time: 2000, action: CreateContainer},
-      {time: 3000, action: LoadFromUrl}
+      {time: 2000, type: VisitType.AUTO},
+      {time: 3000, type: VisitType.MANUAL}
     ]
   })
   const currentPage = new VisitedPage({
@@ -26,9 +24,9 @@ describe('Pages', () => {
     groupName: 'Group 1',
     containerName: 'Container 1',
     visits: [
-      {time: 2000, action: CreateContainer},
-      {time: 4000, action: Push},
-      {time: 6000, action: Push}
+      {time: 2000, type: VisitType.AUTO},
+      {time: 4000, type: VisitType.MANUAL},
+      {time: 6000, type: VisitType.MANUAL}
     ]
   })
   const forwardPage = new VisitedPage({
@@ -37,8 +35,8 @@ describe('Pages', () => {
     groupName: 'Group 1',
     containerName: 'Container 1',
     visits: [
-      {time: 2000, action: CreateContainer},
-      {time: 5000, action: Push}
+      {time: 2000, type: VisitType.AUTO},
+      {time: 5000, type: VisitType.MANUAL}
     ]
   })
   const pages:Pages = new Pages([backPage, currentPage, forwardPage])
@@ -59,7 +57,7 @@ describe('Pages', () => {
         groupName: 'Group 1',
         containerName: 'Container 2',
         visits: [
-          {time: 2000, action: CreateContainer}
+          {time: 2000, type: VisitType.AUTO}
         ]
       })
       const newPages:Pages = pages.add(unvistedPage)

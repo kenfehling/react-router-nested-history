@@ -4,7 +4,7 @@ import {
   createContainers1, createContainers3, createGroup1,
   createGroup3, createGroup2, createContainers2
 } from './fixtures'
-import {createStore, Store} from '../../src/store'
+import {createStore, Store} from '../../src/store/store'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
 import Push from '../../src/model/actions/Push'
 import State from '../../src/model/State'
@@ -18,7 +18,7 @@ import PopState from '../../src/model/actions/PopState'
 import UpdateBrowser from '../../src/model/actions/UpdateBrowser'
 import {createStepsSince} from '../../src/util/actions'
 import Startup from '../../src/model/actions/Startup'
-import ClearActions from '../../src/model/actions/ClearActions'
+import ClearActions from '../../src/store/actions/ClearActions'
 import SwitchToGroup from '../../src/model/actions/SwitchToGroup'
 import {runSteps} from '../../src/util/stepRunner'
 import InitializedState from '../../src/model/InitializedState'

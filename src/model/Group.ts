@@ -11,7 +11,7 @@ import IGroupContainer from './IGroupContainer'
 import IContainer from './IContainer'
 import ISubGroup from './ISubGroup'
 import Pages, {HistoryStack} from './Pages'
-import PageVisit, {IActionClass} from './PageVisit'
+import PageVisit, {VisitType} from './PageVisit'
 import Go from './actions/Go'
 import Forward from './actions/Forward'
 import Back from './actions/Back'
@@ -184,7 +184,7 @@ export default class Group implements IContainer {
   }
 
   activateContainer(containerName:string, time:number):Group {
-    const visit:PageVisit = {time, action: SwitchToContainer}
+    const visit:PageVisit = {time, type: VisitType.MANUAL}
     const from:IGroupContainer = this.activeContainer
     const to:IGroupContainer = this.getContainerByName(containerName)
     const group:Group = from.resetOnLeave && from.name !== to.name ?
@@ -292,18 +292,18 @@ export default class Group implements IContainer {
     return this.replaceContainer(this.activeContainer.top(time, reset) as IGroupContainer)
   }
 
-  push(page:Page, time:number):Group {
+  push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Group {
     const {groupName, containerName} = page
     if (groupName === this.name) {
       const container:IGroupContainer = this.getContainerByName(containerName)
-      return this.replaceContainer(container.push(page, time) as IGroupContainer)
+      return this.replaceContainer(container.push(page, time, type) as IGroupContainer)
     }
     else {
       const group:ISubGroup|null = this.getNestedGroupByName(groupName)
       if (!group) {
         throw new Error('Group \'' + groupName + '\' not found in ' + this.name)
       }
-      return this.replaceContainer(group.push(page, time) as IGroupContainer)
+      return this.replaceContainer(group.push(page, time, type) as IGroupContainer)
     }
   }
 
@@ -340,10 +340,10 @@ export default class Group implements IContainer {
   }
   */
 
-  private _go(goFn:GoFn, lengthFn:LengthFn, nextPageFn: NextPageFn, n:number,
-              time:number, action:IActionClass=Go):Group {
+  private _go(goFn:GoFn, lengthFn:LengthFn, nextPageFn: NextPageFn,
+              n:number, time:number):Group {
     if (n === 0) {
-      return this.activate({time, action})
+      return this.activate({time, type: VisitType.MANUAL})
     }
     const container:IGroupContainer = this.activeContainer
     const containerLength:number = lengthFn(container)
@@ -375,7 +375,7 @@ export default class Group implements IContainer {
       (c, n, t) => c.forward(n, t),
       c => c.forwardLength,
       c => c.getForwardPage(),
-      n, time, Forward)
+      n, time)
   }
 
   back(n:number=1, time):Group {
@@ -383,7 +383,7 @@ export default class Group implements IContainer {
       (c, n, t) => c.back(n, t),
       c => c.backLength,
       c => c.getBackPage(),
-      n, time, Back)
+      n, time)
   }
 
   /*

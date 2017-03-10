@@ -1,11 +1,10 @@
-import Action from './BaseAction'
-
-export interface IActionClass {
-  new (...args: any[]):Action
+export enum VisitType {
+  AUTO,
+  MANUAL
 }
 
 interface PageVisit {
-  action: IActionClass
+  type: VisitType
   time: number
 }
 

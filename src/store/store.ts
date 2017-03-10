@@ -1,10 +1,11 @@
-import {serialize, deserialize, ISerialized} from './util/serializer'
-import Action from './model/Action'
+import {serialize, deserialize} from './serializer'
+import Action from './Action'
 import * as R from 'ramda'
 import * as store from 'store'
-import ClearActions from './model/actions/ClearActions'
-import IUpdateData from './model/IUpdateData'
-import IState from './model/IState'
+import ClearActions from './actions/ClearActions'
+import IUpdateData from './IUpdateData'
+import IState from './IState'
+import ISerialized from './ISerialized'
 
 export interface Store<S extends IState, A extends Action> {
   dispatch: (action:Action) => void

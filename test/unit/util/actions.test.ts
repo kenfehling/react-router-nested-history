@@ -11,7 +11,7 @@ import BackStep from '../../../src/model/steps/BackStep'
 import Forward from '../../../src/model/actions/Forward'
 import SetZeroPage from '../../../src/model/actions/SetZeroPage'
 import Action from '../../../src/model/BaseAction'
-import {createStepsSince} from '../../../src/util/actions'
+import {createStepsSince} from '../../../src/util/reconciler'
 import GoStep from '../../../src/model/steps/GoStep'
 import Startup from '../../../src/model/actions/Startup'
 import {
@@ -21,12 +21,13 @@ import {
 } from '../fixtures'
 import {expect} from 'chai'
 import VisitedPage from '../../../src/model/VistedPage'
-import InitializedState from '../../../src/model/InitializedState'
+import State from '../../../src/model/State'
+import {VisitType} from '../../../src/model/PageVisit'
 declare const describe:any
 declare const it:any
 
 describe('action utils', () => {
-  const zeroPage:Page = InitializedState.createZeroPage('/zero')
+  const zeroPage:Page = State.createZeroPage('/zero')
   const baseActions:Action[] = [
     new SetZeroPage({
       url: zeroPage.url,
@@ -122,8 +123,8 @@ describe('action utils', () => {
               groupName: 'Group 1',
               containerName: 'Container 1',
               visits: [
-                {time: 1000, action: CreateContainer},
-                {time: 1500, action: LoadFromUrl}
+                {time: 1000, type: VisitType.AUTO},
+                {time: 1500, type: VisitType.MANUAL}
               ]
             }))
           ])
@@ -145,7 +146,7 @@ describe('action utils', () => {
               groupName: 'Group 1',
               containerName: 'Container 1',
               visits: [
-                {time: 1000, action: CreateContainer}
+                {time: 1000, type: VisitType.AUTO}
               ]
             })),
             new PushStep(new VisitedPage({
@@ -154,8 +155,8 @@ describe('action utils', () => {
               groupName: 'Group 1',
               containerName: 'Container 2',
               visits: [
-                {time: 1000, action: CreateContainer},
-                {time: 2000, action: LoadFromUrl}
+                {time: 1000, type: VisitType.AUTO},
+                {time: 2000, type: VisitType.MANUAL}
               ]
             }))
           ])
@@ -177,7 +178,7 @@ describe('action utils', () => {
               groupName: 'Group 1',
               containerName: 'Container 1',
               visits: [
-                {time: 1000, action: CreateContainer}
+                {time: 1000, type: VisitType.AUTO}
               ]
             })),
             new PushStep(new VisitedPage({
@@ -186,7 +187,7 @@ describe('action utils', () => {
               groupName: 'Group 1',
               containerName: 'Container 2',
               visits: [
-                {time: 1000, action: CreateContainer}
+                {time: 1000, type: VisitType.AUTO}
               ]
             })),
             new PushStep(new VisitedPage({
@@ -195,7 +196,7 @@ describe('action utils', () => {
               groupName: 'Group 1',
               containerName: 'Container 2',
               visits: [
-                {time: 1500, action: LoadFromUrl}
+                {time: 1500, type: VisitType.MANUAL}
               ]
             }))
           ])
@@ -236,8 +237,8 @@ describe('action utils', () => {
               groupName: 'Group 1',
               containerName: 'Container 2',
               visits: [
-                {time: 1000, action: CreateContainer},
-                {time: 2000, action: SwitchToContainer}
+                {time: 1000, type: VisitType.AUTO},
+                {time: 2000, type: VisitType.MANUAL}
               ]
             }))
           ])
@@ -292,7 +293,7 @@ describe('action utils', () => {
                 groupName: 'Group 1',
                 containerName: 'Container 1',
                 visits: [
-                  {time: 1200, action: LoadFromUrl}
+                  {time: 1200, type: VisitType.MANUAL}
                 ]
               })),
               new BackStep()
@@ -326,7 +327,7 @@ describe('action utils', () => {
                 groupName: 'Group 1',
                 containerName: 'Container 1',
                 visits: [
-                  {time: 1200, action: LoadFromUrl}
+                  {time: 1200, type: VisitType.MANUAL}
                 ]
               }))
             ])
@@ -378,7 +379,7 @@ describe('action utils', () => {
                   groupName: 'Group 2',
                   containerName: 'Container 1',
                   visits: [
-                    {time: 1000, action: CreateContainer}
+                    {time: 1000, type: VisitType.AUTO}
                   ]
                 })),
                 new PushStep(new VisitedPage({
@@ -387,7 +388,7 @@ describe('action utils', () => {
                   groupName: 'Group 2',
                   containerName: 'Container 1',
                   visits: [
-                    {time: 1500, action: LoadFromUrl}
+                    {time: 1500, type: VisitType.MANUAL}
                   ]
                 })),
                 new BackStep()
@@ -416,8 +417,8 @@ describe('action utils', () => {
               groupName: createSubGroup1.name,
               containerName: createContainers1[0].name,
               visits: [
-                {time: 1000, action: CreateContainer},
-                {time: 2000, action: LoadFromUrl}
+                {time: 1000, type: VisitType.AUTO},
+                {time: 2000, type: VisitType.MANUAL}
               ]
             })),
           ])
@@ -439,7 +440,7 @@ describe('action utils', () => {
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
               visits: [
-                {time: 1000, action: CreateContainer}
+                {time: 1000, type: VisitType.AUTO}
               ]
             })),
             new PushStep(new VisitedPage({
@@ -448,8 +449,8 @@ describe('action utils', () => {
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
               visits: [
-                {time: 1000, action: CreateContainer},
-                {time: 1200, action: LoadFromUrl}
+                {time: 1000, type: VisitType.AUTO},
+                {time: 1200, type: VisitType.MANUAL}
               ]
             }))
           ])
@@ -471,7 +472,7 @@ describe('action utils', () => {
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
               visits: [
-                {time: 1000, action: CreateContainer}
+                {time: 1000, type: VisitType.AUTO}
               ]
             })),
             new PushStep(new VisitedPage({
@@ -480,7 +481,7 @@ describe('action utils', () => {
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
               visits: [
-                {time: 1000, action: CreateContainer}
+                {time: 1000, type: VisitType.AUTO}
               ]
             })),
             new PushStep(new VisitedPage({
@@ -489,7 +490,7 @@ describe('action utils', () => {
               groupName: createSubGroup1.name,
               containerName: 'Container 2',
               visits: [
-                {time: 1200, action: LoadFromUrl}
+                {time: 1200, type: VisitType.MANUAL}
               ]
             }))
           ])
@@ -526,8 +527,8 @@ describe('action utils', () => {
               groupName: createSubGroup1.name,
               containerName: 'Container 1',
               visits: [
-                {time: 1000, action: CreateContainer},
-                {time: 1200, action: LoadFromUrl}
+                {time: 1000, type: VisitType.AUTO},
+                {time: 1200, type: VisitType.MANUAL}
               ]
             }))
           ])
@@ -576,9 +577,9 @@ describe('action utils', () => {
               groupName: createSubGroup3.name,
               containerName: 'Container 1',
               visits: [
-                {time: 1000, action: CreateContainer},
-                {time: 1200, action: LoadFromUrl},
-                {time: 5000, action: PopState}
+                {time: 1000, type: VisitType.AUTO},
+                {time: 1200, type: VisitType.MANUAL},
+                {time: 5000, type: VisitType.MANUAL}
               ]
             }))
           ])

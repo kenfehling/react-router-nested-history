@@ -1,8 +1,8 @@
 import * as React from 'react'
 import {Component, ComponentClass, PropTypes, createElement} from 'react'
 import {connect} from 'react-redux'
-import IUpdateData from '../model/IUpdateData'
-import {Store} from '../store'
+import IUpdateData from '../store/IUpdateData'
+import {Store} from '../store/store'
 import Action from '../model/BaseAction'
 import State from '../model/State'
 

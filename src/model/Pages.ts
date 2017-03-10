@@ -2,13 +2,8 @@ import * as R from 'ramda'
 import IHistory from './IHistory'
 import PageVisit from './PageVisit'
 import VisitedPage from './VistedPage'
+import {VisitType} from './PageVisit'
 import Page from './Page'
-import Push from './actions/Push'
-import Top from './actions/Top'
-import Go from './actions/Go'
-import Back from './actions/Back'
-import Forward from './actions/Forward'
-import {IActionClass} from './PageVisit'
 
 export default class Pages implements IHistory {
   readonly pages: VisitedPage[]
@@ -57,11 +52,11 @@ export default class Pages implements IHistory {
     return this.touchPageAtIndex(this.activeIndex, pageVisit)
   }
 
-  push(page:Page, time:number):Pages {
+  push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Pages {
     const index:number = this.activeIndex + 1
     const newPage:VisitedPage = new VisitedPage({
       ...Object(page),
-      visits:[{time, action: Push}]
+      visits:[{time, type}]
     })
     return new Pages([...this.byFirstVisited.slice(0, index), newPage])
   }
@@ -73,7 +68,7 @@ export default class Pages implements IHistory {
    */
   top(time:number, reset:boolean=false):Pages {
     const firstVisit:VisitedPage[] = this.byFirstVisited
-    const page:VisitedPage = firstVisit[0].touch({time, action: Top})
+    const page:VisitedPage = firstVisit[0].touch({time, type: VisitType.MANUAL})
     return new Pages(reset ? [page] : [page, ...firstVisit.slice(1)])
   }
 
@@ -94,7 +89,7 @@ export default class Pages implements IHistory {
     }
   }
 
-  go(n:number, time:number, action:IActionClass=Go):Pages {
+  go(n:number, time:number):Pages {
     const oldIndex:number = this.activeIndex
     const newIndex:number = oldIndex + n
     if (newIndex < 0 || newIndex >= this.pages.length) {
@@ -102,16 +97,16 @@ export default class Pages implements IHistory {
           `Can't go ${n}, size = ${this.pages.length}, index = ${oldIndex}`)
     }
     else {
-      return this.touchPageAtIndex(newIndex, {time, action})
+      return this.touchPageAtIndex(newIndex, {time, type: VisitType.MANUAL})
     }
   }
 
   back(n:number=1, time:number):Pages {
-    return this.go(0 - n, time, Back)
+    return this.go(0 - n, time)
   }
 
   forward(n:number=1, time:number):Pages {
-    return this.go(n, time, Forward)
+    return this.go(n, time)
   }
 
   canGoBack(n:number=1):boolean {

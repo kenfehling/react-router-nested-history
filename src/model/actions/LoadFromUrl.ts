@@ -1,10 +1,10 @@
 import Action, {SYSTEM} from '../BaseAction'
 import State from '../State'
 import Step from '../Step'
-import {Serializable} from '../../util/serializer'
 import UninitializedState from '../UninitializedState'
 import InitializedState from '../InitializedState'
 import Group from '../Group'
+import Serializable from '../../store/decorators/Serializable'
 
 const load = (state:UninitializedState, url:string, time:number):InitializedState =>
     new InitializedState(state.groups.reduce((s:State, group:Group):State =>

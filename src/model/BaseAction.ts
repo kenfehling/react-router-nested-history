@@ -1,8 +1,8 @@
 import Step from './Step'
 import {diffPagesToSteps} from '../util/reconciler'
-import {Serializable} from '../util/serializer'
-import Action from './Action'
+import Action from '../store/Action'
 import State from './State'
+import Serializable from '../store/decorators/Serializable'
 
 abstract class BaseAction extends Action {
   abstract readonly type: string
@@ -26,8 +26,8 @@ abstract class BaseAction extends Action {
     return [
       ...steps,
       ...diffPagesToSteps(
-        state.browserHistory.toPages(),
-        newState.browserHistory.toPages()
+        state.pages,
+        newState.pages
       )
     ]
   }

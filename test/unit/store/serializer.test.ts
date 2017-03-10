@@ -1,7 +1,7 @@
 import {
   Serializable,
   getSerializables, serialize, deserialize, ISerialized
-} from '../../../src/util/serializer'
+} from '../../../src/store/serializer'
 import {expect} from 'chai'
 declare const describe:any
 declare const it:any

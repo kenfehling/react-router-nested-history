@@ -8,6 +8,10 @@ const UNINITIALIZED_MESSAGE:string = 'State is uninitialized'
 
 export default class UninitializedState extends State {
 
+  get pages():Pages {
+    return new Pages()
+  }
+
   assign(obj:Object):State {
     return new UninitializedState({...Object(this), ...obj})
   }

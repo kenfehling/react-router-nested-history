@@ -1,5 +1,5 @@
 import IState from './IState'
-import {ISerializable} from '../util/serializer'
+import ISerializable from './ISerializable'
 
 abstract class Action implements ISerializable {
   abstract readonly type: string

@@ -1,7 +1,7 @@
 import NonStepAction from './NonStepAction'
 import {SYSTEM} from '../BaseAction'
 import State from '../State'
-import {Serializable} from '../../util/serializer'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class SetZeroPage extends NonStepAction {

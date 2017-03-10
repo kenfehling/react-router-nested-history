@@ -1,7 +1,7 @@
 import State from '../State'
 import NonStepAction from './NonStepAction'
 import {SYSTEM} from '../BaseAction'
-import {Serializable} from '../../util/serializer'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class UpdateBrowser extends NonStepAction {

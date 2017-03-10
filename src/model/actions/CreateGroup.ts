@@ -1,7 +1,7 @@
 import State from '../State'
-import {Serializable} from '../../util/serializer'
 import NonStepAction from './NonStepAction'
 import Action, {SYSTEM} from '../BaseAction'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class CreateGroup extends NonStepAction {

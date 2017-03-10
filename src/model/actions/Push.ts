@@ -1,10 +1,10 @@
 import State from '../State'
-import {Serializable} from '../../util/serializer'
 import Action, {Origin, ActionOrigin} from '../BaseAction'
 import Page from '../Page'
 import {parseParamsFromPatterns} from '../../util/url'
 import SwitchToGroup from './SwitchToGroup'
 import SwitchToContainer from './SwitchToContainer'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class Push extends Action {

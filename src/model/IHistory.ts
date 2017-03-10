@@ -1,5 +1,5 @@
 import Page from './Page'
-import PageVisit from './PageVisit'
+import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
 
 abstract class IHistory {
@@ -18,7 +18,7 @@ abstract class IHistory {
   abstract get forwardLength():number
 
   abstract activate(pageVisit: PageVisit): IHistory
-  abstract push(page: Page, time:number): IHistory
+  abstract push(page: Page, time:number, type?:VisitType): IHistory
   abstract top(time: number, reset: boolean): IHistory
   abstract back(n: number, time: number): IHistory
   abstract forward(n: number, time: number): IHistory

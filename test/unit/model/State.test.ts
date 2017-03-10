@@ -1,7 +1,7 @@
 import State from '../../../src/model/State'
 import Group from '../../../src/model/Group'
 import Page from '../../../src/model/Page'
-import HistoryStack from '../../../src/model/HistoryStack'
+import {HistoryStack} from '../../../src/model/Pages'
 import * as fixtures from '../fixtures'
 import IContainer from '../../../src/model/IContainer'
 import {expect} from 'chai'

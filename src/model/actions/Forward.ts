@@ -1,6 +1,6 @@
 import Action from '../BaseAction'
 import State from '../State'
-import {Serializable} from '../../util/serializer'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class Forward extends Action {

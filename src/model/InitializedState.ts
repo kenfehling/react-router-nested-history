@@ -6,11 +6,13 @@ import State from './State'
 import Container from './Container'
 import IGroupContainer from './IGroupContainer'
 import Pages, {HistoryStack} from './Pages'
-import SwitchToGroup from './actions/SwitchToGroup'
-import VisitedPage from './VistedPage'
-import SetZeroPage from './actions/SetZeroPage'
+import {VisitType} from './PageVisit'
 
 export default class InitializedState extends State {
+
+  get pages():Pages {
+    return this.browserHistory.toPages()
+  }
 
   assign(obj:Object):State {
     return new InitializedState({...Object(this), ...obj})
@@ -18,7 +20,7 @@ export default class InitializedState extends State {
 
   switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
-    return this.replaceGroup(group.activate({time, action: SwitchToGroup}))
+    return this.replaceGroup(group.activate({time, type: VisitType.MANUAL}))
   }
 
   switchToContainer({groupName, name, time}:
@@ -77,11 +79,11 @@ export default class InitializedState extends State {
   }
 
   getShiftAmount(page:Page):number {
-    return this.browserHistory.toPages().getShiftAmount(page)
+    return this.pages.getShiftAmount(page)
   }
 
   containsPage(page:Page):boolean {
-    return this.browserHistory.toPages().containsPage(page)
+    return this.pages.containsPage(page)
   }
 
   getRootGroupOfGroupByName(name:string):Group {
@@ -100,7 +102,7 @@ export default class InitializedState extends State {
 
   push(page:Page, time:number):State {
     const group:Group = this.getRootGroupOfGroupByName(page.groupName)
-    return this.replaceGroup(group.push(page, time))
+    return this.replaceGroup(group.push(page, time, VisitType.MANUAL))
   }
 
   getContainerLinkUrl(groupName:string, containerName:string):string {
@@ -217,25 +219,5 @@ export default class InitializedState extends State {
 
   getContainerStackOrderForGroup(groupName:string):IContainer[] {
     return this.getGroupByName(groupName).containerStackOrder
-  }
-
-  static createZeroPage(url:string) {
-    return new VisitedPage({
-      url,
-      params: {},
-      groupName: '',
-      containerName: '',
-      isZeroPage: true,
-      visits: [{time: -1, action: SetZeroPage}]
-    })
-  }
-
-  /**
-   * Gets the zero page, or if it's not set defaults to using
-   * the initialUrl of the first container in the first group
-   */
-  getZeroPage():VisitedPage {
-    return InitializedState.createZeroPage(
-        this.zeroPage || this.groups[0].containers[0].initialUrl)
   }
 }

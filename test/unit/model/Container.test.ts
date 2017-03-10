@@ -2,9 +2,7 @@ import Container from '../../../src/model/Container'
 import Pages from '../../../src/model/Pages'
 import {expect} from 'chai'
 import VisitedPage from '../../../src/model/VistedPage'
-import Push from '../../../src/model/actions/Push'
-import CreateContainer from '../../../src/model/actions/CreateContainer'
-import LoadFromUrl from '../../../src/model/actions/LoadFromUrl'
+import {VisitType} from '../../../src/model/PageVisit'
 declare const describe:any
 declare const it:any
 
@@ -15,8 +13,8 @@ describe('Container', () => {
     groupName: 'Group 1',
     containerName: 'Container 1',
     visits: [
-      {time: 2000, action: CreateContainer},
-      {time: 3000, action: LoadFromUrl}
+      {time: 2000, type: VisitType.AUTO},
+      {time: 3000, type: VisitType.MANUAL}
     ]
   })
   const currentPage = new VisitedPage({
@@ -25,9 +23,9 @@ describe('Container', () => {
     groupName: 'Group 1',
     containerName: 'Container 1',
     visits: [
-      {time: 2000, action: CreateContainer},
-      {time: 4000, action: Push},
-      {time: 6000, action: Push}
+      {time: 2000, type: VisitType.AUTO},
+      {time: 4000, type: VisitType.MANUAL},
+      {time: 6000, type: VisitType.MANUAL}
     ]
   })
   const forwardPage = new VisitedPage({
@@ -36,8 +34,8 @@ describe('Container', () => {
     groupName: 'Group 1',
     containerName: 'Container 1',
     visits: [
-      {time: 2000, action: CreateContainer},
-      {time: 5000, action: Push}
+      {time: 2000, type: VisitType.AUTO},
+      {time: 5000, type: VisitType.MANUAL}
     ]
   })
   const container:Container = new Container({
