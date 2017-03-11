@@ -9,6 +9,7 @@ import Back from '../../model/actions/Back'
 import InitializedState from '../../model/InitializedState'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
+import * as R from 'ramda'
 
 export type ChildrenFunctionArgs = {
   params: Object
@@ -60,12 +61,20 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 
   render() {
-    const {children, backPage} = this.props
+    const {children, backPage, ...aProps} = R.omit([
+      'groupName',
+      'containerName',
+      'store',
+      'isInitialized',
+      'back',
+      'params'
+    ], this.props)
     if (backPage) {
       return (
         <a href={backPage.url}
            onMouseDown={this.onMouseDown.bind(this)}
            onClick={this.onClick.bind(this)}
+           {...aProps}
         >
           {children ?
             (children instanceof Function ? children({params: backPage.params})

@@ -513,281 +513,6 @@ module.exports = function _dispatchable(methodNames, xf, fn) {
 
 /***/ }),
 /* 9 */
-/***/ (function(module, exports) {
-
-module.exports = {
-  init: function() {
-    return this.xf['@@transducer/init']();
-  },
-  result: function(result) {
-    return this.xf['@@transducer/result'](result);
-  }
-};
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
-
-
-var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
-
-/**
- * Simple, lightweight module assisting with the detection and context of
- * Worker. Helps avoid circular dependencies and allows code to reason about
- * whether or not they are in a Worker, even if they never include the main
- * `ReactWorker` dependency.
- */
-var ExecutionEnvironment = {
-
-  canUseDOM: canUseDOM,
-
-  canUseWorkers: typeof Worker !== 'undefined',
-
-  canUseEventListeners: canUseDOM && !!(window.addEventListener || window.attachEvent),
-
-  canUseViewport: canUseDOM && !!window.screen,
-
-  isInWorker: !canUseDOM // For now, this is true - might change in the future.
-
-};
-
-module.exports = ExecutionEnvironment;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
-
-
-var _prodInvariant = __webpack_require__(6);
-
-var DOMProperty = __webpack_require__(57);
-var ReactDOMComponentFlags = __webpack_require__(214);
-
-var invariant = __webpack_require__(4);
-
-var ATTR_NAME = DOMProperty.ID_ATTRIBUTE_NAME;
-var Flags = ReactDOMComponentFlags;
-
-var internalInstanceKey = '__reactInternalInstance$' + Math.random().toString(36).slice(2);
-
-/**
- * Check if a given node should be cached.
- */
-function shouldPrecacheNode(node, nodeID) {
-  return node.nodeType === 1 && node.getAttribute(ATTR_NAME) === String(nodeID) || node.nodeType === 8 && node.nodeValue === ' react-text: ' + nodeID + ' ' || node.nodeType === 8 && node.nodeValue === ' react-empty: ' + nodeID + ' ';
-}
-
-/**
- * Drill down (through composites and empty components) until we get a host or
- * host text component.
- *
- * This is pretty polymorphic but unavoidable with the current structure we have
- * for `_renderedChildren`.
- */
-function getRenderedHostOrTextFromComponent(component) {
-  var rendered;
-  while (rendered = component._renderedComponent) {
-    component = rendered;
-  }
-  return component;
-}
-
-/**
- * Populate `_hostNode` on the rendered host/text component with the given
- * DOM node. The passed `inst` can be a composite.
- */
-function precacheNode(inst, node) {
-  var hostInst = getRenderedHostOrTextFromComponent(inst);
-  hostInst._hostNode = node;
-  node[internalInstanceKey] = hostInst;
-}
-
-function uncacheNode(inst) {
-  var node = inst._hostNode;
-  if (node) {
-    delete node[internalInstanceKey];
-    inst._hostNode = null;
-  }
-}
-
-/**
- * Populate `_hostNode` on each child of `inst`, assuming that the children
- * match up with the DOM (element) children of `node`.
- *
- * We cache entire levels at once to avoid an n^2 problem where we access the
- * children of a node sequentially and have to walk from the start to our target
- * node every time.
- *
- * Since we update `_renderedChildren` and the actual DOM at (slightly)
- * different times, we could race here and see a newer `_renderedChildren` than
- * the DOM nodes we see. To avoid this, ReactMultiChild calls
- * `prepareToManageChildren` before we change `_renderedChildren`, at which
- * time the container's child nodes are always cached (until it unmounts).
- */
-function precacheChildNodes(inst, node) {
-  if (inst._flags & Flags.hasCachedChildNodes) {
-    return;
-  }
-  var children = inst._renderedChildren;
-  var childNode = node.firstChild;
-  outer: for (var name in children) {
-    if (!children.hasOwnProperty(name)) {
-      continue;
-    }
-    var childInst = children[name];
-    var childID = getRenderedHostOrTextFromComponent(childInst)._domID;
-    if (childID === 0) {
-      // We're currently unmounting this child in ReactMultiChild; skip it.
-      continue;
-    }
-    // We assume the child nodes are in the same order as the child instances.
-    for (; childNode !== null; childNode = childNode.nextSibling) {
-      if (shouldPrecacheNode(childNode, childID)) {
-        precacheNode(childInst, childNode);
-        continue outer;
-      }
-    }
-    // We reached the end of the DOM children without finding an ID match.
-     true ?  true ? invariant(false, 'Unable to find element with ID %s.', childID) : _prodInvariant('32', childID) : void 0;
-  }
-  inst._flags |= Flags.hasCachedChildNodes;
-}
-
-/**
- * Given a DOM node, return the closest ReactDOMComponent or
- * ReactDOMTextComponent instance ancestor.
- */
-function getClosestInstanceFromNode(node) {
-  if (node[internalInstanceKey]) {
-    return node[internalInstanceKey];
-  }
-
-  // Walk up the tree until we find an ancestor whose instance we have cached.
-  var parents = [];
-  while (!node[internalInstanceKey]) {
-    parents.push(node);
-    if (node.parentNode) {
-      node = node.parentNode;
-    } else {
-      // Top of the tree. This node must not be part of a React tree (or is
-      // unmounted, potentially).
-      return null;
-    }
-  }
-
-  var closest;
-  var inst;
-  for (; node && (inst = node[internalInstanceKey]); node = parents.pop()) {
-    closest = inst;
-    if (parents.length) {
-      precacheChildNodes(inst, node);
-    }
-  }
-
-  return closest;
-}
-
-/**
- * Given a DOM node, return the ReactDOMComponent or ReactDOMTextComponent
- * instance, or null if the node was not rendered by this React.
- */
-function getInstanceFromNode(node) {
-  var inst = getClosestInstanceFromNode(node);
-  if (inst != null && inst._hostNode === node) {
-    return inst;
-  } else {
-    return null;
-  }
-}
-
-/**
- * Given a ReactDOMComponent or ReactDOMTextComponent, return the corresponding
- * DOM node.
- */
-function getNodeFromInstance(inst) {
-  // Without this first invariant, passing a non-DOM-component triggers the next
-  // invariant for a missing parent, which is super confusing.
-  !(inst._hostNode !== undefined) ?  true ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
-
-  if (inst._hostNode) {
-    return inst._hostNode;
-  }
-
-  // Walk up the tree until we find an ancestor whose DOM node we have cached.
-  var parents = [];
-  while (!inst._hostNode) {
-    parents.push(inst);
-    !inst._hostParent ?  true ? invariant(false, 'React DOM tree root should always have a node reference.') : _prodInvariant('34') : void 0;
-    inst = inst._hostParent;
-  }
-
-  // Now parents contains each ancestor that does *not* have a cached native
-  // node, and `inst` is the deepest ancestor that does.
-  for (; parents.length; inst = parents.pop()) {
-    precacheChildNodes(inst, inst._hostNode);
-  }
-
-  return inst._hostNode;
-}
-
-var ReactDOMComponentTree = {
-  getClosestInstanceFromNode: getClosestInstanceFromNode,
-  getInstanceFromNode: getInstanceFromNode,
-  getNodeFromInstance: getNodeFromInstance,
-  precacheChildNodes: precacheChildNodes,
-  precacheNode: precacheNode,
-  uncacheNode: uncacheNode
-};
-
-module.exports = ReactDOMComponentTree;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var serializables_1 = __webpack_require__(142);
-// @Serializable decorator for a class
-function Serializable(target) {
-    if (target.type) {
-        serializables_1.default.set(target.type, target); // Use the class name as a type
-    }
-    else {
-        throw new Error("target " + target + " has no type");
-    }
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = Serializable;
-
-
-/***/ }),
-/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = {
@@ -1033,6 +758,281 @@ module.exports = {
 
 
 /***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  init: function() {
+    return this.xf['@@transducer/init']();
+  },
+  result: function(result) {
+    return this.xf['@@transducer/result'](result);
+  }
+};
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ */
+
+
+
+var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
+
+/**
+ * Simple, lightweight module assisting with the detection and context of
+ * Worker. Helps avoid circular dependencies and allows code to reason about
+ * whether or not they are in a Worker, even if they never include the main
+ * `ReactWorker` dependency.
+ */
+var ExecutionEnvironment = {
+
+  canUseDOM: canUseDOM,
+
+  canUseWorkers: typeof Worker !== 'undefined',
+
+  canUseEventListeners: canUseDOM && !!(window.addEventListener || window.attachEvent),
+
+  canUseViewport: canUseDOM && !!window.screen,
+
+  isInWorker: !canUseDOM // For now, this is true - might change in the future.
+
+};
+
+module.exports = ExecutionEnvironment;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ */
+
+
+
+var _prodInvariant = __webpack_require__(6);
+
+var DOMProperty = __webpack_require__(57);
+var ReactDOMComponentFlags = __webpack_require__(214);
+
+var invariant = __webpack_require__(4);
+
+var ATTR_NAME = DOMProperty.ID_ATTRIBUTE_NAME;
+var Flags = ReactDOMComponentFlags;
+
+var internalInstanceKey = '__reactInternalInstance$' + Math.random().toString(36).slice(2);
+
+/**
+ * Check if a given node should be cached.
+ */
+function shouldPrecacheNode(node, nodeID) {
+  return node.nodeType === 1 && node.getAttribute(ATTR_NAME) === String(nodeID) || node.nodeType === 8 && node.nodeValue === ' react-text: ' + nodeID + ' ' || node.nodeType === 8 && node.nodeValue === ' react-empty: ' + nodeID + ' ';
+}
+
+/**
+ * Drill down (through composites and empty components) until we get a host or
+ * host text component.
+ *
+ * This is pretty polymorphic but unavoidable with the current structure we have
+ * for `_renderedChildren`.
+ */
+function getRenderedHostOrTextFromComponent(component) {
+  var rendered;
+  while (rendered = component._renderedComponent) {
+    component = rendered;
+  }
+  return component;
+}
+
+/**
+ * Populate `_hostNode` on the rendered host/text component with the given
+ * DOM node. The passed `inst` can be a composite.
+ */
+function precacheNode(inst, node) {
+  var hostInst = getRenderedHostOrTextFromComponent(inst);
+  hostInst._hostNode = node;
+  node[internalInstanceKey] = hostInst;
+}
+
+function uncacheNode(inst) {
+  var node = inst._hostNode;
+  if (node) {
+    delete node[internalInstanceKey];
+    inst._hostNode = null;
+  }
+}
+
+/**
+ * Populate `_hostNode` on each child of `inst`, assuming that the children
+ * match up with the DOM (element) children of `node`.
+ *
+ * We cache entire levels at once to avoid an n^2 problem where we access the
+ * children of a node sequentially and have to walk from the start to our target
+ * node every time.
+ *
+ * Since we update `_renderedChildren` and the actual DOM at (slightly)
+ * different times, we could race here and see a newer `_renderedChildren` than
+ * the DOM nodes we see. To avoid this, ReactMultiChild calls
+ * `prepareToManageChildren` before we change `_renderedChildren`, at which
+ * time the container's child nodes are always cached (until it unmounts).
+ */
+function precacheChildNodes(inst, node) {
+  if (inst._flags & Flags.hasCachedChildNodes) {
+    return;
+  }
+  var children = inst._renderedChildren;
+  var childNode = node.firstChild;
+  outer: for (var name in children) {
+    if (!children.hasOwnProperty(name)) {
+      continue;
+    }
+    var childInst = children[name];
+    var childID = getRenderedHostOrTextFromComponent(childInst)._domID;
+    if (childID === 0) {
+      // We're currently unmounting this child in ReactMultiChild; skip it.
+      continue;
+    }
+    // We assume the child nodes are in the same order as the child instances.
+    for (; childNode !== null; childNode = childNode.nextSibling) {
+      if (shouldPrecacheNode(childNode, childID)) {
+        precacheNode(childInst, childNode);
+        continue outer;
+      }
+    }
+    // We reached the end of the DOM children without finding an ID match.
+     true ?  true ? invariant(false, 'Unable to find element with ID %s.', childID) : _prodInvariant('32', childID) : void 0;
+  }
+  inst._flags |= Flags.hasCachedChildNodes;
+}
+
+/**
+ * Given a DOM node, return the closest ReactDOMComponent or
+ * ReactDOMTextComponent instance ancestor.
+ */
+function getClosestInstanceFromNode(node) {
+  if (node[internalInstanceKey]) {
+    return node[internalInstanceKey];
+  }
+
+  // Walk up the tree until we find an ancestor whose instance we have cached.
+  var parents = [];
+  while (!node[internalInstanceKey]) {
+    parents.push(node);
+    if (node.parentNode) {
+      node = node.parentNode;
+    } else {
+      // Top of the tree. This node must not be part of a React tree (or is
+      // unmounted, potentially).
+      return null;
+    }
+  }
+
+  var closest;
+  var inst;
+  for (; node && (inst = node[internalInstanceKey]); node = parents.pop()) {
+    closest = inst;
+    if (parents.length) {
+      precacheChildNodes(inst, node);
+    }
+  }
+
+  return closest;
+}
+
+/**
+ * Given a DOM node, return the ReactDOMComponent or ReactDOMTextComponent
+ * instance, or null if the node was not rendered by this React.
+ */
+function getInstanceFromNode(node) {
+  var inst = getClosestInstanceFromNode(node);
+  if (inst != null && inst._hostNode === node) {
+    return inst;
+  } else {
+    return null;
+  }
+}
+
+/**
+ * Given a ReactDOMComponent or ReactDOMTextComponent, return the corresponding
+ * DOM node.
+ */
+function getNodeFromInstance(inst) {
+  // Without this first invariant, passing a non-DOM-component triggers the next
+  // invariant for a missing parent, which is super confusing.
+  !(inst._hostNode !== undefined) ?  true ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
+
+  if (inst._hostNode) {
+    return inst._hostNode;
+  }
+
+  // Walk up the tree until we find an ancestor whose DOM node we have cached.
+  var parents = [];
+  while (!inst._hostNode) {
+    parents.push(inst);
+    !inst._hostParent ?  true ? invariant(false, 'React DOM tree root should always have a node reference.') : _prodInvariant('34') : void 0;
+    inst = inst._hostParent;
+  }
+
+  // Now parents contains each ancestor that does *not* have a cached native
+  // node, and `inst` is the deepest ancestor that does.
+  for (; parents.length; inst = parents.pop()) {
+    precacheChildNodes(inst, inst._hostNode);
+  }
+
+  return inst._hostNode;
+}
+
+var ReactDOMComponentTree = {
+  getClosestInstanceFromNode: getClosestInstanceFromNode,
+  getInstanceFromNode: getInstanceFromNode,
+  getNodeFromInstance: getNodeFromInstance,
+  precacheChildNodes: precacheChildNodes,
+  precacheNode: precacheNode,
+  uncacheNode: uncacheNode
+};
+
+module.exports = ReactDOMComponentTree;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var serializables_1 = __webpack_require__(142);
+// @Serializable decorator for a class
+function Serializable(target) {
+    if (target.type) {
+        serializables_1.default.set(target.type, target); // Use the class name as a type
+    }
+    else {
+        throw new Error("target " + target + " has no type");
+    }
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = Serializable;
+
+
+/***/ }),
 /* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1062,7 +1062,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var reconciler_1 = __webpack_require__(86);
 var Action_1 = __webpack_require__(141);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var BaseAction = (function (_super) {
     __extends(BaseAction, _super);
     function BaseAction(_a) {
@@ -1441,7 +1441,7 @@ module.exports = { debugTool: debugTool };
 
 "use strict";
 
-var ExecutionEnvironment_1 = __webpack_require__(10);
+var ExecutionEnvironment_1 = __webpack_require__(11);
 var createBrowserHistory_1 = __webpack_require__(150);
 var createMemoryHistory_1 = __webpack_require__(151);
 exports.canUseWindowLocation = ExecutionEnvironment_1.canUseDOM &&
@@ -2648,7 +2648,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var VistedPage_1 = __webpack_require__(83);
 var PageVisit_1 = __webpack_require__(40);
 var Pages = (function () {
@@ -3881,8 +3881,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var R = __webpack_require__(13);
-var Serializable_1 = __webpack_require__(12);
+var R = __webpack_require__(9);
+var Serializable_1 = __webpack_require__(13);
 var Page = Page_1 = (function () {
     function Page(_a) {
         var url = _a.url, params = _a.params, groupName = _a.groupName, containerName = _a.containerName, _b = _a.isZeroPage, isZeroPage = _b === void 0 ? false : _b;
@@ -5502,7 +5502,7 @@ exports.default = NonStepAction;
 
 var pathToRegexp = __webpack_require__(89);
 var matchPath_1 = __webpack_require__(236);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 exports.addLeadingSlash = function (path) { return path.replace(/\/?(\?|#|$)?/, '/$1'); };
 exports.addTrailingSlash = function (path) { return path.replace(/\/?(\?|#|$)/, '/$1'); };
 exports.stripLeadingSlash = function (path) { return path.charAt(0) === '/' ? path.substr(1) : path; };
@@ -6579,7 +6579,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 var PageVisit_1 = __webpack_require__(40);
 var Page_1 = __webpack_require__(45);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var VisitedPage = (function (_super) {
     __extends(VisitedPage, _super);
     function VisitedPage(_a) {
@@ -6640,7 +6640,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var BaseAction_1 = __webpack_require__(14);
 var Top_1 = __webpack_require__(139);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var SwitchToContainer = SwitchToContainer_1 = (function (_super) {
     __extends(SwitchToContainer, _super);
     function SwitchToContainer(_a) {
@@ -6722,7 +6722,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var SwitchToGroup = SwitchToGroup_1 = (function (_super) {
     __extends(SwitchToGroup, _super);
     function SwitchToGroup(_a) {
@@ -6761,7 +6761,7 @@ var SwitchToGroup_1;
 
 var Page_1 = __webpack_require__(45);
 var BackStep_1 = __webpack_require__(266);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var PushStep_1 = __webpack_require__(268);
 var ReplaceStep_1 = __webpack_require__(269);
 var GoStep_1 = __webpack_require__(267);
@@ -7953,7 +7953,7 @@ module.exports = _curry2(function uniqWith(pred, list) {
 
 var DOMLazyTree = __webpack_require__(56);
 var Danger = __webpack_require__(506);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactInstrumentation = __webpack_require__(21);
 
 var createMicrosoftUnsafeLocalFunction = __webpack_require__(115);
@@ -9600,7 +9600,7 @@ module.exports = getEventTarget;
 
 
 
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 
 var useHasFeature;
 if (ExecutionEnvironment.canUseDOM) {
@@ -9665,7 +9665,7 @@ module.exports = isEventSupported;
 
 
 
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 var DOMNamespaces = __webpack_require__(106);
 
 var WHITESPACE_TEST = /^[ \r\n\t\f]/;
@@ -11064,7 +11064,7 @@ exports.default = Container;
 "use strict";
 
 var Container_1 = __webpack_require__(133);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var Group_1 = __webpack_require__(258);
 var VistedPage_1 = __webpack_require__(83);
 var PageVisit_1 = __webpack_require__(40);
@@ -11422,7 +11422,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var Back = Back_1 = (function (_super) {
     __extends(Back, _super);
     function Back(_a) {
@@ -11469,7 +11469,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var reconciler_1 = __webpack_require__(86);
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var PopState = PopState_1 = (function (_super) {
     __extends(PopState, _super);
     function PopState(_a) {
@@ -11538,7 +11538,7 @@ var Page_1 = __webpack_require__(45);
 var url_1 = __webpack_require__(63);
 var SwitchToGroup_1 = __webpack_require__(85);
 var SwitchToContainer_1 = __webpack_require__(84);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var Push = Push_1 = (function (_super) {
     __extends(Push, _super);
     function Push(_a) {
@@ -11610,7 +11610,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var Top = Top_1 = (function (_super) {
     __extends(Top, _super);
     function Top(_a) {
@@ -11668,7 +11668,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var NonStepAction_1 = __webpack_require__(62);
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var UpdateBrowser = UpdateBrowser_1 = (function (_super) {
     __extends(UpdateBrowser, _super);
     function UpdateBrowser(_a) {
@@ -11754,7 +11754,7 @@ exports.default = serializables;
 "use strict";
 
 var serializer_1 = __webpack_require__(277);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var store = __webpack_require__(603);
 var ClearActions_1 = __webpack_require__(276);
 function deriveState(actions, state) {
@@ -11857,7 +11857,7 @@ exports.createStore = createStore;
 
 "use strict";
 
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var simpleSortByLastVisit = function (cs) {
     return R.sort(function (c1, c2) { return c2.lastVisit.time - c1.lastVisit.time; }, cs);
 };
@@ -13758,7 +13758,7 @@ module.exports = function _makeFlat(recursive) {
 
 var _curry2 = __webpack_require__(0);
 var _reduced = __webpack_require__(32);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -13791,7 +13791,7 @@ module.exports = (function() {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -15147,7 +15147,7 @@ module.exports = PooledClass.addPoolingTo(CallbackQueue);
 
 
 var DOMProperty = __webpack_require__(57);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactInstrumentation = __webpack_require__(21);
 
 var quoteAttributeValueForBrowser = __webpack_require__(567);
@@ -15414,7 +15414,7 @@ module.exports = ReactDOMComponentFlags;
 var _assign = __webpack_require__(7);
 
 var LinkedValueUtils = __webpack_require__(110);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactUpdates = __webpack_require__(29);
 
 var warning = __webpack_require__(5);
@@ -16405,7 +16405,7 @@ module.exports = forEachAccumulated;
 
 
 
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 
 var contentKey = null;
 
@@ -16632,7 +16632,7 @@ module.exports = isTextInputElement;
 
 
 
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 var escapeTextContentForBrowser = __webpack_require__(82);
 var setInnerHTML = __webpack_require__(120);
 
@@ -18031,6 +18031,7 @@ var react_redux_1 = __webpack_require__(27);
 var SwitchToGroup_1 = __webpack_require__(85);
 var Back_1 = __webpack_require__(136);
 var InitializedState_1 = __webpack_require__(44);
+var R = __webpack_require__(9);
 var BackLink = (function (_super) {
     __extends(BackLink, _super);
     function BackLink() {
@@ -18058,9 +18059,16 @@ var BackLink = (function (_super) {
         event.preventDefault();
     };
     BackLink.prototype.render = function () {
-        var _a = this.props, children = _a.children, backPage = _a.backPage;
+        var _a = R.omit([
+            'groupName',
+            'containerName',
+            'store',
+            'isInitialized',
+            'back',
+            'params'
+        ], this.props), children = _a.children, backPage = _a.backPage, aProps = __rest(_a, ["children", "backPage"]);
         if (backPage) {
-            return (React.createElement("a", { href: backPage.url, onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, children ?
+            return (React.createElement("a", __assign({ href: backPage.url, onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, aProps), children ?
                 (children instanceof Function ? children({ params: backPage.params })
                     : children) : 'Back'));
         }
@@ -18300,6 +18308,7 @@ var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
 var react_redux_1 = __webpack_require__(27);
 var SwitchToContainer_1 = __webpack_require__(84);
+var R = __webpack_require__(9);
 var HeaderLink = (function (_super) {
     __extends(HeaderLink, _super);
     function HeaderLink() {
@@ -18325,8 +18334,15 @@ var HeaderLink = (function (_super) {
         return isActive && activeClassName ? activeClassName : className || '';
     };
     HeaderLink.prototype.render = function () {
-        var _a = this.props, children = _a.children, url = _a.url;
-        return (React.createElement("a", { href: url, className: this.getClassName(), onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, children));
+        var _a = R.omit([
+            'toContainer',
+            'groupName',
+            'containerName',
+            'store',
+            'onClick',
+            'isActive'
+        ], this.props), children = _a.children, url = _a.url, aProps = __rest(_a, ["children", "url"]);
+        return (React.createElement("a", __assign({ href: url, className: this.getClassName(), onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, aProps), children));
     };
     return HeaderLink;
 }(react_1.Component));
@@ -18397,7 +18413,7 @@ var react_1 = __webpack_require__(2);
 var PathUtils_1 = __webpack_require__(47);
 var react_redux_1 = __webpack_require__(27);
 var Push_1 = __webpack_require__(138);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var HistoryLink = (function (_super) {
     __extends(HistoryLink, _super);
     function HistoryLink() {
@@ -18426,13 +18442,13 @@ var HistoryLink = (function (_super) {
         event.preventDefault();
     };
     HistoryLink.prototype.render = function () {
-        var aProps = R.omit([
+        var aProps = __rest(R.omit([
             'to',
             'groupName',
             'containerName',
             'store',
             'push'
-        ], this.props).aProps;
+        ], this.props), []);
         return (React.createElement("a", __assign({ href: this.getUrl(), onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, aProps), this.props.children));
     };
     return HistoryLink;
@@ -18631,7 +18647,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var getWindowZIndex = function (stackOrder, name) {
     if (stackOrder && !R.isEmpty(stackOrder)) {
         var index = R.findIndex(function (c) { return c.name === name; }, stackOrder);
@@ -18708,7 +18724,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var ScrollArea = (function (_super) {
     __extends(ScrollArea, _super);
     function ScrollArea(props) {
@@ -19127,7 +19143,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var defaultBehavior = __webpack_require__(253);
 var nonDefaultBehavior = __webpack_require__(256);
 var interContainerHistory = __webpack_require__(254);
@@ -19705,7 +19721,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var AddTitle = AddTitle_1 = (function (_super) {
     __extends(AddTitle, _super);
     function AddTitle(_a) {
@@ -19758,7 +19774,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var CreateContainer = CreateContainer_1 = (function (_super) {
     __extends(CreateContainer, _super);
     function CreateContainer(_a) {
@@ -19822,7 +19838,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var NonStepAction_1 = __webpack_require__(62);
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var CreateGroup = CreateGroup_1 = (function (_super) {
     __extends(CreateGroup, _super);
     function CreateGroup(_a) {
@@ -19893,7 +19909,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var Forward = Forward_1 = (function (_super) {
     __extends(Forward, _super);
     function Forward(_a) {
@@ -19948,7 +19964,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var BaseAction_1 = __webpack_require__(14);
 var InitializedState_1 = __webpack_require__(44);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var load = function (state, url, time) {
     return new InitializedState_1.default(state.groups.reduce(function (s, group) {
         return s.replaceGroup(group.loadFromUrl(url, time));
@@ -20008,7 +20024,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var NonStepAction_1 = __webpack_require__(62);
 var BaseAction_1 = __webpack_require__(14);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var SetZeroPage = SetZeroPage_1 = (function (_super) {
     __extends(SetZeroPage, _super);
     function SetZeroPage(_a) {
@@ -20065,7 +20081,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var BaseAction_1 = __webpack_require__(14);
 var NonStepAction_1 = __webpack_require__(62);
-var Serializable_1 = __webpack_require__(12);
+var Serializable_1 = __webpack_require__(13);
 var Startup = Startup_1 = (function (_super) {
     __extends(Startup, _super);
     function Startup(_a) {
@@ -20219,7 +20235,7 @@ var Top_1 = __webpack_require__(139);
 var PopState_1 = __webpack_require__(137);
 var react_redux_1 = __webpack_require__(27);
 var UpdateBrowser_1 = __webpack_require__(140);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var LifecycleStage;
 (function (LifecycleStage) {
     LifecycleStage[LifecycleStage["WILL_ENTER"] = 0] = "WILL_ENTER";
@@ -20386,7 +20402,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
 var url_1 = __webpack_require__(63);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var DumbContainer = (function (_super) {
     __extends(DumbContainer, _super);
     function DumbContainer() {
@@ -20500,7 +20516,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var DumbContainerGroup = (function (_super) {
     __extends(DumbContainerGroup, _super);
     function DumbContainerGroup() {
@@ -20843,7 +20859,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var R = __webpack_require__(13);
+var R = __webpack_require__(9);
 var serializables_1 = __webpack_require__(142);
 /**
  * @param classObject - An object of a class with a @Serializable decorator
@@ -21218,7 +21234,7 @@ module.exports = createArrayFromMixed;
 
 /*eslint-disable fb-www/unsafe-html*/
 
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 
 var createArrayFromMixed = __webpack_require__(282);
 var getMarkupWrap = __webpack_require__(284);
@@ -21306,7 +21322,7 @@ module.exports = createNodesFromMarkup;
 
 /*eslint-disable fb-www/unsafe-html */
 
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 
 var invariant = __webpack_require__(4);
 
@@ -21624,7 +21640,7 @@ module.exports = memoizeStringOnly;
 
 
 
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 
 var performance;
 
@@ -24761,7 +24777,7 @@ module.exports = function _equals(a, b, stackA, stackB) {
 
 var _forceReduced = __webpack_require__(371);
 var _reduce = __webpack_require__(18);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 var isArrayLike = __webpack_require__(51);
 
 module.exports = (function() {
@@ -25046,7 +25062,7 @@ module.exports = function _toString(x, seen) {
 
 var _curry2 = __webpack_require__(0);
 var _reduced = __webpack_require__(32);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25080,7 +25096,7 @@ module.exports = (function() {
 
 var _concat = __webpack_require__(20);
 var _curry2 = __webpack_require__(0);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25135,7 +25151,7 @@ module.exports = _curry2(function _xchain(f, xf) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25162,7 +25178,7 @@ module.exports = (function() {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25203,7 +25219,7 @@ module.exports = (function() {
 
 var _curry2 = __webpack_require__(0);
 var _reduce = __webpack_require__(18);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 module.exports = (function() {
   function XDropLastWhile(fn, xf) {
@@ -25243,7 +25259,7 @@ module.exports = (function() {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25272,7 +25288,7 @@ module.exports = (function() {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25296,7 +25312,7 @@ module.exports = (function() {
 
 var _curry2 = __webpack_require__(0);
 var _reduced = __webpack_require__(32);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25330,7 +25346,7 @@ module.exports = (function() {
 
 var _curry2 = __webpack_require__(0);
 var _reduced = __webpack_require__(32);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25365,7 +25381,7 @@ module.exports = (function() {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25393,7 +25409,7 @@ module.exports = (function() {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25424,7 +25440,7 @@ module.exports = (function() {
 /***/ (function(module, exports, __webpack_require__) {
 
 var _curry2 = __webpack_require__(0);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25448,7 +25464,7 @@ module.exports = (function() {
 
 var _curryN = __webpack_require__(69);
 var _has = __webpack_require__(16);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -25494,7 +25510,7 @@ module.exports = (function() {
 
 var _curry2 = __webpack_require__(0);
 var _reduced = __webpack_require__(32);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 module.exports = (function() {
   function XTake(n, xf) {
@@ -25520,7 +25536,7 @@ module.exports = (function() {
 
 var _curry2 = __webpack_require__(0);
 var _reduced = __webpack_require__(32);
-var _xfBase = __webpack_require__(9);
+var _xfBase = __webpack_require__(10);
 
 
 module.exports = (function() {
@@ -29527,7 +29543,7 @@ module.exports = ARIADOMPropertyConfig;
 
 
 
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 
 var focusNode = __webpack_require__(146);
 
@@ -29557,7 +29573,7 @@ module.exports = AutoFocusUtils;
 
 
 var EventPropagators = __webpack_require__(59);
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 var FallbackCompositionState = __webpack_require__(509);
 var SyntheticCompositionEvent = __webpack_require__(550);
 var SyntheticInputEvent = __webpack_require__(553);
@@ -29947,7 +29963,7 @@ module.exports = BeforeInputEventPlugin;
 
 
 var CSSProperty = __webpack_require__(211);
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 var ReactInstrumentation = __webpack_require__(21);
 
 var camelizeStyleName = __webpack_require__(280);
@@ -30162,8 +30178,8 @@ module.exports = CSSPropertyOperations;
 
 var EventPluginHub = __webpack_require__(58);
 var EventPropagators = __webpack_require__(59);
-var ExecutionEnvironment = __webpack_require__(10);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ExecutionEnvironment = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactUpdates = __webpack_require__(29);
 var SyntheticEvent = __webpack_require__(30);
 
@@ -30489,7 +30505,7 @@ module.exports = ChangeEventPlugin;
 var _prodInvariant = __webpack_require__(6);
 
 var DOMLazyTree = __webpack_require__(56);
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 
 var createNodesFromMarkup = __webpack_require__(283);
 var emptyFunction = __webpack_require__(19);
@@ -30571,7 +30587,7 @@ module.exports = DefaultEventPluginOrder;
 
 
 var EventPropagators = __webpack_require__(59);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var SyntheticMouseEvent = __webpack_require__(80);
 
 var eventTypes = {
@@ -32109,7 +32125,7 @@ var EventPluginHub = __webpack_require__(58);
 var EventPluginRegistry = __webpack_require__(107);
 var ReactBrowserEventEmitter = __webpack_require__(111);
 var ReactDOMComponentFlags = __webpack_require__(214);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactDOMInput = __webpack_require__(518);
 var ReactDOMOption = __webpack_require__(519);
 var ReactDOMSelect = __webpack_require__(215);
@@ -33141,7 +33157,7 @@ module.exports = ReactDOMContainerInfo;
 var _assign = __webpack_require__(7);
 
 var DOMLazyTree = __webpack_require__(56);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 
 var ReactDOMEmptyComponent = function (instantiate) {
   // ReactCompositeComponent uses this:
@@ -33204,7 +33220,7 @@ module.exports = ReactDOMEmptyComponent;
 
 
 var DOMChildrenOperations = __webpack_require__(105);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 
 /**
  * Operations used to process updates to DOM nodes.
@@ -33247,7 +33263,7 @@ var _prodInvariant = __webpack_require__(6),
 
 var DOMPropertyOperations = __webpack_require__(213);
 var LinkedValueUtils = __webpack_require__(110);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactUpdates = __webpack_require__(29);
 
 var invariant = __webpack_require__(4);
@@ -33528,7 +33544,7 @@ module.exports = ReactDOMInput;
 var _assign = __webpack_require__(7);
 
 var React = __webpack_require__(43);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactDOMSelect = __webpack_require__(215);
 
 var warning = __webpack_require__(5);
@@ -33653,7 +33669,7 @@ module.exports = ReactDOMOption;
 
 
 
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 
 var getNodeForCharacterOffset = __webpack_require__(565);
 var getTextContentAccessor = __webpack_require__(226);
@@ -33906,7 +33922,7 @@ var _prodInvariant = __webpack_require__(6),
 
 var DOMChildrenOperations = __webpack_require__(105);
 var DOMLazyTree = __webpack_require__(56);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 
 var escapeTextContentForBrowser = __webpack_require__(82);
 var invariant = __webpack_require__(4);
@@ -34074,7 +34090,7 @@ var _prodInvariant = __webpack_require__(6),
     _assign = __webpack_require__(7);
 
 var LinkedValueUtils = __webpack_require__(110);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactUpdates = __webpack_require__(29);
 
 var invariant = __webpack_require__(4);
@@ -34380,7 +34396,7 @@ module.exports = {
 var ReactInvalidSetStateWarningHook = __webpack_require__(533);
 var ReactHostOperationHistoryHook = __webpack_require__(531);
 var ReactComponentTreeHook = __webpack_require__(28);
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 
 var performanceNow = __webpack_require__(292);
 var warning = __webpack_require__(5);
@@ -34750,7 +34766,7 @@ var EnterLeaveEventPlugin = __webpack_require__(508);
 var HTMLDOMPropertyConfig = __webpack_require__(510);
 var ReactComponentBrowserEnvironment = __webpack_require__(512);
 var ReactDOMComponent = __webpack_require__(514);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactDOMEmptyComponent = __webpack_require__(516);
 var ReactDOMTreeTraversal = __webpack_require__(524);
 var ReactDOMTextComponent = __webpack_require__(522);
@@ -34899,9 +34915,9 @@ module.exports = ReactEventEmitterMixin;
 var _assign = __webpack_require__(7);
 
 var EventListener = __webpack_require__(145);
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 var PooledClass = __webpack_require__(37);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactUpdates = __webpack_require__(29);
 
 var getEventTarget = __webpack_require__(118);
@@ -36757,8 +36773,8 @@ module.exports = SVGDOMPropertyConfig;
 
 
 var EventPropagators = __webpack_require__(59);
-var ExecutionEnvironment = __webpack_require__(10);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ExecutionEnvironment = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var ReactInputSelection = __webpack_require__(219);
 var SyntheticEvent = __webpack_require__(30);
 
@@ -36957,7 +36973,7 @@ var _prodInvariant = __webpack_require__(6);
 
 var EventListener = __webpack_require__(145);
 var EventPropagators = __webpack_require__(59);
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(12);
 var SyntheticAnimationEvent = __webpack_require__(548);
 var SyntheticClipboardEvent = __webpack_require__(549);
 var SyntheticEvent = __webpack_require__(30);
@@ -38245,7 +38261,7 @@ module.exports = getNodeForCharacterOffset;
 
 
 
-var ExecutionEnvironment = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(11);
 
 /**
  * Generate a mapping of standard vendor prefixes using the defined style property and event name.

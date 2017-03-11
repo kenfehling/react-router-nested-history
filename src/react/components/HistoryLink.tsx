@@ -48,7 +48,7 @@ class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 
   render() {
-    const {aProps} = R.omit([
+    const {...aProps} = R.omit([
       'to',
       'groupName',
       'containerName',

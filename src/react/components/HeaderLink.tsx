@@ -6,6 +6,7 @@ import {Store} from '../../store/store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
+import * as R from 'ramda'
 
 export interface HeaderLinkProps {
   children: ReactNode
@@ -51,12 +52,20 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 
   render() {
-    const {children, url} = this.props
+    const {children, url, ...aProps} = R.omit([
+      'toContainer',
+      'groupName',
+      'containerName',
+      'store',
+      'onClick',
+      'isActive'
+    ], this.props)
     return (
       <a href={url}
          className={this.getClassName()}
          onMouseDown={this.onMouseDown.bind(this)}
          onClick={this.onClick.bind(this)}
+         {...aProps}
       >
         {children}
       </a>
