@@ -157,8 +157,9 @@ export default class Pages implements IHistory {
     return R.findIndex(p => p === current, firstVisited)
   }
 
-  get firstManualVisit():PageVisit {
-    return this.pages.filter(p => p.wasManuallyVisited)[0].firstManualVisit
+  get firstManualVisit():PageVisit|null {
+    const page:VisitedPage = this.pages.filter(p => p.wasManuallyVisited)[0]
+    return page ? page.firstManualVisit : null
   }
 
   get lastVisit():PageVisit {

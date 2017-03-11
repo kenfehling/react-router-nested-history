@@ -4,7 +4,7 @@ import IHistory from './IHistory'
 abstract class IContainer extends IHistory {
   abstract get wasManuallyVisited(): boolean
   abstract get pages(): Pages
-  abstract updatePages(pages:Pages): IHistory
+  abstract updatePages(pages:Pages): IContainer
   abstract get name(): string
   abstract get patterns(): string[]
   abstract get groupName(): string|null

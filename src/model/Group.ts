@@ -14,8 +14,7 @@ import Pages, {HistoryStack} from './Pages'
 import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
 import {
-  sortContainersByLastVisited,
-  sortContainersByFirstVisited
+  sortContainersByLastVisited, sortContainersByFirstVisited
 } from '../util/sorter'
 
 // Param types for _go method
@@ -79,7 +78,7 @@ export default class Group implements IContainer {
     }
   }
 
-  updatePages(pages:Pages):Group {
+  updatePages(pages:Pages):IContainer {
     return new Group({
       ...Object(this),
       containers: this.containers.map(c => c.updatePages(pages))
@@ -522,7 +521,7 @@ export default class Group implements IContainer {
     return new Pages(this.history.flatten())
   }
 
-  get firstManualVisit(): PageVisit {
+  get firstManualVisit():PageVisit|null {
     return this.pages.firstManualVisit
   }
 

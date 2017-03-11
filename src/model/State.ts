@@ -132,8 +132,8 @@ abstract class State {
 
   addContainer({time, name, groupName, initialUrl, isDefault=false,
     resetOnLeave=false, patterns}:
-    {time:number, name:string, groupName:string, initialUrl:string, patterns:string[],
-      isDefault:boolean, resetOnLeave:boolean}):State {
+    {time:number, name:string, groupName:string, initialUrl:string,
+      patterns:string[], isDefault:boolean, resetOnLeave:boolean}):State {
     const group:Group = this.getGroupByName(groupName)
     const container:Container = new Container({
       time,

@@ -332,10 +332,8 @@ describe('action utils', () => {
         ]
 
         it('back', () => {
-          const actions:Action[] = [...loadActions, new Back({
-            time: 1002
-          })]
-          expect(createStepsSince(actions, 1000)).to.deep.equal([
+          const actions:Action[] = [...loadActions, new Back({time: 5000})]
+          expect(createStepsSince(actions, 4000)).to.deep.equal([
             new GoStep(-1)
           ])
         })
@@ -346,10 +344,10 @@ describe('action utils', () => {
             new SwitchToContainer({
               groupName: 'Group 1',
               name: 'Container 2',
-              time: 2000
+              time: 5000
             })
           ]
-          expect(createStepsSince(actions, 1000)).to.deep.equal([
+          expect(createStepsSince(actions, 4000)).to.deep.equal([
             new PushStep(new Page({
               url: '/b',
               params: {},
@@ -362,9 +360,9 @@ describe('action utils', () => {
         it('handles pop back', () => {
           const actions:Action[] = [...loadActions, new PopState({
             n: -1,
-            time: 1002
+            time: 5000
           })]
-          expect(createStepsSince(actions, 1000)).to.deep.equal([])
+          expect(createStepsSince(actions, 4000)).to.deep.equal([])
         })
 
         it('handles pop back, then other stuff', () => {
@@ -528,19 +526,16 @@ describe('action utils', () => {
             ...originalNestedActions,
             new LoadFromUrl({
               url: '/b',
-              time: 1200
+              time: 2000
             })
           ]
           expect(createStepsSince(actions, 0)).to.deep.equal([
             new ReplaceStep(new Page(zero)),
-            new PushStep(new VisitedPage({
+            new PushStep(new Page({
               url: '/a',
               params: {},
               groupName: createSubGroup1.name,
-              containerName: 'Container 1',
-              visits: [
-                {time: 1000, type: VisitType.AUTO}
-              ]
+              containerName: 'Container 1'
             })),
             new PushStep(new Page({
               url: '/b',

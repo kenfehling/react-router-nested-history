@@ -16,7 +16,6 @@ import Back from '../../src/model/actions/Back'
 import Top from '../../src/model/actions/Top'
 import PopState from '../../src/model/actions/PopState'
 import UpdateBrowser from '../../src/model/actions/UpdateBrowser'
-import {createStepsSince} from '../../src/util/actions'
 import Startup from '../../src/model/actions/Startup'
 import ClearActions from '../../src/store/actions/ClearActions'
 import SwitchToGroup from '../../src/model/actions/SwitchToGroup'
@@ -25,6 +24,7 @@ import InitializedState from '../../src/model/InitializedState'
 import {expect} from 'chai'
 import UninitializedState from '../../src/model/UninitializedState'
 import BaseAction from '../../src/model/BaseAction'
+import {createStepsSince} from '../../src/util/reconciler'
 declare const describe:any
 declare const it:any
 declare const beforeEach:any

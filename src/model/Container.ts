@@ -54,7 +54,7 @@ export default class Container implements IContainer {
     })
   }
 
-  updatePages(pages:Pages):Container {
+  updatePages(pages:Pages):IContainer {
     return new Container({
       ...Object(this),
       pages: this.pages.update(pages)
@@ -96,7 +96,7 @@ export default class Container implements IContainer {
     }
   }
 
-  loadFromUrl(url:string, time:number):Container {
+  loadFromUrl(url:string, time:number):IContainer {
     if (this.patternsMatch(url)) {
       const container:Container = this.isAtTopPage ?
           this.activate({time: time - 1, type: VisitType.MANUAL}) : this
@@ -175,7 +175,7 @@ export default class Container implements IContainer {
     return this.pages.forwardLength
   }
 
-  get firstManualVisit():PageVisit {
+  get firstManualVisit():PageVisit|null {
     return this.pages.firstManualVisit
   }
 

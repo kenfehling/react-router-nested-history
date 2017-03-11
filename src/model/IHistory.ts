@@ -7,7 +7,7 @@ abstract class IHistory {
   abstract getForwardPage(n:number): Page|undefined
   abstract canGoBack(n: number): boolean
   abstract canGoForward(n: number): boolean
-  abstract get firstManualVisit(): PageVisit
+  abstract get firstManualVisit(): PageVisit|null
   abstract get lastVisit(): PageVisit
   abstract get activePage(): VisitedPage
   abstract containsPage(page: Page): boolean
