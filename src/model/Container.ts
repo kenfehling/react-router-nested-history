@@ -98,7 +98,9 @@ export default class Container implements IContainer {
 
   loadFromUrl(url:string, time:number):Container {
     if (this.patternsMatch(url)) {
-      return this.pushUrl(url, time, VisitType.MANUAL)
+      const container:Container = this.isAtTopPage ?
+          this.activate({time: time - 1, type: VisitType.MANUAL}) : this
+      return container.pushUrl(url, time, VisitType.MANUAL)
     }
     else {
       return this

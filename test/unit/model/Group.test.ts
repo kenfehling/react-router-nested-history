@@ -225,6 +225,18 @@ describe('Group', () => {
         expect(history.forward[0].url).to.equal('/a/1')
       })
     })
+
+    describe('loadFromUrl', () => {
+      it('loads initialUrl into history when a page below it is loaded', () => {
+        const g:Group = group.loadFromUrl('/b/1', 5000)
+        const history:HistoryStack = g.history
+        expect(history.back.length).to.equal(2)
+        expect(history.back[0].url).to.equal('/a')
+        expect(history.back[1].url).to.equal('/b')
+        expect(history.current.url).to.equal('/b/1')
+        expect(history.forward.length).to.equal(0)
+      })
+    })
   })
 
   describe('nested group', () => {

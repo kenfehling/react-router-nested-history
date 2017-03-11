@@ -3,6 +3,7 @@ import Pages from '../../../src/model/Pages'
 import {expect} from 'chai'
 import VisitedPage from '../../../src/model/VistedPage'
 import {VisitType} from '../../../src/model/PageVisit'
+import {HistoryStack} from '../../../src/model/Pages'
 declare const describe:any
 declare const it:any
 
@@ -98,6 +99,35 @@ describe('Container', () => {
 
     it('does nothing if already on this page', () => {
       expect(container.loadFromUrl('/a/1', 7500).history.back.length).to.equal(1)
+    })
+
+    it('loads initialUrl into history when a page below it is loaded', () => {
+      const b = new VisitedPage({
+        url: '/b',
+        params: {},
+        groupName: 'Group 1',
+        containerName: 'Container 2',
+        visits: [
+          {time: 1010, type: VisitType.AUTO}
+        ]
+      })
+      const c2:Container = new Container({
+        name: 'Container 2',
+        groupName: 'Group 1',
+        initialUrl: '/b',
+        patterns: ['/b', '/b/:id'],
+        isDefault: true,
+        pages: new Pages([b]),
+        time: 2000
+      })
+      const loadedContainer = c2.loadFromUrl('/b/1', 5000)
+      const history:HistoryStack = loadedContainer.history
+      expect(history.back.length).to.equal(1)
+      expect(history.back[0].url).to.equal('/b')
+      expect(history.back[0].visits.length).to.equal(2)
+      expect(history.back[0].visits[1].time).to.equal(4999)
+      expect(history.current.url).to.equal('/b/1')
+      expect(history.forward.length).to.equal(0)
     })
   })
 
