@@ -8,6 +8,7 @@ import {Store} from '../../store/store'
 import IUpdateData from '../../store/IUpdateData'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
+import * as R from 'ramda'
 
 type HistoryLinkPropsWithStore = LinkProps & {
   store: Store<State, Action>
@@ -47,11 +48,18 @@ class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 
   render() {
-
+    const {aProps} = R.omit([
+      'to',
+      'groupName',
+      'containerName',
+      'store',
+      'push'
+    ], this.props)
     return (
       <a href={this.getUrl()}
          onMouseDown={this.onMouseDown.bind(this)}
          onClick={this.onClick.bind(this)}
+         {...aProps}
       >
         {this.props.children}
       </a>
