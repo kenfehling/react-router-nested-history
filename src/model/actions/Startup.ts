@@ -1,7 +1,7 @@
-import Action, {SYSTEM} from '../Action'
-import IState from '../IState'
-import {Serializable} from '../../util/serializer'
+import Action, {SYSTEM} from '../BaseAction'
+import State from '../State'
 import NonStepAction from './NonStepAction'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class Startup extends NonStepAction {
@@ -18,7 +18,7 @@ export default class Startup extends NonStepAction {
     return new Startup({...Object(this), time, fromRefresh: true})
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.assign({
       loadedFromRefresh: this.fromRefresh,
       lastUpdate: this.fromRefresh ? this.time : state.lastUpdate

@@ -1,6 +1,6 @@
-import Action, {Origin} from '../Action'
-import IState from '../IState'
-import {Serializable} from '../../util/serializer'
+import Action, {Origin} from '../BaseAction'
+import State from '../State'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class SwitchToGroup extends Action {
@@ -14,14 +14,14 @@ export default class SwitchToGroup extends Action {
     this.groupName = groupName
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.switchToGroup({
       groupName: this.groupName,
       time: this.time
     })
   }
 
-  filter(state:IState):Action[] {
+  filter(state:State):Action[] {
     return state.isGroupActive(this.groupName) ? [] : [this]
   }
 }

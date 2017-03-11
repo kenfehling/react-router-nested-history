@@ -1,4 +1,4 @@
-import Step from '../interfaces/Step'
+import Step from '../Step'
 import * as browser from '../../util/browserFunctions'
 import Page from '../Page'
 

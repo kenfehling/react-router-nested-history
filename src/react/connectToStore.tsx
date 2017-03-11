@@ -1,13 +1,15 @@
 import * as React from 'react'
 import {Component, ComponentClass, PropTypes, createElement} from 'react'
 import {connect} from 'react-redux'
-import IUpdateData from '../model/interfaces/IUpdateData'
-import {Store} from '../store'
+import IUpdateData from '../store/IUpdateData'
+import {Store} from '../store/store'
+import Action from '../model/BaseAction'
+import State from '../model/State'
 
 export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
-  type PS = P & {store:Store}
+  type PS = P & {store:Store<State, Action>}
 
-  const mapStateToProps = (state:IUpdateData, ownProps:PS):P => ({
+  const mapStateToProps = (state:IUpdateData<State, Action>, ownProps:PS):P => ({
     ...Object(ownProps),
     ...state
   })
@@ -15,7 +17,7 @@ export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
   const WrappedComponent = (props:P) => createElement(component, props)
   const ConnectedComponent = connect(mapStateToProps)(WrappedComponent)
 
-  return class extends Component<P, any> {
+  return class ConntectToStore extends Component<P, any> {
     static contextTypes = {
       rrnhStore: PropTypes.object.isRequired
     }

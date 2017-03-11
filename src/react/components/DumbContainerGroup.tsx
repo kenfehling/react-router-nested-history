@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
-import IContainer from '../../model/interfaces/IContainer'
+import IContainer from '../../model/IContainer'
 
 export type OnContainerSwitchArgs = {
   currentContainerIndex: number|null

@@ -1,8 +1,7 @@
 import NonStepAction from './NonStepAction'
-import {SYSTEM} from '../Action'
-import IState from '../IState'
-import Page from '../Page'
-import {Serializable} from '../../util/serializer'
+import {SYSTEM} from '../BaseAction'
+import State from '../State'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class SetZeroPage extends NonStepAction {
@@ -15,9 +14,9 @@ export default class SetZeroPage extends NonStepAction {
     this.url = url
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.assign({
-      zeroPage: this.url ? Page.createZeroPage(this.url) : null
+      zeroPage: this.url
     })
   }
 }

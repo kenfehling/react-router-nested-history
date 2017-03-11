@@ -1,21 +1,17 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode} from 'react'
+import {Component, PropTypes} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import DumbContainerGroup, {
   OnContainerSwitch, ChildrenType
 } from './DumbContainerGroup'
-import Container from './Container'
-import DumbContainer from './DumbContainer'
-import {renderToStaticMarkup} from 'react-dom/server'
 import CreateGroup from '../../model/actions/CreateGroup'
-import createElement = React.createElement
-import IUpdateData from '../../model/interfaces/IUpdateData'
-import {Store} from '../../store'
+import IUpdateData from '../../store/IUpdateData'
+import {Store} from '../../store/store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import InitializedState from '../../model/InitializedState'
-import {getChildren} from '../../util/children'
-import WindowGroup from './WindowGroup'
-import IContainer from '../../model/interfaces/IContainer'
+import IContainer from '../../model/IContainer'
+import Action from '../../model/BaseAction'
+import State from '../../model/State'
 
 export interface ContainerGroupProps {
   name: string
@@ -31,7 +27,7 @@ export interface ContainerGroupProps {
 }
 
 type GroupPropsWithStore = ContainerGroupProps & {
-  store: Store
+  store: Store<State, Action>
   parentGroupName: string
 }
 
@@ -48,7 +44,6 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
   constructor(props) {
     super(props)
     const {
-      store,
       name,
       resetOnLeave,
       allowInterContainerHistory,
@@ -67,6 +62,7 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       gotoTopOnSelectActive
     }))
 
+    /*
     class G extends Component<{children: ReactNode}, undefined> {
       static childContextTypes = {
         rrnhStore: PropTypes.object.isRequired,
@@ -83,7 +79,8 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       }
 
       render() {
-        return <div>{this.props.children}</div>
+        const {children} = this.props
+        return <div>{children}</div>
       }
     }
 
@@ -92,14 +89,15 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
     const cs = getChildren(this, [Container, DumbContainer],
                                  [ContainerGroup, DumbContainerGroup, WindowGroup])
     cs.forEach(c => renderToStaticMarkup(<G children={c} />))
+    */
   }
 
   render() {
-    return  <DumbContainerGroup {...this.props} />
+    return <DumbContainerGroup {...this.props} />
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData,
+const mapStateToProps = ({state}:IUpdateData<State, Action>,
                          ownProps:GroupPropsWithStore) => {
   const {name} = ownProps
   const isInitialized = state instanceof InitializedState
@@ -111,7 +109,7 @@ const mapStateToProps = ({state}:IUpdateData,
   }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:GroupPropsWithStore) => ({
   createGroup: (action:CreateGroup) => dispatch(action),
   switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({

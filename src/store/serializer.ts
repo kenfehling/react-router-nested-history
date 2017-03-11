@@ -1,34 +1,8 @@
 import R = require('ramda')
-
-export interface ISerializable {
-  type: string
-}
-
-// For internal use. All class objects automatically ahdhere to this interface
-interface ISerializableClass {
-  type: string
-  new (...args: any[]): ISerializable
-  bind: Function
-}
-
-// A plain object with a type attribute added (the name of the original class)
-export interface ISerialized {
-  type: string
-}
-
-// @Serializable decorator for a class
-export function Serializable(target:ISerializableClass) {
-  if (target.type) {
-    serializables.set(target.type, target)  // Use the class name as a type
-  }
-  else {
-    throw new Error(`target ${target} has no type`)
-  }
-}
-
-// Map to store all classes with @Serializable decorator
-const serializables:Map<string, ISerializableClass> =
-    new Map<string, ISerializableClass>()
+import ISerializable from './ISerializable'
+import ISerializableClass from './ISerializableClass'
+import ISerialized from './ISerialized'
+import serializables from './serializables'
 
 /**
  * @param classObject - An object of a class with a @Serializable decorator

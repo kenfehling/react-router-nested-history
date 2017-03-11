@@ -1,23 +1,25 @@
 import Page from './Page'
-import HistoryStack from './HistoryStack'
 import Container from './Container'
 import * as R from 'ramda'
-import IContainer from './interfaces/IContainer'
-import ISubGroup from './interfaces/ISubGroup'
+import IContainer from './IContainer'
+import ISubGroup from './ISubGroup'
 import Group from './Group'
-import PathTitle from './interfaces/PathTitle'
+import PathTitle from './PathTitle'
+import {HistoryStack, default as Pages} from './Pages'
+import VisitedPage from './VistedPage'
+import {VisitType} from './PageVisit'
 
-abstract class IState {
+abstract class State {
   readonly groups: Group[]
   readonly titles: PathTitle[]
-  readonly zeroPage?: Page
+  readonly zeroPage?: string
   readonly lastUpdate: number
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
   constructor({groups=[], zeroPage, lastUpdate=0,
     loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
-    {groups?:Group[], zeroPage?:Page, lastUpdate?:number,
+    {groups?:Group[], zeroPage?:string, lastUpdate?:number,
       loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
     this.zeroPage = zeroPage
@@ -27,35 +29,34 @@ abstract class IState {
     this.titles = titles
   }
 
-  abstract assign(obj:Object):IState
+  abstract get pages():Pages
+  abstract assign(obj:Object):State
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
-  abstract switchToGroup({groupName, time}:{groupName:string, time:number}):IState
+  abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
 
   abstract switchToContainer({groupName, name, time}:
-      {groupName:string, name:string, time:number}):IState
+      {groupName:string, name:string, time:number}):State
 
   abstract getContainerLinkUrl(groupName:string, containerName:string):string
   abstract getRootGroupOfGroupByName(name:string):Group
   abstract getRootGroupOfGroup(group:Group):Group
-  abstract push(page:Page):IState
-  abstract get backPage():Page
-  abstract get forwardPage():Page
-  abstract go(n:number, time:number):IState
-  abstract goBack(n:number, time:number):IState
-  abstract goForward(n:number, time:number):IState
+  abstract push(page:Page, time:number):State
+  abstract go(n:number, time:number):State
+  abstract back(n:number, time:number):State
+  abstract forward(n:number, time:number):State
   abstract canGoBack(n:number):boolean
   abstract canGoForward(n:number):boolean
   abstract isContainerAtTopPage(groupName:string, containerName:string):boolean
   abstract top({groupName, containerName, time, reset}:
       {groupName:string, containerName:string,
-        time:number, reset?:boolean}):IState
+        time:number, reset?:boolean}):State
 
   abstract getShiftAmount(page:Page):number
 
   abstract containsPage(page:Page):boolean
   protected abstract getHistory(maintainFwd:boolean):HistoryStack
   abstract get groupStackOrder():Group[]
-  abstract getBackPageInGroup(groupName:string)
+  abstract getBackPageInGroup(groupName:string):Page|undefined
   abstract getActiveContainerNameInGroup(groupName:string)
   abstract getActiveContainerIndexInGroup(groupName:string)
   abstract getActivePageInGroup(groupName:string):Page
@@ -73,7 +74,7 @@ abstract class IState {
   abstract isActiveContainer(groupName:string, containerName:string):boolean
   abstract getContainerNameByIndex(groupName:string, index:number):string
 
-  replaceGroup(group:Group):IState {
+  replaceGroup(group:Group):State {
     if (group.parentGroupName) {
       const parentGroup:Group = this.getGroupByName(group.parentGroupName)
       return this.replaceGroup(parentGroup.replaceContainer(group as ISubGroup))
@@ -100,7 +101,7 @@ abstract class IState {
   addTopLevelGroup({name, resetOnLeave=false, allowInterContainerHistory=false,
     gotoTopOnSelectActive=false}:
     {name:string, resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
-      gotoTopOnSelectActive?:boolean}):IState {
+      gotoTopOnSelectActive?:boolean}):State {
     const group:Group = new Group({
       name,
       resetOnLeave,
@@ -117,7 +118,7 @@ abstract class IState {
     gotoTopOnSelectActive=false}:
     {name:string, parentGroupName:string, isDefault:boolean,
       allowInterContainerHistory?:boolean,
-      resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}):IState {
+      resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}):State {
     const group:Group = new Group({
       name,
       resetOnLeave,
@@ -131,8 +132,8 @@ abstract class IState {
 
   addContainer({time, name, groupName, initialUrl, isDefault=false,
     resetOnLeave=false, patterns}:
-    {time:number, name:string, groupName:string, initialUrl:string, patterns:string[],
-      isDefault:boolean, resetOnLeave:boolean}):IState {
+    {time:number, name:string, groupName:string, initialUrl:string,
+      patterns:string[], isDefault:boolean, resetOnLeave:boolean}):State {
     const group:Group = this.getGroupByName(groupName)
     const container:Container = new Container({
       time,
@@ -187,6 +188,12 @@ abstract class IState {
     }
   }
 
+  addTitle({pathname, title}:{pathname:string, title:string}):State {
+    const existingTitle = this.getTitleForPath(pathname)
+    return existingTitle ? this :
+      this.assign({titles: [...this.titles, {pathname, title}]})
+  }
+
   getTitleForPath(pathname:string):string|null {
     const found = R.find(t => t.pathname === pathname, this.titles)
     return found ? found.title : null
@@ -200,21 +207,25 @@ abstract class IState {
     return this.getTitleForPath(this.activeUrl)
   }
 
-  addTitle({pathname, title}:{pathname:string, title:string}):IState {
-    const existingTitle = this.getTitleForPath(pathname)
-    return existingTitle ? this :
-      this.assign({titles: [...this.titles, {pathname, title}]})
+  static createZeroPage(url:string) {
+    return new VisitedPage({
+      url,
+      params: {},
+      groupName: '',
+      containerName: '',
+      isZeroPage: true,
+      visits: [{time: -1, type: VisitType.AUTO}]
+    })
   }
-
 
   /**
    * Gets the zero page, or if it's not set defaults to using
    * the initialUrl of the first container in the first group
    */
-  getZeroPage():Page {
-    return this.zeroPage || Page.createZeroPage(
-        this.groups[0].containers[0].initialUrl)
+  getZeroPage():VisitedPage {
+    return State.createZeroPage(
+        this.zeroPage || this.groups[0].containers[0].initialUrl)
   }
 }
 
-export default IState
+export default State

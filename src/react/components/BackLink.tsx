@@ -1,27 +1,35 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode} from 'react'
+import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import {connect, Dispatch} from 'react-redux'
-import IUpdateData from '../../model/interfaces/IUpdateData'
-import {Store} from '../../store'
+import IUpdateData from '../../store/IUpdateData'
+import {Store} from '../../store/store'
 import Page from '../../model/Page'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import Back from '../../model/actions/Back'
 import InitializedState from '../../model/InitializedState'
+import Action from '../../model/BaseAction'
+import State from '../../model/State'
+
+export type ChildrenFunctionArgs = {
+  params: Object
+}
+
+export type ChildrenType =
+  ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
 
 export interface BackLinkProps {
-  children: ReactNode;
-  nameFn: (params:Object) => string
+  children?: ChildrenType
 }
 
 type BackLinkPropsWithStore = BackLinkProps & {
-  store: Store
+  store: Store<State, Action>
   groupName: string
 }
 
 type ConnectedBackLinkProps = BackLinkPropsWithStore & {
   isInitialized: boolean
   backPage: Page|null
-  goBack: () => void
+  back: () => void
 
 }
 
@@ -32,24 +40,38 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
     }
   }
 
+  /*
   // Don't disappear when transitioning back to previous page
   shouldComponentUpdate(newProps) {
     return !this.props.isInitialized && newProps.isInitialized
   }
+  */
 
   onClick(event) {
-    const {goBack} = this.props
-    goBack()
+    const {back} = this.props
+    back()
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
+  onMouseDown(event) {
     event.stopPropagation()
     event.preventDefault()
   }
 
   render() {
-    const {children, nameFn, backPage} = this.props
+    const {children, backPage} = this.props
     if (backPage) {
-      return (<a href={backPage.url} onClick={this.onClick.bind(this)}>
-        {children || nameFn ? nameFn({params: backPage.params}) : 'Back'}
-      </a>)
+      return (
+        <a href={backPage.url}
+           onMouseDown={this.onMouseDown.bind(this)}
+           onClick={this.onClick.bind(this)}
+        >
+          {children ?
+            (children instanceof Function ? children({params: backPage.params})
+              : children) : 'Back'}
+        </a>
+      )
     }
     else {
       return <span> </span>
@@ -57,7 +79,7 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData,
+const mapStateToProps = ({state}:IUpdateData<State, Action>,
                          ownProps:BackLinkPropsWithStore) => {
   const isInitialized:boolean = state instanceof InitializedState
   return {
@@ -67,9 +89,9 @@ const mapStateToProps = ({state}:IUpdateData,
 
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:BackLinkPropsWithStore) => ({
-  goBack: () => {
+  back: () => {
     dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
     dispatch(new Back())
   }

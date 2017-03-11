@@ -1,14 +1,14 @@
-import Action from '../../src/model/Action'
+import Action from '../../src/model/BaseAction'
 import {_history, _resetHistory} from '../../src/util/browserFunctions'
 import {
   createContainers1, createContainers3, createGroup1,
   createGroup3, createGroup2, createContainers2
 } from './fixtures'
-import {createStore, Store} from '../../src/store'
+import {createStore, Store} from '../../src/store/store'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
 import Push from '../../src/model/actions/Push'
-import IState from '../../src/model/IState'
-import Step from '../../src/model/interfaces/Step'
+import State from '../../src/model/State'
+import Step from '../../src/model/Step'
 import {MemoryHistory} from 'history'
 import * as R from 'ramda'
 import SwitchToContainer from '../../src/model/actions/SwitchToContainer'
@@ -16,23 +16,32 @@ import Back from '../../src/model/actions/Back'
 import Top from '../../src/model/actions/Top'
 import PopState from '../../src/model/actions/PopState'
 import UpdateBrowser from '../../src/model/actions/UpdateBrowser'
-import {createStepsSince} from '../../src/util/actions'
 import Startup from '../../src/model/actions/Startup'
-import ClearActions from '../../src/model/actions/ClearActions'
+import ClearActions from '../../src/store/actions/ClearActions'
 import SwitchToGroup from '../../src/model/actions/SwitchToGroup'
 import {runSteps} from '../../src/util/stepRunner'
 import InitializedState from '../../src/model/InitializedState'
+import {expect} from 'chai'
+import UninitializedState from '../../src/model/UninitializedState'
+import BaseAction from '../../src/model/BaseAction'
+import {createStepsSince} from '../../src/util/reconciler'
+import {USER} from '../../src/model/BaseAction'
+import {HistoryStack} from '../../src/model/Pages'
 declare const describe:any
 declare const it:any
-declare const expect:any
 declare const beforeEach:any
 declare const afterEach:any
 
+const makeNewStore = () => createStore<State, BaseAction>({
+  persist: false,
+  initialState: new UninitializedState()
+})
+
 describe('main', () => {
-  let store:Store
+  let store:Store<State, BaseAction>
 
   beforeEach(() => {
-    store = createStore()
+    store = makeNewStore()
   })
 
   afterEach(() => {
@@ -63,8 +72,8 @@ describe('main', () => {
           containerName: 'Container 1'
         })
       ])
-      store = createStore()
-      expect(store.getState().actions.length).toBe(0)
+      store = makeNewStore()
+      expect(store.getState().actions.length).to.equal(0)
     })
 
     it('loads to a non-default page', () => {
@@ -74,26 +83,26 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a/1',
-          time: 1000
+          time: 2000
         })
       ])
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const group = state.groups[0]
 
-      expect(group.containers[0].history.back.length).toBe(1);
-      expect(group.containers[0].history.back[0].url).toBe('/a');
-      expect(group.containers[0].history.current.url).toBe('/a/1');
-      expect(group.containers[0].history.forward.length).toBe(0)
+      expect(group.containers[0].history.back.length).to.equal(1);
+      expect(group.containers[0].history.back[0].url).to.equal('/a');
+      expect(group.containers[0].history.current.url).to.equal('/a/1');
+      expect(group.containers[0].history.forward.length).to.equal(0)
 
-      expect(group.history.back.length).toBe(1);
-      expect(group.history.back[0].url).toBe('/a');
-      expect(group.history.current.url).toBe('/a/1');
-      expect(group.history.forward.length).toBe(0)
+      expect(group.history.back.length).to.equal(1);
+      expect(group.history.back[0].url).to.equal('/a');
+      expect(group.history.current.url).to.equal('/a/1');
+      expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(2);
-      expect(state.browserHistory.current.url).toBe('/a/1');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(2);
+      expect(state.browserHistory.current.url).to.equal('/a/1');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
 
     it('switches to container', () => {
@@ -103,39 +112,39 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a/1',
-          time: 1000
+          time: 2000
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           name: 'Container 2',
-          time: 2000
+          time: 3000
         })
       ])
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const group = state.groups[0]
 
-      expect(group.containers[0].history.back.length).toBe(1);
-      expect(group.containers[0].history.back[0].url).toBe('/a');
-      expect(group.containers[0].history.current.url).toBe('/a/1');
-      expect(group.containers[0].history.forward.length).toBe(0)
+      expect(group.containers[0].history.back.length).to.equal(1);
+      expect(group.containers[0].history.back[0].url).to.equal('/a');
+      expect(group.containers[0].history.current.url).to.equal('/a/1');
+      expect(group.containers[0].history.forward.length).to.equal(0)
 
-      expect(group.containers[1].history.back.length).toBe(0);
-      expect(group.containers[1].history.current.url).toBe('/b');
-      expect(group.containers[1].history.forward.length).toBe(0)
+      expect(group.containers[1].history.back.length).to.equal(0);
+      expect(group.containers[1].history.current.url).to.equal('/b');
+      expect(group.containers[1].history.forward.length).to.equal(0)
 
-      expect(group.history.back.length).toBe(2);
-      expect(group.history.back[0].url).toBe('/a');
-      expect(group.history.back[1].url).toBe('/a/1');
-      expect(group.history.current.url).toBe('/b');
-      expect(group.history.forward.length).toBe(0)
+      expect(group.history.back.length).to.equal(2);
+      expect(group.history.back[0].url).to.equal('/a');
+      expect(group.history.back[1].url).to.equal('/a/1');
+      expect(group.history.current.url).to.equal('/b');
+      expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(3);
-      expect(state.browserHistory.back[0].url).toBe('/a');
-      expect(state.browserHistory.back[1].url).toBe('/a');
-      expect(state.browserHistory.back[2].url).toBe('/a/1');
-      expect(state.browserHistory.current.url).toBe('/b');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(3);
+      expect(state.browserHistory.back[0].url).to.equal('/a');
+      expect(state.browserHistory.back[1].url).to.equal('/a');
+      expect(state.browserHistory.back[2].url).to.equal('/a/1');
+      expect(state.browserHistory.current.url).to.equal('/b');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
 
     it('switches to container with resetOnLeave', () => {
@@ -144,47 +153,47 @@ describe('main', () => {
         createGroup3,
         ...createContainers3,
         new LoadFromUrl({
-          url: '/j',
-          time: 1000
-        }),
-        new Push({
-          url: '/j/1/cat',
-          groupName: 'Group 3',
-          containerName: 'Container 1',
+          url: '/g',
           time: 2000
         }),
         new Push({
-          url: '/j/2/dog',
+          url: '/g/1',
           groupName: 'Group 3',
           containerName: 'Container 1',
           time: 3000
         }),
+        new Push({
+          url: '/g/2',
+          groupName: 'Group 3',
+          containerName: 'Container 1',
+          time: 4000
+        }),
         new SwitchToContainer({
           groupName: 'Group 3',
           name: 'Container 2',
-          time: 4000
+          time: 5000
         })
       ])
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const group = state.groups[0]
 
-      expect(group.containers[0].history.back.length).toBe(0);
-      expect(group.containers[0].history.current.url).toBe('/j');
-      expect(group.containers[0].history.forward.length).toBe(0)
+      expect(group.containers[0].history.back.length).to.equal(0);
+      expect(group.containers[0].history.current.url).to.equal('/g');
+      expect(group.containers[0].history.forward.length).to.equal(0)
 
-      expect(group.containers[1].history.back.length).toBe(0);
-      expect(group.containers[1].history.current.url).toBe('/k');
-      expect(group.containers[1].history.forward.length).toBe(0)
+      expect(group.containers[1].history.back.length).to.equal(0);
+      expect(group.containers[1].history.current.url).to.equal('/h');
+      expect(group.containers[1].history.forward.length).to.equal(0)
 
-      expect(group.history.back.length).toBe(1);
-      expect(group.history.back[0].url).toBe('/j');
-      expect(group.history.current.url).toBe('/k');
-      expect(group.history.forward.length).toBe(0)
+      expect(group.history.back.length).to.equal(1);
+      expect(group.history.back[0].url).to.equal('/g');
+      expect(group.history.current.url).to.equal('/h');
+      expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(2);
-      expect(state.browserHistory.current.url).toBe('/k');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(2);
+      expect(state.browserHistory.current.url).to.equal('/h');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
     
     it('pushes in a different group', () => {
@@ -196,35 +205,36 @@ describe('main', () => {
         ...createContainers2,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
+          time: 2000
         })
       ])
       store.dispatch(new Push({
         groupName: 'Group 2',
         containerName: 'Container 1',
-        url: '/e/1'
+        url: '/e/1',
+        time: 3000
       }))
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const groups = state.groups
 
-      expect(groups[0].containers[0].history.back.length).toBe(0);
-      expect(groups[0].containers[0].history.current.url).toBe('/a');
-      expect(groups[0].containers[0].history.forward.length).toBe(0)
+      expect(groups[0].containers[0].history.back.length).to.equal(0);
+      expect(groups[0].containers[0].history.current.url).to.equal('/a');
+      expect(groups[0].containers[0].history.forward.length).to.equal(0)
 
-      expect(groups[1].containers[0].history.back.length).toBe(1);
-      expect(groups[1].containers[0].history.back[0].url).toBe('/e');
-      expect(groups[1].containers[0].history.current.url).toBe('/e/1');
-      expect(groups[1].containers[0].history.forward.length).toBe(0)
+      expect(groups[1].containers[0].history.back.length).to.equal(1);
+      expect(groups[1].containers[0].history.back[0].url).to.equal('/e');
+      expect(groups[1].containers[0].history.current.url).to.equal('/e/1');
+      expect(groups[1].containers[0].history.forward.length).to.equal(0)
 
-      expect(groups[1].history.back.length).toBe(1);
-      expect(groups[1].history.back[0].url).toBe('/e');
-      expect(groups[1].history.current.url).toBe('/e/1');
-      expect(groups[1].history.forward.length).toBe(0)
+      expect(groups[1].history.back.length).to.equal(1);
+      expect(groups[1].history.back[0].url).to.equal('/e');
+      expect(groups[1].history.current.url).to.equal('/e/1');
+      expect(groups[1].history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(2);
-      expect(state.browserHistory.current.url).toBe('/e/1');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(2);
+      expect(state.browserHistory.current.url).to.equal('/e/1');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
 
     it('handles popstate after container switch', () => {
@@ -234,41 +244,41 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a/1',
-          time: 1000
+          time: 2000
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           name: 'Container 2',
-          time: 2000
+          time: 3000
         }),
         new PopState({
           n: -1,
-          time: 3000
+          time: 4000
         })
       ])
 
-      const state:IState = store.getState().state
+      const state:State = store.getState().state
       const group = state.groups[0]
 
-      expect(group.containers[0].history.back.length).toBe(1);
-      expect(group.containers[0].history.back[0].url).toBe('/a');
-      expect(group.containers[0].history.current.url).toBe('/a/1');
-      expect(group.containers[0].history.forward.length).toBe(0)
+      expect(group.containers[0].history.back.length).to.equal(1);
+      expect(group.containers[0].history.back[0].url).to.equal('/a');
+      expect(group.containers[0].history.current.url).to.equal('/a/1');
+      expect(group.containers[0].history.forward.length).to.equal(0)
 
-      expect(group.containers[1].history.back.length).toBe(0);
-      expect(group.containers[1].history.current.url).toBe('/b');
-      expect(group.containers[1].history.forward.length).toBe(0)
+      expect(group.containers[1].history.back.length).to.equal(0);
+      expect(group.containers[1].history.current.url).to.equal('/b');
+      expect(group.containers[1].history.forward.length).to.equal(0)
 
-      expect(group.history.back.length).toBe(1);
-      expect(group.history.back[0].url).toBe('/a');
-      expect(group.history.current.url).toBe('/a/1');
-      expect(group.history.forward.length).toBe(0)
+      expect(group.history.back.length).to.equal(1);
+      expect(group.history.back[0].url).to.equal('/a');
+      expect(group.history.current.url).to.equal('/a/1');
+      expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).toBe(2);
-      expect(state.browserHistory.back[0].url).toBe('/a');
-      expect(state.browserHistory.back[1].url).toBe('/a');
-      expect(state.browserHistory.current.url).toBe('/a/1');
-      expect(state.browserHistory.forward.length).toBe(0)
+      expect(state.browserHistory.back.length).to.equal(2);
+      expect(state.browserHistory.back[0].url).to.equal('/a');
+      expect(state.browserHistory.back[1].url).to.equal('/a');
+      expect(state.browserHistory.current.url).to.equal('/a/1');
+      expect(state.browserHistory.forward.length).to.equal(0)
     })
   })
 
@@ -282,7 +292,7 @@ describe('main', () => {
       const ps:Promise<any> = actions.reduce((p:Promise<any>, action:Action) =>
         new Promise(resolve => {
           store.dispatch(action)
-          const state:IState = store.getState().state
+          const state:State = store.getState().state
           const actions:Action[] = store.getState().actions
           if (state instanceof InitializedState) {
             const steps:Step[] = createStepsSince(actions, state.lastUpdate)
@@ -290,7 +300,7 @@ describe('main', () => {
               return runSteps(steps).then(resolve)
             }
           }
-          resolve()
+          return resolve()
         }),
         Promise.resolve()
       )
@@ -313,10 +323,10 @@ describe('main', () => {
           url: '/a',
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(2)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(index).toBe(1)
+        expect(entries.length).to.equal(2)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(index).to.equal(1)
       })
     })
 
@@ -335,10 +345,10 @@ describe('main', () => {
           time: 2000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(2)
-        expect(index).toBe(1)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
+        expect(entries.length).to.equal(2)
+        expect(index).to.equal(1)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
       })
     })
 
@@ -362,7 +372,7 @@ describe('main', () => {
           time: 3000,
         }),
       ]).then(({entries}) => {
-        expect(entries.length).toBe(0)
+        expect(entries.length).to.equal(0)
       })
     })
     */
@@ -374,23 +384,23 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
+          time: 2000
         }),
         new UpdateBrowser({
-          time: 1100
+          time: 2100
         }),
         new Push({
           url: '/a/1',
           groupName: 'Group 1',
           containerName: 'Container 1',
-          time: 2000
+          time: 3000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(3)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(entries[2].pathname).toBe('/a/1')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(3)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(entries[2].pathname).to.equal('/a/1')
+        expect(index).to.equal(2)
       })
     })
 
@@ -404,25 +414,25 @@ describe('main', () => {
         ...createContainers,
         new LoadFromUrl({
           url: '/a/1',
-          time: 2
+          time: 2000
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           containerName: 'Container 2',
-          time: 3
+          time: 3000
         }),
         new PopState({
           url: '/a/1',
           groupName: 'Group 1',
           containerName: 'Container 1',
-          time: 4
+          time: 4000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(3)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(entries[2].pathname).toBe('/a/1')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(3)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(entries[2].pathname).to.equal('/a/1')
+        expect(index).to.equal(2)
       })
     })
     */
@@ -434,32 +444,32 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
+          time: 2000
         }),
         new UpdateBrowser({
-          time: 1100
+          time: 2100
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           name: 'Container 2',
-          time: 2000
+          time: 3000
         }),
         new UpdateBrowser({
-          time: 2200
+          time: 3100
         }),
         new Push({
           url: '/b/1',
           groupName: 'Group 1',
           containerName: 'Container 2',
-          time: 3000
+          time: 4000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(4)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(entries[2].pathname).toBe('/b')
-        expect(entries[3].pathname).toBe('/b/1')
-        expect(index).toBe(3)
+        expect(entries.length).to.equal(4)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(entries[2].pathname).to.equal('/b')
+        expect(entries[3].pathname).to.equal('/b/1')
+        expect(index).to.equal(3)
       })
     })
 
@@ -472,30 +482,30 @@ describe('main', () => {
         ...createContainers2,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
-        }),
-        new UpdateBrowser({
-          time: 1100
-        }),
-        new SwitchToGroup({
-          groupName: 'Group 2',
           time: 2000
         }),
         new UpdateBrowser({
-          time: 2200
+          time: 2100
+        }),
+        new SwitchToGroup({
+          groupName: 'Group 2',
+          time: 3000
+        }),
+        new UpdateBrowser({
+          time: 3100
         }),
         new Push({
           url: '/e/1',
           groupName: 'Group 2',
           containerName: 'Container 1',
-          time: 3000
+          time: 4000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(3)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/e')
-        expect(entries[2].pathname).toBe('/e/1')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(3)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/e')
+        expect(entries[2].pathname).to.equal('/e/1')
+        expect(index).to.equal(2)
       })
     })
 
@@ -506,39 +516,39 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
+          time: 2000
         }),
         new UpdateBrowser({
-          time: 1100
+          time: 2100
         }),
         new Push({
           url: '/a/1',
           groupName: 'Group 1',
           containerName: 'Container 1',
-          time: 2000
+          time: 3000
         }),
         new UpdateBrowser({
-          time: 2200
+          time: 3100
         }),
         new Push({
           url: '/a/2',
           groupName: 'Group 1',
           containerName: 'Container 1',
-          time: 3000
+          time: 4000
         }),
         new UpdateBrowser({
-          time: 3300
+          time: 4100
         }),
         new Back({
-          time: 4000
+          time: 5000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(4)
-        expect(entries[0].pathname).toBe('/a')  // zero page
-        expect(entries[1].pathname).toBe('/a')
-        expect(entries[2].pathname).toBe('/a/1')
-        expect(entries[3].pathname).toBe('/a/2')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(4)
+        expect(entries[0].pathname).to.equal('/a')  // zero page
+        expect(entries[1].pathname).to.equal('/a')
+        expect(entries[2].pathname).to.equal('/a/1')
+        expect(entries[3].pathname).to.equal('/a/2')
+        expect(index).to.equal(2)
       })
     })
 
@@ -548,76 +558,78 @@ describe('main', () => {
         createGroup3,
         ...createContainers3,
         new LoadFromUrl({
-          url: '/j',
-          time: 1000
-        }),
-        new UpdateBrowser({
-          time: 1100
-        }),
-        new Push({
-          url: '/j/1/cat',
-          groupName: 'Group 3',
-          containerName: 'Container 1',
+          url: '/g',
           time: 2000
         }),
         new UpdateBrowser({
-          time: 2200
+          time: 2100
         }),
         new Push({
-          url: '/j/2/dog',
+          url: '/g/1/cat',
           groupName: 'Group 3',
           containerName: 'Container 1',
           time: 3000
         }),
         new UpdateBrowser({
-          time: 3300
+          time: 3100
         }),
-        new Top({
+        new Push({
+          url: '/g/2/dog',
           groupName: 'Group 3',
           containerName: 'Container 1',
           time: 4000
         }),
         new UpdateBrowser({
-          time: 4400
+          time: 4100
+        }),
+        new Top({
+          groupName: 'Group 3',
+          containerName: 'Container 1',
+          time: 5000,
+          origin: USER
+        }),
+        new UpdateBrowser({
+          time: 5100
         }),
         new SwitchToContainer({
           groupName: 'Group 3',
           name: 'Container 2',
-          time: 5000
+          time: 6000
         })
       ]).then(({entries, index}) => {
-        expect(entries.length).toBe(3)
-        expect(entries[0].pathname).toBe('/j')  // zero page
-        expect(entries[1].pathname).toBe('/j')
-        expect(entries[2].pathname).toBe('/k')
-        expect(index).toBe(2)
+        expect(entries.length).to.equal(3)
+        expect(entries[0].pathname).to.equal('/g')  // zero page
+        expect(entries[1].pathname).to.equal('/g')
+        expect(entries[2].pathname).to.equal('/h')
+        expect(index).to.equal(2)
       })
     })
 
-    describe('UpdateBrowser action', async () => {
-      await it('prevents running old actions', () => {
-        run([
+    /*
+    describe('UpdateBrowser action', () => {
+      it('prevents running old actions', async() => {
+        await run([
           new Startup({time: 0}),
           createGroup1,
           ...createContainers1,
           new LoadFromUrl({
             url: '/a',
-            time: 1000
+            time: 2000
           }),
           new UpdateBrowser({
-            time: 1100
+            time: 2100
           }),
           new Push({
             url: '/a/1',
             groupName: 'Group 1',
             containerName: 'Container 1',
-            time: 2000
-          }),
-          new UpdateBrowser({
-            time: 2200
-          }),
-          new UpdateBrowser({
             time: 3000
+          }),
+          new UpdateBrowser({
+            time: 3100
+          }),
+          new UpdateBrowser({
+            time: 3200
           }),
           new UpdateBrowser({
             time: 3300
@@ -629,78 +641,79 @@ describe('main', () => {
             time: 4000
           })
         ]).then(({entries, index}) => {
-          expect(entries.length).toBe(1)
-          expect(entries[0].pathname).toBe('/a/2')
-          expect(index).toBe(0)
+          expect(entries.length).to.equal(1)
+          expect(entries[0].pathname).to.equal('/a/2')
+          expect(index).to.equal(0)
         })
       })
     })
+    */
 
-    describe('while on zero page', async () => {
-      await it('does a double push', () => {
-        run([
-          new Startup({time: 0}),
-          createGroup1,
-          ...createContainers1,
-          new LoadFromUrl({
-            url: '/a',
-            time: 1000
-          }),
-          new UpdateBrowser({
-            time: 1100
-          }),
-          new PopState({  // User popped back to zero page
-            n: -1,
-            time: 2000
-          }),
-          new UpdateBrowser({
-            time: 2200
-          }),
-          new Push({
-            url: '/a/1',
-            groupName: 'Group 1',
-            containerName: 'Container 1',
-            time: 3000
-          })
-        ]).then(({entries, index}) => {
-          expect(entries.length).toBe(3)
-          expect(entries[0].pathname).toBe('/a')  // zero page
-          expect(entries[1].pathname).toBe('/a')
-          expect(entries[2].pathname).toBe('/a/1')
-          expect(index).toBe(2)
-        })
-      })
-
-      it('does a push before a switch', async () => {
+    describe('while on zero page', () => {
+      it('does a double push', async () => {
         await run([
           new Startup({time: 0}),
           createGroup1,
           ...createContainers1,
           new LoadFromUrl({
             url: '/a',
-            time: 1000
-          }),
-          new UpdateBrowser({
-            time: 1100
-          }),
-          new PopState({  // User popped back to zero page
-            n: -1,
             time: 2000
           }),
           new UpdateBrowser({
-            time: 2200
+            time: 2100
+          }),
+          new PopState({  // User popped back to zero page
+            n: -1,
+            time: 3000
+          }),
+          new UpdateBrowser({
+            time: 3100
+          }),
+          new Push({
+            url: '/a/1',
+            groupName: 'Group 1',
+            containerName: 'Container 1',
+            time: 4000
+          })
+        ]).then(({entries, index}) => {
+          expect(entries.length).to.equal(3)
+          expect(entries[0].pathname).to.equal('/a')  // zero page
+          expect(entries[1].pathname).to.equal('/a')
+          expect(entries[2].pathname).to.equal('/a/1')
+          expect(index).to.equal(2)
+        })
+      })
+
+      it('does a push before a switch', async() => {
+        await run([
+          new Startup({time: 0}),
+          createGroup1,
+          ...createContainers1,
+          new LoadFromUrl({
+            url: '/a',
+            time: 2000
+          }),
+          new UpdateBrowser({
+            time: 2100
+          }),
+          new PopState({  // User popped back to zero page
+            n: -1,
+            time: 3000
+          }),
+          new UpdateBrowser({
+            time: 3100
           }),
           new SwitchToContainer({
             groupName: 'Group 1',
             name: 'Container 2',
-            time: 3000
+            time: 4000
           })
         ]).then(({entries, index}) => {
-          expect(entries.length).toBe(3)
-          expect(entries[0].pathname).toBe('/a')  // zero page
-          expect(entries[1].pathname).toBe('/a')
-          expect(entries[2].pathname).toBe('/b')
-          expect(index).toBe(2)
+          expect(entries.length).to.equal(3)
+          expect(entries[0].pathname).to.equal('/a')  // zero page
+          expect(entries[1].pathname).to.equal('/a')
+          expect(entries[2].pathname).to.equal('/b')
+          expect(index).to.equal(2)
         })
       })
     })

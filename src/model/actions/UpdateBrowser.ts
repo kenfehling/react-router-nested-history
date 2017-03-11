@@ -1,7 +1,7 @@
-import IState from '../IState'
+import State from '../State'
 import NonStepAction from './NonStepAction'
-import {SYSTEM} from '../Action'
-import {Serializable} from '../../util/serializer'
+import {SYSTEM} from '../BaseAction'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class UpdateBrowser extends NonStepAction {
@@ -12,7 +12,7 @@ export default class UpdateBrowser extends NonStepAction {
     super({time, origin: SYSTEM})
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.assign({
       lastUpdate: this.time
     })

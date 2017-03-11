@@ -1,58 +1,68 @@
-import Comparable from './interfaces/Comparable'
 import Page from './Page'
-import HistoryStack from './HistoryStack'
 import {parseParamsFromPatterns, patternsMatch} from '../util/url'
-import IContainer from './interfaces/IContainer'
+import IContainer from './IContainer'
+import Pages, {HistoryStack} from './Pages'
+import PageVisit, {VisitType} from './PageVisit'
+import VisitedPage from './VistedPage'
 
-export default class Container implements Comparable, IContainer {
+export default class Container implements IContainer {
   readonly name: string
   readonly initialUrl: string
   readonly patterns: string[]
   readonly isDefault: boolean
   readonly resetOnLeave: boolean
-  readonly history: HistoryStack
+  readonly pages: Pages
   readonly groupName:string
 
   /**
    * Construct a new Container
+   * @param time - The time this container was created
    * @param name - The container's name
    * @param initialUrl - The starting URL of this container
    * @param patterns - Patterns of URLs that this container handles
    * @param isDefault - Is this the default container?
    * @param resetOnLeave - Keep container history after navigating away?
    * @param groupName - The name of this container's group
-   * @param history - Optional but only if time is specified
+   * @param pages - The pages visited in this container
    */
   constructor({time, name, initialUrl, patterns, isDefault=false,
-      resetOnLeave=false, groupName, history}:
+      resetOnLeave=false, groupName, pages}:
       {time:number, name: string, initialUrl: string, patterns: string[],
         isDefault?: boolean, resetOnLeave?: boolean, groupName:string,
-        history?: HistoryStack}) {
+        pages?:Pages}) {
     this.name = name
     this.initialUrl = initialUrl
     this.patterns = patterns
     this.isDefault = isDefault
     this.resetOnLeave = resetOnLeave
     this.groupName = groupName
-    this.history = history ? history : new HistoryStack({
-      back: [],
-      current: new Page({
+    this.pages = pages || new Pages([
+      new VisitedPage({
         url: initialUrl,
         params: parseParamsFromPatterns(patterns, initialUrl),
         containerName: name,
         groupName,
-        firstVisited: 0,
-        lastVisited: isDefault ? time : 0
-      }),
-      forward: []
+        visits: [{time, type: VisitType.AUTO}]
+      })
+    ])
+  }
+
+  replacePages(pages:Pages):Container {
+    return new Container({
+      ...Object(this),
+      pages
     })
   }
 
-  replaceHistory(history:HistoryStack):Container {
+  updatePages(pages:Pages):IContainer {
     return new Container({
       ...Object(this),
-      history
+      pages: this.pages.update(pages)
     })
+  }
+
+  get wasManuallyVisited():boolean {
+    return this.isDefault || this.activePage.wasManuallyVisited
   }
 
   get isAtTopPage():boolean {
@@ -63,13 +73,17 @@ export default class Container implements Comparable, IContainer {
     return patternsMatch(this.patterns, url)
   }
 
-  push(page:Page):Container {
-    return this.replaceHistory(this.history.push(page))
+  get history():HistoryStack {
+    return this.pages.toHistoryStack()
   }
 
-  pushUrl(url:string, time:number):Container {
+  push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Container {
+    return this.replacePages(this.pages.push(page, time, type))
+  }
+
+  pushUrl(url:string, time:number, type:VisitType=VisitType.MANUAL):Container {
     if (this.activePage.url === url) {
-      return this.activate(time)
+      return this.activate({time, type})
     }
     else {
       const page:Page = new Page({
@@ -78,86 +92,95 @@ export default class Container implements Comparable, IContainer {
         containerName: this.name,
         groupName: this.groupName
       })
-      return this.activate(time -1).push(page.touch(time))
+      return this.push(page, time, type)
     }
   }
 
-  loadFromUrl(url:string, time:number):Container {
+  loadFromUrl(url:string, time:number):IContainer {
     if (this.patternsMatch(url)) {
-      return this.pushUrl(url, time)
+      const container:Container = this.isAtTopPage ?
+          this.activate({time: time - 1, type: VisitType.MANUAL}) : this
+      return container.pushUrl(url, time, VisitType.MANUAL)
     }
     else {
       return this
     }
   }
 
-  activate(time:number):Container {
-    return this.replaceHistory(this.history.activate(time))
+  activate(visit:PageVisit):Container {
+    return this.replacePages(this.pages.activate(visit))
   }
 
   top(time:number, reset:boolean=false):Container {
-    return this.replaceHistory(this.history.top(time, reset))
+    return this.replacePages(this.pages.top(time, reset))
   }
 
-  go(n:number=1, time:number):Container {
-    return this.replaceHistory(this.history.go(n, time))
+  go(n:number, time:number):Container {
+    return this.replacePages(this.pages.go(n, time))
   }
 
-  goForward(n:number=1, time:number):Container {
-    return this.replaceHistory(this.history.goForward(n, time))
+  forward(n:number=1, time:number):Container {
+    return this.replacePages(this.pages.forward(n, time))
   }
 
-  goBack(n:number=1, time:number):Container {
-    return this.replaceHistory(this.history.goBack(n, time))
+  back(n:number=1, time:number):Container {
+    return this.replacePages(this.pages.back(n, time))
   }
 
   canGoForward(n:number=1):boolean {
-    return this.history.canGoForward(n)
+    return this.pages.canGoForward(n)
   }
 
   canGoBack(n:number=1):boolean {
-    return this.history.canGoBack(n)
+    return this.pages.canGoBack(n)
   }
 
   getShiftAmount(page:Page) {
-    return this.history.getShiftAmount(page)
+    return this.pages.getShiftAmount(page)
   }
 
   shiftTo(page:Page, time):Container {
-    return this.replaceHistory(this.history.shiftTo(page, time))
+    return this.replacePages(this.pages.shiftTo(page, time))
   }
 
   containsPage(page:Page):boolean {
-    return this.history.containsPage(page)
+    return this.pages.containsPage(page)
   }
 
-  get activePage():Page {
-    return this.history.activePage
+  get activePage():VisitedPage {
+    return this.pages.activePage
   }
 
-  get backPage():Page {
-    return this.history.backPage
+  getBackPage(n:number=1):Page|undefined {
+    return this.pages.getBackPage(n)
   }
 
-  get forwardPage():Page {
-    return this.history.forwardPage
+  getForwardPage(n:number=1):Page|undefined {
+    return this.pages.getForwardPage(n)
   }
 
-  get firstVisited():number {
-    return this.history.firstVisited
+  get backPages():Page[] {
+    return this.pages.backPages
   }
 
-  get lastVisited():number {
-    return this.history.lastVisited
+  get forwardPages():Page[] {
+    return this.pages.forwardPages
   }
 
-  compareTo(other:IContainer):number {
-    try {
-      return this.history.compareTo(other.history)
-    }
-    catch(e) {
-      return -1
-    }
+  get backLength():number {
+    return this.pages.backLength
+  }
+
+  get forwardLength():number {
+    return this.pages.forwardLength
+  }
+
+  get firstManualVisit():PageVisit|null {
+    return this.pages.firstManualVisit
+  }
+
+  get lastVisit():PageVisit {
+    return this.pages.lastVisit
   }
 
   get isGroup():boolean {

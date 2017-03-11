@@ -1,6 +1,6 @@
-import Action, {Origin} from '../Action'
-import IState from '../IState'
-import {Serializable} from '../../util/serializer'
+import Action, {Origin} from '../BaseAction'
+import State from '../State'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class Top extends Action {
@@ -19,7 +19,7 @@ export default class Top extends Action {
     this.reset = reset
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.top({
       groupName: this.groupName,
       containerName: this.containerName,
@@ -28,7 +28,7 @@ export default class Top extends Action {
     })
   }
 
-  filter(state:IState):Action[] {
+  filter(state:State):Action[] {
     const alreadyAtTop:boolean =
         state.isContainerAtTopPage(this.groupName, this.containerName)
     return alreadyAtTop ? [] : [this]

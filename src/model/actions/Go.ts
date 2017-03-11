@@ -1,6 +1,6 @@
-import Action from '../Action'
-import IState from '../IState'
-import {Serializable} from '../../util/serializer'
+import Action from '../BaseAction'
+import State from '../State'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class Go extends Action {
@@ -13,7 +13,7 @@ export default class Go extends Action {
     this.n = n
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.go(this.n, this.time)
   }
 }

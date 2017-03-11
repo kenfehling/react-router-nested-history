@@ -1,6 +1,6 @@
-import Action from '../Action'
-import IState from '../IState'
-import {Serializable} from '../../util/serializer'
+import Action from '../BaseAction'
+import State from '../State'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class Back extends Action {
@@ -13,7 +13,7 @@ export default class Back extends Action {
     this.n = n
   }
 
-  reduce(state:IState):IState {
-    return state.goBack(this.n, this.time)
+  reduce(state:State):State {
+    return state.back(this.n, this.time)
   }
 }

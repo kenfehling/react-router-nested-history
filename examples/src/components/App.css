@@ -6,10 +6,20 @@ div#root {
   overflow: auto;
 }
 
+h2 {
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+
 a {
   color: blue;
   text-decoration: underline;
   cursor: pointer;
+}
+
+.description {
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .app-container {
@@ -30,10 +40,7 @@ a {
   margin: 10px 0;
 }
 
-.tabs-container,
-.windows-container,
-.nested-group-container,
-.scroll-area-container {
+.example-container {
   margin: 0 auto;
 }
 
@@ -48,7 +55,7 @@ a {
 
 .nested-group-container {
   width: 480px;
-  height: 550px;
+  height: 540px;
 }
 
 .scroll-area-container {
@@ -56,12 +63,13 @@ a {
   height: 300px;
 }
 
+.mobile-container {
+  width: 240px;
+  height: 550px;
+}
+
 .state-tree-container {
   margin-top: 12px;
   padding-right: 3%;
   width: 220px;
-}
-
-.description {
-  margin-bottom: 10px;
 }

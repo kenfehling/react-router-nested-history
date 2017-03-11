@@ -1,15 +1,11 @@
 import * as React from 'react'
-import {Component, Children, ReactNode, PropTypes, createElement} from 'react'
-import {renderToStaticMarkup} from 'react-dom/server'
+import {Component, ReactNode, PropTypes} from 'react'
 import {Route} from 'react-router'
 import {connect, Dispatch} from 'react-redux'
-import {createStore, Store} from '../../store'
+import {createStore, Store} from '../../store/store'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import cloneElement = React.cloneElement
-import DumbContainerGroup from './DumbContainerGroup'
-import ContainerGroup from './ContainerGroup'
-import WindowGroup from './WindowGroup'
-import IUpdateData from '../../model/interfaces/IUpdateData'
+import IUpdateData from '../../store/IUpdateData'
 import Startup from '../../model/actions/Startup'
 import * as browser from '../../util/browserFunctions'
 import InitializedState from '../../model/InitializedState'
@@ -18,7 +14,9 @@ import SetZeroPage from '../../model/actions/SetZeroPage'
 import {canUseWindowLocation} from '../../util/browserFunctions'
 import StepRunner from './StepRunner'
 import TitleSetter from './TitleSetter'
-import {getChildren} from '../../util/children'
+import Action from '../../model/BaseAction'
+import State from '../../model/State'
+import UninitializedState from '../../model/UninitializedState'
 declare const window:any
 
 export interface HistoryRouterProps {
@@ -32,7 +30,7 @@ export interface HistoryRouterProps {
 }
 
 type RouterPropsWithStore = HistoryRouterProps & {
-  store: Store
+  store: Store<State, Action>
 }
 
 type ConnectedRouterProps = RouterPropsWithStore & {
@@ -54,10 +52,14 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
       zeroPage,
       setZeroPage,
       startup,
-      loadFromUrl,
-      isInitialized
     } = this.props
 
+    if (zeroPage) {
+      setZeroPage(zeroPage)
+    }
+    startup()
+
+    /*
     class R extends Component<{children: ReactNode}, undefined> {
       static childContextTypes = {
         rrnhStore: PropTypes.object.isRequired,
@@ -83,16 +85,15 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
       }
     }
 
-    if (zeroPage) {
-      setZeroPage(zeroPage)
-    }
-    startup()
-
     // Initialize the ContainerGroups
     // (since most tab libraries lazy load tabs)
     const cs = getChildren(this, [ContainerGroup, DumbContainerGroup, WindowGroup])
     cs.forEach(c => renderToStaticMarkup(<R children={c} />))
+    */
+  }
 
+  componentDidMount() {
+    const {loadFromUrl, isInitialized} = this.props
     if (!isInitialized) {
       loadFromUrl(this.getLocation())
     }
@@ -121,21 +122,26 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
   }
 
   render() {
+    const {isInitialized} = this.props
     return (
       <div>
         <DumbHistoryRouter{...this.props} />
-        <StepRunner store={this.props.store} />
-        <TitleSetter store={this.props.store} />
+        {isInitialized && (
+          <div>
+            <StepRunner store={this.props.store}/>
+            <TitleSetter store={this.props.store} />
+          </div>
+        )}
       </div>
     )
   }
 }
 
-const mapStateToProps = (state:IUpdateData) => ({
+const mapStateToProps = (state:IUpdateData<State, Action>) => ({
   isInitialized: state.state instanceof InitializedState
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:RouterPropsWithStore) => ({
   startup: () => dispatch(new Startup({
     fromRefresh: browser.wasLoadedFromRefresh
@@ -161,5 +167,8 @@ const ConnectedHistoryRouter = connect(
 )(HistoryRouter)
 
 export default (props:HistoryRouterProps) => (
-  <ConnectedHistoryRouter store={createStore()} {...props} />
+  <ConnectedHistoryRouter
+    {...props} store={createStore<State, Action>({
+                      persist: browser.wasLoadedFromRefresh,
+                      initialState: new UninitializedState()})} />
 )

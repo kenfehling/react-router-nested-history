@@ -1,61 +1,55 @@
 import Page from './Page'
-import * as R from 'ramda'
-import IContainer from './interfaces/IContainer'
+import IContainer from './IContainer'
 import Group from './Group'
-import IState from './IState'
-import HistoryStack from './HistoryStack'
+import State from './State'
 import Container from './Container'
-import IGroupContainer from './interfaces/IGroupContainer'
+import IGroupContainer from './IGroupContainer'
+import Pages, {HistoryStack} from './Pages'
+import {VisitType} from './PageVisit'
+import {sortContainersByLastVisited} from '../util/sorter'
 
-export default class InitializedState extends IState {
+export default class InitializedState extends State {
 
-  assign(obj:Object):IState {
+  get pages():Pages {
+    return this.browserHistory.toPages()
+  }
+
+  assign(obj:Object):State {
     return new InitializedState({...Object(this), ...obj})
   }
 
-  switchToGroup({groupName, time}:{groupName:string, time:number}):IState {
+  switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
-    return this.replaceGroup(group.activate(time))
+    return this.replaceGroup(group.activate({time, type: VisitType.MANUAL}))
   }
 
   switchToContainer({groupName, name, time}:
-      {groupName:string, name:string, time:number}):IState {
+      {groupName:string, name:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
-    return this.replaceGroup(group.activateContainer(name, time))
+    const c = group.activateContainer(name, time)
+    return this.replaceGroup(c)
   }
 
-  get backPage():Page {
-    return this.activeGroup.backPage
-  }
-
-  get forwardPage():Page {
-    return this.activeGroup.forwardPage
-  }
-
-  go(n:number, time:number):IState {
+  go(n:number, time:number):State {
     if (this.isOnZeroPage && n > 0) {
-      const state:IState = this.assign({
-        isOnZeroPage: false
-      })
+      const state:State = this.assign({isOnZeroPage: false})
       return state.go(n - 1, time)
     }
-    const f = (x:number):IState => this.replaceGroup(this.activeGroup.go(x, time))
-    if (n < 0 && !this.canGoBack(0 - n)) {    // if going back to zero page
-      return (n < -1 ? f(n + 1) : this).assign({
-        isOnZeroPage: true                    // go back through group if needed
-      })
+    const f = (x:number):State => this.replaceGroup(this.activeGroup.go(x, time))
+    if (n < 0 && !this.canGoBack(0 - n)) {  // if going back to zero page
+      return (n < -1 ? f(n + 1) : this).assign({isOnZeroPage: true})
     }
     else {
       return f(n)
     }
   }
 
-  goBack(n:number=1, time:number):IState {
-    return this.replaceGroup(this.activeGroup.goBack(n, time))
+  back(n:number=1, time:number):State {
+    return this.replaceGroup(this.activeGroup.back(n, time))
   }
 
-  goForward(n:number=1, time:number):IState {
-    return this.replaceGroup(this.activeGroup.goForward(n, time))
+  forward(n:number=1, time:number):State {
+    return this.replaceGroup(this.activeGroup.forward(n, time))
   }
 
   canGoBack(n:number=1):boolean {
@@ -73,18 +67,19 @@ export default class InitializedState extends IState {
 
   top({groupName, containerName, time, reset=false}:
       {groupName:string, containerName:string,
-        time:number, reset?:boolean}):IState {
+        time:number, reset?:boolean}):State {
     const group:Group = this.getGroupByName(groupName)
     const container:IGroupContainer = group.getContainerByName(containerName)
-    return this.replaceGroup(group.replaceContainer(container.top(time, reset)))
+    return this.replaceGroup(group.replaceContainer(
+        container.top(time, reset) as IGroupContainer))
   }
 
   getShiftAmount(page:Page):number {
-    return this.browserHistory.getShiftAmount(page)
+    return this.pages.getShiftAmount(page)
   }
 
   containsPage(page:Page):boolean {
-    return this.browserHistory.containsPage(page)
+    return this.pages.containsPage(page)
   }
 
   getRootGroupOfGroupByName(name:string):Group {
@@ -101,9 +96,9 @@ export default class InitializedState extends IState {
     return this.getRootGroupOfGroupByName(group.name)
   }
 
-  push(page:Page):IState {
+  push(page:Page, time:number):State {
     const group:Group = this.getRootGroupOfGroupByName(page.groupName)
-    return this.replaceGroup(group.push(page))
+    return this.replaceGroup(group.push(page, time, VisitType.MANUAL))
   }
 
   getContainerLinkUrl(groupName:string, containerName:string):string {
@@ -112,8 +107,8 @@ export default class InitializedState extends IState {
   }
 
   protected getHistory(maintainFwd:boolean=false):HistoryStack {
-    const groupHistory:HistoryStack = maintainFwd ?
-      this.activeGroup.historyWithFwdMaintained : this.activeGroup.history
+    const g:Group = this.activeGroup
+    const groupHistory = maintainFwd ? g.historyWithFwdMaintained : g.history
     if(this.isOnZeroPage) {
       return new HistoryStack({
         back: [],
@@ -130,11 +125,11 @@ export default class InitializedState extends IState {
   }
 
   get groupStackOrder():Group[] {
-    return R.sort((g1, g2) => g1.compareTo(g2), this.groups)
+    return sortContainersByLastVisited(this.groups) as Group[]
   }
 
-  getBackPageInGroup(groupName:string):Page {
-    return this.getGroupByName(groupName).backPage
+  getBackPageInGroup(groupName:string):Page|undefined {
+    return this.getGroupByName(groupName).getBackPage()
   }
 
   getActiveContainerNameInGroup(groupName:string):string {
@@ -183,10 +178,11 @@ export default class InitializedState extends IState {
       return true
     }
     else {
-      const activeContainer:Container = activeGroup.activeNestedContainer
-      const group:Group = this.getGroupByName(groupName)
-      return group.hasNestedContainer(activeContainer)
+      if (this.activeGroup.hasNestedGroupWithName(groupName)) {
+        return this.activeGroup.isNestedGroupActive(groupName)
+      }
     }
+    return false
   }
 
   get activeGroup():Group {

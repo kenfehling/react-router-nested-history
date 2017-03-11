@@ -22,6 +22,6 @@
 }
 
 .state-tree .current-page.active.group {
-  border: thin solid #a4e4ff;
-  background-color: #a4e4ff;
+  background-color: #9CF;
+  border: thin solid #69F;
 }

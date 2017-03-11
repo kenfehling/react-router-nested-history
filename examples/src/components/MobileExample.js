@@ -1,0 +1,116 @@
+import React, {PropTypes, Component } from 'react'
+import {
+  Container, WindowGroup, HistoryRoute, HistoryLink, HistoryWindow, BackLink
+} from 'react-router-nested-history'
+import Helmet from 'react-helmet'
+import './MobileExample.css'
+
+const regex = a => `:app(${a})`
+const toPath = name => `/mobile/${name}`
+const toPattern = name => `/mobile/${regex(name)}`
+
+const MobilePage = ({title, children}) => (
+  <div className='mobile-page'>
+    <div className='nav'>
+      <div className='back'>
+        <BackLink>
+          {({params: {app='Home', page=null}}) => (
+            <div className='link'>
+              <i className="fa fa-chevron-left" />
+              <div className='text'>{page || app}</div>
+            </div>
+          )}
+        </BackLink>
+      </div>
+      <h1 className='title'>{title}</h1>
+    </div>
+    <div className='content'>
+      {children}
+    </div>
+  </div>
+)
+
+const MobileWindow = ({name, path=toPath(name), pattern=toPattern(name),
+                       component, children, isDefault=false}) => (
+  <HistoryWindow forName={name} className='mobile-window'>
+    <Container name={name}
+               initialUrl={path}
+               patterns={[pattern, `${[pattern]}/:page`]}
+               isDefault={isDefault}
+    >
+      {component ?
+        <HistoryRoute path={pattern} exact component={component}/> :
+        <HistoryRoute path={pattern} exact children={children} />
+      }
+      <HistoryRoute path={`${pattern}/:page`} exact>
+        {({match:{params:{page}}}) => (
+          <MobilePage title={page}>
+            <div>{page}</div>
+          </MobilePage>
+        )}
+      </HistoryRoute>
+    </Container>
+  </HistoryWindow>
+)
+
+const apps = [
+  'Map',
+  'Terminal',
+  'Tools',
+  'Editor',
+  'Social',
+  'Audio',
+  'PDF'
+]
+
+const HomeScreenIcon = ({name, onClick}) => (
+  <div className='icon' onClick={onClick}>
+    {name}
+  </div>
+)
+
+const HomeScreen = ({onIconClick}) => (
+  <div className='home-screen'>
+    {apps.map(app => (
+      <HomeScreenIcon key={app} name={app} onClick={() => onIconClick(app)} />
+    ))}
+  </div>
+)
+
+export default () => (
+  <div className='mobile-example'>
+    <h2>Mobile example</h2>
+    <div className="description">
+      <p>
+        A window group with `allowInterContainerHistory` whose
+        windows are 100% width and height therefore hiding each other
+      </p>
+    </div>
+    <WindowGroup name='mobile' allowInterContainerHistory={true}>
+      {({setCurrentContainerName}) => (
+        <div className='phone'>
+          <MobileWindow isDefault={true}
+                        name='Home'
+                        path='/mobile'
+                        pattern='/mobile'>
+            {() => (
+              <HomeScreen onIconClick={name => setCurrentContainerName(name)}/>
+            )}
+          </MobileWindow>
+          {apps.map(app => (
+            <MobileWindow key={app} name={app}>
+              {() => (
+                <MobilePage title={app}>
+                  <div>{app}</div>
+                  <p>
+                    <HistoryLink to={`${toPath(app)}/Hello`}>Hello</HistoryLink>
+                  </p>
+                </MobilePage>
+              )}
+            </MobileWindow>
+          ))}
+        </div>
+      )}
+    </WindowGroup>
+  </div>
+)

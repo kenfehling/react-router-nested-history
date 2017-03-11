@@ -1,9 +1,9 @@
-import Action, {USER, ActionOrigin} from '../Action'
-import IState from '../IState'
-import {Serializable} from '../../util/serializer'
+import Action, {USER, ActionOrigin} from '../BaseAction'
+import State from '../State'
 import Top from './Top'
 import Group from '../Group'
-import {Origin} from '../Action'
+import {Origin} from '../BaseAction'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class SwitchToContainer extends Action {
@@ -22,7 +22,7 @@ export default class SwitchToContainer extends Action {
     this.index = index
   }
 
-  private getContainerName(state:IState):string {
+  private getContainerName(state:State):string {
     if (this.name) {
       return this.name
     }
@@ -34,7 +34,7 @@ export default class SwitchToContainer extends Action {
     }
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.switchToContainer({
       groupName: this.groupName,
       name: this.getContainerName(state),
@@ -42,7 +42,7 @@ export default class SwitchToContainer extends Action {
     })
   }
 
-  filter(state:IState):Action[]​ {
+  filter(state:State):Action[]​ {
     const containerName:string = this.getContainerName(state)
     if (state.isContainerActive(this.groupName, containerName)) {
       if (this.origin === USER) {

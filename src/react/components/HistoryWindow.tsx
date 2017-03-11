@@ -2,7 +2,7 @@ import * as React from 'react'
 import {
   Component, PropTypes, ReactNode, ReactElement, Children, cloneElement
 } from 'react'
-import IContainer from '../../model/interfaces/IContainer'
+import IContainer from '../../model/IContainer'
 import * as R from 'ramda'
 
 const getWindowZIndex = (stackOrder:IContainer[]|null, name:string) => {
@@ -39,21 +39,28 @@ interface WindowProps {
   style?: Object
 }
 
-export default class Window extends Component<WindowProps, undefined> {
+export default class HistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {
     stackOrder: PropTypes.arrayOf(PropTypes.object), //.isRequired,
     setCurrentContainerName: PropTypes.func //.isRequired
   }
 
+  onMouseDown(event) {
+    const {forName} = this.props
+    const {setCurrentContainerName} = this.context
+    setCurrentContainerName(forName)
+    event.stopPropagation()
+  }
+
   render() {
     // Pass through all props you could want on a div
     const {forName, top, left, children, style={}, ...divProps} = this.props
-    const {stackOrder, setCurrentContainerName} = this.context
+    const {stackOrder} = this.context
     const zIndex = getWindowZIndex(stackOrder, forName)
     const isOnTop = isWindowOnTop(stackOrder, forName)
     return (
       <div {...divProps}
-           onClick={() => setCurrentContainerName(forName)}
+           onMouseDown={this.onMouseDown.bind(this)}
            style={{
              ...style,
              zIndex,

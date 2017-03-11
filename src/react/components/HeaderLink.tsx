@@ -1,9 +1,11 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {Dispatch, connect} from 'react-redux'
-import IUpdateData from '../../model/interfaces/IUpdateData'
-import {Store} from '../../store'
+import IUpdateData from '../../store/IUpdateData'
+import {Store} from '../../store/store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
+import Action from '../../model/BaseAction'
+import State from '../../model/State'
 
 export interface HeaderLinkProps {
   children: ReactNode
@@ -13,7 +15,7 @@ export interface HeaderLinkProps {
 }
 
 type HeaderLinkPropsWithStore = HeaderLinkProps & {
-  store: Store
+  store: Store<State, Action>
   groupName: string
 }
 
@@ -38,6 +40,11 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
     event.preventDefault()
   }
 
+  onMouseDown(event) {
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
   getClassName():string {
     const {className, activeClassName, isActive} = this.props
     return isActive && activeClassName ? activeClassName : className || ''
@@ -48,19 +55,21 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
     return (
       <a href={url}
          className={this.getClassName()}
-         onClick={this.onClick.bind(this)}>
+         onMouseDown={this.onMouseDown.bind(this)}
+         onClick={this.onClick.bind(this)}
+      >
         {children}
       </a>
     )
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData, ownProps) => ({
+const mapStateToProps = ({state}:IUpdateData<State, Action>, ownProps) => ({
   url: state.getContainerLinkUrl(ownProps.groupName, ownProps.toContainer),
   isActive: state.isContainerActive(ownProps.groupName, ownProps.toContainer)
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData>,
+const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:HeaderLinkPropsWithStore) => ({
   onClick: () => dispatch(new SwitchToContainer({
     groupName: ownProps.groupName,

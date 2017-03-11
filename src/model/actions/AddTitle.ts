@@ -1,6 +1,6 @@
-import Action, {SYSTEM} from '../Action'
-import IState from '../IState'
-import {Serializable} from '../../util/serializer'
+import Action, {SYSTEM} from '../BaseAction'
+import State from '../State'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class AddTitle extends Action {
@@ -16,7 +16,7 @@ export default class AddTitle extends Action {
     this.title = title
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.addTitle({
       pathname: this.pathname,
       title: this.title
@@ -24,7 +24,7 @@ export default class AddTitle extends Action {
   }
 
 
-  filter(state: IState): Action[] {
+  filter(state: State): Action[] {
     return state.hasTitleForPath(this.pathname) ? [] : [this]
   }
 }

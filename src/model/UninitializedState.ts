@@ -1,44 +1,39 @@
-import IState from './IState'
-import IContainer from './interfaces/IContainer'
+import State from './State'
+import IContainer from './IContainer'
 import Page from './Page'
 import Group from './Group'
-import Container from './Container'
-import HistoryStack from './HistoryStack'
+import Pages, {HistoryStack} from './Pages'
 
 const UNINITIALIZED_MESSAGE:string = 'State is uninitialized'
 
-export default class UninitializedState extends IState {
+export default class UninitializedState extends State {
 
-  assign(obj:Object):IState {
+  get pages():Pages {
+    return new Pages()
+  }
+
+  assign(obj:Object):State {
     return new UninitializedState({...Object(this), ...obj})
   }
 
-  switchToGroup({groupName, time}:{groupName:string, time:number}):IState {
+  switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
   switchToContainer({groupName, name, time}:
-    {groupName:string, name:string, time:number}):IState {
+    {groupName:string, name:string, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  get backPage():Page {
+  go(n:number, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  get forwardPage():Page {
+  back(n:number=1, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  go(n:number, time:number):IState {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
-  goBack(n:number=1, time:number):IState {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
-  goForward(n:number=1, time:number):IState {
+  forward(n:number=1, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -56,7 +51,7 @@ export default class UninitializedState extends IState {
 
   top({groupName, time, reset=false}:
       {groupName:string, containerName:string, time:number,
-        reset?:boolean}):IState {
+        reset?:boolean}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -76,7 +71,7 @@ export default class UninitializedState extends IState {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  push(page:Page):IState {
+  push(page:Page, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -92,7 +87,7 @@ export default class UninitializedState extends IState {
     return []
   }
 
-  getBackPageInGroup(groupName:string):Page {
+  getBackPageInGroup(groupName:string):Page|undefined {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

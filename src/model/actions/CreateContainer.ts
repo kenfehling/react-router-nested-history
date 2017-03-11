@@ -1,7 +1,6 @@
-import Action, {SYSTEM} from '../Action'
-import IState from '../IState'
-import {Serializable} from '../../util/serializer'
-import Group from '../Group'
+import Action, {SYSTEM} from '../BaseAction'
+import State from '../State'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class CreateContainer extends Action {
@@ -27,7 +26,7 @@ export default class CreateContainer extends Action {
     this.resetOnLeave = resetOnLeave
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.addContainer({
       time: this.time,
       name: this.name,
@@ -39,8 +38,8 @@ export default class CreateContainer extends Action {
     })
   }
 
-  filter(state:IState):Action[] {
-    const group:Group = state.getGroupByName(this.groupName)
-    return group.hasContainerWithName(this.name) ? [] : [this]
+  filter(state:State):Action[] {
+    return state.getGroupByName(this.groupName)
+        .hasContainerWithName(this.name) ? [] : [this]
   }
 }

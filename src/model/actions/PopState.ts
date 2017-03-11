@@ -1,9 +1,8 @@
-import IState from '../IState'
-import {Serializable} from '../../util/serializer'
-import Step from '../interfaces/Step'
-import {diffHistoryToSteps} from '../../util/reconciler'
-import Page from '../Page'
-import Action from '../Action'
+import State from '../State'
+import Step from '../Step'
+import {diffPagesToSteps} from '../../util/reconciler'
+import Action from '../BaseAction'
+import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
 export default class PopState extends Action {
@@ -16,19 +15,19 @@ export default class PopState extends Action {
     this.n = n
   }
 
-  reduce(state:IState):IState {
+  reduce(state:State):State {
     return state.go(this.n, this.time)
   }
 
-  addSteps(steps:Step[], state:IState):Step[] {
-    const newState:IState = this.reduce(state)
+  addSteps(steps:Step[], state:State):Step[] {
+    const newState:State = this.reduce(state)
     const h1 = newState.browserHistoryWithFwdMaintained
     if (h1.current.isZeroPage) {
       return steps
     }
     else {
       const h2 = newState.browserHistory
-      return [...steps, ...diffHistoryToSteps(h1, h2)]
+      return [...steps, ...diffPagesToSteps(h1.toPages(), h2.toPages())]
     }
   }
 

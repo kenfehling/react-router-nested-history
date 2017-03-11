@@ -1,13 +1,15 @@
 import * as React from 'react'
 import {Component, ReactNode} from 'react'
 import {connect} from 'react-redux'
-import IUpdateData from '../../model/interfaces/IUpdateData'
-import {Store} from '../../store'
+import IUpdateData from '../../store/IUpdateData'
+import {Store} from '../../store/store'
 import {canUseWindowLocation} from '../../util/browserFunctions'
-import HistoryStack from '../../model/HistoryStack'
+import {HistoryStack} from '../../model/Pages'
+import State from '../../model/State'
+import Action from '../../model/BaseAction'
 
 type TitleSetterPropsWithStore = {
-  store: Store,
+  store: Store<State, Action>,
   children?: ReactNode
 }
 
@@ -32,8 +34,9 @@ class TitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:IUpdateData, ownProps:TitleSetterPropsWithStore):
-                                                ConnectedTitleSetterProps => ({
+const mapStateToProps = (state:IUpdateData<State, Action>,
+                         ownProps:TitleSetterPropsWithStore):
+                         ConnectedTitleSetterProps => ({
   ...ownProps,
   browserHistory: state.state.browserHistory,
   activeTitle: state.state.activeTitle
