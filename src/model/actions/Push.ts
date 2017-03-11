@@ -42,12 +42,18 @@ export default class Push extends Action {
     else {
       const data = {
         groupName: this.groupName,
-        origin: new ActionOrigin(this),
-        time: this.time
+        origin: new ActionOrigin(this)
       }
       return [
-        new SwitchToGroup(data),
-        new SwitchToContainer({...data, name: this.containerName}),
+        new SwitchToGroup({
+          ...data,
+          time: this.time - 2
+        }),
+        new SwitchToContainer({
+          ...data,
+          time: this.time - 1,
+          name: this.containerName
+        }),
         this
       ]
     }

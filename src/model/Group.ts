@@ -50,7 +50,7 @@ export default class Group implements IContainer {
   replaceContainer(container:IGroupContainer):Group {
     const groupName:string = container.groupName
     if (groupName === this.name) {
-      const i:number = R.findIndex(c => c.name === container.name, this.containers)
+      const i = R.findIndex(c => c.name === container.name, this.containers)
       if (i === -1) {  // If container didn't already exist
         return new Group({
           ...Object(this),
@@ -184,11 +184,15 @@ export default class Group implements IContainer {
     const visit:PageVisit = {time, type: VisitType.MANUAL}
     const from:IGroupContainer = this.activeContainer
     const to:IGroupContainer = this.getContainerByName(containerName)
-    const group:Group = from.resetOnLeave && from.name !== to.name ?
-        this.replaceContainer(from.top(time, true) as IGroupContainer) :
-        this.replaceContainer(from.activate(visit) as IGroupContainer)  // TODO: Still needed?
-    return group.replaceContainer(
+    if (from === to) {
+      return this.replaceContainer(to.activate(visit) as IGroupContainer)
+    }
+    else {
+      const group:Group = from.resetOnLeave && from.name !== to.name ?
+        this.replaceContainer(from.top(time, true) as IGroupContainer) : this
+      return group.replaceContainer(
         to.activate({...visit, time: visit.time + 1}) as IGroupContainer)
+    }
   }
 
   get containerStackOrder():IGroupContainer[] {
@@ -211,11 +215,12 @@ export default class Group implements IContainer {
   }
 
   patternsMatch(url:string):boolean {
-    return R.any((c:IGroupContainer):boolean => c.patternsMatch(url), this.containers)
+    return R.any(c => c.patternsMatch(url), this.containers)
   }
 
   activate(visit:PageVisit):Group {
-    return this.replaceContainer(this.activeContainer.activate(visit) as IGroupContainer)
+    const container = this.activeContainer.activate(visit) as IGroupContainer
+    return this.replaceContainer(container)
   }
 
   getContainerIndex(container:IGroupContainer):number {
@@ -242,6 +247,19 @@ export default class Group implements IContainer {
     else {
       return this.activeContainer.name === containerName
     }
+  }
+
+  isNestedGroupActive(groupName:string):boolean {
+    const activeContainer:IGroupContainer = this.activeContainer
+    if (activeContainer instanceof Group) {
+      if (activeContainer.name === groupName) {
+        return true
+      }
+      else if (activeContainer.hasNestedGroupWithName(groupName)) {
+        return activeContainer.isNestedGroupActive(groupName)
+      }
+    }
+    return false
   }
 
   get activeNestedContainer():Container {
@@ -274,21 +292,24 @@ export default class Group implements IContainer {
   }
 
   top(time:number, reset:boolean=false):Group {
-    return this.replaceContainer(this.activeContainer.top(time, reset) as IGroupContainer)
+    const container = this.activeContainer.top(time, reset) as IGroupContainer
+    return this.replaceContainer(container)
   }
 
   push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Group {
     const {groupName, containerName} = page
     if (groupName === this.name) {
       const container:IGroupContainer = this.getContainerByName(containerName)
-      return this.replaceContainer(container.push(page, time, type) as IGroupContainer)
+      const newContainer = container.push(page, time, type) as IGroupContainer
+      return this.replaceContainer(newContainer)
     }
     else {
       const group:ISubGroup|null = this.getNestedGroupByName(groupName)
       if (!group) {
         throw new Error('Group \'' + groupName + '\' not found in ' + this.name)
       }
-      return this.replaceContainer(group.push(page, time, type) as IGroupContainer)
+      const container = group.push(page, time, type) as IGroupContainer
+      return this.replaceContainer(container)
     }
   }
 
@@ -416,7 +437,7 @@ export default class Group implements IContainer {
   }
 
   get subGroups():Group[] {
-    return this.containers.filter((c:IGroupContainer) => c instanceof Group) as Group[]
+    return this.containers.filter(c => c instanceof Group) as Group[]
   }
 
   get wasManuallyVisited():boolean {

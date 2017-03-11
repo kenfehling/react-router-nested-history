@@ -153,17 +153,17 @@ describe('main', () => {
         createGroup3,
         ...createContainers3,
         new LoadFromUrl({
-          url: '/j',
+          url: '/g',
           time: 2000
         }),
         new Push({
-          url: '/j/1/cat',
+          url: '/g/1',
           groupName: 'Group 3',
           containerName: 'Container 1',
           time: 3000
         }),
         new Push({
-          url: '/j/2/dog',
+          url: '/g/2',
           groupName: 'Group 3',
           containerName: 'Container 1',
           time: 4000
@@ -179,20 +179,20 @@ describe('main', () => {
       const group = state.groups[0]
 
       expect(group.containers[0].history.back.length).to.equal(0);
-      expect(group.containers[0].history.current.url).to.equal('/j');
+      expect(group.containers[0].history.current.url).to.equal('/g');
       expect(group.containers[0].history.forward.length).to.equal(0)
 
       expect(group.containers[1].history.back.length).to.equal(0);
-      expect(group.containers[1].history.current.url).to.equal('/k');
+      expect(group.containers[1].history.current.url).to.equal('/h');
       expect(group.containers[1].history.forward.length).to.equal(0)
 
       expect(group.history.back.length).to.equal(1);
-      expect(group.history.back[0].url).to.equal('/j');
-      expect(group.history.current.url).to.equal('/k');
+      expect(group.history.back[0].url).to.equal('/g');
+      expect(group.history.current.url).to.equal('/h');
       expect(group.history.forward.length).to.equal(0)
 
       expect(state.browserHistory.back.length).to.equal(2);
-      expect(state.browserHistory.current.url).to.equal('/k');
+      expect(state.browserHistory.current.url).to.equal('/h');
       expect(state.browserHistory.forward.length).to.equal(0)
     })
     
@@ -211,7 +211,8 @@ describe('main', () => {
       store.dispatch(new Push({
         groupName: 'Group 2',
         containerName: 'Container 1',
-        url: '/e/1'
+        url: '/e/1',
+        time: 3000
       }))
 
       const state:State = store.getState().state
@@ -383,16 +384,16 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
+          time: 2000
         }),
         new UpdateBrowser({
-          time: 1100
+          time: 2100
         }),
         new Push({
           url: '/a/1',
           groupName: 'Group 1',
           containerName: 'Container 1',
-          time: 2000
+          time: 3000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(3)
@@ -413,18 +414,18 @@ describe('main', () => {
         ...createContainers,
         new LoadFromUrl({
           url: '/a/1',
-          time: 2
+          time: 2000
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           containerName: 'Container 2',
-          time: 3
+          time: 3000
         }),
         new PopState({
           url: '/a/1',
           groupName: 'Group 1',
           containerName: 'Container 1',
-          time: 4
+          time: 4000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(3)
@@ -443,24 +444,24 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
+          time: 2000
         }),
         new UpdateBrowser({
-          time: 1100
+          time: 2100
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           name: 'Container 2',
-          time: 2000
+          time: 3000
         }),
         new UpdateBrowser({
-          time: 2200
+          time: 3100
         }),
         new Push({
           url: '/b/1',
           groupName: 'Group 1',
           containerName: 'Container 2',
-          time: 3000
+          time: 4000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(4)
@@ -481,23 +482,23 @@ describe('main', () => {
         ...createContainers2,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
-        }),
-        new UpdateBrowser({
-          time: 1100
-        }),
-        new SwitchToGroup({
-          groupName: 'Group 2',
           time: 2000
         }),
         new UpdateBrowser({
-          time: 2200
+          time: 2100
+        }),
+        new SwitchToGroup({
+          groupName: 'Group 2',
+          time: 3000
+        }),
+        new UpdateBrowser({
+          time: 3100
         }),
         new Push({
           url: '/e/1',
           groupName: 'Group 2',
           containerName: 'Container 1',
-          time: 3000
+          time: 4000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(3)
@@ -515,31 +516,31 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
+          time: 2000
         }),
         new UpdateBrowser({
-          time: 1100
+          time: 2100
         }),
         new Push({
           url: '/a/1',
           groupName: 'Group 1',
           containerName: 'Container 1',
-          time: 2000
+          time: 3000
         }),
         new UpdateBrowser({
-          time: 2200
+          time: 3100
         }),
         new Push({
           url: '/a/2',
           groupName: 'Group 1',
           containerName: 'Container 1',
-          time: 3000
+          time: 4000
         }),
         new UpdateBrowser({
-          time: 3300
+          time: 4100
         }),
         new Back({
-          time: 4000
+          time: 5000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(4)
@@ -557,77 +558,78 @@ describe('main', () => {
         createGroup3,
         ...createContainers3,
         new LoadFromUrl({
-          url: '/j',
-          time: 1000
-        }),
-        new UpdateBrowser({
-          time: 1100
-        }),
-        new Push({
-          url: '/j/1/cat',
-          groupName: 'Group 3',
-          containerName: 'Container 1',
+          url: '/g',
           time: 2000
         }),
         new UpdateBrowser({
-          time: 2200
+          time: 2100
         }),
         new Push({
-          url: '/j/2/dog',
+          url: '/g/1/cat',
           groupName: 'Group 3',
           containerName: 'Container 1',
           time: 3000
         }),
         new UpdateBrowser({
-          time: 3300
+          time: 3100
+        }),
+        new Push({
+          url: '/g/2/dog',
+          groupName: 'Group 3',
+          containerName: 'Container 1',
+          time: 4000
+        }),
+        new UpdateBrowser({
+          time: 4100
         }),
         new Top({
           groupName: 'Group 3',
           containerName: 'Container 1',
-          time: 4000,
+          time: 5000,
           origin: USER
         }),
         new UpdateBrowser({
-          time: 4400
+          time: 5100
         }),
         new SwitchToContainer({
           groupName: 'Group 3',
           name: 'Container 2',
-          time: 5000
+          time: 6000
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(3)
-        expect(entries[0].pathname).to.equal('/j')  // zero page
-        expect(entries[1].pathname).to.equal('/j')
-        expect(entries[2].pathname).to.equal('/k')
+        expect(entries[0].pathname).to.equal('/g')  // zero page
+        expect(entries[1].pathname).to.equal('/g')
+        expect(entries[2].pathname).to.equal('/h')
         expect(index).to.equal(2)
       })
     })
 
-    describe('UpdateBrowser action', async () => {
-      await it('prevents running old actions', () => {
-        run([
+    /*
+    describe('UpdateBrowser action', () => {
+      it('prevents running old actions', async() => {
+        await run([
           new Startup({time: 0}),
           createGroup1,
           ...createContainers1,
           new LoadFromUrl({
             url: '/a',
-            time: 1000
+            time: 2000
           }),
           new UpdateBrowser({
-            time: 1100
+            time: 2100
           }),
           new Push({
             url: '/a/1',
             groupName: 'Group 1',
             containerName: 'Container 1',
-            time: 2000
-          }),
-          new UpdateBrowser({
-            time: 2200
-          }),
-          new UpdateBrowser({
             time: 3000
+          }),
+          new UpdateBrowser({
+            time: 3100
+          }),
+          new UpdateBrowser({
+            time: 3200
           }),
           new UpdateBrowser({
             time: 3300
@@ -645,32 +647,33 @@ describe('main', () => {
         })
       })
     })
+    */
 
-    describe('while on zero page', async () => {
-      await it('does a double push', () => {
-        run([
+    describe('while on zero page', () => {
+      it('does a double push', async () => {
+        await run([
           new Startup({time: 0}),
           createGroup1,
           ...createContainers1,
           new LoadFromUrl({
             url: '/a',
-            time: 1000
-          }),
-          new UpdateBrowser({
-            time: 1100
-          }),
-          new PopState({  // User popped back to zero page
-            n: -1,
             time: 2000
           }),
           new UpdateBrowser({
-            time: 2200
+            time: 2100
+          }),
+          new PopState({  // User popped back to zero page
+            n: -1,
+            time: 3000
+          }),
+          new UpdateBrowser({
+            time: 3100
           }),
           new Push({
             url: '/a/1',
             groupName: 'Group 1',
             containerName: 'Container 1',
-            time: 3000
+            time: 4000
           })
         ]).then(({entries, index}) => {
           expect(entries.length).to.equal(3)
@@ -681,29 +684,29 @@ describe('main', () => {
         })
       })
 
-      it('does a push before a switch', async () => {
+      it('does a push before a switch', async() => {
         await run([
           new Startup({time: 0}),
           createGroup1,
           ...createContainers1,
           new LoadFromUrl({
             url: '/a',
-            time: 1000
-          }),
-          new UpdateBrowser({
-            time: 1100
-          }),
-          new PopState({  // User popped back to zero page
-            n: -1,
             time: 2000
           }),
           new UpdateBrowser({
-            time: 2200
+            time: 2100
+          }),
+          new PopState({  // User popped back to zero page
+            n: -1,
+            time: 3000
+          }),
+          new UpdateBrowser({
+            time: 3100
           }),
           new SwitchToContainer({
             groupName: 'Group 1',
             name: 'Container 2',
-            time: 3000
+            time: 4000
           })
         ]).then(({entries, index}) => {
           expect(entries.length).to.equal(3)

@@ -178,10 +178,11 @@ export default class InitializedState extends State {
       return true
     }
     else {
-      const activeContainer:Container = activeGroup.activeNestedContainer
-      const group:Group = this.getGroupByName(groupName)
-      return group.hasNestedContainer(activeContainer)
+      if (this.activeGroup.hasNestedGroupWithName(groupName)) {
+        return this.activeGroup.isNestedGroupActive(groupName)
+      }
     }
+    return false
   }
 
   get activeGroup():Group {

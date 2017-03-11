@@ -18,8 +18,8 @@ const createCreateSubGroup =
       allowInterContainerHistory, time: 750})
 
 const createCreateContainers =
-  ({groupName, initialUrls, useDefault=false, resetOnLeave=false}:
-  {groupName:string, initialUrls:string[], useDefault?:boolean,
+  ({time, groupName, initialUrls, useDefault=false, resetOnLeave=false}:
+  {time:number, groupName:string, initialUrls:string[], useDefault?:boolean,
   resetOnLeave?:boolean}):CreateContainer[] =>
     initialUrls.map((initialUrl:string, i:number) => new CreateContainer({
       groupName,
@@ -28,7 +28,7 @@ const createCreateContainers =
       patterns: [initialUrl, `${initialUrl}/:id`, `${initialUrl}/:id/:name`],
       isDefault: useDefault && i === 0,
       resetOnLeave,
-      time: 1000 + i
+      time: time + i
     }))
 
 export const createGroup1:CreateGroup = createCreateGroup('Group 1')
@@ -52,17 +52,20 @@ export const createSubGroup3:CreateGroup = createCreateSubGroup({
 })
 
 export const createContainers1:CreateContainer[] = createCreateContainers({
+  time: 1001,
   groupName: 'Group 1',
   initialUrls: ['/a', '/b', '/c'],
   useDefault: true,
 })
 
 export const createContainers2:CreateContainer[] = createCreateContainers({
+  time: 1005,
   groupName: 'Group 2',
   initialUrls: ['/e', '/f'],
 })
 
 export const createContainers3:CreateContainer[] = createCreateContainers({
+  time: 1010,
   groupName: 'Group 3',
   initialUrls: ['/g', '/h'],
   useDefault: true,
@@ -101,14 +104,14 @@ const group2:Group = new Group({
   name: 'Group 2',
   containers: [
     new Container({
-      time: 1003,
+      time: 1005,
       name: 'Container 1',
       groupName: 'Group 2',
       initialUrl: '/e',
       patterns: ['/e', '/e/:id'],
     }),
     new Container({
-      time: 1004,
+      time: 1006,
       name: 'Container 2',
       groupName: 'Group 2',
       initialUrl: '/f',
@@ -121,7 +124,7 @@ const group3:Group = new Group({
   name: 'Group 3',
   containers: [
     new Container({
-      time: 1005,
+      time: 1010,
       name: 'Container 1',
       groupName: 'Group 3',
       initialUrl: '/g',
@@ -129,7 +132,7 @@ const group3:Group = new Group({
       isDefault: true
     }),
     new Container({
-      time: 1006,
+      time: 1011,
       name: 'Container 2',
       groupName: 'Group 3',
       initialUrl: '/h',

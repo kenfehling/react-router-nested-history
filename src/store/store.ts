@@ -20,7 +20,7 @@ export function deriveState<S extends IState>(actions:Action[], state:S):S {
 export function createStore<S extends IState, A extends Action>(
     {persist, initialState}:{persist:boolean, initialState:S}) {
   let actions: A[] = []
-  let storedState: S
+  let storedState: S = initialState
   let timeStored: number = 0
   let listeners: (() => void)[] = []
 
@@ -63,10 +63,6 @@ export function createStore<S extends IState, A extends Action>(
   function dispatch(action:Action):void {
     const state = getState()
     const as:Action[] = action.filter(state.state)
-
-    //console.log('Action: ' + action.type)
-    //console.log('Actions: ' + as.map(a => a.type + ' '))
-
     as.forEach(a => (a === action ? _dispatch : dispatch)(a))
   }
 
