@@ -12,8 +12,8 @@ function runStep(step:Step, before=noop, after=noop):Promise<any> {
     browser.listenPromise().then(after) : Promise.resolve().then(after)
 }
 
-export function runSteps(steps:Step[], before=noop, after=noop):Promise<void> {
-  const ps:() => Promise<void> = () =>
+export function runSteps(steps:Step[], before=noop, after=noop):Promise<any> {
+  const ps:() => Promise<any> = () =>
     steps.reduce(
       (prev, step) => prev.then(() => runStep(step, before, after)),
       Promise.resolve()

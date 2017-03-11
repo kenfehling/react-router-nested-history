@@ -25,6 +25,8 @@ import {expect} from 'chai'
 import UninitializedState from '../../src/model/UninitializedState'
 import BaseAction from '../../src/model/BaseAction'
 import {createStepsSince} from '../../src/util/reconciler'
+import {USER} from '../../src/model/BaseAction'
+import {HistoryStack} from '../../src/model/Pages'
 declare const describe:any
 declare const it:any
 declare const beforeEach:any
@@ -81,7 +83,7 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a/1',
-          time: 1000
+          time: 2000
         })
       ])
 
@@ -110,12 +112,12 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a/1',
-          time: 1000
+          time: 2000
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           name: 'Container 2',
-          time: 2000
+          time: 3000
         })
       ])
 
@@ -152,24 +154,24 @@ describe('main', () => {
         ...createContainers3,
         new LoadFromUrl({
           url: '/j',
-          time: 1000
+          time: 2000
         }),
         new Push({
           url: '/j/1/cat',
           groupName: 'Group 3',
           containerName: 'Container 1',
-          time: 2000
+          time: 3000
         }),
         new Push({
           url: '/j/2/dog',
           groupName: 'Group 3',
           containerName: 'Container 1',
-          time: 3000
+          time: 4000
         }),
         new SwitchToContainer({
           groupName: 'Group 3',
           name: 'Container 2',
-          time: 4000
+          time: 5000
         })
       ])
 
@@ -203,7 +205,7 @@ describe('main', () => {
         ...createContainers2,
         new LoadFromUrl({
           url: '/a',
-          time: 1000
+          time: 2000
         })
       ])
       store.dispatch(new Push({
@@ -241,16 +243,16 @@ describe('main', () => {
         ...createContainers1,
         new LoadFromUrl({
           url: '/a/1',
-          time: 1000
+          time: 2000
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
           name: 'Container 2',
-          time: 2000
+          time: 3000
         }),
         new PopState({
           n: -1,
-          time: 3000
+          time: 4000
         })
       ])
 
@@ -297,7 +299,7 @@ describe('main', () => {
               return runSteps(steps).then(resolve)
             }
           }
-          resolve()
+          return resolve()
         }),
         Promise.resolve()
       )
@@ -582,7 +584,8 @@ describe('main', () => {
         new Top({
           groupName: 'Group 3',
           containerName: 'Container 1',
-          time: 4000
+          time: 4000,
+          origin: USER
         }),
         new UpdateBrowser({
           time: 4400
