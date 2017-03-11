@@ -5,6 +5,9 @@ import {HistoryStack} from '../../../src/model/Pages'
 import * as fixtures from '../fixtures'
 import IContainer from '../../../src/model/IContainer'
 import {expect} from 'chai'
+import UninitializedState from '../../../src/model/UninitializedState'
+import InitializedState from '../../../src/model/InitializedState'
+import LoadFromUrl from '../../../src/model/actions/LoadFromUrl'
 declare const describe:any
 declare const it:any
 
@@ -138,6 +141,25 @@ describe('State', () => {
             expect(f(switchedState, 'Container 2')).to.be.true
           })
         })
+      })
+    })
+
+    describe('groupStackOrder', () => {
+      it('gets initial order', () => {
+        const order:IContainer[] = state.groupStackOrder
+        expect(order[0].initialUrl).to.equal('/a')
+        expect(order[0].lastVisit.time).to.equal(1250)
+      })
+
+      it('gets correct order after a non-default load', () => {
+        const unloadedState:UninitializedState = fixtures.simpleState
+        const loadedState:InitializedState =
+            new LoadFromUrl({url: '/e', time: 1250}).reduce(unloadedState)
+        const order:IContainer[] = loadedState.groupStackOrder
+        expect(order[0].initialUrl).to.equal('/e')
+        expect(order[0].lastVisit.time).to.equal(1250)
+        expect(order[1].initialUrl).to.equal('/a')
+        expect(order[1].lastVisit.time).to.equal(1000)
       })
     })
   })

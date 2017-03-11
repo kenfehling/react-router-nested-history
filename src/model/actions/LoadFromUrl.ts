@@ -1,4 +1,4 @@
-import Action, {SYSTEM} from '../BaseAction'
+import Action, {USER} from '../BaseAction'
 import State from '../State'
 import Step from '../Step'
 import UninitializedState from '../UninitializedState'
@@ -19,7 +19,7 @@ export default class LoadFromUrl extends Action {
 
   constructor({time, url, fromRefresh=false}:
       {time?:number, url:string, fromRefresh?:boolean}) {
-    super({time, origin: SYSTEM})
+    super({time, origin: USER})
     this.url = url
     this.fromRefresh = fromRefresh
   }

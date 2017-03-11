@@ -1,6 +1,6 @@
 import State from '../State'
 import Step from '../Step'
-import {diffHistoryToSteps} from '../../util/reconciler'
+import {diffPagesToSteps} from '../../util/reconciler'
 import Action from '../BaseAction'
 import Serializable from '../../store/decorators/Serializable'
 
@@ -27,7 +27,7 @@ export default class PopState extends Action {
     }
     else {
       const h2 = newState.browserHistory
-      return [...steps, ...diffHistoryToSteps(h1, h2)]
+      return [...steps, ...diffPagesToSteps(h1.toPages(), h2.toPages())]
     }
   }
 

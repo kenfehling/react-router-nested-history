@@ -126,6 +126,3 @@ export const diffToSteps = (diff:HistoryDiff):Step[] => {
  */
 export const diffPagesToSteps:(ps1:Pages, ps2:Pages) => Step[] =
     R.compose(diffToSteps, diffHistory)
-
-export const diffHistoryToSteps = (h1:HistoryStack, h2:HistoryStack):Step[] =>
-    R.compose(diffToSteps, diffHistory)(h1.toPages(), h2.toPages())

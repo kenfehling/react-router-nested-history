@@ -43,15 +43,13 @@ describe('Group', () => {
       })
     })
 
-    describe('stack orders', () => {
+    describe('containerStackOrder', () => {
       const newGroup:Group = group.activateContainer('Container 3', 7000)
 
-      describe('containerStackOrder', () => {
-        it('gets containers in latest active order', () => {
-          const newOrder:IContainer[] = newGroup.containerStackOrder
-          expect(newOrder[0].initialUrl).to.equal('/c')
-          expect(newOrder[0].lastVisit.time).to.equal(7001)
-        })
+      it('gets containers in latest active order', () => {
+        const newOrder:IContainer[] = newGroup.containerStackOrder
+        expect(newOrder[0].initialUrl).to.equal('/c')
+        expect(newOrder[0].lastVisit.time).to.equal(7001)
       })
     })
 

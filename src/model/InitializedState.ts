@@ -1,5 +1,4 @@
 import Page from './Page'
-import * as R from 'ramda'
 import IContainer from './IContainer'
 import Group from './Group'
 import State from './State'
@@ -7,6 +6,7 @@ import Container from './Container'
 import IGroupContainer from './IGroupContainer'
 import Pages, {HistoryStack} from './Pages'
 import {VisitType} from './PageVisit'
+import {sortContainersByLastVisited} from '../util/sorter'
 
 export default class InitializedState extends State {
 
@@ -111,8 +111,8 @@ export default class InitializedState extends State {
   }
 
   protected getHistory(maintainFwd:boolean=false):HistoryStack {
-    const groupHistory:HistoryStack = maintainFwd ?
-      this.activeGroup.historyWithFwdMaintained : this.activeGroup.history
+    const g:Group = this.activeGroup
+    const groupHistory = maintainFwd ? g.historyWithFwdMaintained : g.history
     if(this.isOnZeroPage) {
       return new HistoryStack({
         back: [],
@@ -129,7 +129,7 @@ export default class InitializedState extends State {
   }
 
   get groupStackOrder():Group[] {
-    return R.sort((g1, g2) => g2.lastVisit.time - g1.lastVisit.time, this.groups)
+    return sortContainersByLastVisited(this.groups) as Group[]
   }
 
   getBackPageInGroup(groupName:string):Page|undefined {

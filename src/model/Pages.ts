@@ -18,7 +18,9 @@ export default class Pages implements IHistory {
     return new HistoryStack({
       back: firstVisited.slice(0, currentIndex),
       current: this.activePage,
-      forward: firstVisited.slice(currentIndex + 1).filter(Pages.manualOnly)
+      forward: firstVisited
+                .slice(currentIndex + 1)
+                .filter(p => p.wasManuallyVisited)
     })
   }
 
@@ -167,16 +169,12 @@ export default class Pages implements IHistory {
     return this.pages.length
   }
 
+  get isEmpty():boolean {
+    return this.length === 0
+  }
+
   add(page:VisitedPage):Pages {
     return new Pages([...this.pages, page])
-  }
-
-  filter(fn:(page:VisitedPage)=>boolean):Pages {
-    return new Pages([...this.pages.filter(fn)])
-  }
-
-  static manualOnly(page:VisitedPage):boolean {
-    return page.wasManuallyVisited
   }
 
   static compareByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
@@ -193,10 +191,6 @@ export default class Pages implements IHistory {
 
   private get byLastVisited():VisitedPage[] {
     return R.sort(Pages.compareByLastVisited, this.pages)
-  }
-
-  private get manualOnly():Pages {
-    return new Pages(this.filter(Pages.manualOnly).byFirstVisited)
   }
 }
 

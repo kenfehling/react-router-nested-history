@@ -13,6 +13,7 @@ import ISubGroup from './ISubGroup'
 import Pages, {HistoryStack} from './Pages'
 import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
+import {sortContainersByLastVisited} from '../util/sorter'
 
 // Param types for _go method
 type GoFn = <H extends IHistory> (h:H, n:number, time:number) => H
@@ -171,7 +172,7 @@ export default class Group implements IContainer {
   getHistory(keepFwd:boolean=false):HistoryStack {
     const containers = this.containerStackOrder.filter(c => c.wasManuallyVisited)
     switch(containers.length) {
-      case 0: throw new Error(`'${this.name}' has no visited containers`)
+      case 0: return Group.getSingleHistory(this.activeContainer, keepFwd)
       case 1: return Group.getSingleHistory(containers[0], keepFwd)
       default: {
         const from: IGroupContainer = containers[1]
@@ -192,21 +193,9 @@ export default class Group implements IContainer {
         to.activate({...visit, time: visit.time + 1}) as IGroupContainer)
   }
 
-  private static sortContainers(containers:IGroupContainer[]):IGroupContainer[] {
-    return R.sort((c1, c2) => c2.lastVisit.time - c1.lastVisit.time, containers)
-  }
-
   get containerStackOrder():IGroupContainer[] {
-    const visited = this.containers.filter(c => c.activePage.wasManuallyVisited)
-    const unvisited = R.difference(this.containers, visited)
-    const defaultUnvisited = R.find(c => c.isDefault, unvisited)
-    const nonDefaultUnvisited = R.difference(unvisited, [defaultUnvisited])
-    return [
-      ...Group.sortContainers(visited),
-      ...(defaultUnvisited ? [defaultUnvisited] : []),
-      ...Group.sortContainers(nonDefaultUnvisited)
-    ]
-   }
+    return sortContainersByLastVisited(this.containers) as IGroupContainer[]
+  }
 
   get history():HistoryStack {
     return this.getHistory()
