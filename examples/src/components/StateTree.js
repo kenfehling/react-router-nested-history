@@ -8,7 +8,7 @@ const HistoryTree = ({history, className}) => (
       {history.back.map((page, i) => <div key={i}>{page.url}</div>)}
     </div>
     <div>
-      <span className={`${className} current-page`}>{history.activePage.url}</span>
+      <span className={`${className} current-page`}>{history.current.url}</span>
     </div>
     <div>
       {history.forward.map((page, i) => <div key={i}>{page.url}</div>)}
