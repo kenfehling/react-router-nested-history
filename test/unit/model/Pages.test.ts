@@ -149,6 +149,7 @@ describe('Pages', () => {
   describe('back', () => {
     it('updates the time of the back page', () => {
       const p:Pages = pages.back(1, 10000)
+      expect(p.length).to.equal(3)
       expect(p.activePage.url).to.equal('/a')
       expect(p.activePage.lastVisit.time).to.equal(10000)
     })

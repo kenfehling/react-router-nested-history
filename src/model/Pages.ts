@@ -153,8 +153,12 @@ export default class Pages implements IHistory {
 
   get activeIndex():number {
     const current:Page = this.activePage
-    const firstVisit:Page[] = this.byFirstVisited
-    return R.findIndex(p => p === current, firstVisit)
+    const firstVisited:Page[] = this.byFirstVisited
+    return R.findIndex(p => p === current, firstVisited)
+  }
+
+  get firstManualVisit():PageVisit {
+    return this.pages.filter(p => p.wasManuallyVisited)[0].firstManualVisit
   }
 
   get lastVisit():PageVisit {
@@ -178,7 +182,28 @@ export default class Pages implements IHistory {
   }
 
   static compareByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
-    return p1.firstVisit.time - p2.firstVisit.time
+    if (p1.isZeroPage) {
+      return -1
+    }
+    if (p2.isZeroPage) {
+      return 1
+    }
+    if (p1.wasManuallyVisited) {
+      if (p2.wasManuallyVisited) {
+        return p1.firstManualVisit.time - p2.firstManualVisit.time
+      }
+      else {
+        return -1
+      }
+    }
+    else {
+      if (p2.wasManuallyVisited) {
+        return 1
+      }
+      else {
+        return -1  // 0
+      }
+    }
   }
 
   static compareByLastVisited(p1:VisitedPage, p2:VisitedPage):number {

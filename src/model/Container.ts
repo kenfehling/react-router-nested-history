@@ -173,6 +173,10 @@ export default class Container implements IContainer {
     return this.pages.forwardLength
   }
 
+  get firstManualVisit():PageVisit {
+    return this.pages.firstManualVisit
+  }
+
   get lastVisit():PageVisit {
     return this.pages.lastVisit
   }

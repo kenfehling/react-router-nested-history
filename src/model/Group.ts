@@ -13,7 +13,10 @@ import ISubGroup from './ISubGroup'
 import Pages, {HistoryStack} from './Pages'
 import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
-import {sortContainersByLastVisited} from '../util/sorter'
+import {
+  sortContainersByLastVisited,
+  sortContainersByFirstVisited
+} from '../util/sorter'
 
 // Param types for _go method
 type GoFn = <H extends IHistory> (h:H, n:number, time:number) => H
@@ -83,79 +86,75 @@ export default class Group implements IContainer {
     })
   }
 
-  private computeInterContainer(from:HistoryStack, to:HistoryStack,
-                                fromDefault:boolean|null,
-                                toDefault:boolean|null):HistoryStack {
-    if (!fromDefault && !toDefault && this.allowInterContainerHistory) {
-      const comparison = Pages.compareByFirstVisited(from.current, to.current)
-      if (comparison < 0 || (comparison === 0 && fromDefault)) {
-        return interContainerHistory.D_to_E(to, from, to)
-      }
-      else {
-        return interContainerHistory.E_to_D(to, from, to)
-      }
-    }
-    else {
-      return to
-    }
+  private static getContainerHistory(c:IContainer, keepFwd:boolean):HistoryStack {
+    return c instanceof Group ? c.getHistory(keepFwd) : c.history
   }
   
-  private static computeDefault(h:HistoryStack, defaulT:HistoryStack|null,
-                         from:HistoryStack, to:HistoryStack,
-                         fromDefault:boolean|null,
-                         toDefault:boolean|null):HistoryStack {
+  private static computeDefault(h:HistoryStack, defaulT:IContainer|undefined,
+                                from:IContainer, to:IContainer,
+                                keepFwd:boolean):HistoryStack {
+    const fromHistory:HistoryStack = Group.getContainerHistory(from, keepFwd)
+    const toHistory:HistoryStack = Group.getContainerHistory(to, keepFwd)
     if (defaulT) {
-      if (fromDefault) {
-        return defaultBehavior.A_to_B(h, from, to)
+      if (from.isDefault) {
+        return defaultBehavior.A_to_B(h, fromHistory, toHistory)
       }
       else {
-        if (toDefault) {
-          return defaultBehavior.B_to_A(h, from, to)
+        if (to.isDefault) {
+          return defaultBehavior.B_to_A(h, fromHistory, toHistory)
         }
         else {
-          return defaultBehavior.B_to_C(h, defaulT, from, to)
+          const defaultHistory = Group.getContainerHistory(defaulT, keepFwd)
+          return defaultBehavior.B_to_C(h, defaultHistory, fromHistory, toHistory)
         }
       }
     }
     else {
-      return nonDefaultBehavior.B_to_C(h, null, from, to)
+      return nonDefaultBehavior.B_to_C(h, null, fromHistory, toHistory)
+    }
+  }
+
+  private computeInterContainer(from:IContainer, to:IContainer,
+                                keepFwd:boolean):HistoryStack {
+    const toHistory:HistoryStack = Group.getContainerHistory(to, keepFwd)
+    if (!from.isDefault && !to.isDefault && this.allowInterContainerHistory) {
+      const fromHistory:HistoryStack = Group.getContainerHistory(from, keepFwd)
+      const sorted = sortContainersByFirstVisited([from, to])
+      if (sorted[0] === from) {
+        return interContainerHistory.D_to_E(toHistory, fromHistory, toHistory)
+      }
+      else {
+        return interContainerHistory.E_to_D(toHistory, fromHistory, toHistory)
+      }
+    }
+    else {
+      return toHistory
     }
   }
 
   private static computeFwd(h:HistoryStack, keepFwd:boolean,
-                            from:HistoryStack, to:HistoryStack,
-                            fromDefault:boolean|null,
-                            toDefault:boolean|null):HistoryStack {
-    if (keepFwd && from.current.wasManuallyVisited) {
-      const comparison = Pages.compareByFirstVisited(from.current, to.current)
-      if (comparison > 0 || (comparison === 0 && toDefault)) {
-        return keepFwdTabBehavior.E_to_D(h, from, to)
+                            from:IContainer, to:IContainer):HistoryStack {
+    const fromHistory:HistoryStack = Group.getContainerHistory(from, keepFwd)
+    const toHistory:HistoryStack = Group.getContainerHistory(to, keepFwd)
+    if (keepFwd && from.wasManuallyVisited) {
+      const sorted = sortContainersByFirstVisited([from, to])
+      if (sorted[0] === from) {
+        return keepFwdTabBehavior.D_to_E(h, fromHistory, toHistory)
       }
       else {
-        return keepFwdTabBehavior.D_to_E(h, from, to)
+        return keepFwdTabBehavior.E_to_D(h, fromHistory, toHistory)
       }
     }
     else {
-      return removeFwdTabBehavior.E_to_D(h, from, to)
+      return removeFwdTabBehavior.E_to_D(h, fromHistory, toHistory)
     }
   }
   
-  computeHistory(from:IContainer, to:IContainer,
-                 keepFwd:boolean):HistoryStack {
+  computeHistory(from:IContainer, to:IContainer, keepFwd:boolean):HistoryStack {
     const defaulT:IGroupContainer|undefined = this.defaultContainer
-    const fromHistory:HistoryStack =
-        from instanceof Group ? from.getHistory(keepFwd) : from.history
-    const toHistory:HistoryStack =
-        to instanceof Group ? to.getHistory(keepFwd) : to.history
-    const defaultHistory:HistoryStack|null =
-        defaulT ? (defaulT instanceof Group ? defaulT.getHistory(keepFwd) :
-            defaulT.history) : null
-    const h1:HistoryStack = this.computeInterContainer(
-        fromHistory, toHistory, from.isDefault, to.isDefault)
-    const h2:HistoryStack = Group.computeDefault(
-        h1, defaultHistory, fromHistory, toHistory, from.isDefault, to.isDefault)
-    const h3 = Group.computeFwd(
-        h2, keepFwd, fromHistory, toHistory, from.isDefault, to.isDefault)
+    const h1:HistoryStack = this.computeInterContainer(from, to, keepFwd)
+    const h2:HistoryStack = Group.computeDefault(h1, defaulT, from, to, keepFwd)
+    const h3 = Group.computeFwd(h2, keepFwd, from, to)
     return h3
   }
 
@@ -523,8 +522,12 @@ export default class Group implements IContainer {
     return new Pages(this.history.flatten())
   }
 
+  get firstManualVisit(): PageVisit {
+    return this.pages.firstManualVisit
+  }
+
   get lastVisit():PageVisit {
-    return this.activeContainer.lastVisit
+    return this.pages.lastVisit
   }
 
   get backPages():Page[] {

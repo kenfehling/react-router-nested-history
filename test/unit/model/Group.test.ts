@@ -78,11 +78,47 @@ describe('Group', () => {
         expect(h.current.url).to.equal('/a')
         expect(h.forward.length).to.equal(0)
       })
+
+      it('includes forward history', () => {
+        const g = group.activateContainer('Container 3', 2000).back(1, 3000)
+        const h:HistoryStack = g.historyWithFwdMaintained
+        expect(h.back.length).to.equal(0)
+        expect(h.current.url).to.equal('/a')
+        expect(h.forward.length).to.equal(1)
+        expect(h.forward[0].url).to.equal('/c')
+      })
+
+      it('does not repeat pages', () => {
+        const container1page:Page = new Page({
+          url: '/a/1',
+          params: {id: '1'},
+          groupName: 'Group 1',
+          containerName: 'Container 1'
+        })
+        const container2page:Page = new Page({
+          url: '/b/1',
+          params: {id: '1'},
+          groupName: 'Group 1',
+          containerName: 'Container 2'
+        })
+        const g:Group = group
+          .push(container1page, 5000)
+          .activateContainer('Container 2', 7500)
+          .push(container2page, 10000)
+          .back(1, 15000)
+        const h:HistoryStack = g.historyWithFwdMaintained
+        expect(h.back.length).to.equal(2)
+        expect(h.back[0].url).to.equal('/a')
+        expect(h.back[1].url).to.equal('/a/1')
+        expect(h.current.url).to.equal('/b')
+        expect(h.forward.length).to.equal(1)
+        expect(h.forward[0].url).to.equal('/b/1')
+      })
     })
 
     describe('activateContainer', () => {
       it('switches the current container', () => {
-        const g:Group  =group.activateContainer('Container 3', 2000)
+        const g:Group = group.activateContainer('Container 3', 2000)
         const h:HistoryStack = g.history
         expect(h.back.length).to.equal(1)
         expect(h.back[0].url).to.equal('/a')

@@ -32,16 +32,12 @@ export default class InitializedState extends State {
 
   go(n:number, time:number):State {
     if (this.isOnZeroPage && n > 0) {
-      const state:State = this.assign({
-        isOnZeroPage: false
-      })
+      const state:State = this.assign({isOnZeroPage: false})
       return state.go(n - 1, time)
     }
     const f = (x:number):State => this.replaceGroup(this.activeGroup.go(x, time))
-    if (n < 0 && !this.canGoBack(0 - n)) {    // if going back to zero page
-      return (n < -1 ? f(n + 1) : this).assign({
-        isOnZeroPage: true                    // go back through group if needed
-      })
+    if (n < 0 && !this.canGoBack(0 - n)) {  // if going back to zero page
+      return (n < -1 ? f(n + 1) : this).assign({isOnZeroPage: true})
     }
     else {
       return f(n)

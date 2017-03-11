@@ -23,8 +23,8 @@ export default class VisitedPage extends Page {
     return R.any((v:PageVisit) => v.type === VisitType.MANUAL, this.visits)
   }
 
-  get firstVisit():PageVisit {
-    return this.visits[0]
+  get firstManualVisit():PageVisit {
+    return this.visits.filter(p => p.type === VisitType.MANUAL)[0]
   }
 
   get lastVisit():PageVisit {

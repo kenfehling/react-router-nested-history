@@ -5,7 +5,7 @@ import * as R from 'ramda'
 import PushStep from '../model/steps/PushStep'
 import ReplaceStep from '../model/steps/ReplaceStep'
 import GoStep from '../model/steps/GoStep'
-import Pages, {HistoryStack} from '../model/Pages'
+import Pages from '../model/Pages'
 import UninitializedState from '../model/UninitializedState'
 import {deriveState} from '../store/store'
 import State from '../model/State'
@@ -71,9 +71,9 @@ const getFirstDifferenceIndex = (ps1:Pages, ps2:Pages):number => {
 export const diffHistory = (ps1:Pages, ps2:Pages):HistoryDiff => {
   const i:number = getFirstDifferenceIndex(ps1, ps2)
   return new HistoryDiff({
-    same: ps1.pages.slice(0, i),
-    removed: ps1.pages.slice(i),
-    added: ps2.pages.slice(i),
+    same: ps1.pages.slice(0, i).map(p => new Page(p)),  // map from VisitedPage
+    removed: ps1.pages.slice(i).map(p => new Page(p)),  // to plain Page
+    added: ps2.pages.slice(i).map(p => new Page(p)),
     oldCurrentIndex: ps1.activeIndex,
     newCurrentIndex: ps2.activeIndex
   })

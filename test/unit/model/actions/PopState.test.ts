@@ -1,9 +1,8 @@
 import State from '../../../../src/model/State'
 import * as fixtures from '../../fixtures'
 import PopState from '../../../../src/model/actions/PopState'
-import HistoryStack from '../../../../src/model/HistoryStack'
+import {HistoryStack} from '../../../../src/model/Pages'
 import {expect} from 'chai'
-import {createPage} from '../../fixtures'
 import Page from '../../../../src/model/Page'
 import PushStep from '../../../../src/model/steps/PushStep'
 import BackStep from '../../../../src/model/steps/BackStep'
@@ -53,21 +52,19 @@ describe('PopState action', () => {
       })
       const state:State = baseState
           .push(container1page, 5000)
+          .switchToContainer({groupName: 'Group 1', name: 'Container 2', time: 7500})
           .push(container2page, 10000)
       const action:PopState = new PopState({
-        n: -1,
+        n: -2,
         time: 15000
       })
       expect(action.addSteps([], state)).to.deep.equal([
-        new BackStep(1),
+        new BackStep(),
         new PushStep(new Page({
           url: '/a/1',
           params: {id: '1'},
           groupName: 'Group 1',
-          containerName: 'Container 1',
-          createdAt: 5000,
-          firstVisit: 5000,
-          lastVisit: 15000
+          containerName: 'Container 1'
         }))
       ])
     })
