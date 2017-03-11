@@ -56,9 +56,12 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
       'toContainer',
       'groupName',
       'containerName',
+      'activeClassName',
+      'className',
       'store',
       'onClick',
-      'isActive'
+      'isActive',
+      'storeSubscription'
     ], this.props)
     return (
       <a href={url}

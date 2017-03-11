@@ -67,7 +67,8 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
       'store',
       'isInitialized',
       'back',
-      'params'
+      'params',
+      'storeSubscription'
     ], this.props)
     if (backPage) {
       return (

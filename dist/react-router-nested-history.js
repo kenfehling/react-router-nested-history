@@ -18065,7 +18065,8 @@ var BackLink = (function (_super) {
             'store',
             'isInitialized',
             'back',
-            'params'
+            'params',
+            'storeSubscription'
         ], this.props), children = _a.children, backPage = _a.backPage, aProps = __rest(_a, ["children", "backPage"]);
         if (backPage) {
             return (React.createElement("a", __assign({ href: backPage.url, onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, aProps), children ?
@@ -18338,9 +18339,12 @@ var HeaderLink = (function (_super) {
             'toContainer',
             'groupName',
             'containerName',
+            'activeClassName',
+            'className',
             'store',
             'onClick',
-            'isActive'
+            'isActive',
+            'storeSubscription'
         ], this.props), children = _a.children, url = _a.url, aProps = __rest(_a, ["children", "url"]);
         return (React.createElement("a", __assign({ href: url, className: this.getClassName(), onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, aProps), children));
     };
@@ -18447,7 +18451,8 @@ var HistoryLink = (function (_super) {
             'groupName',
             'containerName',
             'store',
-            'push'
+            'push',
+            'storeSubscription'
         ], this.props), []);
         return (React.createElement("a", __assign({ href: this.getUrl(), onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, aProps), this.props.children));
     };

@@ -53,7 +53,8 @@ class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
       'groupName',
       'containerName',
       'store',
-      'push'
+      'push',
+      'storeSubscription'
     ], this.props)
     return (
       <a href={this.getUrl()}
