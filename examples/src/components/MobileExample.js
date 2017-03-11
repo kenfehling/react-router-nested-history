@@ -1,6 +1,7 @@
 import React, {PropTypes, Component } from 'react'
 import {
-  Container, WindowGroup, HistoryRoute, HistoryLink, HistoryWindow, BackLink
+  Container, WindowGroup, HistoryRoute, HistoryLink, HistoryWindow, BackLink,
+  HeaderLink
 } from 'react-router-nested-history'
 import Helmet from 'react-helmet'
 import './MobileExample.css'
@@ -63,16 +64,12 @@ const apps = [
   'PDF'
 ]
 
-const HomeScreenIcon = ({name, onClick}) => (
-  <div className='icon' onClick={onClick}>
-    {name}
-  </div>
-)
-
-const HomeScreen = ({onIconClick}) => (
+const HomeScreen = () => (
   <div className='home-screen'>
     {apps.map(app => (
-      <HomeScreenIcon key={app} name={app} onClick={() => onIconClick(app)} />
+      <HeaderLink key={app} className='icon' toContainer={app}>
+        {app}
+      </HeaderLink>
     ))}
   </div>
 )
@@ -87,30 +84,24 @@ export default () => (
       </p>
     </div>
     <WindowGroup name='mobile' allowInterContainerHistory={true}>
-      {({setCurrentContainerName}) => (
-        <div className='phone'>
-          <MobileWindow isDefault={true}
-                        name='Home'
-                        path='/mobile'
-                        pattern='/mobile'>
-            {() => (
-              <HomeScreen onIconClick={name => setCurrentContainerName(name)}/>
-            )}
+      <div className='phone'>
+        <MobileWindow isDefault={true}
+                      name='Home'
+                      path='/mobile'
+                      pattern='/mobile'>
+          <HomeScreen />
+        </MobileWindow>
+        {apps.map(app => (
+          <MobileWindow key={app} name={app}>
+            <MobilePage title={app}>
+              <div>{app}</div>
+              <p>
+                <HistoryLink to={`${toPath(app)}/Hello`}>Hello</HistoryLink>
+              </p>
+            </MobilePage>
           </MobileWindow>
-          {apps.map(app => (
-            <MobileWindow key={app} name={app}>
-              {() => (
-                <MobilePage title={app}>
-                  <div>{app}</div>
-                  <p>
-                    <HistoryLink to={`${toPath(app)}/Hello`}>Hello</HistoryLink>
-                  </p>
-                </MobilePage>
-              )}
-            </MobileWindow>
-          ))}
-        </div>
-      )}
+        ))}
+      </div>
     </WindowGroup>
   </div>
 )

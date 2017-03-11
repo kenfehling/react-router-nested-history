@@ -20,7 +20,6 @@ export interface StepRunnerProps {
 }
 
 type ConnectedStepRunnerProps = StepRunnerProps & {
-  browserHistory: HistoryStack
   popstate: (page:Page) => void
   actions: Action[],
   lastUpdate: number,
@@ -64,7 +63,7 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
 const mapStateToProps = ({state, actions}:IUpdateData<State, Action>) => ({
   actions,
   lastUpdate: state.lastUpdate,
-  browserHistory: state.browserHistory
+  pages: state.pages
 })
 
 const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
@@ -78,7 +77,7 @@ const mergeProps = (stateProps, dispatchProps,
 
   const popstate = (page: Page) => {
     dispatchProps.dispatch(new PopState({
-      n: stateProps.browserHistory.getShiftAmount(page)
+      n: stateProps.pages.getShiftAmount(page)
     }))
   }
   return {

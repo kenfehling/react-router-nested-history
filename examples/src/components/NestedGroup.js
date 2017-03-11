@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {
-  Container, ContainerGroup, WindowGroup, HistoryWindow, HistoryRoute, HeaderLink,
-  HistoryLink, BackLink
+  Container, ContainerGroup, WindowGroup, HistoryWindow, HistoryRoute,
+  HeaderLink, HistoryLink, BackLink
 } from 'react-router-nested-history'
 import './NestedGroup.css'
 import Helmet from 'react-helmet'

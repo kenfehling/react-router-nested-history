@@ -20715,7 +20715,7 @@ var mapStateToProps = function (_a) {
     return ({
         actions: actions,
         lastUpdate: state.lastUpdate,
-        browserHistory: state.browserHistory
+        pages: state.pages
     });
 };
 var mapDispatchToProps = function (dispatch, ownProps) { return ({
@@ -20725,7 +20725,7 @@ var mapDispatchToProps = function (dispatch, ownProps) { return ({
 var mergeProps = function (stateProps, dispatchProps, ownProps) {
     var popstate = function (page) {
         dispatchProps.dispatch(new PopState_1.default({
-            n: stateProps.browserHistory.getShiftAmount(page)
+            n: stateProps.pages.getShiftAmount(page)
         }));
     };
     return __assign({}, stateProps, dispatchProps, ownProps, { popstate: popstate });
@@ -20779,7 +20779,7 @@ var TitleSetter = (function (_super) {
     };
     return TitleSetter;
 }(react_1.Component));
-var mapStateToProps = function (state, ownProps) { return (__assign({}, ownProps, { browserHistory: state.state.browserHistory, activeTitle: state.state.activeTitle })); };
+var mapStateToProps = function (state, ownProps) { return (__assign({}, ownProps, { activeTitle: state.state.activeTitle })); };
 var ConnectedTitleSetter = react_redux_1.connect(mapStateToProps)(TitleSetter);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (_a) {

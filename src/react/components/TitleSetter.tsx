@@ -4,7 +4,6 @@ import {connect} from 'react-redux'
 import IUpdateData from '../../store/IUpdateData'
 import {Store} from '../../store/store'
 import {canUseWindowLocation} from '../../util/browserFunctions'
-import {HistoryStack} from '../../model/Pages'
 import State from '../../model/State'
 import Action from '../../model/BaseAction'
 
@@ -14,7 +13,6 @@ type TitleSetterPropsWithStore = {
 }
 
 type ConnectedTitleSetterProps = TitleSetterPropsWithStore & {
-  browserHistory: HistoryStack,
   activeTitle?: string|null
 }
 
@@ -38,7 +36,6 @@ const mapStateToProps = (state:IUpdateData<State, Action>,
                          ownProps:TitleSetterPropsWithStore):
                          ConnectedTitleSetterProps => ({
   ...ownProps,
-  browserHistory: state.state.browserHistory,
   activeTitle: state.state.activeTitle
 })
 
