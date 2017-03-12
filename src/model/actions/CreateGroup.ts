@@ -15,7 +15,7 @@ export default class CreateGroup extends NonStepAction {
   readonly gotoTopOnSelectActive: boolean
 
   constructor({time, name, allowInterContainerHistory=false,
-    parentGroupName=undefined, isDefault=parentGroupName?true:undefined,
+    parentGroupName=undefined, isDefault=parentGroupName?false:undefined,
     resetOnLeave=false, gotoTopOnSelectActive=false}:
     {time?:number, name:string, parentGroupName?:undefined, isDefault?:undefined,
       resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
