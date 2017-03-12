@@ -43,7 +43,7 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
 
   // Don't disappear when transitioning back to previous page
   shouldComponentUpdate(newProps) {
-    return true //!this.props.isInitialized && newProps.isInitialized
+    return false
   }
 
   onClick(event) {

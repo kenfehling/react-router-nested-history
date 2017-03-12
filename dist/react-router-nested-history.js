@@ -18131,7 +18131,7 @@ var BackLink = (function (_super) {
     };
     // Don't disappear when transitioning back to previous page
     BackLink.prototype.shouldComponentUpdate = function (newProps) {
-        return true; //!this.props.isInitialized && newProps.isInitialized
+        return false;
     };
     BackLink.prototype.onClick = function (event) {
         var back = this.props.back;
