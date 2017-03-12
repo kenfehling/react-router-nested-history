@@ -7,16 +7,18 @@ import DumbHistoryRouter from './DumbHistoryRouter'
 import cloneElement = React.cloneElement
 import IUpdateData from '../../store/IUpdateData'
 import Startup from '../../model/actions/Startup'
-import * as browser from '../../util/browserFunctions'
+import {
+  wasLoadedFromRefresh, canUseWindowLocation
+} from '../../util/browserFunctions'
 import InitializedState from '../../model/InitializedState'
 import LoadFromUrl from '../../model/actions/LoadFromUrl'
 import SetZeroPage from '../../model/actions/SetZeroPage'
-import {canUseWindowLocation} from '../../util/browserFunctions'
 import StepRunner from './StepRunner'
 import TitleSetter from './TitleSetter'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import UninitializedState from '../../model/UninitializedState'
+import Refresh from '../../model/actions/Refresh'
 declare const window:any
 
 export interface HistoryRouterProps {
@@ -35,7 +37,9 @@ type RouterPropsWithStore = HistoryRouterProps & {
 
 type ConnectedRouterProps = RouterPropsWithStore & {
   isInitialized: boolean
+  loadedFromRefresh: boolean
   startup: () => void
+  refresh: () => void
   loadFromUrl: (url:string) => void
   setZeroPage: (url:string) => void
 }
@@ -47,49 +51,53 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
 
   constructor(props) {
     super(props)
-    const {
-      store,
-      zeroPage,
-      setZeroPage,
-      startup,
-    } = this.props
+    const {loadedFromRefresh, refresh} = this.props
+    if (loadedFromRefresh) {
+      refresh()
+    }
+    else {
+      this.initialize()
+    }
+  }
 
+  initialize() {
+    const {zeroPage, setZeroPage, startup} = this.props
     if (zeroPage) {
       setZeroPage(zeroPage)
     }
     startup()
 
     /*
-    class R extends Component<{children: ReactNode}, undefined> {
-      static childContextTypes = {
-        rrnhStore: PropTypes.object.isRequired,
-        initializing: PropTypes.bool,
-        router: PropTypes.object,
-      }
+     class R extends Component<{children: ReactNode}, undefined> {
+       static childContextTypes = {
+         rrnhStore: PropTypes.object.isRequired,
+         initializing: PropTypes.bool,
+         router: PropTypes.object,
+       }
 
-      getChildContext() {
-        return {
-          rrnhStore: store,
-          initializing: true,
-          router: {
-            location: {pathname: '/'},
-            listen: () => {},
-            push: () => {},
-            replace: () => {}
-          }
-        }
-      }
+       getChildContext() {
+         return {
+           rrnhStore: store,
+           initializing: true,
+           router: {
+           location: {pathname: '/'},
+           listen: () => {},
+           push: () => {},
+           replace: () => {}
+           }
+         }
+       }
 
-      render() {
-        return <div>{this.props.children}</div>
-      }
-    }
+       render() {
+         return <div>{this.props.children}</div>
+       }
+     }
 
-    // Initialize the ContainerGroups
-    // (since most tab libraries lazy load tabs)
-    const cs = getChildren(this, [ContainerGroup, DumbContainerGroup, WindowGroup])
-    cs.forEach(c => renderToStaticMarkup(<R children={c} />))
-    */
+     // Initialize the ContainerGroups
+     // (since most tab libraries lazy load tabs)
+     const cs = getChildren(this, [ContainerGroup, DumbContainerGroup, WindowGroup])
+     cs.forEach(c => renderToStaticMarkup(<R children={c} />))
+     */
   }
 
   componentDidMount() {
@@ -138,18 +146,15 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
 }
 
 const mapStateToProps = (state:IUpdateData<State, Action>) => ({
-  isInitialized: state.state instanceof InitializedState
+  isInitialized: state.state instanceof InitializedState,
+  loadedFromRefresh: wasLoadedFromRefresh
 })
 
 const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:RouterPropsWithStore) => ({
-  startup: () => dispatch(new Startup({
-    fromRefresh: browser.wasLoadedFromRefresh
-  })),
-  loadFromUrl: (url:string) => dispatch(new LoadFromUrl({
-    url,
-    fromRefresh: browser.wasLoadedFromRefresh
-  })),
+  startup: () => dispatch(new Startup()),
+  loadFromUrl: (url:string) => dispatch(new LoadFromUrl({url})),
+  refresh: () => dispatch(new Refresh()),
   setZeroPage: (url:string) => dispatch(new SetZeroPage({url}))
 })
 
@@ -168,7 +173,8 @@ const ConnectedHistoryRouter = connect(
 
 export default (props:HistoryRouterProps) => (
   <ConnectedHistoryRouter
-    {...props} store={createStore<State, Action>({
-                      persist: browser.wasLoadedFromRefresh,
-                      initialState: new UninitializedState()})} />
+    {...props}
+    store={createStore<State, Action>({
+            persist: wasLoadedFromRefresh,
+            initialState: new UninitializedState()})} />
 )

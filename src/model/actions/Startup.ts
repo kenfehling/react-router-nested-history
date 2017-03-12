@@ -1,4 +1,4 @@
-import Action, {SYSTEM} from '../BaseAction'
+import {SYSTEM} from '../BaseAction'
 import State from '../State'
 import NonStepAction from './NonStepAction'
 import Serializable from '../../store/decorators/Serializable'
@@ -19,14 +19,5 @@ export default class Startup extends NonStepAction {
       loadedFromRefresh: this.fromRefresh,
       lastUpdate: this.fromRefresh ? this.time : state.lastUpdate
     })
-  }
-
-  store(actions:Action[]):Action[] {
-    if (this.fromRefresh) {
-      return actions
-    }
-    else {
-      return super.store(actions)
-    }
   }
 }

@@ -39,6 +39,10 @@ export function createStore<S extends IState, A extends Action>(
     }
   }
 
+  function updateListeners():void {
+    listeners.forEach(fn => fn())
+  }
+
   function init():void {
     if (persist) {
       loadActions()
@@ -54,7 +58,7 @@ export function createStore<S extends IState, A extends Action>(
       timeStored = 0
       storedState = initialState
     }
-    listeners.forEach(fn => fn())
+    updateListeners()
     if (store.enabled) {  // if can use localStorage
       store.set('actions', actions.map(a => serialize(a)))
     }
