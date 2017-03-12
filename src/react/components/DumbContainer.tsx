@@ -99,6 +99,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'isDefault',
       'isInitialized',
       'createContainer',
+      'loadedFromRefresh',
       'storeSubscription'
     ], this.props)
     if (!hideInactiveContainers || matchesLocation) {

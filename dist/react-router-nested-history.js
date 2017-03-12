@@ -1043,14 +1043,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1080,9 +1072,6 @@ var BaseAction = (function (_super) {
     BaseAction.prototype.addSteps = function (steps, state) {
         var newState = this.reduce(state);
         return steps.concat(reconciler_1.diffPagesToSteps(state.pages, newState.pages));
-    };
-    BaseAction.prototype.updateAfterRefresh = function (time) {
-        return this.constructor(__assign({}, Object(this), { time: time }));
     };
     return BaseAction;
 }(Action_1.default));
@@ -10757,7 +10746,13 @@ var InnerContainerGroup = (function (_super) {
     __extends(InnerContainerGroup, _super);
     function InnerContainerGroup(props) {
         var _this = _super.call(this, props) || this;
-        var _a = _this.props, name = _a.name, resetOnLeave = _a.resetOnLeave, allowInterContainerHistory = _a.allowInterContainerHistory, gotoTopOnSelectActive = _a.gotoTopOnSelectActive, createGroup = _a.createGroup, parentGroupName = _a.parentGroupName, isDefault = _a.isDefault;
+        if (!props.loadedFromRefresh) {
+            _this.initialize();
+        }
+        return _this;
+    }
+    InnerContainerGroup.prototype.initialize = function () {
+        var _a = this.props, name = _a.name, resetOnLeave = _a.resetOnLeave, allowInterContainerHistory = _a.allowInterContainerHistory, gotoTopOnSelectActive = _a.gotoTopOnSelectActive, createGroup = _a.createGroup, parentGroupName = _a.parentGroupName, isDefault = _a.isDefault;
         createGroup(new CreateGroup_1.default({
             name: name,
             parentGroupName: parentGroupName,
@@ -10766,36 +10761,35 @@ var InnerContainerGroup = (function (_super) {
             allowInterContainerHistory: allowInterContainerHistory,
             gotoTopOnSelectActive: gotoTopOnSelectActive
         }));
-        return _this;
         /*
-        class G extends Component<{children: ReactNode}, undefined> {
-          static childContextTypes = {
-            rrnhStore: PropTypes.object.isRequired,
-            groupName: PropTypes.string.isRequired,
-            initializing: PropTypes.bool
-          }
+         class G extends Component<{children: ReactNode}, undefined> {
+         static childContextTypes = {
+         rrnhStore: PropTypes.object.isRequired,
+         groupName: PropTypes.string.isRequired,
+         initializing: PropTypes.bool
+         }
     
-          getChildContext() {
-            return {
-              rrnhStore: store,
-              groupName: name,
-              initializing: true
-            }
-          }
+         getChildContext() {
+         return {
+         rrnhStore: store,
+         groupName: name,
+         initializing: true
+         }
+         }
     
-          render() {
-            const {children} = this.props
-            return <div>{children}</div>
-          }
-        }
+         render() {
+         const {children} = this.props
+         return <div>{children}</div>
+         }
+         }
     
-        // Initialize the Containers in this group
-        // (since most tab libraries lazy load tabs)
-        const cs = getChildren(this, [Container, DumbContainer],
-                                     [ContainerGroup, DumbContainerGroup, WindowGroup])
-        cs.forEach(c => renderToStaticMarkup(<G children={c} />))
-        */
-    }
+         // Initialize the Containers in this group
+         // (since most tab libraries lazy load tabs)
+         const cs = getChildren(this, [Container, DumbContainer],
+         [ContainerGroup, DumbContainerGroup, WindowGroup])
+         cs.forEach(c => renderToStaticMarkup(<G children={c} />))
+         */
+    };
     InnerContainerGroup.prototype.render = function () {
         return React.createElement(DumbContainerGroup_1.default, __assign({}, this.props));
     };
@@ -10806,6 +10800,7 @@ var mapStateToProps = function (_a, ownProps) {
     var name = ownProps.name;
     var isInitialized = state instanceof InitializedState_1.default;
     return {
+        loadedFromRefresh: state.loadedFromRefresh,
         storedStackOrder: state.getContainerStackOrderForGroup(name),
         storedCurrentContainerIndex: state.getActiveContainerIndexInGroup(name),
         storedCurrentContainerName: isInitialized ?
@@ -18192,7 +18187,13 @@ var InnerContainer = (function (_super) {
     __extends(InnerContainer, _super);
     function InnerContainer(props) {
         var _this = _super.call(this, props) || this;
-        var _a = _this.props, store = _a.store, children = _a.children, name = _a.name, patterns = _a.patterns, initialUrl = _a.initialUrl, _b = _a.animate, animate = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, createContainer = _a.createContainer, groupName = _a.groupName, _d = _a.initializing, initializing = _d === void 0 ? false : _d, _e = _a.isDefault, isDefault = _e === void 0 ? false : _e;
+        if (!props.loadedFromRefresh) {
+            _this.initialize();
+        }
+        return _this;
+    }
+    InnerContainer.prototype.initialize = function () {
+        var _a = this.props, store = _a.store, children = _a.children, name = _a.name, patterns = _a.patterns, initialUrl = _a.initialUrl, _b = _a.animate, animate = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, createContainer = _a.createContainer, groupName = _a.groupName, _d = _a.initializing, initializing = _d === void 0 ? false : _d, _e = _a.isDefault, isDefault = _e === void 0 ? false : _e;
         createContainer(new CreateContainer_1.default({
             name: name,
             groupName: groupName,
@@ -18224,10 +18225,9 @@ var InnerContainer = (function (_super) {
             }(react_1.Component));
             T.childContextTypes = __assign({}, DumbContainer_1.default.childContextTypes, { rrnhStore: react_1.PropTypes.object.isRequired });
             server_1.renderToStaticMarkup(React.createElement(T, null));
-            _this.addTitleForPath(initialUrl);
+            this.addTitleForPath(initialUrl);
         }
-        return _this;
-    }
+    };
     InnerContainer.prototype.addTitleForPath = function (pathname) {
         var addTitle = this.props.addTitle;
         if (ExecutionEnvironment_1.canUseDOM) {
@@ -18280,6 +18280,7 @@ var mapStateToProps = function (_a, ownProps) {
     var isInitialized = state instanceof InitializedState_1.default;
     return {
         isInitialized: isInitialized,
+        loadedFromRefresh: state.loadedFromRefresh,
         pathname: isInitialized ? state.activeUrl : null,
         matchesLocation: isInitialized ?
             matchesLocation(state, ownProps.groupName, ownProps.patterns) : false
@@ -19848,8 +19849,7 @@ var CreateContainer = CreateContainer_1 = (function (_super) {
         });
     };
     CreateContainer.prototype.filter = function (state) {
-        return state.getGroupByName(this.groupName)
-            .hasContainerWithName(this.name) ? [] : [this];
+        return state.loadedFromRefresh ? [] : [this];
     };
     return CreateContainer;
 }(BaseAction_1.default));
@@ -19921,7 +19921,7 @@ var CreateGroup = CreateGroup_1 = (function (_super) {
         }
     };
     CreateGroup.prototype.filter = function (state) {
-        return state.hasGroupWithName(this.name) ? [] : [this];
+        return state.loadedFromRefresh ? [] : [this];
     };
     return CreateGroup;
 }(NonStepAction_1.default));
@@ -19992,14 +19992,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -20027,9 +20019,6 @@ var LoadFromUrl = LoadFromUrl_1 = (function (_super) {
         _this.fromRefresh = fromRefresh;
         return _this;
     }
-    LoadFromUrl.prototype.updateAfterRefresh = function (time) {
-        return new LoadFromUrl_1(__assign({}, Object(this), { time: time, fromRefresh: true }));
-    };
     LoadFromUrl.prototype.reduce = function (state) {
         return this.fromRefresh ? new InitializedState_1.default(state) :
             load(state, this.url, this.time);
@@ -20109,14 +20098,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -20138,9 +20119,6 @@ var Startup = Startup_1 = (function (_super) {
         _this.fromRefresh = fromRefresh;
         return _this;
     }
-    Startup.prototype.updateAfterRefresh = function (time) {
-        return new Startup_1(__assign({}, Object(this), { time: time, fromRefresh: true }));
-    };
     Startup.prototype.reduce = function (state) {
         return state.assign({
             loadedFromRefresh: this.fromRefresh,
@@ -20148,9 +20126,8 @@ var Startup = Startup_1 = (function (_super) {
         });
     };
     Startup.prototype.store = function (actions) {
-        var _this = this;
         if (this.fromRefresh) {
-            return actions.map(function (a) { return a.updateAfterRefresh(_this.time); }).slice();
+            return actions;
         }
         else {
             return _super.prototype.store.call(this, actions);
@@ -20510,6 +20487,7 @@ var DumbContainer = (function (_super) {
             'isDefault',
             'isInitialized',
             'createContainer',
+            'loadedFromRefresh',
             'storeSubscription'
         ], this.props), hideInactiveContainers = _a.hideInactiveContainers, children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, switchToGroup = _a.switchToGroup, matchesLocation = _a.matchesLocation, divProps = __rest(_a, ["hideInactiveContainers", "children", "style", "switchToGroup", "matchesLocation"]);
         if (!hideInactiveContainers || matchesLocation) {
@@ -20642,6 +20620,7 @@ var DumbContainerGroup = (function (_super) {
             'isDefault',
             'parentGroupName',
             'allowInterContainerHistory',
+            'loadedFromRefresh',
             'storeSubscription'
         ], this.props), _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["style"]);
         var divStyle = __assign({}, style, { width: '100%', height: '100%', position: 'inherit', overflow: 'hidden' });

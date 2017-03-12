@@ -14,10 +14,6 @@ export default class Startup extends NonStepAction {
     this.fromRefresh = fromRefresh
   }
 
-  updateAfterRefresh(time:number):Startup {
-    return new Startup({...Object(this), time, fromRefresh: true})
-  }
-
   reduce(state:State):State {
     return state.assign({
       loadedFromRefresh: this.fromRefresh,
@@ -27,7 +23,7 @@ export default class Startup extends NonStepAction {
 
   store(actions:Action[]):Action[] {
     if (this.fromRefresh) {
-      return [...actions.map(a => a.updateAfterRefresh(this.time))]
+      return actions
     }
     else {
       return super.store(actions)

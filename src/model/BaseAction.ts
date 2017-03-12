@@ -31,10 +31,6 @@ abstract class BaseAction extends Action {
       )
     ]
   }
-
-  updateAfterRefresh<A extends BaseAction>(time:number):A {
-    return this.constructor({...Object(this), time}) as A
-  }
 }
 
 export interface Origin {}

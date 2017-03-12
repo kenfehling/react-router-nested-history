@@ -38,11 +38,19 @@ type ConnectedGroupProps = GroupPropsWithStore & {
   storedCurrentContainerName: string|null
   switchToContainerIndex: (index:number) => void
   switchToContainerName: (name:string) => void
+  loadedFromRefresh: boolean
 }
 
 class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
+
   constructor(props) {
     super(props)
+    if (!props.loadedFromRefresh) {
+      this.initialize()
+    }
+  }
+
+  initialize() {
     const {
       name,
       resetOnLeave,
@@ -63,33 +71,33 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
     }))
 
     /*
-    class G extends Component<{children: ReactNode}, undefined> {
-      static childContextTypes = {
-        rrnhStore: PropTypes.object.isRequired,
-        groupName: PropTypes.string.isRequired,
-        initializing: PropTypes.bool
-      }
+     class G extends Component<{children: ReactNode}, undefined> {
+     static childContextTypes = {
+     rrnhStore: PropTypes.object.isRequired,
+     groupName: PropTypes.string.isRequired,
+     initializing: PropTypes.bool
+     }
 
-      getChildContext() {
-        return {
-          rrnhStore: store,
-          groupName: name,
-          initializing: true
-        }
-      }
+     getChildContext() {
+     return {
+     rrnhStore: store,
+     groupName: name,
+     initializing: true
+     }
+     }
 
-      render() {
-        const {children} = this.props
-        return <div>{children}</div>
-      }
-    }
+     render() {
+     const {children} = this.props
+     return <div>{children}</div>
+     }
+     }
 
-    // Initialize the Containers in this group
-    // (since most tab libraries lazy load tabs)
-    const cs = getChildren(this, [Container, DumbContainer],
-                                 [ContainerGroup, DumbContainerGroup, WindowGroup])
-    cs.forEach(c => renderToStaticMarkup(<G children={c} />))
-    */
+     // Initialize the Containers in this group
+     // (since most tab libraries lazy load tabs)
+     const cs = getChildren(this, [Container, DumbContainer],
+     [ContainerGroup, DumbContainerGroup, WindowGroup])
+     cs.forEach(c => renderToStaticMarkup(<G children={c} />))
+     */
   }
 
   render() {
@@ -102,6 +110,7 @@ const mapStateToProps = ({state}:IUpdateData<State, Action>,
   const {name} = ownProps
   const isInitialized = state instanceof InitializedState
   return {
+    loadedFromRefresh: state.loadedFromRefresh,
     storedStackOrder: state.getContainerStackOrderForGroup(name),
     storedCurrentContainerIndex: state.getActiveContainerIndexInGroup(name),
     storedCurrentContainerName: isInitialized ?

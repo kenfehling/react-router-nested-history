@@ -54,6 +54,6 @@ export default class CreateGroup extends NonStepAction {
   }
 
   filter(state:State):Action[] {
-    return state.hasGroupWithName(this.name) ? [] : [this]
+    return state.loadedFromRefresh ? [] : [this]
   }
 }

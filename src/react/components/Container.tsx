@@ -39,23 +39,20 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
   pathname: string
   addTitle: (title:PathTitle) => any
   isInitialized: boolean
+  loadedFromRefresh: boolean
   matchesLocation: boolean
   switchToGroup: () => void
 }
 
 class InnerContainer extends Component<ConnectedContainerProps, undefined> {
-  addTitleForPath(pathname:string) {
-    const {addTitle} = this.props
-    if (canUseDOM) {
-      addTitle({
-        pathname,
-        title: document.title
-      })
+  constructor(props) {
+    super(props)
+    if (!props.loadedFromRefresh) {
+      this.initialize()
     }
   }
 
-  constructor(props) {
-    super(props)
+  initialize() {
     const {
       store,
       children,
@@ -107,6 +104,16 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
     }
   }
 
+  addTitleForPath(pathname:string) {
+    const {addTitle} = this.props
+    if (canUseDOM) {
+      addTitle({
+        pathname,
+        title: document.title
+      })
+    }
+  }
+
   componentDidUpdate() {
     const {patterns, pathname} = this.props
     if (pathname) {
@@ -152,6 +159,7 @@ const mapStateToProps = ({state}:IUpdateData<State, Action>,
   const isInitialized:boolean = state instanceof InitializedState
   return {
     isInitialized: isInitialized,
+    loadedFromRefresh: state.loadedFromRefresh,
     pathname: isInitialized ? state.activeUrl : null,
     matchesLocation: isInitialized ?
         matchesLocation(state, ownProps.groupName, ownProps.patterns) : false

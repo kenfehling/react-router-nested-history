@@ -39,7 +39,6 @@ export default class CreateContainer extends Action {
   }
 
   filter(state:State):Action[] {
-    return state.getGroupByName(this.groupName)
-        .hasContainerWithName(this.name) ? [] : [this]
+    return state.loadedFromRefresh ? [] : [this]
   }
 }

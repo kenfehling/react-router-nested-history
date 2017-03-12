@@ -85,8 +85,7 @@ export function createStore<S extends IState, A extends Action>(
         storedState = deriveState(actions, initialState)      // Just derive all
       }
       else {
-        const newActions:Action[] =
-          actions.filter(a => a.time > timeStored)
+        const newActions:Action[] = actions.filter(a => a.time > timeStored)
         storedState = deriveState(newActions, storedState)
         timeStored = lastTime
       }
