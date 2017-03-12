@@ -18,7 +18,8 @@ export function deriveState<S extends IState>(actions:Action[], state:S):S {
 }
 
 export function createStore<S extends IState, A extends Action>(
-    {persist, initialState}:{persist:boolean, initialState:S}) {
+    {loadFromPersist=false, initialState}:
+      {loadFromPersist:boolean, initialState:S}) {
   let actions: A[] = []
   let storedState: S = initialState
   let timeStored: number = 0
@@ -44,7 +45,7 @@ export function createStore<S extends IState, A extends Action>(
   }
 
   function init():void {
-    if (persist) {
+    if (loadFromPersist) {
       loadActions()
     }
     else {

@@ -1,5 +1,4 @@
 import * as pathToRegexp from 'path-to-regexp'
-import {createLocation} from 'history/LocationUtils'
 import matchPath from 'react-router/matchPath'
 import * as R from 'ramda'
 

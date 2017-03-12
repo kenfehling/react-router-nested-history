@@ -14,7 +14,6 @@ import {
   createStepsSince, diffToSteps, HistoryDiff, diffHistory
 } from '../../../src/util/reconciler'
 import GoStep from '../../../src/model/steps/GoStep'
-import Startup from '../../../src/model/actions/Startup'
 import {
   createGroup1, createContainers1, createContainers3, createContainers2,
   createGroup2, createGroup3, createSubGroup1, createSubGroup2, createSubGroup3
@@ -34,8 +33,7 @@ describe('action utils', () => {
     new SetZeroPage({
       url: zero.url,
       time: 1000
-    }),
-    new Startup({time: 1000})
+    })
   ]
   const originalSimpleActions:Action[] = [
     ...baseActions,

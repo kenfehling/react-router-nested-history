@@ -3,8 +3,8 @@ import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
 
 abstract class IHistory {
-  abstract getBackPage(n:number): Page|undefined
-  abstract getForwardPage(n:number): Page|undefined
+  abstract getBackPage(): Page|undefined
+  abstract getForwardPage(): Page|undefined
   abstract canGoBack(n: number): boolean
   abstract canGoForward(n: number): boolean
   abstract get firstManualVisit(): PageVisit|null

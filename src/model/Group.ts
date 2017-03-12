@@ -392,36 +392,16 @@ export default class Group implements IContainer {
       n, time)
   }
 
-  /*
-  forward(n:number=1, time):Group {
-    if (this.canGoForward(n)) {
-      return this.updatePages(this.pages.forward(n, time))
-    }
-    else {
-      throw new Error('Cannot go forward ' + n)
-    }
-  }
-
-  back(n:number=1, time):Group {
-    if (this.canGoBack(n)) {
-      return this.updatePages(this.pages.back(n, time))
-    }
-    else {
-      throw new Error('Cannot go back ' + n)
-    }
-  }
-  */
-
   go(n:number, time):Group {
     return n > 0 ? this.forward(n, time) : this.back(0 - n, time)
   }
 
-  getBackPage(n:number=1):Page|undefined {
-    return this.pages.getBackPage(n)
+  getBackPage():Page|undefined {
+    return R.last(this.backPages)
   }
 
-  getForwardPage(n:number=1):Page|undefined {
-    return this.pages.getForwardPage(n)
+  getForwardPage():Page|undefined {
+    return this.forwardPages[0]
   }
 
   canGoBack(n:number=1):boolean {

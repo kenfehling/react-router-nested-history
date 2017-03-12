@@ -6,7 +6,6 @@ import {createStore, Store} from '../../store/store'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import cloneElement = React.cloneElement
 import IUpdateData from '../../store/IUpdateData'
-import Startup from '../../model/actions/Startup'
 import {
   wasLoadedFromRefresh, canUseWindowLocation
 } from '../../util/browserFunctions'
@@ -38,7 +37,6 @@ type RouterPropsWithStore = HistoryRouterProps & {
 type ConnectedRouterProps = RouterPropsWithStore & {
   isInitialized: boolean
   loadedFromRefresh: boolean
-  startup: () => void
   refresh: () => void
   loadFromUrl: (url:string) => void
   setZeroPage: (url:string) => void
@@ -61,11 +59,10 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
   }
 
   initialize() {
-    const {zeroPage, setZeroPage, startup} = this.props
+    const {zeroPage, setZeroPage} = this.props
     if (zeroPage) {
       setZeroPage(zeroPage)
     }
-    startup()
 
     /*
      class R extends Component<{children: ReactNode}, undefined> {
@@ -152,7 +149,6 @@ const mapStateToProps = (state:IUpdateData<State, Action>) => ({
 
 const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
                             ownProps:RouterPropsWithStore) => ({
-  startup: () => dispatch(new Startup()),
   loadFromUrl: (url:string) => dispatch(new LoadFromUrl({url})),
   refresh: () => dispatch(new Refresh()),
   setZeroPage: (url:string) => dispatch(new SetZeroPage({url}))
@@ -175,6 +171,6 @@ export default (props:HistoryRouterProps) => (
   <ConnectedHistoryRouter
     {...props}
     store={createStore<State, Action>({
-            persist: wasLoadedFromRefresh,
+            loadFromPersist: wasLoadedFromRefresh,
             initialState: new UninitializedState()})} />
 )

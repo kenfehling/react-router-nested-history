@@ -151,12 +151,12 @@ export default class Container implements IContainer {
     return this.pages.activePage
   }
 
-  getBackPage(n:number=1):Page|undefined {
-    return this.pages.getBackPage(n)
+  getBackPage():Page|undefined {
+    return this.pages.getBackPage()
   }
 
-  getForwardPage(n:number=1):Page|undefined {
-    return this.pages.getForwardPage(n)
+  getForwardPage():Page|undefined {
+    return this.pages.getForwardPage()
   }
 
   get backPages():Page[] {

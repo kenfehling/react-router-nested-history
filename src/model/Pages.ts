@@ -20,7 +20,7 @@ export default class Pages implements IHistory {
       current: this.activePage,
       forward: firstVisited
                 .slice(currentIndex + 1)
-                .filter(p => p.wasManuallyVisited)
+                .filter((p:VisitedPage) => p.wasManuallyVisited)
     })
   }
 
@@ -135,12 +135,12 @@ export default class Pages implements IHistory {
     return this.length - this.activeIndex - 1
   }
 
-  getBackPage(n:number=1):Page|undefined {
-    return this.pages[this.activeIndex - n]
+  getBackPage():Page|undefined {
+    return this.pages[this.activeIndex - 1]
   }
 
-  getForwardPage(n:number=1):Page|undefined {
-    return this.pages[this.activeIndex + n]
+  getForwardPage():Page|undefined {
+    return this.pages[this.activeIndex + 1]
   }
 
   shiftTo(page:Page, time:number):Pages {

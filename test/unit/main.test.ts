@@ -16,7 +16,6 @@ import Back from '../../src/model/actions/Back'
 import Top from '../../src/model/actions/Top'
 import PopState from '../../src/model/actions/PopState'
 import UpdateBrowser from '../../src/model/actions/UpdateBrowser'
-import Startup from '../../src/model/actions/Startup'
 import ClearActions from '../../src/store/actions/ClearActions'
 import SwitchToGroup from '../../src/model/actions/SwitchToGroup'
 import {runSteps} from '../../src/util/stepRunner'
@@ -26,14 +25,13 @@ import UninitializedState from '../../src/model/UninitializedState'
 import BaseAction from '../../src/model/BaseAction'
 import {createStepsSince} from '../../src/util/reconciler'
 import {USER} from '../../src/model/BaseAction'
-import {HistoryStack} from '../../src/model/Pages'
 declare const describe:any
 declare const it:any
 declare const beforeEach:any
 declare const afterEach:any
 
 const makeNewStore = () => createStore<State, BaseAction>({
-  persist: false,
+  loadFromPersist: false,
   initialState: new UninitializedState()
 })
 
@@ -55,7 +53,6 @@ describe('main', () => {
 
     it('cleans history when reloading', () => {
       dispatchAll([
-        new Startup({time: 0}),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -78,7 +75,6 @@ describe('main', () => {
 
     it('loads to a non-default page', () => {
       dispatchAll([
-        new Startup({time: 0}),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -107,7 +103,6 @@ describe('main', () => {
 
     it('switches to container', () => {
       dispatchAll([
-        new Startup({time: 0}),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -149,7 +144,6 @@ describe('main', () => {
 
     it('switches to container with resetOnLeave', () => {
       dispatchAll([
-        new Startup({time: 0}),
         createGroup3,
         ...createContainers3,
         new LoadFromUrl({
@@ -198,7 +192,6 @@ describe('main', () => {
     
     it('pushes in a different group', () => {
       dispatchAll([
-        new Startup({time: 0}),
         createGroup1,
         createGroup2,
         ...createContainers1,
@@ -239,7 +232,6 @@ describe('main', () => {
 
     it('handles popstate after container switch', () => {
       dispatchAll([
-        new Startup({time: 0}),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -316,7 +308,6 @@ describe('main', () => {
 
     it('loads the initial page', async () => {
       await run([
-        new Startup({time: 0}),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -333,7 +324,6 @@ describe('main', () => {
     /*
     it('reloads the initial page', async () => {
       await run([
-        new Startup({time: 0}),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -354,9 +344,6 @@ describe('main', () => {
 
     it('reloads the initial page (from refresh)', async () => {
       await run([
-        new Startup({
-          time: 1000
-        }),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -367,10 +354,6 @@ describe('main', () => {
           url: '/a',
           time: 2000
         }),
-        new Startup({
-          fromRefresh: true,
-          time: 3000,
-        }),
       ]).then(({entries}) => {
         expect(entries.length).to.equal(0)
       })
@@ -379,7 +362,6 @@ describe('main', () => {
 
     it('push', async () => {
       await run([
-        new Startup({time: 0}),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -409,7 +391,6 @@ describe('main', () => {
     /*
     it('handles popstate after container switch', async () => {
      await run([
-        new Startup({time: 0}),
         createGroup,
         ...createContainers,
         new LoadFromUrl({
@@ -439,7 +420,6 @@ describe('main', () => {
 
     it('pushes to different container', async () => {
       await run([
-        new Startup({time: 0}),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -475,7 +455,6 @@ describe('main', () => {
 
     it('pushes in a different group', async () => {
       await run([
-        new Startup({time: 0}),
         createGroup1,
         createGroup2,
         ...createContainers1,
@@ -511,7 +490,6 @@ describe('main', () => {
 
     it('goes back', async () => {
       await run([
-        new Startup({time: 0}),
         createGroup1,
         ...createContainers1,
         new LoadFromUrl({
@@ -554,7 +532,6 @@ describe('main', () => {
 
     it('switches to container with resetOnLeave', async () => {
       await run([
-        new Startup({time: 0}),
         createGroup3,
         ...createContainers3,
         new LoadFromUrl({
@@ -609,7 +586,6 @@ describe('main', () => {
     describe('UpdateBrowser action', () => {
       it('prevents running old actions', async() => {
         await run([
-          new Startup({time: 0}),
           createGroup1,
           ...createContainers1,
           new LoadFromUrl({
@@ -652,7 +628,6 @@ describe('main', () => {
     describe('while on zero page', () => {
       it('does a double push', async () => {
         await run([
-          new Startup({time: 0}),
           createGroup1,
           ...createContainers1,
           new LoadFromUrl({
@@ -686,7 +661,6 @@ describe('main', () => {
 
       it('does a push before a switch', async() => {
         await run([
-          new Startup({time: 0}),
           createGroup1,
           ...createContainers1,
           new LoadFromUrl({
