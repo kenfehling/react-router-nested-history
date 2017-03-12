@@ -11099,8 +11099,14 @@ var State = (function () {
             }
         }
     };
+    State.prototype.disallowDuplicateName = function (name) {
+        if (this.hasGroupOrContainerWithName(name)) {
+            throw new Error("A group or container with name: '" + name + "' already exists");
+        }
+    };
     State.prototype.addTopLevelGroup = function (_a) {
         var name = _a.name, _b = _a.resetOnLeave, resetOnLeave = _b === void 0 ? false : _b, _c = _a.allowInterContainerHistory, allowInterContainerHistory = _c === void 0 ? false : _c, _d = _a.gotoTopOnSelectActive, gotoTopOnSelectActive = _d === void 0 ? false : _d;
+        this.disallowDuplicateName(name);
         var group = new Group_1.default({
             name: name,
             resetOnLeave: resetOnLeave,
@@ -11113,6 +11119,7 @@ var State = (function () {
     };
     State.prototype.addSubGroup = function (_a) {
         var name = _a.name, parentGroupName = _a.parentGroupName, _b = _a.isDefault, isDefault = _b === void 0 ? false : _b, _c = _a.allowInterContainerHistory, allowInterContainerHistory = _c === void 0 ? false : _c, _d = _a.resetOnLeave, resetOnLeave = _d === void 0 ? false : _d, _e = _a.gotoTopOnSelectActive, gotoTopOnSelectActive = _e === void 0 ? false : _e;
+        this.disallowDuplicateName(name);
         var group = new Group_1.default({
             name: name,
             resetOnLeave: resetOnLeave,
@@ -11125,6 +11132,7 @@ var State = (function () {
     };
     State.prototype.addContainer = function (_a) {
         var time = _a.time, name = _a.name, groupName = _a.groupName, initialUrl = _a.initialUrl, _b = _a.isDefault, isDefault = _b === void 0 ? false : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, patterns = _a.patterns;
+        this.disallowDuplicateName(name);
         var group = this.getGroupByName(groupName);
         var container = new Container_1.default({
             time: time,
@@ -11159,6 +11167,22 @@ var State = (function () {
             }
         }
     };
+    State.prototype.getContainerByName = function (name) {
+        var foundContainer = null;
+        this.groups.forEach(function (group) {
+            var c = group.getNestedContainerByName(name);
+            if (c) {
+                foundContainer = c;
+                return;
+            }
+        });
+        if (foundContainer) {
+            return foundContainer;
+        }
+        else {
+            throw new Error('Container \'' + name + '\' not found');
+        }
+    };
     Object.defineProperty(State.prototype, "browserHistory", {
         get: function () {
             return this.getHistory(false);
@@ -11181,6 +11205,18 @@ var State = (function () {
         catch (e) {
             return false;
         }
+    };
+    State.prototype.hasContainerWithName = function (name) {
+        try {
+            this.getContainerByName(name);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    };
+    State.prototype.hasGroupOrContainerWithName = function (name) {
+        return this.hasGroupWithName(name) || this.hasContainerWithName(name);
     };
     State.prototype.addTitle = function (_a) {
         var pathname = _a.pathname, title = _a.title;
@@ -19579,7 +19615,7 @@ var Group = (function () {
     Group.prototype.getContainerByName = function (name) {
         var c = R.find(function (c) { return c.name === name; }, this.containers);
         if (!c) {
-            throw new Error("Container " + name + " not found");
+            throw new Error("Container '" + name + "' not found in '" + this.name + "'");
         }
         else {
             return c;
@@ -20930,11 +20966,6 @@ function isSerializable(obj) {
     return obj && !!obj.constructor.name && serializables_1.default.has(obj.constructor.name);
 }
 exports.isSerializable = isSerializable;
-// Mostly just for unit tests
-function getSerializables() {
-    return serializables_1.default;
-}
-exports.getSerializables = getSerializables;
 
 
 /***/ }),

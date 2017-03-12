@@ -62,8 +62,3 @@ export function isSerialized(obj:ISerialized):boolean {
 export function isSerializable(obj:Object):boolean {
   return obj && !!obj.constructor.name && serializables.has(obj.constructor.name)
 }
-
-// Mostly just for unit tests
-export function getSerializables():Map<string, ISerializableClass> {
-  return serializables
-}

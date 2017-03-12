@@ -12,7 +12,7 @@ describe('Pages', () => {
     url: '/a',
     params: {},
     groupName: 'Group 1',
-    containerName: 'Container 1',
+    containerName: 'Container 1A',
     visits: [
       {time: 2000, type: VisitType.AUTO},
       {time: 3000, type: VisitType.MANUAL}
@@ -22,7 +22,7 @@ describe('Pages', () => {
     url: '/b',
     params: {},
     groupName: 'Group 1',
-    containerName: 'Container 1',
+    containerName: 'Container 1A',
     visits: [
       {time: 2000, type: VisitType.AUTO},
       {time: 4000, type: VisitType.MANUAL},
@@ -33,7 +33,7 @@ describe('Pages', () => {
     url: '/c',
     params: {},
     groupName: 'Group 1',
-    containerName: 'Container 1',
+    containerName: 'Container 1A',
     visits: [
       {time: 2000, type: VisitType.AUTO},
       {time: 5000, type: VisitType.MANUAL}
@@ -55,7 +55,7 @@ describe('Pages', () => {
         url: '/d',
         params: {},
         groupName: 'Group 1',
-        containerName: 'Container 2',
+        containerName: 'Container 2A',
         visits: [
           {time: 2000, type: VisitType.AUTO}
         ]
@@ -75,7 +75,7 @@ describe('Pages', () => {
         url: '/d',
         params: {},
         groupName: 'Group 1',
-        containerName: 'Container 1'
+        containerName: 'Container 1A'
       })
       const p:Pages = pages.push(page, 10000)
       const h:HistoryStack = p.toHistoryStack()
@@ -89,7 +89,7 @@ describe('Pages', () => {
         url,
         params: {},
         groupName: 'Group 1',
-        containerName: 'Container 1'
+        containerName: 'Container 1A'
       }), time)
       const p:Pages =
           push(push(push(pages, '/d', 10000), '/d/1', 10001), '/d/1/1', 10002)
@@ -116,7 +116,7 @@ describe('Pages', () => {
         url: '/d',
         params: {},
         groupName: 'Group 1',
-        containerName: 'Container 1'
+        containerName: 'Container 1A'
       })
       expect(pages.containsPage(page)).to.equal(false)
     })

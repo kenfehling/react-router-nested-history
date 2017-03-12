@@ -42,17 +42,17 @@ describe('PopState action', () => {
         url: '/a/1',
         params: {id: '1'},
         groupName: 'Group 1',
-        containerName: 'Container 1'
+        containerName: 'Container 1A'
       })
       const container2page:Page = new Page({
         url: '/b/1',
         params: {id: '1'},
         groupName: 'Group 1',
-        containerName: 'Container 2'
+        containerName: 'Container 2A'
       })
       const state:State = baseState
           .push(container1page, 5000)
-          .switchToContainer({groupName: 'Group 1', name: 'Container 2', time: 7500})
+          .switchToContainer({groupName: 'Group 1', name: 'Container 2A', time: 7500})
           .push(container2page, 10000)
       const action:PopState = new PopState({
         n: -2,
@@ -64,7 +64,7 @@ describe('PopState action', () => {
           url: '/a/1',
           params: {id: '1'},
           groupName: 'Group 1',
-          containerName: 'Container 1'
+          containerName: 'Container 1A'
         }))
       ])
     })

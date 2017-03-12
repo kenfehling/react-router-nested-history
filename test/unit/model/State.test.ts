@@ -45,13 +45,13 @@ describe('State', () => {
           url: '/f/1',
           params: {id: '1'},
           groupName: 'Group 2',
-          containerName: 'Container 2'
+          containerName: 'Container 2B'
         })
 
-        const newState:State = state.push(page, 4000)
-        expect(newState.activeGroup.name).to.equal('Group 2')
-        expect(newState.getActiveContainerNameInGroup('Group 2')).to.equal('Container 2')
-        expect(newState.activeGroup.activeContainerName).to.equal('Container 2')
+        const s:State = state.push(page, 4000)
+        expect(s.activeGroup.name).to.equal('Group 2')
+        expect(s.getActiveContainerNameInGroup('Group 2')).to.equal('Container 2B')
+        expect(s.activeGroup.activeContainerName).to.equal('Container 2B')
       })
 
       it('correctly sets the new page as active', () => {
@@ -59,7 +59,7 @@ describe('State', () => {
           url: '/d',
           params: {},
           groupName: 'Group 1',
-          containerName: 'Container 1'
+          containerName: 'Container 1A'
         })
         const h:HistoryStack = state.push(page, 5000).browserHistory
         expect(h.back.length).to.equal(2)
@@ -72,7 +72,7 @@ describe('State', () => {
           url,
           params: {},
           groupName: 'Group 1',
-          containerName: 'Container 1'
+          containerName: 'Container 1A'
         }), time)
         const newState:State = push(push(push(state, '/d', 5000), '/d/1', 6000), '/d/1/1', 7000)
         const h:HistoryStack = newState.browserHistory
@@ -103,7 +103,7 @@ describe('State', () => {
           url: '/a/2',
           params: {id: '2'},
           groupName: 'Group 1',
-          containerName: 'Container 1'
+          containerName: 'Container 1A'
         })
         const amount:number = state.push(forward, 5000).getShiftAmount(current)
         expect(amount).to.equal(-1)
@@ -114,7 +114,7 @@ describe('State', () => {
       const f = (s: State, name: string) => s.isContainerAtTopPage('Group 1', name)
 
       it('is at first', () => {
-        expect(f(state, 'Container 1')).to.be.true
+        expect(f(state, 'Container 1A')).to.be.true
       })
 
       describe('after push', () => {
@@ -122,23 +122,23 @@ describe('State', () => {
           url: '/a/2',
           params: {id: '2'},
           groupName: 'Group 1',
-          containerName: 'Container 1'
+          containerName: 'Container 1A'
         }), 4000)
 
         it('is not after a push', () => {
-          expect(f(pushedState, 'Container 1')).to.be.false
+          expect(f(pushedState, 'Container 1A')).to.be.false
         })
 
         describe('after switch', () => {
           const switchedState: State = pushedState.switchToContainer({
             groupName: 'Group 1',
-            name: 'Container 2',
+            name: 'Container 2A',
             time: 6000
           })
 
           it('is not after switch, but new container is', () => {
-            expect(f(switchedState, 'Container 1')).to.be.false
-            expect(f(switchedState, 'Container 2')).to.be.true
+            expect(f(switchedState, 'Container 1A')).to.be.false
+            expect(f(switchedState, 'Container 2A')).to.be.true
           })
         })
       })
@@ -158,8 +158,6 @@ describe('State', () => {
         const order:IContainer[] = loadedState.groupStackOrder
         expect(order[0].initialUrl).to.equal('/e')
         expect(order[0].lastVisit.time).to.equal(1250)
-        expect(order[1].initialUrl).to.equal('/a')
-        expect(order[1].lastVisit.time).to.equal(1000)
       })
     })
   })
@@ -209,10 +207,10 @@ describe('State', () => {
           url: '/f/1',
           params: {id: '1'},
           groupName: 'Group 2',
-          containerName: 'Container 2'
+          containerName: 'Container 2B'
         })
         const newState:State = state.push(page, 5000)
-        expect(newState.getActiveContainerNameInGroup('Group 2')).to.equal('Container 2')
+        expect(newState.getActiveContainerNameInGroup('Group 2')).to.equal('Container 2B')
         expect(newState.activeGroup.activeContainerName).to.equal(group.containers[1].name)
       })
 
@@ -221,7 +219,7 @@ describe('State', () => {
           url: '/d',
           params: {},
           groupName: 'Group 1',
-          containerName: 'Container 1'
+          containerName: 'Container 1A'
         })
         const h:HistoryStack = state.push(page, 5000).browserHistory
         expect(h.back.length).to.equal(2)
@@ -245,7 +243,7 @@ describe('State', () => {
           s.isContainerAtTopPage(nestedGroup1.name, name)
 
       it('is at first', () => {
-        expect(f(state, 'Container 1')).to.be.true
+        expect(f(state, 'Container 1A')).to.be.true
       })
 
       describe('after push', () => {
@@ -253,23 +251,23 @@ describe('State', () => {
           url: '/a/2',
           params: {id: '2'},
           groupName:nestedGroup1.name,
-          containerName: 'Container 1'
+          containerName: 'Container 1A'
         }), 5000)
 
         it('is not after a push', () => {
-          expect(f(pushedState, 'Container 1')).to.be.false
+          expect(f(pushedState, 'Container 1A')).to.be.false
         })
 
         describe('after switch', () => {
           const switchedState: State = pushedState.switchToContainer({
             groupName: nestedGroup1.name,
-            name: 'Container 2',
+            name: 'Container 2A',
             time: 3000
           })
 
           it('is not after switch, but new container is', () => {
-            expect(f(switchedState, 'Container 1')).to.be.false
-            expect(f(switchedState, 'Container 2')).to.be.true
+            expect(f(switchedState, 'Container 1A')).to.be.false
+            expect(f(switchedState, 'Container 2A')).to.be.true
           })
         })
       })
@@ -292,7 +290,7 @@ describe('State', () => {
     describe('after switching from default', () => {
       const switchedState:State = state.switchToContainer({
         groupName: group.name,
-        name: 'Container 2',
+        name: 'Container 2C',
         time: 1700,
       })
 
@@ -309,7 +307,7 @@ describe('State', () => {
           url: '/h/1',
           params: {id: '1'},
           groupName: group.name,
-          containerName: 'Container 2'
+          containerName: 'Container 2C'
         })
         const newState:State = switchedState
           .push(page, 2000)

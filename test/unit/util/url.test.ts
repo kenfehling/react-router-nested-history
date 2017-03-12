@@ -5,15 +5,15 @@ declare const it:any
 
 describe('url utils', () => {
   it('get parent paths', () => {
-    expect(utils.getParentPaths('/a/b/c')).to.equal(['/a', '/a/b'])
+    expect(utils.getParentPaths('/a/b/c')).to.deep.equal(['/a', '/a/b'])
   })
 
   it('knows if paths match', () => {
     const f = utils.patternMatches
-    expect(f('/a', '/b')).to.equalFalsy()
-    expect(f('/a/1', '/a/2')).to.equalFalsy()
-    expect(f('/a/:id', '/a')).to.equalFalsy()
-    expect(f('/a/:id', '/a/1')).to.equalTruthy()
+    expect(f('/a', '/b')).to.be.false
+    expect(f('/a/1', '/a/2')).to.be.false
+    expect(f('/a/:id', '/a')).to.be.false
+    expect(f('/a/:id', '/a/1')).to.be.true
   })
 
   it('adds a trailing slash if needed', () => {
@@ -28,13 +28,13 @@ describe('url utils', () => {
   it('parses params from patterns', () => {
     const f = utils.parseParamsFromPatterns
     const patterns = ['/a', '/a/:id', '/a/:id/:name']
-    expect(f(patterns, '/a/1/cat')).to.equal({id: '1', name: 'cat'})
+    expect(f(patterns, '/a/1/cat')).to.deep.equal({id: '1', name: 'cat'})
   })
 
   it('parses params from patterns with regex', () => {
     const f = utils.parseParamsFromPatterns
     const patterns = ['/a', '/a/:category(cat)', '/a/:category(cat)/:tool']
-    expect(f(patterns, '/a/cat')).to.equal({category: 'cat'})
+    expect(f(patterns, '/a/cat')).to.deep.equal({category: 'cat'})
   })
 
 })

@@ -1,20 +1,22 @@
-import Page from '../../../src/model/Page'
 import {expect} from 'chai'
+import VisitedPage from '../../../src/model/VistedPage'
+import {VisitType} from '../../../src/model/PageVisit'
 declare const describe:any
 declare const it:any
 
 describe('Page', () => {
-  let page:Page = new Page({
+  let page:VisitedPage = new VisitedPage({
     url: '/a',
     params: {},
-    containerName: 'Container 1',
     groupName: 'Group 1',
-    lastVisit: 0
+    containerName: 'Container 1A',
+    visits: []
   })
 
   describe('touch', () => {
     it('updates lastVisit', () => {
-      expect(page.touch(1).lastVisit).to.equal(1)
+      const visit = {time: 1, type: VisitType.MANUAL}
+      expect(page.touch(visit).lastVisit.time).to.equal(1)
     })
   })
 })

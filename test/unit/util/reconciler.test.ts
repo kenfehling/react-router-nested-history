@@ -55,7 +55,7 @@ describe('action utils', () => {
     createSubGroup3,
     new CreateContainer({
       groupName: createSubGroup1.name,
-      name: 'Container 1',
+      name: 'Container 1A',
       initialUrl: '/a',
       patterns: ['/a', '/a/:id'],
       isDefault: true,
@@ -63,35 +63,35 @@ describe('action utils', () => {
     }),
     new CreateContainer({
       groupName: createSubGroup1.name,
-      name: 'Container 2',
+      name: 'Container 2A',
       initialUrl: '/b',
       patterns: ['/b', '/b/:id'],
       time: 1000
     }),
     new CreateContainer({
       groupName: createSubGroup1.name,
-      name: 'Container 3',
+      name: 'Container 3A',
       initialUrl: '/c',
       patterns: ['/c', '/c/:id'],
       time: 1000
     }),
     new CreateContainer({
       groupName: createSubGroup2.name,
-      name: 'Container 1',
+      name: 'Container 1B',
       initialUrl: '/e',
       patterns: ['/e', '/e/:id'],
       time: 1000
     }),
     new CreateContainer({
       groupName: createSubGroup2.name,
-      name: 'Container 2',
+      name: 'Container 2B',
       initialUrl: '/f',
       patterns: ['/f', '/f/:id'],
       time: 1000
     }),
     new CreateContainer({
       groupName: createSubGroup3.name,
-      name: 'Container 1',
+      name: 'Container 1C',
       initialUrl: '/g',
       patterns: ['/g', '/g/:id'],
       time: 1000,
@@ -99,7 +99,7 @@ describe('action utils', () => {
     }),
     new CreateContainer({
       groupName: createSubGroup3.name,
-      name: 'Container 2',
+      name: 'Container 2C',
       initialUrl: '/h',
       patterns: ['/h', '/h/:id'],
       time: 1000
@@ -111,7 +111,7 @@ describe('action utils', () => {
       url: '/a',
       params: {},
       groupName: 'Group 1',
-      containerName: 'Container 1',
+      containerName: 'Container 1A',
       visits: [
         {time: 1000, type: VisitType.AUTO},
         {time: 1001, type: VisitType.MANUAL},
@@ -123,7 +123,7 @@ describe('action utils', () => {
       url: '/a/1',
       params: {id: '1'},
       groupName: 'Group 1',
-      containerName: 'Container 1',
+      containerName: 'Container 1A',
       visits: [
         {time: 2000, type: VisitType.MANUAL}
       ]
@@ -132,7 +132,7 @@ describe('action utils', () => {
       url: '/a/2',
       params: {id: '2'},
       groupName: 'Group 1',
-      containerName: 'Container 1',
+      containerName: 'Container 1A',
       visits: [
         {time: 3000, type: VisitType.MANUAL}
       ]
@@ -141,7 +141,7 @@ describe('action utils', () => {
       url: '/b',
       params: {},
       groupName: 'Group 1',
-      containerName: 'Container 2',
+      containerName: 'Container 2A',
       visits: [
         {time: 1000, type: VisitType.AUTO},
         {time: 5000, type: VisitType.MANUAL}
@@ -151,7 +151,7 @@ describe('action utils', () => {
       url: '/c',
       params: {},
       groupName: 'Group 1',
-      containerName: 'Container 2',
+      containerName: 'Container 2A',
       visits: [
         {time: 1000, type: VisitType.AUTO},
         {time: 7000, type: VisitType.MANUAL}
@@ -260,7 +260,7 @@ describe('action utils', () => {
               url: '/a',
               params: {},
               groupName: 'Group 1',
-              containerName: 'Container 1'
+              containerName: 'Container 1A'
             }))
           ])
         })
@@ -279,13 +279,13 @@ describe('action utils', () => {
               url: '/a',
               params: {},
               groupName: 'Group 1',
-              containerName: 'Container 1'
+              containerName: 'Container 1A'
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: 'Group 1',
-              containerName: 'Container 2'
+              containerName: 'Container 2A'
             }))
           ])
         })
@@ -304,19 +304,19 @@ describe('action utils', () => {
               url: '/a',
               params: {},
               groupName: 'Group 1',
-              containerName: 'Container 1'
+              containerName: 'Container 1A'
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: 'Group 1',
-              containerName: 'Container 2'
+              containerName: 'Container 2A'
             })),
             new PushStep(new Page({
               url: '/b/1',
               params: {id: '1'},
               groupName: 'Group 1',
-              containerName: 'Container 2'
+              containerName: 'Container 2A'
             }))
           ])
         })
@@ -343,7 +343,7 @@ describe('action utils', () => {
             ...loadActions,
             new SwitchToContainer({
               groupName: 'Group 1',
-              name: 'Container 2',
+              name: 'Container 2A',
               time: 5000
             })
           ]
@@ -352,7 +352,7 @@ describe('action utils', () => {
               url: '/b',
               params: {},
               groupName: 'Group 1',
-              containerName: 'Container 2'
+              containerName: 'Container 2A'
             }))
           ])
         })
@@ -391,7 +391,7 @@ describe('action utils', () => {
               }),
               new SwitchToContainer({
                 groupName: 'Group 1',
-                name: 'Container 2',
+                name: 'Container 2A',
                 time: 4000
               }),
               new PopState({
@@ -404,7 +404,7 @@ describe('action utils', () => {
                 url: '/a/1',
                 params: {id: '1'},
                 groupName: 'Group 1',
-                containerName: 'Container 1'
+                containerName: 'Container 1A'
               })),
               new BackStep()
             ])
@@ -416,7 +416,7 @@ describe('action utils', () => {
             ...loadActions,
             new SwitchToContainer({
               groupName: 'Group 1',
-              name: 'Container 2',
+              name: 'Container 2A',
               time: 2000
             })
           ]
@@ -435,7 +435,7 @@ describe('action utils', () => {
                 url: '/a/1',
                 params: {id: '1'},
                 groupName: 'Group 1',
-                containerName: 'Container 1'
+                containerName: 'Container 1A'
               }))
             ])
           })
@@ -460,13 +460,13 @@ describe('action utils', () => {
                 }),
                 new SwitchToContainer({
                   groupName: 'Group 2',
-                  name: 'Container 2',
+                  name: 'Container 2B',
                   time: 4000
                 }),
                 new Push({
                   url: '/f/1',
                   groupName: 'Group 2',
-                  containerName: 'Container 2',
+                  containerName: 'Container 2B',
                   time: 5000
                 }),
                 new Back({
@@ -474,7 +474,7 @@ describe('action utils', () => {
                 }),
                 new SwitchToContainer({
                   groupName: 'Group 2',
-                  name: 'Container 1',
+                  name: 'Container 1B',
                   time: 7000
                 }),
               ]
@@ -484,13 +484,13 @@ describe('action utils', () => {
                   url: '/e',
                   params: {},
                   groupName: 'Group 2',
-                  containerName: 'Container 1'
+                  containerName: 'Container 1B'
                 })),
                 new PushStep(new Page({
                   url: '/e/1',
                   params: {id: '1'},
                   groupName: 'Group 2',
-                  containerName: 'Container 1'
+                  containerName: 'Container 1B'
                 })),
                 new BackStep()
               ])
@@ -535,13 +535,13 @@ describe('action utils', () => {
               url: '/a',
               params: {},
               groupName: createSubGroup1.name,
-              containerName: 'Container 1'
+              containerName: 'Container 1A'
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: createSubGroup1.name,
-              containerName: 'Container 2'
+              containerName: 'Container 2A'
             }))
           ])
         })
@@ -560,19 +560,19 @@ describe('action utils', () => {
               url: '/a',
               params: {},
               groupName: createSubGroup1.name,
-              containerName: 'Container 1'
+              containerName: 'Container 1A'
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
               groupName: createSubGroup1.name,
-              containerName: 'Container 2'
+              containerName: 'Container 2A'
             })),
             new PushStep(new Page({
               url: '/b/1',
               params: {id: '1'},
               groupName: createSubGroup1.name,
-              containerName: 'Container 2'
+              containerName: 'Container 2A'
             }))
           ])
         })
@@ -587,7 +587,7 @@ describe('action utils', () => {
           }),
           new SwitchToContainer({
             groupName: createSubGroup1.name,
-            name: 'Container 2',
+            name: 'Container 2A',
             time: 2000
           })
         ]
@@ -606,7 +606,7 @@ describe('action utils', () => {
               url: '/a/1',
               params: {id: '1'},
               groupName: createSubGroup1.name,
-              containerName: 'Container 1'
+              containerName: 'Container 1A'
             }))
           ])
         })
@@ -623,7 +623,7 @@ describe('action utils', () => {
           }),
           new SwitchToContainer({
             groupName: createSubGroup3.name,
-            name: 'Container 2',
+            name: 'Container 2C',
             time: 2000
           })
         ]
@@ -633,7 +633,7 @@ describe('action utils', () => {
             ...switchActions,
             new Push({
               groupName: createSubGroup3.name,
-              containerName: 'Container 2',
+              containerName: 'Container 2C',
               url: '/h/1',
               time: 3000
             }),
@@ -652,7 +652,7 @@ describe('action utils', () => {
               url: '/g/1',
               params: {id: '1'},
               groupName: createSubGroup3.name,
-              containerName: 'Container 1'
+              containerName: 'Container 1C'
             }))
           ])
         })

@@ -8,6 +8,7 @@ import PathTitle from './PathTitle'
 import {HistoryStack, default as Pages} from './Pages'
 import VisitedPage from './VistedPage'
 import {VisitType} from './PageVisit'
+import IGroupContainer from './IGroupContainer'
 
 abstract class State {
   readonly groups: Group[]
@@ -98,10 +99,17 @@ abstract class State {
     }
   }
 
+  disallowDuplicateName(name) {
+    if (this.hasGroupOrContainerWithName(name)) {
+      throw new Error(`A group or container with name: '${name}' already exists`)
+    }
+  }
+
   addTopLevelGroup({name, resetOnLeave=false, allowInterContainerHistory=false,
     gotoTopOnSelectActive=false}:
     {name:string, resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
       gotoTopOnSelectActive?:boolean}):State {
+    this.disallowDuplicateName(name)
     const group:Group = new Group({
       name,
       resetOnLeave,
@@ -119,6 +127,7 @@ abstract class State {
     {name:string, parentGroupName:string, isDefault:boolean,
       allowInterContainerHistory?:boolean,
       resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}):State {
+    this.disallowDuplicateName(name)
     const group:Group = new Group({
       name,
       resetOnLeave,
@@ -134,6 +143,7 @@ abstract class State {
     resetOnLeave=false, patterns}:
     {time:number, name:string, groupName:string, initialUrl:string,
       patterns:string[], isDefault:boolean, resetOnLeave:boolean}):State {
+    this.disallowDuplicateName(name)
     const group:Group = this.getGroupByName(groupName)
     const container:Container = new Container({
       time,
@@ -170,6 +180,23 @@ abstract class State {
     }
   }
 
+  getContainerByName(name:string):IGroupContainer {
+    let foundContainer:IGroupContainer|null = null
+    this.groups.forEach((group:Group) => {
+      const c:IGroupContainer|null = group.getNestedContainerByName(name)
+      if (c) {
+        foundContainer = c
+        return
+      }
+    })
+    if (foundContainer) {
+      return foundContainer
+    }
+    else {
+      throw new Error('Container \'' + name + '\' not found')
+    }
+  }
+
   get browserHistory():HistoryStack {
     return this.getHistory(false)
   }
@@ -186,6 +213,20 @@ abstract class State {
     catch (e) {
       return false
     }
+  }
+
+  hasContainerWithName(name:string):boolean {
+    try {
+      this.getContainerByName(name)
+      return true
+    }
+    catch (e) {
+      return false
+    }
+  }
+
+  hasGroupOrContainerWithName(name:string):boolean {
+    return this.hasGroupWithName(name) || this.hasContainerWithName(name)
   }
 
   addTitle({pathname, title}:{pathname:string, title:string}):State {

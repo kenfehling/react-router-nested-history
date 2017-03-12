@@ -14,7 +14,7 @@ describe('LoadFromUrl', () => {
     const groups:Group[] = action.reduce(state).groups
     expect(groups[0].activeContainer.activePage.url).to.equal('/a/1')
     expect(groups[1].activeContainer.activePage.url).to.equal('/e')
-    expect(groups[2].activeContainer.activePage.url).to.equal('/a/1')
+    expect(groups[2].activeContainer.activePage.url).to.equal('/g')
   })
 
 })

@@ -64,12 +64,12 @@ describe('main', () => {
         new Push({
           url: '/a/1',
           groupName: 'Group 1',
-          containerName: 'Container 1'
+          containerName: 'Container 1A'
         }),
         new Push({
           url: '/a/2',
           groupName: 'Group 1',
-          containerName: 'Container 1'
+          containerName: 'Container 1A'
         })
       ])
       store = makeNewStore()
@@ -116,7 +116,7 @@ describe('main', () => {
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
-          name: 'Container 2',
+          name: 'Container 2A',
           time: 3000
         })
       ])
@@ -159,18 +159,18 @@ describe('main', () => {
         new Push({
           url: '/g/1',
           groupName: 'Group 3',
-          containerName: 'Container 1',
+          containerName: 'Container 1C',
           time: 3000
         }),
         new Push({
           url: '/g/2',
           groupName: 'Group 3',
-          containerName: 'Container 1',
+          containerName: 'Container 1C',
           time: 4000
         }),
         new SwitchToContainer({
           groupName: 'Group 3',
-          name: 'Container 2',
+          name: 'Container 2C',
           time: 5000
         })
       ])
@@ -210,7 +210,7 @@ describe('main', () => {
       ])
       store.dispatch(new Push({
         groupName: 'Group 2',
-        containerName: 'Container 1',
+        containerName: 'Container 1B',
         url: '/e/1',
         time: 3000
       }))
@@ -248,7 +248,7 @@ describe('main', () => {
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
-          name: 'Container 2',
+          name: 'Container 2A',
           time: 3000
         }),
         new PopState({
@@ -392,7 +392,7 @@ describe('main', () => {
         new Push({
           url: '/a/1',
           groupName: 'Group 1',
-          containerName: 'Container 1',
+          containerName: 'Container 1A',
           time: 3000
         })
       ]).then(({entries, index}) => {
@@ -418,13 +418,13 @@ describe('main', () => {
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
-          containerName: 'Container 2',
+          containerName: 'Container 2A',
           time: 3000
         }),
         new PopState({
           url: '/a/1',
           groupName: 'Group 1',
-          containerName: 'Container 1',
+          containerName: 'Container 1A',
           time: 4000
         })
       ]).then(({entries, index}) => {
@@ -451,7 +451,7 @@ describe('main', () => {
         }),
         new SwitchToContainer({
           groupName: 'Group 1',
-          name: 'Container 2',
+          name: 'Container 2A',
           time: 3000
         }),
         new UpdateBrowser({
@@ -460,7 +460,7 @@ describe('main', () => {
         new Push({
           url: '/b/1',
           groupName: 'Group 1',
-          containerName: 'Container 2',
+          containerName: 'Container 2A',
           time: 4000
         })
       ]).then(({entries, index}) => {
@@ -497,7 +497,7 @@ describe('main', () => {
         new Push({
           url: '/e/1',
           groupName: 'Group 2',
-          containerName: 'Container 1',
+          containerName: 'Container 1B',
           time: 4000
         })
       ]).then(({entries, index}) => {
@@ -524,7 +524,7 @@ describe('main', () => {
         new Push({
           url: '/a/1',
           groupName: 'Group 1',
-          containerName: 'Container 1',
+          containerName: 'Container 1A',
           time: 3000
         }),
         new UpdateBrowser({
@@ -533,7 +533,7 @@ describe('main', () => {
         new Push({
           url: '/a/2',
           groupName: 'Group 1',
-          containerName: 'Container 1',
+          containerName: 'Container 1A',
           time: 4000
         }),
         new UpdateBrowser({
@@ -567,7 +567,7 @@ describe('main', () => {
         new Push({
           url: '/g/1/cat',
           groupName: 'Group 3',
-          containerName: 'Container 1',
+          containerName: 'Container 1C',
           time: 3000
         }),
         new UpdateBrowser({
@@ -576,7 +576,7 @@ describe('main', () => {
         new Push({
           url: '/g/2/dog',
           groupName: 'Group 3',
-          containerName: 'Container 1',
+          containerName: 'Container 1C',
           time: 4000
         }),
         new UpdateBrowser({
@@ -584,7 +584,7 @@ describe('main', () => {
         }),
         new Top({
           groupName: 'Group 3',
-          containerName: 'Container 1',
+          containerName: 'Container 1C',
           time: 5000,
           origin: USER
         }),
@@ -593,7 +593,7 @@ describe('main', () => {
         }),
         new SwitchToContainer({
           groupName: 'Group 3',
-          name: 'Container 2',
+          name: 'Container 2C',
           time: 6000
         })
       ]).then(({entries, index}) => {
@@ -622,7 +622,7 @@ describe('main', () => {
           new Push({
             url: '/a/1',
             groupName: 'Group 1',
-            containerName: 'Container 1',
+            containerName: 'Container 1A',
             time: 3000
           }),
           new UpdateBrowser({
@@ -637,7 +637,7 @@ describe('main', () => {
           new Push({
             url: '/a/2',
             groupName: 'Group 1',
-            containerName: 'Container 1',
+            containerName: 'Container 1A',
             time: 4000
           })
         ]).then(({entries, index}) => {
@@ -672,7 +672,7 @@ describe('main', () => {
           new Push({
             url: '/a/1',
             groupName: 'Group 1',
-            containerName: 'Container 1',
+            containerName: 'Container 1A',
             time: 4000
           })
         ]).then(({entries, index}) => {
@@ -705,7 +705,7 @@ describe('main', () => {
           }),
           new SwitchToContainer({
             groupName: 'Group 1',
-            name: 'Container 2',
+            name: 'Container 2A',
             time: 4000
           })
         ]).then(({entries, index}) => {

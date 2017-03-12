@@ -481,7 +481,7 @@ export default class Group implements IContainer {
   getContainerByName(name:string):IGroupContainer {
     const c:IGroupContainer = R.find(c => c.name === name, this.containers)
     if (!c) {
-      throw new Error(`Container ${name} not found`)
+      throw new Error(`Container '${name}' not found in '${this.name}'`)
     }
     else {
       return c
