@@ -19577,7 +19577,13 @@ var Group = (function () {
         return this.hasNestedGroupWithName(group.name);
     };
     Group.prototype.getContainerByName = function (name) {
-        return R.find(function (c) { return c.name === name; }, this.containers);
+        var c = R.find(function (c) { return c.name === name; }, this.containers);
+        if (!c) {
+            throw new Error("Container " + name + " not found");
+        }
+        else {
+            return c;
+        }
     };
     Group.prototype.hasContainerWithName = function (name) {
         return R.any(function (c) { return c.name === name; }, this.containers);
