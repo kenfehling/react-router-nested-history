@@ -25,11 +25,11 @@ describe('Group', () => {
           patterns: ['/x', '/x/:id'],
           time: 10000
         }))
-        expect(newGroup.containers.length).to.equal(group.containers.length + 1)
+        expect(newGroup.containers.size).to.equal(group.containers.size + 1)
       })
 
       it('replaces an existing container', () => {
-        const container:IGroupContainer = group.containers[0]
+        const container:IGroupContainer = group.containers.toArray()[0]
         const newContainer = container.push(new Page({
           url: '/x/1',
           params: {id: '1'},
@@ -38,9 +38,9 @@ describe('Group', () => {
         }), 10000)
         const newGroup:Group =
             group.replaceContainer(newContainer as IGroupContainer)
-        expect(newGroup.containers.length).to.equal(group.containers.length)
-        expect(newGroup.containers[0].name).to.equal(container.name)
-        expect(newGroup.containers[0].activePage.url).to.equal('/x/1')
+        expect(newGroup.containers.size).to.equal(group.containers.size)
+        expect(newGroup.containers.toArray()[0].name).to.equal(container.name)
+        expect(newGroup.containers.toArray()[0].activePage.url).to.equal('/x/1')
       })
     })
 
@@ -242,9 +242,9 @@ describe('Group', () => {
 
   describe('nested group', () => {
     const group = fixtures.loadedNestedState.groups.toArray()[0]
-    const nestedGroup1:Group = group.containers[0] as Group
-    const nestedGroup2:Group = group.containers[1] as Group
-    const nestedGroup3:Group = group.containers[2] as Group
+    const nestedGroup1:Group = group.containers.toArray()[0] as Group
+    const nestedGroup2:Group = group.containers.toArray()[1] as Group
+    const nestedGroup3:Group = group.containers.toArray()[2] as Group
 
     describe('replaceContainer', () => {
       it('creates a new container if needed', () => {
@@ -255,11 +255,11 @@ describe('Group', () => {
           patterns: ['/x', '/x/:id'],
           time: 10000
         }))
-        expect(newGroup.containers.length).to.equal(group.containers.length + 1)
+        expect(newGroup.containers.size).to.equal(group.containers.size + 1)
       })
 
       it('replaces an existing container', () => {
-        const container:IGroupContainer = nestedGroup1.containers[0]
+        const container:IGroupContainer = nestedGroup1.containers.toArray()[0]
         const newContainer = container.push(new Page({
           url: '/x/1',
           params: {id: '1'},
@@ -268,9 +268,9 @@ describe('Group', () => {
         }), 10000)
         const newGroup:Group =
             nestedGroup1.replaceContainer(newContainer as IGroupContainer)
-        expect(newGroup.containers.length).to.equal(group.containers.length)
-        expect(newGroup.containers[0].name).to.equal(container.name)
-        expect(newGroup.containers[0].activePage.url).to.equal('/x/1')
+        expect(newGroup.containers.size).to.equal(group.containers.size)
+        expect(newGroup.containers.toArray()[0].name).to.equal(container.name)
+        expect(newGroup.containers.toArray()[0].activePage.url).to.equal('/x/1')
       })
     })
 
@@ -331,7 +331,7 @@ describe('Group', () => {
           url: '/b/1',
           params: {id: '1'},
           groupName: nestedGroup2.name,
-          containerName: nestedGroup2.containers[1].name,
+          containerName: nestedGroup2.containers.toArray()[1].name,
         })
         const newGroup = group.push(page, 5000)
         expect(newGroup.activeContainerName).to.equal(nestedGroup2.name)
@@ -342,7 +342,7 @@ describe('Group', () => {
           url: '/x',
           params: {},
           groupName: nestedGroup1.name,
-          containerName: nestedGroup1.containers[0].name
+          containerName: nestedGroup1.containers.toArray()[0].name
         })
         const newGroup = group.push(page, 5000)
         expect(newGroup.history.back.length).to.equal(1)
@@ -357,7 +357,7 @@ describe('Group', () => {
           url: '/a/1',
           params: {id: '1'},
           groupName: nestedGroup1.name,
-          containerName: nestedGroup1.containers[0].name
+          containerName: nestedGroup1.containers.toArray()[0].name
         })
         const newGroup = group.push(page, 6000).top(7000)
         expect(newGroup.history.back.length).to.equal(0)
@@ -369,7 +369,7 @@ describe('Group', () => {
   })
 
   describe('inter-container history (mobile)', () => {
-    const group = fixtures.nestedState.groups.toArray()[0].containers[2] as Group
+    const group = fixtures.nestedState.groups.toArray()[0].containers.toArray()[2] as Group
     it('Crosses the container boundary', () => {
       const newGroup:Group = group.activateContainer('Container 2C', 2000)
       const history:HistoryStack = newGroup.history

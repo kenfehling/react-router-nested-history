@@ -16,6 +16,7 @@ import VisitedPage from './VistedPage'
 import {
   sortContainersByLastVisited, sortContainersByFirstVisited
 } from '../util/sorter'
+import {Map, fromJS} from 'immutable'
 
 // Param types for _go method
 type GoFn = <H extends IHistory> (h:H, n:number, time:number) => H
@@ -24,17 +25,17 @@ type NextPageFn = <H extends IHistory> (h:H) => Page
 
 export default class Group implements IContainer {
   readonly name: string
-  readonly containers: IGroupContainer[]
+  readonly containers: Map<string, IGroupContainer>
   readonly allowInterContainerHistory: boolean
   readonly resetOnLeave: boolean
   readonly gotoTopOnSelectActive: boolean
   readonly parentGroupName: string|null
   readonly isDefault: boolean|null  // Only applies if this has a parent group
 
-  constructor({name, containers=[], allowInterContainerHistory=false,
+  constructor({name, containers=fromJS({}), allowInterContainerHistory=false,
     resetOnLeave=false, gotoTopOnSelectActive=false,
     parentGroupName=null, isDefault=false}:
-      {name:string, containers?:IGroupContainer[],
+      {name:string, containers?:Map<string, IGroupContainer>,
         allowInterContainerHistory?:boolean, resetOnLeave?:boolean,
         gotoTopOnSelectActive?:boolean,
         parentGroupName?:string|null, isDefault?:boolean|null}) {
@@ -50,23 +51,10 @@ export default class Group implements IContainer {
   replaceContainer(container:IGroupContainer):Group {
     const groupName:string = container.groupName
     if (groupName === this.name) {
-      const i = R.findIndex(c => c.name === container.name, this.containers)
-      if (i === -1) {  // If container didn't already exist
-        return new Group({
-          ...Object(this),
-          containers: [...this.containers, container]
-        })
-      }
-      else {
-        return new Group({
-          ...Object(this),
-          containers: [
-            ...this.containers.slice(0, i),
-            container,
-            ...this.containers.slice(i + 1)
-          ]
-        })
-      }
+      return new Group({
+        ...Object(this),
+        containers: this.containers.set(container.name, container)
+      })
     }
     else {
       const group:ISubGroup|null = this.getNestedGroupByName(groupName)
@@ -81,7 +69,7 @@ export default class Group implements IContainer {
   updatePages(pages:Pages):IContainer {
     return new Group({
       ...Object(this),
-      containers: this.containers.map(c => c.updatePages(pages))
+      containers: this.containers.map((c:IGroupContainer) => c.updatePages(pages))
     })
   }
 
@@ -196,7 +184,7 @@ export default class Group implements IContainer {
   }
 
   get containerStackOrder():IGroupContainer[] {
-    return sortContainersByLastVisited(this.containers) as IGroupContainer[]
+    return sortContainersByLastVisited(this.containers.toArray()) as IGroupContainer[]
   }
 
   get history():HistoryStack {
@@ -210,12 +198,12 @@ export default class Group implements IContainer {
   loadFromUrl(url:string, time:number):Group {
     return new Group({
       ...Object(this),
-      containers: this.containers.map(c => c.loadFromUrl(url, time))
+      containers: this.containers.map((c:IGroupContainer) => c.loadFromUrl(url, time))
     })
   }
 
   patternsMatch(url:string):boolean {
-    return R.any(c => c.patternsMatch(url), this.containers)
+    return R.any(c => c.patternsMatch(url), this.containers.toArray())
   }
 
   activate(visit:PageVisit):Group {
@@ -224,7 +212,7 @@ export default class Group implements IContainer {
   }
 
   getContainerIndex(container:IGroupContainer):number {
-    return R.findIndex(c => c.name === container.name, this.containers)
+    return this.containers.toArray().findIndex(c => c === container)
   }
 
   get activeContainer():IGroupContainer {
@@ -232,7 +220,7 @@ export default class Group implements IContainer {
   }
 
   get activeContainerIndex():number {
-    if (this.containers.length === 0) {
+    if (this.containers.size === 0) {
       return 0
     }
     else {
@@ -241,7 +229,7 @@ export default class Group implements IContainer {
   }
 
   isContainerActive(containerName:string):boolean {
-    if (this.containers.length === 0) {
+    if (this.containers.size === 0) {
       return false
     }
     else {
@@ -276,7 +264,7 @@ export default class Group implements IContainer {
   }
 
   get defaultContainer():IGroupContainer|undefined {
-    return R.find((c:IGroupContainer) => c.isDefault, this.containers)
+    return this.containers.toArray().find(c => c.isDefault)
   }
 
   getActivePageInContainer(containerName:string):Page {
@@ -417,7 +405,7 @@ export default class Group implements IContainer {
   }
 
   get subGroups():Group[] {
-    return this.containers.filter(c => c instanceof Group) as Group[]
+    return this.containers.toArray().filter(c => c instanceof Group) as Group[]
   }
 
   get wasManuallyVisited():boolean {
@@ -459,7 +447,7 @@ export default class Group implements IContainer {
   }
 
   getContainerByName(name:string):IGroupContainer {
-    const c:IGroupContainer = R.find(c => c.name === name, this.containers)
+    const c:IGroupContainer = this.containers.get(name)
     if (!c) {
       throw new Error(`Container '${name}' not found in '${this.name}'`)
     }
@@ -469,7 +457,7 @@ export default class Group implements IContainer {
   }
 
   hasContainerWithName(name:string):boolean {
-    return R.any(c => c.name === name, this.containers)
+    return this.containers.has(name)
   }
 
   hasNestedContainerWithName(name:string):boolean {
@@ -493,12 +481,18 @@ export default class Group implements IContainer {
   }
 
   get isInitialized():boolean {
-    return this.containers.length > 0 &&
+    return this.containers.size > 0 &&
       R.all(g => g.isInitialized, this.subGroups)
   }
 
   get initialUrl():string {
-    return this.containers[0].initialUrl
+    const defaultContainer = this.defaultContainer
+    if (defaultContainer) {
+      return defaultContainer.initialUrl
+    }
+    else {
+      return this.containers.first().initialUrl
+    }
   }
 
   get groupName():string|null {
@@ -521,7 +515,7 @@ export default class Group implements IContainer {
   }
 
   get patterns():string[] {
-    return R.flatten(this.containers.map(c => c.patterns))
+    return R.flatten(this.containers.toArray().map(c => c.patterns))
   }
 
   get pages():Pages {

@@ -19,7 +19,7 @@ abstract class State {
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
-  constructor({groups=fromJS({}) as Map<string, Group>, zeroPage, lastUpdate=0,
+  constructor({groups=fromJS({}), zeroPage, lastUpdate=0,
     loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
     {groups?:Map<string, Group>, zeroPage?:string, lastUpdate?:number,
       loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
@@ -254,7 +254,7 @@ abstract class State {
    */
   getZeroPage():VisitedPage {
     return State.createZeroPage(
-        this.zeroPage || this.groups.first().containers[0].initialUrl)
+        this.zeroPage || this.groups.first().containers.first().initialUrl)
   }
 }
 

@@ -86,10 +86,10 @@ describe('main', () => {
       const state:State = store.getState().state
       const group = state.groups.toArray()[0]
 
-      expect(group.containers[0].history.back.length).to.equal(1);
-      expect(group.containers[0].history.back[0].url).to.equal('/a');
-      expect(group.containers[0].history.current.url).to.equal('/a/1');
-      expect(group.containers[0].history.forward.length).to.equal(0)
+      expect(group.containers.toArray()[0].history.back.length).to.equal(1);
+      expect(group.containers.toArray()[0].history.back[0].url).to.equal('/a');
+      expect(group.containers.toArray()[0].history.current.url).to.equal('/a/1');
+      expect(group.containers.toArray()[0].history.forward.length).to.equal(0)
 
       expect(group.history.back.length).to.equal(1);
       expect(group.history.back[0].url).to.equal('/a');
@@ -119,14 +119,14 @@ describe('main', () => {
       const state:State = store.getState().state
       const group = state.groups.toArray()[0]
 
-      expect(group.containers[0].history.back.length).to.equal(1);
-      expect(group.containers[0].history.back[0].url).to.equal('/a');
-      expect(group.containers[0].history.current.url).to.equal('/a/1');
-      expect(group.containers[0].history.forward.length).to.equal(0)
+      expect(group.containers.toArray()[0].history.back.length).to.equal(1);
+      expect(group.containers.toArray()[0].history.back[0].url).to.equal('/a');
+      expect(group.containers.toArray()[0].history.current.url).to.equal('/a/1');
+      expect(group.containers.toArray()[0].history.forward.length).to.equal(0)
 
-      expect(group.containers[1].history.back.length).to.equal(0);
-      expect(group.containers[1].history.current.url).to.equal('/b');
-      expect(group.containers[1].history.forward.length).to.equal(0)
+      expect(group.containers.toArray()[1].history.back.length).to.equal(0);
+      expect(group.containers.toArray()[1].history.current.url).to.equal('/b');
+      expect(group.containers.toArray()[1].history.forward.length).to.equal(0)
 
       expect(group.history.back.length).to.equal(2);
       expect(group.history.back[0].url).to.equal('/a');
@@ -172,13 +172,13 @@ describe('main', () => {
       const state:State = store.getState().state
       const group = state.groups.toArray()[0]
 
-      expect(group.containers[0].history.back.length).to.equal(0);
-      expect(group.containers[0].history.current.url).to.equal('/g');
-      expect(group.containers[0].history.forward.length).to.equal(0)
+      expect(group.containers.toArray()[0].history.back.length).to.equal(0);
+      expect(group.containers.toArray()[0].history.current.url).to.equal('/g');
+      expect(group.containers.toArray()[0].history.forward.length).to.equal(0)
 
-      expect(group.containers[1].history.back.length).to.equal(0);
-      expect(group.containers[1].history.current.url).to.equal('/h');
-      expect(group.containers[1].history.forward.length).to.equal(0)
+      expect(group.containers.toArray()[1].history.back.length).to.equal(0);
+      expect(group.containers.toArray()[1].history.current.url).to.equal('/h');
+      expect(group.containers.toArray()[1].history.forward.length).to.equal(0)
 
       expect(group.history.back.length).to.equal(1);
       expect(group.history.back[0].url).to.equal('/g');
@@ -211,14 +211,14 @@ describe('main', () => {
       const state:State = store.getState().state
       const groups = state.groups
 
-      expect(groups.toArray()[0].containers[0].history.back.length).to.equal(0);
-      expect(groups.toArray()[0].containers[0].history.current.url).to.equal('/a');
-      expect(groups.toArray()[0].containers[0].history.forward.length).to.equal(0)
+      expect(groups.toArray()[0].containers.toArray()[0].history.back.length).to.equal(0);
+      expect(groups.toArray()[0].containers.toArray()[0].history.current.url).to.equal('/a');
+      expect(groups.toArray()[0].containers.toArray()[0].history.forward.length).to.equal(0)
 
-      expect(groups.toArray()[1].containers[0].history.back.length).to.equal(1);
-      expect(groups.toArray()[1].containers[0].history.back[0].url).to.equal('/e');
-      expect(groups.toArray()[1].containers[0].history.current.url).to.equal('/e/1');
-      expect(groups.toArray()[1].containers[0].history.forward.length).to.equal(0)
+      expect(groups.toArray()[1].containers.toArray()[0].history.back.length).to.equal(1);
+      expect(groups.toArray()[1].containers.toArray()[0].history.back[0].url).to.equal('/e');
+      expect(groups.toArray()[1].containers.toArray()[0].history.current.url).to.equal('/e/1');
+      expect(groups.toArray()[1].containers.toArray()[0].history.forward.length).to.equal(0)
 
       expect(groups.toArray()[1].history.back.length).to.equal(1);
       expect(groups.toArray()[1].history.back[0].url).to.equal('/e');
@@ -252,14 +252,14 @@ describe('main', () => {
       const state:State = store.getState().state
       const group = state.groups.toArray()[0]
 
-      expect(group.containers[0].history.back.length).to.equal(1);
-      expect(group.containers[0].history.back[0].url).to.equal('/a');
-      expect(group.containers[0].history.current.url).to.equal('/a/1');
-      expect(group.containers[0].history.forward.length).to.equal(0)
+      expect(group.containers.toArray()[0].history.back.length).to.equal(1);
+      expect(group.containers.toArray()[0].history.back[0].url).to.equal('/a');
+      expect(group.containers.toArray()[0].history.current.url).to.equal('/a/1');
+      expect(group.containers.toArray()[0].history.forward.length).to.equal(0)
 
-      expect(group.containers[1].history.back.length).to.equal(0);
-      expect(group.containers[1].history.current.url).to.equal('/b');
-      expect(group.containers[1].history.forward.length).to.equal(0)
+      expect(group.containers.toArray()[1].history.back.length).to.equal(0);
+      expect(group.containers.toArray()[1].history.current.url).to.equal('/b');
+      expect(group.containers.toArray()[1].history.forward.length).to.equal(0)
 
       expect(group.history.back.length).to.equal(1);
       expect(group.history.back[0].url).to.equal('/a');

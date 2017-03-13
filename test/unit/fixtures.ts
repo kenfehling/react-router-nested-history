@@ -78,8 +78,8 @@ export const createContainers3:CreateContainer[] = createCreateContainers({
 
 const group1:Group = new Group({
   name: 'Group 1',
-  containers: [
-    new Container({
+  containers: fromJS({
+    'Container 1A': new Container({
       time: 1000,
       name: 'Container 1A',
       groupName: 'Group 1',
@@ -87,47 +87,47 @@ const group1:Group = new Group({
       patterns: ['/a', '/a/:id'],
       isDefault: true
     }),
-    new Container({
+    'Container 2A': new Container({
       time: 1001,
       name: 'Container 2A',
       groupName: 'Group 1',
       initialUrl: '/b',
       patterns: ['/b', '/b/:id']
     }),
-    new Container({
+    'Container 3A': new Container({
       time: 1002,
       name: 'Container 3A',
       groupName: 'Group 1',
       initialUrl: '/c',
       patterns: ['/c', '/c/:id']
     })
-  ]
+  })
 })
 
 const group2:Group = new Group({
   name: 'Group 2',
-  containers: [
-    new Container({
+  containers: fromJS({
+    'Container 1B': new Container({
       time: 1005,
       name: 'Container 1B',
       groupName: 'Group 2',
       initialUrl: '/e',
       patterns: ['/e', '/e/:id'],
     }),
-    new Container({
+    'Container 2B': new Container({
       time: 1006,
       name: 'Container 2B',
       groupName: 'Group 2',
       initialUrl: '/f',
       patterns: ['/f', '/f/:id'],
-    }),
-  ]
+    })
+  })
 })
 
 const group3:Group = new Group({
   name: 'Group 3',
-  containers: [
-    new Container({
+  containers: fromJS({
+    'Container 1C': new Container({
       time: 1010,
       name: 'Container 1C',
       groupName: 'Group 3',
@@ -135,14 +135,14 @@ const group3:Group = new Group({
       patterns: ['/g', '/g/:id'],
       isDefault: true
     }),
-    new Container({
+    'Container 2C': new Container({
       time: 1011,
       name: 'Container 2C',
       groupName: 'Group 3',
       initialUrl: '/h',
       patterns: ['/h', '/h/:id'],
     })
-  ]
+  })
 })
 
 export const simpleState = new UninitializedState({
@@ -173,11 +173,11 @@ export const nestedState = new UninitializedState({
   groups: fromJS({
     'Nested Group 1':  new Group({
       name: 'Nested Group 1',
-      containers: [
-        nestedGroup1 as ISubGroup,
-        nestedGroup2 as ISubGroup,
-        nestedGroup3 as ISubGroup
-      ]
+      containers: fromJS({
+        'Group 1': nestedGroup1,
+        'Group 2': nestedGroup2,
+        'Group 3': nestedGroup3
+      })
     })
   })
 })

@@ -30,7 +30,7 @@ describe('State', () => {
           url: '/a/1',
           params: {id: '1'},
           groupName: group.name,
-          containerName: group.containers[0].name
+          containerName: group.containers.toArray()[0].name
         }), 5000)
         const newState:State = state.replaceGroup(newGroup)
         expect(newState.groups.size).to.equal(state.groups.size)
@@ -166,7 +166,7 @@ describe('State', () => {
   describe('nested group', () => {
     const state:State = fixtures.loadedNestedState
     const group:Group = fixtures.nestedState.groups.toArray()[0]
-    const nestedGroup1:Group = group.containers[0] as Group
+    const nestedGroup1:Group = group.containers.toArray()[0] as Group
 
     describe('replaceGroup', () => {
       it('creates a new group if needed', () => {
@@ -178,7 +178,7 @@ describe('State', () => {
 
       it('replaces an existing group', () => {
         const group:Group = state.groups.toArray()[0]
-        const container:IContainer = nestedGroup1.containers[0]
+        const container:IContainer = nestedGroup1.containers.toArray()[0]
         const newState:State = state.push(new Page({
           url: '/a/1',
           params: {id: '1'},
@@ -195,7 +195,7 @@ describe('State', () => {
       it('does a switch', () => {
         const group:Group = state.groups.toArray()[0]
         const newState:State = state.switchToGroup({
-          groupName: group.containers[2].name,
+          groupName: group.containers.toArray()[2].name,
           time: 4444
         })
         expect(newState.groups.toArray()[0].pages.activePage.url).to.equal('/g')
@@ -213,7 +213,7 @@ describe('State', () => {
         })
         const newState:State = state.push(page, 5000)
         expect(newState.getActiveContainerNameInGroup('Group 2')).to.equal('Container 2B')
-        expect(newState.activeGroup.activeContainerName).to.equal(group.containers[1].name)
+        expect(newState.activeGroup.activeContainerName).to.equal(group.containers.toArray()[1].name)
       })
 
       it('correctly sets the new page as active', () => {
@@ -277,7 +277,7 @@ describe('State', () => {
   })
 
   describe('inter-container history (mobile)', () => {
-    const getGroup = (s:State) => s.groups.toArray()[0].containers[2] as Group
+    const getGroup = (s:State) => s.groups.toArray()[0].containers.toArray()[2] as Group
 
     const group:Group = getGroup(fixtures.nestedState)
     const state:State = fixtures.loadedNestedState.switchToGroup({

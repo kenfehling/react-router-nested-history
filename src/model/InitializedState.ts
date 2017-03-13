@@ -198,13 +198,13 @@ export default class InitializedState extends State {
 
   getContainerNameByIndex(groupName: string, index: number): string {
     const group:Group = this.getGroupByName(groupName)
-    const container:IContainer = group.containers[index]
+    const container:IContainer = group.containers.toArray()[index]
     if (container) {
       return container.name
     }
     else {
       throw new Error(`No container found at index ${index} in '${groupName}' ` +
-        `(size: ${group.containers.length})`)
+        `(size: ${group.containers.size})`)
     }
   }
 
