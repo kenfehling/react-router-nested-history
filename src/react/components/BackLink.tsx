@@ -1,15 +1,16 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import {connect, Dispatch} from 'react-redux'
-import IUpdateData from '../../store/IUpdateData'
 import {Store} from '../../store/store'
 import Page from '../../model/Page'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import Back from '../../model/actions/Back'
-import InitializedState from '../../model/InitializedState'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
+import ComputedState from '../../model/ComputedState'
+import {createSelector} from 'reselect'
+import {getBackPageInGroup} from '../selectors'
 
 export type ChildrenFunctionArgs = {
   params: Object
@@ -23,7 +24,7 @@ export interface BackLinkProps {
 }
 
 type BackLinkPropsWithStore = BackLinkProps & {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
   groupName: string
 }
 
@@ -87,17 +88,19 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData<State, Action>,
-                         ownProps:BackLinkPropsWithStore) => {
-  const isInitialized:boolean = state instanceof InitializedState
-  return {
-    isInitialized,
-    backPage: isInitialized ? state.getBackPageInGroup(ownProps.groupName) : null
-  }
+const selector = createSelector(getBackPageInGroup, (backPage:Page) => ({
+  backPage
+}))
 
+const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
+  const s = selector(state)
+  return {
+    isInitialized: state.isInitialized,
+    backPage: s.backPage
+  }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:BackLinkPropsWithStore) => ({
   back: () => {
     dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
@@ -105,9 +108,17 @@ const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
   }
 })
 
+const mergeProps = (stateProps, dispatchProps,
+                    ownProps:BackLinkPropsWithStore):ConnectedBackLinkProps => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps
+})
+
 const ConnectedBackLink = connect(
   mapStateToProps,
   mapDispatchToProps,
+  mergeProps
 )(BackLink)
 
 export default class extends Component<BackLinkProps, undefined> {

@@ -16,6 +16,10 @@ export default class UninitializedState extends State {
     return new UninitializedState({...Object(this), ...obj})
   }
 
+  get lastActionType():string {
+    throw new Error(UNINITIALIZED_MESSAGE)
+  }
+
   switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
@@ -75,10 +79,6 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  getContainerLinkUrl(groupName:string, containerName:string):string {
-    return ''
-  }
-
   protected getHistory(maintainFwd:boolean=false):HistoryStack {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
@@ -136,6 +136,10 @@ export default class UninitializedState extends State {
   }
 
   get activeGroup():Group {
+    throw new Error(UNINITIALIZED_MESSAGE)
+  }
+
+  get activeGroupName():string {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

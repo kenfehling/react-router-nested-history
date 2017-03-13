@@ -25,8 +25,8 @@ abstract class Action implements ISerializable {
    * @param state The current state
    * @returns {[Action]} - [this], replacement/additional actions to run, or []
    */
-  filter<S extends IState>(state:S):Action[] {
-    return [this]
+  filter<S extends IState, A extends Action>(state:S):A[] {
+    return [Object(this) as A]
   }
 
   /**

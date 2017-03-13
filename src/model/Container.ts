@@ -4,6 +4,7 @@ import IContainer from './IContainer'
 import Pages, {HistoryStack} from './Pages'
 import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
+import {ComputedContainer} from './ComputedState'
 
 export default class Container implements IContainer {
   readonly name: string
@@ -151,6 +152,10 @@ export default class Container implements IContainer {
     return this.pages.activePage
   }
 
+  get activeUrl():string {
+    return this.activePage.url
+  }
+
   getBackPage():Page|undefined {
     return this.pages.getBackPage()
   }
@@ -185,5 +190,12 @@ export default class Container implements IContainer {
 
   get isGroup():boolean {
     return false
+  }
+
+  computeState():ComputedContainer {
+    return {
+      name: this.name,
+      activeUrl: this.activeUrl
+    }
   }
 }

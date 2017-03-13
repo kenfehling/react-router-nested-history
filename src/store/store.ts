@@ -3,25 +3,28 @@ import Action from './Action'
 import * as R from 'ramda'
 import * as store from 'store'
 import ClearActions from './actions/ClearActions'
-import IUpdateData from './IUpdateData'
 import IState from './IState'
 import ISerialized from './ISerialized'
+import IComputedState from './IComputedState'
 
-export interface Store<S extends IState, A extends Action> {
+export interface Store<S extends IState, A extends Action, C extends IComputedState> {
   dispatch: (action:Action) => void
   subscribe: (listener:()=>void) => () => void
-  getState: () => IUpdateData<S, A>
+  getState: () => C
+
+  getRawState: () => S  // For unit tests
 }
 
 export function deriveState<S extends IState>(actions:Action[], state:S):S {
   return actions.reduce((s: S, a: Action): S => a.reduce(s), state)
 }
 
-export function createStore<S extends IState, A extends Action>(
+export function createStore<S extends IState, A extends Action, C extends IComputedState>(
     {loadFromPersist=false, initialState}:
       {loadFromPersist:boolean, initialState:S}) {
   let actions: A[] = []
   let storedState: S = initialState
+  let storedComputedState: C = initialState.computeState()
   let timeStored: number = 0
   let listeners: (() => void)[] = []
 
@@ -53,7 +56,7 @@ export function createStore<S extends IState, A extends Action>(
     }
   }
 
-  function _dispatch(action:Action):void {
+  function _dispatch(action:A):void {
     actions = action.store(actions)
     if (action instanceof ClearActions) {
       timeStored = 0
@@ -65,9 +68,9 @@ export function createStore<S extends IState, A extends Action>(
     }
   }
 
-  function dispatch(action:Action):void {
-    const state = getState()
-    const as:Action[] = action.filter(state.state)
+  function dispatch(action:A):void {
+    const state:S = getRawState()
+    const as:A[] = action.filter(state) as A[]
     as.forEach(a => (a === action ? _dispatch : dispatch)(a))
   }
 
@@ -75,12 +78,9 @@ export function createStore<S extends IState, A extends Action>(
    * Derives the state from the list of actions
    * Caches the last derived state for performance
    */
-  function getState():IUpdateData<S, A> {
+  function getRawState():S {
     if (actions.length === 0) {
-      return {
-        state: initialState,
-        actions: []
-      }
+      return initialState
     }
     else {
       const lastTime:number = R.last(actions).time
@@ -94,10 +94,15 @@ export function createStore<S extends IState, A extends Action>(
         storedState = deriveState(newActions, storedState)
         timeStored = lastTime
       }
-      return {
-        state: storedState,
-        actions: actions
-      }
+    }
+    return storedState
+  }
+
+  function getState():C {
+    storedComputedState = getRawState().computeState()
+    return {
+      ...Object(storedComputedState),
+      actions
     }
   }
 
@@ -118,6 +123,7 @@ export function createStore<S extends IState, A extends Action>(
     dispatch,
     subscribe,
     getState,
+    getRawState,  // For unit tests
     replaceReducer: () => { throw new Error('Not implemented') }
   }
 }

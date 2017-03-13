@@ -9,8 +9,8 @@ import Action from '../../model/BaseAction'
 import PopState from '../../model/actions/PopState'
 import {connect} from 'react-redux'
 import {Store} from '../../store/store'
-import IUpdateData from '../../store/IUpdateData'
 import State from '../../model/State'
+import ComputedState from '../../model/ComputedState'
 import UpdateBrowser from '../../model/actions/UpdateBrowser'
 import * as R from 'ramda'
 
@@ -20,7 +20,7 @@ interface AnimatedPageProps {
 }
 
 type ConnectedProps = AnimatedPageProps & {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
 }
 
 type InnerProps = ConnectedProps & {
@@ -44,7 +44,7 @@ class Transition {
   readonly didEnter: Side
   readonly didLeave: Side
   readonly willLeave: Side
-  
+
   constructor({willEnter, didEnter=0, willLeave, didLeave=willLeave}:
               {willEnter:Side, didEnter?:Side,
               willLeave:Side, didLeave?:Side}) {
@@ -124,13 +124,6 @@ class AnimatedPage extends Component<InnerProps, undefined> {
   }
 
   render() {
-
-    /*
-     if (lastActionType === SwitchToContainer.type) {
-        resetMasterScrolls()
-     }
-     */
-
     const {children, lastAction} = this.props
     const {animate, pathname} = this.context
 
@@ -159,9 +152,8 @@ class AnimatedPage extends Component<InnerProps, undefined> {
   }
 }
 
-const mapStateToProps = ({actions}:IUpdateData<State, Action>,
-                         ownProps:ConnectedProps) => ({
-  lastAction: R.last(actions.filter(a => !(a instanceof UpdateBrowser)))
+const mapStateToProps = (state:ComputedState, ownProps:ConnectedProps) => ({
+  lastAction: R.last(state.actions.filter(a => !(a instanceof UpdateBrowser)))
 })
 
 const ConnectedPage = connect(mapStateToProps)(AnimatedPage)

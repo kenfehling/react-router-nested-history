@@ -3,9 +3,7 @@ import {Component} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import {Location} from 'history'
 import {Store} from '../../store/store'
-import {HistoryStack} from '../../model/Pages'
 import Page from '../../model/Page'
-import IUpdateData from '../../store/IUpdateData'
 import PopState from '../../model/actions/PopState'
 import * as browser from '../../util/browserFunctions'
 import Action from '../../model/BaseAction'
@@ -14,9 +12,10 @@ import {createStepsSince} from '../../util/reconciler'
 import UpdateBrowser from '../../model/actions/UpdateBrowser'
 import {runSteps} from '../../util/stepRunner'
 import State from '../../model/State'
+import ComputedState from '../../model/ComputedState'
 
 export interface StepRunnerProps {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
 }
 
 type ConnectedStepRunnerProps = StepRunnerProps & {
@@ -60,13 +59,13 @@ class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state, actions}:IUpdateData<State, Action>) => ({
-  actions,
+const mapStateToProps = (state:ComputedState) => ({
+  actions: state.actions,
   lastUpdate: state.lastUpdate,
   pages: state.pages
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:StepRunnerProps) => ({
   recordBrowserUpdate: () => dispatch(new UpdateBrowser()),
   dispatch

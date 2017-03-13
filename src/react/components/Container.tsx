@@ -7,13 +7,19 @@ import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
 import {canUseDOM} from 'history/ExecutionEnvironment'
 import {Store} from '../../store/store'
-import IUpdateData from '../../store/IUpdateData'
 import AddTitle from '../../model/actions/AddTitle'
 import PathTitle from '../../model/PathTitle'
 import State from '../../model/State'
 import Action from '../../model/BaseAction'
-import InitializedState from '../../model/InitializedState'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
+import ComputedState from '../../model/ComputedState'
+import {ComputedContainer} from '../../model/ComputedState'
+import {createSelector} from 'reselect'
+import {ComputedGroup} from '../../model/ComputedState'
+import {
+  getGroup, getContainer, getIsInitialized,
+  getLoadedFromRefresh, getPathname, isGroupActive
+} from '../selectors'
 
 interface ContainerProps {
   children?: ReactNode
@@ -28,7 +34,7 @@ interface ContainerProps {
 }
 
 type ContainerPropsWithStore = ContainerProps & {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
   groupName: string
   initializing: boolean
   hideInactiveContainers: boolean
@@ -136,11 +142,10 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
   }
 }
 
-const matchesLocation = (state:State, groupName:string, patterns:string[]) => {
-  const pathname:string = state.activeUrl
-  const activeGroupUrl:string = state.getActiveUrlInGroup(groupName)
+const matchesLocation = (group:ComputedGroup, isGroupActive:boolean,
+                         pathname:string, patterns:string[]) => {
+  const activeGroupUrl:string = group.activeUrl
   const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
-  const isGroupActive:boolean = state.urlMatchesGroup(pathname, groupName)
   if (isActiveInGroup) {
     if (isGroupActive) {
       return pathname === activeGroupUrl
@@ -154,19 +159,30 @@ const matchesLocation = (state:State, groupName:string, patterns:string[]) => {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData<State, Action>,
-                         ownProps:ContainerPropsWithStore) => {
-  const isInitialized:boolean = state instanceof InitializedState
+const selector = createSelector(
+  getGroup, isGroupActive, getContainer, getIsInitialized, getLoadedFromRefresh, getPathname,
+  (group:ComputedGroup, isGroupActive:boolean, container:ComputedContainer,
+   isInitialized:boolean, loadedFromRefresh:boolean, pathname:string) => ({
+    group,
+    isGroupActive,
+    isInitialized,
+    loadedFromRefresh,
+    pathname
+  })
+)
+
+const mapStateToProps = (state:ComputedState, ownProps:ContainerPropsWithStore) => {
+  const s = selector(state)
   return {
-    isInitialized: isInitialized,
-    loadedFromRefresh: state.loadedFromRefresh,
-    pathname: isInitialized ? state.activeUrl : null,
-    matchesLocation: isInitialized ?
-        matchesLocation(state, ownProps.groupName, ownProps.patterns) : false
+    isInitialized: s.isInitialized,
+    loadedFromRefresh: s.loadedFromRefresh,
+    pathname: s.pathname,
+    matchesLocation: matchesLocation(
+        s.group, s.isGroupActive, s.pathname, ownProps.patterns)
   }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:ContainerPropsWithStore) => ({
   createContainer: (action:CreateContainer) => dispatch(action),
   addTitle: (title:PathTitle) => dispatch(new AddTitle(title)),

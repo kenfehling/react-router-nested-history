@@ -10,6 +10,7 @@ import VisitedPage from './VistedPage'
 import {VisitType} from './PageVisit'
 import IGroupContainer from './IGroupContainer'
 import {Map, fromJS} from 'immutable'
+import {PartialComputedState} from './ComputedState'
 
 abstract class State {
   readonly groups: Map<string, Group>
@@ -31,15 +32,28 @@ abstract class State {
     this.titles = titles
   }
 
+  computeState():PartialComputedState {
+    return {
+      isInitialized: true,
+      loadedFromRefresh: this.loadedFromRefresh,
+      activeUrl: this.activeUrl,
+      groups: fromJS(this.groups.map((g:Group) => g.computeState())),
+      activeGroupName: this.activeGroupName,
+      lastUpdate: this.lastUpdate,
+      pages: this.pages,
+      activeTitle: this.activeTitle
+    }
+  }
+
   abstract get pages():Pages
   abstract assign(obj:Object):State
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
+  abstract get activeGroupName():string
 
   abstract switchToContainer({groupName, name, time}:
       {groupName:string, name:string, time:number}):State
 
-  abstract getContainerLinkUrl(groupName:string, containerName:string):string
   abstract getRootGroupOfGroupByName(name:string):Group
   abstract getRootGroupOfGroup(group:Group):Group
   abstract push(page:Page, time:number):State

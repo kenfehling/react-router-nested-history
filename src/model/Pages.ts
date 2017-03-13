@@ -151,6 +151,10 @@ export default class Pages implements IHistory {
     return this.byLastVisited[0]
   }
 
+  get activeUrl():string {
+    return this.activePage.url
+  }
+
   get activeIndex():number {
     const current:Page = this.activePage
     const firstVisited:Page[] = this.byFirstVisited

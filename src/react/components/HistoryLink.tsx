@@ -5,13 +5,13 @@ import {createPath} from 'history/PathUtils'
 import {connect, Dispatch} from 'react-redux'
 import Push from '../../model/actions/Push'
 import {Store} from '../../store/store'
-import IUpdateData from '../../store/IUpdateData'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
+import ComputedState from '../../model/ComputedState'
 
 type HistoryLinkPropsWithStore = LinkProps & {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
   groupName: string
 }
 
@@ -68,7 +68,7 @@ class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:HistoryLinkPropsWithStore) => ({
   push: (url:string) => dispatch(new Push({
     url,

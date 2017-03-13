@@ -1,17 +1,19 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import {connect, Dispatch} from 'react-redux'
+import {createSelector} from 'reselect'
 import DumbContainerGroup, {
   OnContainerSwitch, ChildrenType
 } from './DumbContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
-import IUpdateData from '../../store/IUpdateData'
 import {Store} from '../../store/store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import InitializedState from '../../model/InitializedState'
 import IContainer from '../../model/IContainer'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
+import ComputedState from '../../model/ComputedState'
+import {ComputedGroup} from '../../model/ComputedState'
+import {getGroup, getLoadedFromRefresh} from '../selectors'
 
 export interface ContainerGroupProps {
   name: string
@@ -27,7 +29,7 @@ export interface ContainerGroupProps {
 }
 
 type GroupPropsWithStore = ContainerGroupProps & {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
   parentGroupName: string
 }
 
@@ -104,20 +106,16 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData<State, Action>,
-                         ownProps:GroupPropsWithStore) => {
-  const {name} = ownProps
-  const isInitialized = state instanceof InitializedState
-  return {
-    loadedFromRefresh: state.loadedFromRefresh,
-    storedStackOrder: state.getContainerStackOrderForGroup(name),
-    storedCurrentContainerIndex: state.getActiveContainerIndexInGroup(name),
-    storedCurrentContainerName: isInitialized ?
-                                state.getActiveContainerNameInGroup(name) : null
-  }
-}
+const selector = createSelector(getGroup, getLoadedFromRefresh,
+  (group:ComputedGroup, loadedFromRefresh:boolean) => ({
+    loadedFromRefresh,
+    storedStackOrder: group.stackOrder,
+    storedCurrentContainerIndex: group.activeContainerIndex,
+    storedCurrentContainerName: group.activeContainerName
+  })
+)
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:GroupPropsWithStore) => ({
   createGroup: (action:CreateGroup) => dispatch(action),
   switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({
@@ -138,7 +136,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainerGroup = connect(
-  mapStateToProps,
+  selector,
   mapDispatchToProps,
   mergeProps
 )(InnerContainerGroup)

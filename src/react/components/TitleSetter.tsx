@@ -1,14 +1,14 @@
 import * as React from 'react'
 import {Component, ReactNode} from 'react'
 import {connect} from 'react-redux'
-import IUpdateData from '../../store/IUpdateData'
 import {Store} from '../../store/store'
 import {canUseWindowLocation} from '../../util/browserFunctions'
 import State from '../../model/State'
 import Action from '../../model/BaseAction'
+import ComputedState from '../../model/ComputedState'
 
 type TitleSetterPropsWithStore = {
-  store: Store<State, Action>,
+  store: Store<State, Action, ComputedState>,
   children?: ReactNode
 }
 
@@ -32,11 +32,11 @@ class TitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:IUpdateData<State, Action>,
+const mapStateToProps = (state:ComputedState,
                          ownProps:TitleSetterPropsWithStore):
                          ConnectedTitleSetterProps => ({
   ...ownProps,
-  activeTitle: state.state.activeTitle
+  activeTitle: state.activeTitle
 })
 
 const ConnectedTitleSetter = connect(mapStateToProps)(TitleSetter)

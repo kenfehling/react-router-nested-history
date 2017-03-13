@@ -10,6 +10,7 @@ abstract class IHistory {
   abstract get firstManualVisit(): PageVisit|null
   abstract get lastVisit(): PageVisit
   abstract get activePage(): VisitedPage
+  abstract get activeUrl(): string
   abstract containsPage(page: Page): boolean
   abstract getShiftAmount(page: Page): number
 

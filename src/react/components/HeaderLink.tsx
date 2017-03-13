@@ -1,12 +1,16 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {Dispatch, connect} from 'react-redux'
-import IUpdateData from '../../store/IUpdateData'
 import {Store} from '../../store/store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
+import ComputedState from '../../model/ComputedState'
+import {createSelector} from 'reselect'
+import {ComputedContainer} from '../../model/ComputedState'
+import {getContainer, getGroup, getActiveGroupContainerName} from '../selectors'
+import {ComputedGroup} from '../../model/ComputedState'
 
 export interface HeaderLinkProps {
   children: ReactNode
@@ -16,7 +20,7 @@ export interface HeaderLinkProps {
 }
 
 type HeaderLinkPropsWithStore = HeaderLinkProps & {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
   groupName: string
 }
 
@@ -76,12 +80,21 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData<State, Action>, ownProps) => ({
-  url: state.getContainerLinkUrl(ownProps.groupName, ownProps.toContainer),
-  isActive: state.isContainerActive(ownProps.groupName, ownProps.toContainer)
-})
+const selector = createSelector(getActiveGroupContainerName, getContainer,
+    (activeGroupContainerName:string, container:ComputedContainer) => ({
+  url: container.activeUrl,
+  activeGroupContainerName
+}))
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
+const mapStateToProps = (state:ComputedState, ownProps) => {
+  const s = selector(state)
+  return {
+    url: s.url,
+    isActive: s.activeGroupContainerName === ownProps.toContainer
+  }
+}
+
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:HeaderLinkPropsWithStore) => ({
   onClick: () => dispatch(new SwitchToContainer({
     groupName: ownProps.groupName,

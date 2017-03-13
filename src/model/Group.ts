@@ -17,6 +17,7 @@ import {
   sortContainersByLastVisited, sortContainersByFirstVisited
 } from '../util/sorter'
 import {Map, fromJS} from 'immutable'
+import {ComputedGroup} from './ComputedState'
 
 // Param types for _go method
 type GoFn = <H extends IHistory> (h:H, n:number, time:number) => H
@@ -273,6 +274,10 @@ export default class Group implements IContainer {
 
   get activePage():VisitedPage {
     return this.activeContainer.activePage
+  }
+
+  get activeUrl():string {
+    return this.activeContainer.activeUrl
   }
 
   getActiveUrlInContainer(containerName:string):string {
@@ -548,5 +553,17 @@ export default class Group implements IContainer {
 
   get isGroup():boolean {
     return true
+  }
+
+  computeState():ComputedGroup {
+    return {
+      name: this.name,
+      containers: fromJS(this.containers.map((c:IGroupContainer) => c.computeState())),
+      stackOrder: this.containerStackOrder.map((c:IGroupContainer) => c.computeState()),
+      activeContainerIndex: this.activeContainerIndex,
+      activeContainerName: this.activeContainerName,
+      activeUrl: this.activeUrl,
+      backPage: this.getBackPage()
+    }
   }
 }

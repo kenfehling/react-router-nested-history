@@ -1,15 +1,15 @@
 import * as React from 'react'
 import {Component, ComponentClass, PropTypes, createElement} from 'react'
 import {connect} from 'react-redux'
-import IUpdateData from '../store/IUpdateData'
 import {Store} from '../store/store'
 import Action from '../model/BaseAction'
 import State from '../model/State'
+import ComputedState from '../model/ComputedState'
 
 function connectToStore<P>(component:ComponentClass<P>):ComponentClass<P> {
-  type PS = P & {store:Store<State, Action>}
+  type PS = P & {store:Store<State, Action, ComputedState>}
 
-  const mapStateToProps = (state:IUpdateData<State, Action>, ownProps:PS):P => ({
+  const mapStateToProps = (state:ComputedState, ownProps:PS):P => ({
     ...Object(ownProps),
     ...state
   })
