@@ -2,7 +2,6 @@ import Page from './Page'
 import IContainer from './IContainer'
 import Group from './Group'
 import State from './State'
-import Container from './Container'
 import IGroupContainer from './IGroupContainer'
 import Pages, {HistoryStack} from './Pages'
 import {VisitType} from './PageVisit'
@@ -125,7 +124,7 @@ export default class InitializedState extends State {
   }
 
   get groupStackOrder():Group[] {
-    return sortContainersByLastVisited(this.groups) as Group[]
+    return sortContainersByLastVisited(this.groups.toArray()) as Group[]
   }
 
   getBackPageInGroup(groupName:string):Page|undefined {

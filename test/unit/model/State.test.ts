@@ -21,11 +21,11 @@ describe('State', () => {
         const newState:State = state.replaceGroup(new Group({
           name: 'Group X'
         }))
-        expect(newState.groups.length).to.equal(state.groups.length + 1)
+        expect(newState.groups.size).to.equal(state.groups.size + 1)
       })
 
       it('replaces an existing group', () => {
-        const group:Group = state.groups[0]
+        const group:Group = state.groups.toArray()[0]
         const newGroup:Group = group.push(new Page({
           url: '/a/1',
           params: {id: '1'},
@@ -33,9 +33,9 @@ describe('State', () => {
           containerName: group.containers[0].name
         }), 5000)
         const newState:State = state.replaceGroup(newGroup)
-        expect(newState.groups.length).to.equal(state.groups.length)
-        expect(newState.groups[0].name).to.equal(group.name)
-        expect(newState.groups[0].pages.activePage.url).to.equal('/a/1')
+        expect(newState.groups.size).to.equal(state.groups.size)
+        expect(newState.groups.toArray()[0].name).to.equal(group.name)
+        expect(newState.groups.toArray()[0].pages.activePage.url).to.equal('/a/1')
       })
     })
 
@@ -89,10 +89,11 @@ describe('State', () => {
     describe('go', () => {
       it('goes back 1 to zero page', () => {
         const newState:State = state.go(-1, 1000)
-        expect(newState.browserHistory.back.length).to.equal(0)
-        expect(newState.browserHistory.current).to.deep.equal(newState.getZeroPage())
-        expect(newState.browserHistory.forward.length).to.equal(1)
-        expect(newState.browserHistory.forward[0].url).to.equal('/a')
+        const h:HistoryStack = newState.browserHistory
+        expect(h.back.length).to.equal(0)
+        expect(h.current).to.deep.equal(newState.getZeroPage())
+        expect(h.forward.length).to.equal(1)
+        expect(h.forward[0].url).to.equal('/a')
       })
     })
 
@@ -164,7 +165,7 @@ describe('State', () => {
 
   describe('nested group', () => {
     const state:State = fixtures.loadedNestedState
-    const group:Group = fixtures.nestedState.groups[0]
+    const group:Group = fixtures.nestedState.groups.toArray()[0]
     const nestedGroup1:Group = group.containers[0] as Group
 
     describe('replaceGroup', () => {
@@ -172,11 +173,11 @@ describe('State', () => {
         const newState:State = state.replaceGroup(new Group({
           name: 'Group X'
         }))
-        expect(newState.groups.length).to.equal(state.groups.length + 1)
+        expect(newState.groups.size).to.equal(state.groups.size + 1)
       })
 
       it('replaces an existing group', () => {
-        const group:Group = state.groups[0]
+        const group:Group = state.groups.toArray()[0]
         const container:IContainer = nestedGroup1.containers[0]
         const newState:State = state.push(new Page({
           url: '/a/1',
@@ -184,20 +185,21 @@ describe('State', () => {
           groupName: nestedGroup1.name,
           containerName: container.name
         }), 4444)
-        expect(newState.groups.length).to.equal(state.groups.length)
-        expect(newState.groups[0].name).to.equal(group.name)
-        expect(newState.groups[0].pages.activePage.url).to.equal('/a/1')
-        expect(newState.groups[0].lastVisit.time).to.equal(4444)
+        const newGroup:Group = newState.groups.toArray()[0]
+        expect(newState.groups.size).to.equal(state.groups.size)
+        expect(newGroup.name).to.equal(group.name)
+        expect(newGroup.pages.activePage.url).to.equal('/a/1')
+        expect(newGroup.lastVisit.time).to.equal(4444)
       })
 
       it('does a switch', () => {
-        const group:Group = state.groups[0]
+        const group:Group = state.groups.toArray()[0]
         const newState:State = state.switchToGroup({
           groupName: group.containers[2].name,
           time: 4444
         })
-        expect(newState.groups[0].pages.activePage.url).to.equal('/g')
-        expect(newState.groups[0].lastVisit.time).to.equal(4444)
+        expect(newState.groups.toArray()[0].pages.activePage.url).to.equal('/g')
+        expect(newState.groups.toArray()[0].lastVisit.time).to.equal(4444)
       })
     })
 
@@ -275,7 +277,7 @@ describe('State', () => {
   })
 
   describe('inter-container history (mobile)', () => {
-    const getGroup = (s:State) => s.groups[0].containers[2] as Group
+    const getGroup = (s:State) => s.groups.toArray()[0].containers[2] as Group
 
     const group:Group = getGroup(fixtures.nestedState)
     const state:State = fixtures.loadedNestedState.switchToGroup({

@@ -11,7 +11,7 @@ describe('LoadFromUrl', () => {
 
   it('loads into each group that it matches', () => {
     const action:LoadFromUrl = new LoadFromUrl({url: '/a/1', time: 2000})
-    const groups:Group[] = action.reduce(state).groups
+    const groups:Group[] = action.reduce(state).groups.toArray()
     expect(groups[0].activeContainer.activePage.url).to.equal('/a/1')
     expect(groups[1].activeContainer.activePage.url).to.equal('/e')
     expect(groups[2].activeContainer.activePage.url).to.equal('/g')

@@ -9,18 +9,19 @@ import {HistoryStack, default as Pages} from './Pages'
 import VisitedPage from './VistedPage'
 import {VisitType} from './PageVisit'
 import IGroupContainer from './IGroupContainer'
+import {Map, fromJS} from 'immutable'
 
 abstract class State {
-  readonly groups: Group[]
+  readonly groups: Map<string, Group>
   readonly titles: PathTitle[]
   readonly zeroPage?: string
   readonly lastUpdate: number
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
-  constructor({groups=[], zeroPage, lastUpdate=0,
+  constructor({groups=fromJS({}) as Map<string, Group>, zeroPage, lastUpdate=0,
     loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
-    {groups?:Group[], zeroPage?:string, lastUpdate?:number,
+    {groups?:Map<string, Group>, zeroPage?:string, lastUpdate?:number,
       loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
     this.zeroPage = zeroPage
@@ -81,21 +82,9 @@ abstract class State {
       return this.replaceGroup(parentGroup.replaceContainer(group as ISubGroup))
     }
     else {
-      const i:number = R.findIndex(g => g.name === group.name, this.groups)
-      if (i === -1) {  // If group didn't already exist
-        return this.assign({
-          groups: [...this.groups, group]
-        })
-      }
-      else {
-        return this.assign({
-          groups: [
-            ...this.groups.slice(0, i),
-            group,
-            ...this.groups.slice(i + 1)
-          ]
-        })
-      }
+      return this.assign({
+        groups: this.groups.set(group.name, group)
+      })
     }
   }
 
@@ -158,7 +147,7 @@ abstract class State {
   }
 
   getGroupByName(name:string):Group {
-    const g:Group = R.find(g => g.name === name, this.groups)
+    const g:Group = this.groups.get(name)
     if (g) {
       return g
     }
@@ -265,7 +254,7 @@ abstract class State {
    */
   getZeroPage():VisitedPage {
     return State.createZeroPage(
-        this.zeroPage || this.groups[0].containers[0].initialUrl)
+        this.zeroPage || this.groups.first().containers[0].initialUrl)
   }
 }
 

@@ -6,6 +6,7 @@ import ISubGroup from '../../src/model/ISubGroup'
 import UninitializedState from '../../src/model/UninitializedState'
 import InitializedState from '../../src/model/InitializedState'
 import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
+import {Map, fromJS} from 'immutable'
 
 const createCreateGroup = (name:string):CreateGroup =>
     new CreateGroup({name, time: 500})
@@ -145,7 +146,11 @@ const group3:Group = new Group({
 })
 
 export const simpleState = new UninitializedState({
-  groups: [group1, group2, group3]
+  groups: fromJS({
+    'Group 1': group1,
+    'Group 2': group2,
+    'Group 3': group3
+  })
 })
 
 const nestedGroup1 = new Group({
@@ -165,8 +170,8 @@ const nestedGroup3 = new Group({
 })
 
 export const nestedState = new UninitializedState({
-  groups: [
-    new Group({
+  groups: fromJS({
+    'Nested Group 1':  new Group({
       name: 'Nested Group 1',
       containers: [
         nestedGroup1 as ISubGroup,
@@ -174,7 +179,7 @@ export const nestedState = new UninitializedState({
         nestedGroup3 as ISubGroup
       ]
     })
-  ]
+  })
 })
 
 export const loadedSimpleState:InitializedState =

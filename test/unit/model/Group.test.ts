@@ -5,15 +5,16 @@ import Page from '../../../src/model/Page'
 import IContainer from '../../../src/model/IContainer'
 import * as fixtures from '../fixtures'
 import IGroupContainer from '../../../src/model/IGroupContainer'
+import {Map} from 'immutable'
 import {expect} from 'chai'
 declare const describe:any
 declare const it:any
 
 describe('Group', () => {
-  const containers:Map<string, Container> = new Map<string, Container>()
+  const containers:Map<string, Container> = {} as Map<string, Container>
 
   describe('simple group', () => {
-    const group = fixtures.loadedSimpleState.groups[0]
+    const group = fixtures.loadedSimpleState.groups.toArray()[0]
 
     describe('replaceContainer', () => {
       it('creates a new container if needed', () => {
@@ -240,7 +241,7 @@ describe('Group', () => {
   })
 
   describe('nested group', () => {
-    const group = fixtures.loadedNestedState.groups[0]
+    const group = fixtures.loadedNestedState.groups.toArray()[0]
     const nestedGroup1:Group = group.containers[0] as Group
     const nestedGroup2:Group = group.containers[1] as Group
     const nestedGroup3:Group = group.containers[2] as Group
@@ -368,7 +369,7 @@ describe('Group', () => {
   })
 
   describe('inter-container history (mobile)', () => {
-    const group = fixtures.nestedState.groups[0].containers[2] as Group
+    const group = fixtures.nestedState.groups.toArray()[0].containers[2] as Group
     it('Crosses the container boundary', () => {
       const newGroup:Group = group.activateContainer('Container 2C', 2000)
       const history:HistoryStack = newGroup.history
