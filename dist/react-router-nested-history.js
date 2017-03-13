@@ -10742,13 +10742,14 @@ var SwitchToContainer_1 = __webpack_require__(84);
 var InitializedState_1 = __webpack_require__(44);
 var InnerContainerGroup = (function (_super) {
     __extends(InnerContainerGroup, _super);
-    function InnerContainerGroup(props) {
-        var _this = _super.call(this, props) || this;
-        if (!props.loadedFromRefresh) {
-            _this.initialize();
-        }
-        return _this;
+    function InnerContainerGroup() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
+    InnerContainerGroup.prototype.componentWillMount = function () {
+        if (!this.props.loadedFromRefresh) {
+            this.initialize();
+        }
+    };
     InnerContainerGroup.prototype.initialize = function () {
         var _a = this.props, name = _a.name, resetOnLeave = _a.resetOnLeave, allowInterContainerHistory = _a.allowInterContainerHistory, gotoTopOnSelectActive = _a.gotoTopOnSelectActive, createGroup = _a.createGroup, parentGroupName = _a.parentGroupName, isDefault = _a.isDefault;
         createGroup(new CreateGroup_1.default({
@@ -10761,30 +10762,30 @@ var InnerContainerGroup = (function (_super) {
         }));
         /*
          class G extends Component<{children: ReactNode}, undefined> {
-         static childContextTypes = {
-         rrnhStore: PropTypes.object.isRequired,
-         groupName: PropTypes.string.isRequired,
-         initializing: PropTypes.bool
-         }
+           static childContextTypes = {
+             rrnhStore: PropTypes.object.isRequired,
+             groupName: PropTypes.string.isRequired,
+             initializing: PropTypes.bool
+           }
     
-         getChildContext() {
-         return {
-         rrnhStore: store,
-         groupName: name,
-         initializing: true
-         }
-         }
+           getChildContext() {
+             return {
+               rrnhStore: store,
+               groupName: name,
+               initializing: true
+             }
+           }
     
-         render() {
-         const {children} = this.props
-         return <div>{children}</div>
-         }
+           render() {
+             const {children} = this.props
+             return <div>{children}</div>
+           }
          }
     
          // Initialize the Containers in this group
          // (since most tab libraries lazy load tabs)
          const cs = getChildren(this, [Container, DumbContainer],
-         [ContainerGroup, DumbContainerGroup, WindowGroup])
+            [ContainerGroup, DumbContainerGroup, WindowGroup])
          cs.forEach(c => renderToStaticMarkup(<G children={c} />))
          */
     };
@@ -18239,13 +18240,14 @@ var InitializedState_1 = __webpack_require__(44);
 var SwitchToGroup_1 = __webpack_require__(85);
 var InnerContainer = (function (_super) {
     __extends(InnerContainer, _super);
-    function InnerContainer(props) {
-        var _this = _super.call(this, props) || this;
-        if (!props.loadedFromRefresh) {
-            _this.initialize();
-        }
-        return _this;
+    function InnerContainer() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
+    InnerContainer.prototype.componentWillMount = function () {
+        if (!this.props.loadedFromRefresh) {
+            this.initialize();
+        }
+    };
     InnerContainer.prototype.initialize = function () {
         var _a = this.props, store = _a.store, children = _a.children, name = _a.name, patterns = _a.patterns, initialUrl = _a.initialUrl, _b = _a.animate, animate = _b === void 0 ? true : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, createContainer = _a.createContainer, groupName = _a.groupName, _d = _a.initializing, initializing = _d === void 0 ? false : _d, _e = _a.isDefault, isDefault = _e === void 0 ? false : _e;
         createContainer(new CreateContainer_1.default({

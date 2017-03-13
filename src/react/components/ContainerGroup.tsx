@@ -43,9 +43,8 @@ type ConnectedGroupProps = GroupPropsWithStore & {
 
 class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
-  constructor(props) {
-    super(props)
-    if (!props.loadedFromRefresh) {
+  componentWillMount() {
+    if (!this.props.loadedFromRefresh) {
       this.initialize()
     }
   }
@@ -72,30 +71,30 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
     /*
      class G extends Component<{children: ReactNode}, undefined> {
-     static childContextTypes = {
-     rrnhStore: PropTypes.object.isRequired,
-     groupName: PropTypes.string.isRequired,
-     initializing: PropTypes.bool
-     }
+       static childContextTypes = {
+         rrnhStore: PropTypes.object.isRequired,
+         groupName: PropTypes.string.isRequired,
+         initializing: PropTypes.bool
+       }
 
-     getChildContext() {
-     return {
-     rrnhStore: store,
-     groupName: name,
-     initializing: true
-     }
-     }
+       getChildContext() {
+         return {
+           rrnhStore: store,
+           groupName: name,
+           initializing: true
+         }
+       }
 
-     render() {
-     const {children} = this.props
-     return <div>{children}</div>
-     }
+       render() {
+         const {children} = this.props
+         return <div>{children}</div>
+       }
      }
 
      // Initialize the Containers in this group
      // (since most tab libraries lazy load tabs)
      const cs = getChildren(this, [Container, DumbContainer],
-     [ContainerGroup, DumbContainerGroup, WindowGroup])
+        [ContainerGroup, DumbContainerGroup, WindowGroup])
      cs.forEach(c => renderToStaticMarkup(<G children={c} />))
      */
   }

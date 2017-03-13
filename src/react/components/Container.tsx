@@ -45,9 +45,9 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
 }
 
 class InnerContainer extends Component<ConnectedContainerProps, undefined> {
-  constructor(props) {
-    super(props)
-    if (!props.loadedFromRefresh) {
+
+  componentWillMount() {
+    if (!this.props.loadedFromRefresh) {
       this.initialize()
     }
   }
