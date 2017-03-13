@@ -156,7 +156,6 @@ export default class ContainerGroup extends Component<ContainerGroupProps, undef
                                store={rrnhStore}
                                {...this.props}
       />
-
     )
   }
 }

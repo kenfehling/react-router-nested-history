@@ -6,7 +6,7 @@ import {Store} from '../store/store'
 import Action from '../model/BaseAction'
 import State from '../model/State'
 
-export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
+function connectToStore<P>(component:ComponentClass<P>):ComponentClass<P> {
   type PS = P & {store:Store<State, Action>}
 
   const mapStateToProps = (state:IUpdateData<State, Action>, ownProps:PS):P => ({
@@ -17,7 +17,7 @@ export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
   const WrappedComponent = (props:P) => createElement(component, props)
   const ConnectedComponent = connect(mapStateToProps)(WrappedComponent)
 
-  return class ConntectToStore extends Component<P, any> {
+  return class ConnectToStore extends Component<P, any> {
     static contextTypes = {
       rrnhStore: PropTypes.object.isRequired
     }
@@ -27,3 +27,5 @@ export default function<P>(component:ComponentClass<P>):ComponentClass<P> {
     }
   }
 }
+
+export default connectToStore
