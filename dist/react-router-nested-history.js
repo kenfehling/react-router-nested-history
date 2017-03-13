@@ -24387,7 +24387,7 @@ var Group = (function () {
         return this.replaceContainer(container);
     };
     Group.prototype.getContainerIndex = function (container) {
-        return this.containers.toArray().findIndex(function (c) { return c === container; });
+        return R.findIndex(function (c) { return c === container; }, this.containers.toArray());
     };
     Object.defineProperty(Group.prototype, "activeContainer", {
         get: function () {
@@ -24446,7 +24446,7 @@ var Group = (function () {
     });
     Object.defineProperty(Group.prototype, "defaultContainer", {
         get: function () {
-            return this.containers.toArray().find(function (c) { return c.isDefault; });
+            return R.find(function (c) { return c.isDefault; }, this.containers.toArray());
         },
         enumerable: true,
         configurable: true

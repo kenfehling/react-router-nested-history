@@ -212,7 +212,7 @@ export default class Group implements IContainer {
   }
 
   getContainerIndex(container:IGroupContainer):number {
-    return this.containers.toArray().findIndex(c => c === container)
+    return R.findIndex(c => c === container, this.containers.toArray())
   }
 
   get activeContainer():IGroupContainer {
@@ -264,7 +264,7 @@ export default class Group implements IContainer {
   }
 
   get defaultContainer():IGroupContainer|undefined {
-    return this.containers.toArray().find(c => c.isDefault)
+    return R.find(c => c.isDefault, this.containers.toArray())
   }
 
   getActivePageInContainer(containerName:string):Page {
