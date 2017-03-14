@@ -30,7 +30,7 @@ export const getActiveGroupContainerName = (state:ComputedState, ownProps):strin
 export const getBackPageInGroup = (state:ComputedState, ownProps):Page|undefined =>
   getGroup(state, ownProps).backPage
 
-export const isGroupActive = (state:ComputedState, ownProps):boolean =>
+export const getIsGroupActive = (state:ComputedState, ownProps):boolean =>
   getGroup(state, ownProps).name === state.activeGroupName
 
 export const getIsInitialized = (state:ComputedState) =>

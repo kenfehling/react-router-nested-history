@@ -12,9 +12,6 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
-import {createDeepEqualSelector, createCachingSelector} from '../selectors'
-import {createSelector} from 'reselect'
-
 
 export interface ContainerGroupProps {
   name: string
@@ -46,19 +43,14 @@ export const getGroup = (state:ComputedState, ownProps):ComputedGroup => {
   return state.groups.get(ownProps.name)
 }
 
-/*
-const groupSelector = createCachingSelector(getGroup, (group:ComputedGroup) => ({
-  group
-}))
-*/
-
-const selector = createSelector(getGroup, (group:ComputedGroup) => {
+const mapStateToProps = (state:ComputedState, ownProps:GroupPropsWithStore) => {
+  const group:ComputedGroup = getGroup(state, ownProps)
   return {
     storedStackOrder: group.stackOrder,
     storedCurrentContainerIndex: group.activeContainerIndex,
     storedCurrentContainerName:group.activeContainerName
   }
-})
+}
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:GroupPropsWithStore) => ({
@@ -81,7 +73,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainerGroup = connect(
-  selector,
+  mapStateToProps,
   mapDispatchToProps,
   mergeProps
 )(DumbContainerGroup)

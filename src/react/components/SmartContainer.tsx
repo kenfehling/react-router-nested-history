@@ -12,13 +12,8 @@ import State from '../../model/State'
 import Action from '../../model/BaseAction'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import ComputedState from '../../model/ComputedState'
-import {ComputedContainer} from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
-import {
-  getGroup, getPathname, isGroupActive, createDeepEqualSelector,
-  createCachingSelector
-} from '../selectors'
-import {createSelector} from 'reselect'
+import {getGroup, getPathname, getIsGroupActive} from '../selectors'
 
 export interface ContainerProps {
   children?: ReactNode
@@ -102,25 +97,15 @@ const matchesLocation = (group:ComputedGroup, isGroupActive:boolean,
   }
 }
 
-export const getContainer = (state:ComputedState, ownProps):ComputedContainer =>
-  getGroup(state, ownProps).containers.get(ownProps.name)
-
-const selector = createSelector(
-  getGroup, isGroupActive, getContainer, getPathname,
-  (group:ComputedGroup, isGroupActive:boolean, container:ComputedContainer,
-   pathname:string) => ({
+const mapStateToProps = (state:ComputedState, ownProps:ContainerPropsWithStore) => {
+  const group:ComputedGroup = getGroup(state, ownProps)
+  const pathname:string = getPathname(state)
+  const isGroupActive:boolean = getIsGroupActive(state, ownProps)
+  return {
     group,
     isGroupActive,
-    pathname
-  })
-)
-
-const mapStateToProps = (state:ComputedState, ownProps:ContainerPropsWithStore) => {
-  const s = selector(state, ownProps)
-  return {
-    pathname: s.pathname,
-    matchesLocation: matchesLocation(
-      s.group, s.isGroupActive, s.pathname, ownProps.patterns)
+    pathname,
+    matchesLocation: matchesLocation(group, isGroupActive, pathname, ownProps.patterns)
   }
 }
 
