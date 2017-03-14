@@ -71,7 +71,7 @@ describe('main', () => {
         })
       ])
       store = makeNewStore()
-      expect(store.getState().actions.length).to.equal(0)
+      expect(store.getRawState()).to.be.an.instanceof(UninitializedState)
     })
 
     it('loads to a non-default page', () => {

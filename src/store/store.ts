@@ -24,7 +24,7 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
       {loadFromPersist:boolean, initialState:S}) {
   let actions: A[] = []
   let storedState: S = initialState
-  let storedComputedState: C = initialState.computeState()
+  let storedComputedState:IComputedState = { actions: [] }
   let timeStored: number = 0
   let listeners: (() => void)[] = []
 
@@ -62,7 +62,11 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
       timeStored = 0
       storedState = initialState
     }
-    updateListeners()
+    else {
+      if (storedState.isInitialized) {
+        updateListeners()
+      }
+    }
     if (store.enabled) {  // if can use localStorage
       store.set('actions', actions.map(a => serialize(a)))
     }
@@ -99,9 +103,13 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
   }
 
   function getState():C {
-    storedComputedState = getRawState().computeState()
+    const rawState:S = getRawState()
+    if (rawState.isInitialized) {
+      storedComputedState = rawState.computeState()
+    }
     return {
       ...Object(storedComputedState),
+      isInitialized: rawState.isInitialized,
       actions
     }
   }

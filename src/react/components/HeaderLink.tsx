@@ -9,8 +9,8 @@ import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
 import {createSelector} from 'reselect'
 import {ComputedContainer} from '../../model/ComputedState'
-import {getContainer, getGroup, getActiveGroupContainerName} from '../selectors'
-import {ComputedGroup} from '../../model/ComputedState'
+import {getGroup, getActiveGroupContainerName} from '../selectors'
+import waitForInitialization from '../waitForInitialization'
 
 export interface HeaderLinkProps {
   children: ReactNode
@@ -30,7 +30,7 @@ type ConnectedHeaderLinkProps = HeaderLinkPropsWithStore & {
   isActive: boolean
 }
 
-class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
+class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
 
   componentDidMount() {
     if (this.props.groupName == null) {
@@ -80,6 +80,9 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 }
 
+export const getContainer = (state:ComputedState, ownProps):ComputedContainer =>
+  getGroup(state, ownProps).containers.get(ownProps.toContainer)
+
 const selector = createSelector(getActiveGroupContainerName, getContainer,
     (activeGroupContainerName:string, container:ComputedContainer) => ({
   url: container ? container.activeUrl : '',
@@ -113,9 +116,9 @@ const ConnectedHeaderLink = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(HeaderLink)
+)(InnerHeaderLink)
 
-export default class extends Component<HeaderLinkProps, undefined> {
+class HeaderLink extends Component<HeaderLinkProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired
@@ -126,3 +129,5 @@ export default class extends Component<HeaderLinkProps, undefined> {
     return <ConnectedHeaderLink store={rrnhStore} {...context} {...this.props} />
   }
 }
+
+export default waitForInitialization(HeaderLink)

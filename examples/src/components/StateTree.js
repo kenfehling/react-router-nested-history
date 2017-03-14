@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {connectToStore} from 'react-router-nested-history'
+import {connectToStore, waitForInitialization} from 'react-router-nested-history'
 import './StateTree.css'
 
 const HistoryTree = ({history, className}) => (
@@ -57,4 +57,4 @@ const StateTree = (state) => (
   <DumbStateTree groups={state.groups} activeGroupName={state.activeGroupName} />
 )
 
-export default connectToStore(StateTree)
+export default waitForInitialization(connectToStore(StateTree))

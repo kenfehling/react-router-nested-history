@@ -276,9 +276,8 @@ export default class Group implements IContainer {
     return this.activeContainer.activePage
   }
 
-  get activeUrl():string|null {
-    const c = this.activeContainer
-    return c ? c.activeUrl : null
+  get activeUrl():string {
+    return this.activeContainer.activeUrl
   }
 
   getActiveUrlInContainer(containerName:string):string {
@@ -307,9 +306,8 @@ export default class Group implements IContainer {
     }
   }
 
-  get activeContainerName():string|null {
-    const c = this.activeContainer
-    return c ? c.name : null
+  get activeContainerName():string {
+    return this.activeContainer.name
   }
 
   getShiftAmount(page:Page):number {
@@ -411,8 +409,12 @@ export default class Group implements IContainer {
     return this.go(this.getShiftAmount(page), time)
   }
 
-  get subGroups():Group[] {
-    return this.containers.toArray().filter(c => c instanceof Group) as Group[]
+  get subGroups():Map<string, Group> {
+    return this.containers.filter(c => c instanceof Group) as Map<string, Group>
+  }
+
+  computeSubGroups():Map<string, ComputedGroup> {
+    return fromJS(this.subGroups.map((g:Group) => g.computeState()))
   }
 
   get wasManuallyVisited():boolean {
@@ -481,16 +483,16 @@ export default class Group implements IContainer {
   }
 
   getSubGroupHavingContainer(container:IGroupContainer):Group {
-    return R.find(g => g.hasNestedContainer(container), this.subGroups)
+    return R.find(g => g.hasNestedContainer(container), this.subGroups.toArray())
   }
 
   getSubGroupHavingContainerWithName(name:string):Group {
-    return R.find(g => g.hasNestedContainerWithName(name), this.subGroups)
+    return R.find(g => g.hasNestedContainerWithName(name), this.subGroups.toArray())
   }
 
   get isInitialized():boolean {
     return this.containers.size > 0 &&
-      R.all(g => g.isInitialized, this.subGroups)
+      R.all(g => g.isInitialized, this.subGroups.toArray())
   }
 
   get initialUrl():string {
@@ -567,7 +569,7 @@ export default class Group implements IContainer {
       activeContainerName: this.activeContainerName,
       activeUrl: this.activeUrl,
       backPage: this.backPage,
-      history: this.containers.isEmpty() ? null : this.history
+      history: this.history
     }
   }
 }

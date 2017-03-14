@@ -41,7 +41,7 @@ type ConnectedRouterProps = RouterPropsWithStore & {
   setZeroPage: (url:string) => void
 }
 
-class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
+class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
   static childContextTypes = {
     rrnhStore: PropTypes.object.isRequired
   }
@@ -164,12 +164,18 @@ const ConnectedHistoryRouter = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(HistoryRouter)
+)(InnerHistoryRouter)
 
-export default (props:HistoryRouterProps) => (
+const HistoryRouter = (props:HistoryRouterProps) => (
   <ConnectedHistoryRouter
     {...props}
     store={createStore<State, Action, ComputedState>({
             loadFromPersist: wasLoadedFromRefresh,
             initialState: new UninitializedState()})} />
 )
+
+const WrappedHistoryRouter = (props:HistoryRouterProps) => (
+  <HistoryRouter {...props} />
+)
+
+export default WrappedHistoryRouter

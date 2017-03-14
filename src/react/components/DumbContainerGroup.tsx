@@ -41,14 +41,15 @@ export default class DumbContainerGroup extends
 
   static childContextTypes = {
     groupName: PropTypes.string.isRequired,
-    hideInactiveContainers: PropTypes.bool
+    hideInactiveContainers: PropTypes.bool,
+    initializing: PropTypes.bool
   }
 
   getChildContext() {
     const {name, hideInactiveContainers=true} = this.props
     return {
       groupName: name,
-      hideInactiveContainers
+      hideInactiveContainers,
     }
   }
 
@@ -127,6 +128,8 @@ export default class DumbContainerGroup extends
       'parentGroupName',
       'allowInterContainerHistory',
       'loadedFromRefresh',
+      'isInitialized',
+      'initializing',
       'storeSubscription'
   ], this.props)
     const divStyle={

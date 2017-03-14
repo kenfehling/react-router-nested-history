@@ -15,7 +15,6 @@ export interface DumbContainerProps {
   groupName: string
   isDefault?: boolean
   hideInactiveContainers?: boolean
-  isInitialized: boolean
   switchToGroup: () => void
   matchesLocation: boolean
 }

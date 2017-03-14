@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, Children, PropTypes, cloneElement, ReactElement} from 'react'
 import ContainerGroup from './ContainerGroup'
-import {ContainerGroupProps} from './ContainerGroup'
+import {ContainerGroupProps} from './SmartContainerGroup'
 import {ChildrenFunctionArgs} from './DumbContainerGroup'
 import IContainer from '../../model/IContainer'
 

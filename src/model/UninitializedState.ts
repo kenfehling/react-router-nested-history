@@ -143,8 +143,8 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  get activeGroupName():string|null {
-    return null
+  get activeGroupName():string {
+    throw new Error(UNINITIALIZED_MESSAGE)
   }
 
   get activeContainer():IContainer {

@@ -1,5 +1,4 @@
 import {Map} from 'immutable'
-import PathTitle from './PathTitle'
 import Page from './Page'
 import IComputedState from '../store/IComputedState'
 import Pages from './Pages'
@@ -7,27 +6,27 @@ import {HistoryStack} from './Pages'
 
 export interface ComputedContainer {
   name: string,
-  activeUrl: string|null,
-  history: HistoryStack|null
+  activeUrl: string,
+  history: HistoryStack
 }
 
 export interface ComputedGroup {
   name: string,
   containers: Map<string, ComputedContainer|ComputedGroup>
   stackOrder: (ComputedContainer|ComputedGroup)[]
-  activeContainerIndex: number|null
-  activeContainerName: string|null
-  activeUrl: string|null
+  activeContainerIndex: number
+  activeContainerName: string
+  activeUrl: string
   backPage: Page|undefined
-  history: HistoryStack|null
+  history: HistoryStack
 }
 
 export interface PartialComputedState {
   isInitialized: boolean
   loadedFromRefresh: boolean
   groups: Map<string, ComputedGroup>
-  activeUrl: string|null
-  activeGroupName: string|null
+  activeUrl: string
+  activeGroupName: string
   lastUpdate: number
   pages: Pages
   activeTitle: string|null

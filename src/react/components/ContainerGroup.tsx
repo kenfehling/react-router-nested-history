@@ -1,63 +1,50 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import {connect, Dispatch} from 'react-redux'
-import {createSelector} from 'reselect'
-import DumbContainerGroup, {
-  OnContainerSwitch, ChildrenType
-} from './DumbContainerGroup'
+import SmartContainerGroup, {ContainerGroupProps} from './SmartContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
-import {Store} from '../../store/store'
-import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import IContainer from '../../model/IContainer'
-import Action from '../../model/BaseAction'
-import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
-import {ComputedGroup} from '../../model/ComputedState'
-import {getGroup, getLoadedFromRefresh} from '../selectors'
-
-export interface ContainerGroupProps {
-  name: string
-  children?: ChildrenType
-  currentContainerIndex?: number
-  currentContainerName?: string
-  onContainerActivate?: OnContainerSwitch
-  resetOnLeave?: boolean
-  allowInterContainerHistory?: boolean
-  hideInactiveContainers?: boolean
-  gotoTopOnSelectActive?: boolean
-  isDefault: boolean
-}
+import {Store} from '../../store/store'
+import Action from '../../store/Action'
+import State from '../../model/State'
+import {renderToStaticMarkup} from 'react-dom/server'
+import WindowGroup from './WindowGroup'
+import DumbContainerGroup from './DumbContainerGroup'
+import DumbContainer from './DumbContainer'
+import Container from './Container'
+import {getChildren} from '../../util/children'
+import ReactNode = React.ReactNode
+import waitForInitialization from '../waitForInitialization'
 
 type GroupPropsWithStore = ContainerGroupProps & {
   store: Store<State, Action, ComputedState>
   parentGroupName: string
+  initializing: boolean
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
   createGroup: (action:CreateGroup) => void
-  storedStackOrder: IContainer[]|null
-  storedCurrentContainerIndex: number|null
-  storedCurrentContainerName: string|null
-  switchToContainerIndex: (index:number) => void
-  switchToContainerName: (name:string) => void
   loadedFromRefresh: boolean
+  isInitialized: boolean
 }
 
 class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
   componentWillMount() {
-    if (!this.props.loadedFromRefresh) {
+    const {parentGroupName, initializing, loadedFromRefresh} = this.props
+    if ((!parentGroupName || initializing) && !loadedFromRefresh) {
       this.initialize()
     }
   }
 
   initialize() {
     const {
+      store,
       name,
+      createGroup,
       resetOnLeave,
       allowInterContainerHistory,
       gotoTopOnSelectActive,
-      createGroup,
       parentGroupName,
       isDefault
     } = this.props
@@ -71,7 +58,6 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       gotoTopOnSelectActive
     }))
 
-    /*
      class G extends Component<{children: ReactNode}, undefined> {
        static childContextTypes = {
          rrnhStore: PropTypes.object.isRequired,
@@ -96,36 +82,22 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
      // Initialize the Containers in this group
      // (since most tab libraries lazy load tabs)
      const cs = getChildren(this, [Container, DumbContainer],
-        [ContainerGroup, DumbContainerGroup, WindowGroup])
+     [ContainerGroup, SmartContainerGroup, DumbContainerGroup, WindowGroup])
      cs.forEach(c => renderToStaticMarkup(<G children={c} />))
-     */
   }
 
   render() {
-    return <DumbContainerGroup {...this.props} />
+    return this.props.isInitialized ? <SmartContainerGroup {...this.props} /> : <div></div>
   }
 }
 
-const selector = createSelector(getGroup, getLoadedFromRefresh,
-  (group:ComputedGroup, loadedFromRefresh:boolean) => ({
-    loadedFromRefresh,
-    storedStackOrder: group ? group.stackOrder : null,
-    storedCurrentContainerIndex: group ? group.activeContainerIndex : null,
-    storedCurrentContainerName: group ? group.activeContainerName : null
-  })
-)
+const mapStateToProps = (state:ComputedState) => ({
+  loadedFromRefresh: state.loadedFromRefresh,
+  isInitialized: state.isInitialized
+})
 
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:GroupPropsWithStore) => ({
-  createGroup: (action:CreateGroup) => dispatch(action),
-  switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({
-    groupName: ownProps.name,
-    index
-  })),
-  switchToContainerName: (name:string) => dispatch(new SwitchToContainer({
-    groupName: ownProps.name,
-    name
-  }))
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>) => ({
+  createGroup: (action:CreateGroup) => dispatch(action)
 })
 
 const mergeProps = (stateProps, dispatchProps,
@@ -136,7 +108,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainerGroup = connect(
-  selector,
+  mapStateToProps,
   mapDispatchToProps,
   mergeProps
 )(InnerContainerGroup)
@@ -144,14 +116,16 @@ const ConnectedContainerGroup = connect(
 export default class ContainerGroup extends Component<ContainerGroupProps, undefined> {
   static contextTypes = {
     groupName: PropTypes.string,  // Parent group name (if any)
+    initializing: PropTypes.bool,  // Only if is a subgroup
     rrnhStore: PropTypes.object.isRequired
   }
 
   render() {
-    const {groupName, rrnhStore} = this.context
+    const {groupName, rrnhStore, initializing} = this.context
     return (
       <ConnectedContainerGroup parentGroupName={groupName}
                                store={rrnhStore}
+                               initializing={initializing}
                                {...this.props}
       />
     )

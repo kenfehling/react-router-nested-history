@@ -152,9 +152,8 @@ export default class Container implements IContainer {
     return this.pages.activePage
   }
 
-  get activeUrl():string|null {
-    const p = this.activePage
-    return p ? p.url : null
+  get activeUrl():string {
+    return this.activePage.url
   }
 
   get backPage():Page|undefined {

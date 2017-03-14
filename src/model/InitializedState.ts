@@ -18,7 +18,7 @@ export default class InitializedState extends State {
   }
 
   get isInitialized():boolean {
-    return false
+    return true
   }
 
   switchToGroup({groupName, time}:{groupName:string, time:number}):State {
@@ -216,7 +216,7 @@ export default class InitializedState extends State {
     return this.getGroupByName(groupName).containerStackOrder
   }
 
-  get activeGroupName():string|null {
+  get activeGroupName():string {
     return this.activeGroup.name
   }
 }
