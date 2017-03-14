@@ -24,7 +24,7 @@ export default () => (
             <Windows />
           </div>
           <div className='example-container mobile-container'>
-            <MobileExample />
+
           </div>
         </div>
         <div className='bottom-container'>
