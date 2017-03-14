@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Component, PropTypes} from 'react'
+import {Component, PropTypes, ReactNode} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import SmartContainerGroup, {ContainerGroupProps} from './SmartContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
@@ -13,7 +13,6 @@ import DumbContainerGroup from './DumbContainerGroup'
 import DumbContainer from './DumbContainer'
 import Container from './Container'
 import {getChildren} from '../../util/children'
-import ReactNode = React.ReactNode
 import waitForInitialization from '../waitForInitialization'
 
 type GroupPropsWithStore = ContainerGroupProps & {

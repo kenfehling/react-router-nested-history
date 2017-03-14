@@ -13,7 +13,6 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
-import {getGroup} from '../selectors'
 
 export interface ContainerGroupProps {
   name: string
@@ -34,17 +33,20 @@ type GroupPropsWithStore = ContainerGroupProps & {
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
-  storedStackOrder: IContainer[]|null
-  storedCurrentContainerIndex: number|null
-  storedCurrentContainerName: string|null
+  storedStackOrder: IContainer[]
+  storedCurrentContainerIndex: number
+  storedCurrentContainerName: string
   switchToContainerIndex: (index:number) => void
   switchToContainerName: (name:string) => void
 }
 
+export const getGroup = (state:ComputedState, ownProps):ComputedGroup =>
+  state.groups.get(ownProps.name)
+
 const selector = createSelector(getGroup, (group:ComputedGroup) => ({
-  storedStackOrder: group ? group.stackOrder : null,
-  storedCurrentContainerIndex: group ? group.activeContainerIndex : null,
-  storedCurrentContainerName: group ? group.activeContainerName : null
+  storedStackOrder: group.stackOrder,
+  storedCurrentContainerIndex: group.activeContainerIndex,
+  storedCurrentContainerName:group.activeContainerName
 }))
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,

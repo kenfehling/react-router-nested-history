@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Component, Children, PropTypes, cloneElement, ReactElement} from 'react'
+import {Component, PropTypes} from 'react'
 import ContainerGroup from './ContainerGroup'
 import {ContainerGroupProps} from './SmartContainerGroup'
 import {ChildrenFunctionArgs} from './DumbContainerGroup'
@@ -13,7 +13,7 @@ const changeDefaults = (props:ContainerGroupProps):ContainerGroupProps => ({
 })
 
 interface InnerWindowGroupProps {
-  stackOrder: IContainer[]|null
+  stackOrder: IContainer[]
   setCurrentContainerName: (name:string) => void
 }
 

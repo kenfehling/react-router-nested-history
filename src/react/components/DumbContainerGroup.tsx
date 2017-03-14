@@ -4,9 +4,9 @@ import * as R from 'ramda'
 import IContainer from '../../model/IContainer'
 
 export type OnContainerSwitchArgs = {
-  currentContainerIndex: number|null
-  currentContainerName: string|null
-  stackOrder: IContainer[]|null
+  currentContainerIndex: number
+  currentContainerName: string
+  stackOrder: IContainer[]
 }
 
 export type OnContainerSwitch = (args:OnContainerSwitchArgs) => void
@@ -27,9 +27,9 @@ export interface DumbContainerGroupProps {
   onContainerActivate?: OnContainerSwitch  // from user
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
-  storedStackOrder: IContainer[]|null
-  storedCurrentContainerIndex: number|null
-  storedCurrentContainerName: string|null
+  storedStackOrder: IContainer[]
+  storedCurrentContainerIndex: number
+  storedCurrentContainerName: string
   style?: any
 
   switchToContainerIndex: (index:number) => void
