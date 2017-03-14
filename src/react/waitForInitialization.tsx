@@ -30,7 +30,7 @@ function waitForInitialization(component:ComponentClass<any>):ComponentClass<any
   })
 
   const WrappedComponent = (props:ConnectedProps) =>
-      props.isInitialized ? createElement(component) : <div></div>
+      props.isInitialized ? createElement(component, props) : <div></div>
 
   const ConnectedComponent = connect(
     mapStateToProps,

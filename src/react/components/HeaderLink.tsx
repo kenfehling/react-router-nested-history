@@ -80,12 +80,13 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 }
 
-export const getContainer = (state:ComputedState, ownProps):ComputedContainer =>
-  getGroup(state, ownProps).containers.get(ownProps.toContainer)
+export const getContainer = (state:ComputedState, ownProps):ComputedContainer => {
+  return getGroup(state, ownProps).containers.get(ownProps.toContainer)
+}
 
 const selector = createSelector(getActiveGroupContainerName, getContainer,
     (activeGroupContainerName:string, container:ComputedContainer) => ({
-  url: container ? container.activeUrl : '',
+  url: container.activeUrl,
   activeGroupContainerName
 }))
 
