@@ -16,6 +16,10 @@ export default class UninitializedState extends State {
     return new UninitializedState({...Object(this), ...obj})
   }
 
+  get isInitialized():boolean {
+    return false
+  }
+
   get lastActionType():string {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
@@ -124,7 +128,7 @@ export default class UninitializedState extends State {
   }
 
   get activeUrl():string {
-    throw new Error(UNINITIALIZED_MESSAGE)
+    return ''
   }
 
   getActivePageInContainer(groupName:string, containerName:string):Page {
@@ -139,8 +143,8 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  get activeGroupName():string {
-    throw new Error(UNINITIALIZED_MESSAGE)
+  get activeGroupName():string|null {
+    return null
   }
 
   get activeContainer():IContainer {

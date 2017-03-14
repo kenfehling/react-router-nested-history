@@ -152,16 +152,17 @@ export default class Container implements IContainer {
     return this.pages.activePage
   }
 
-  get activeUrl():string {
-    return this.activePage.url
+  get activeUrl():string|null {
+    const p = this.activePage
+    return p ? p.url : null
   }
 
-  getBackPage():Page|undefined {
-    return this.pages.getBackPage()
+  get backPage():Page|undefined {
+    return this.pages.backPage
   }
 
-  getForwardPage():Page|undefined {
-    return this.pages.getForwardPage()
+  get forwardPage():Page|undefined {
+    return this.pages.forwardPage
   }
 
   get backPages():Page[] {
@@ -195,7 +196,8 @@ export default class Container implements IContainer {
   computeState():ComputedContainer {
     return {
       name: this.name,
-      activeUrl: this.activeUrl
+      activeUrl: this.activeUrl,
+      history: this.history
     }
   }
 }

@@ -17,6 +17,10 @@ export default class InitializedState extends State {
     return new InitializedState({...Object(this), ...obj})
   }
 
+  get isInitialized():boolean {
+    return false
+  }
+
   switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
     return this.replaceGroup(group.activate({time, type: VisitType.MANUAL}))
@@ -123,7 +127,7 @@ export default class InitializedState extends State {
   }
 
   getBackPageInGroup(groupName:string):Page|undefined {
-    return this.getGroupByName(groupName).getBackPage()
+    return this.getGroupByName(groupName).backPage
   }
 
   getActiveContainerNameInGroup(groupName:string):string {
@@ -212,7 +216,7 @@ export default class InitializedState extends State {
     return this.getGroupByName(groupName).containerStackOrder
   }
 
-  get activeGroupName():string {
+  get activeGroupName():string|null {
     return this.activeGroup.name
   }
 }

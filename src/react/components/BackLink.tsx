@@ -93,7 +93,7 @@ const selector = createSelector(getBackPageInGroup, (backPage:Page) => ({
 }))
 
 const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
-  const s = selector(state)
+  const s = selector(state, ownProps)
   return {
     isInitialized: state.isInitialized,
     backPage: s.backPage

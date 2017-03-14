@@ -144,14 +144,19 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
 
 const matchesLocation = (group:ComputedGroup, isGroupActive:boolean,
                          pathname:string, patterns:string[]) => {
-  const activeGroupUrl:string = group.activeUrl
-  const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
-  if (isActiveInGroup) {
-    if (isGroupActive) {
-      return pathname === activeGroupUrl
+  const activeGroupUrl:string|null = group ? group.activeUrl : null
+  if (activeGroupUrl) {
+    const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
+    if (isActiveInGroup) {
+      if (isGroupActive) {
+        return pathname === activeGroupUrl
+      }
+      else {
+        return true
+      }
     }
     else {
-      return true
+      return false
     }
   }
   else {
@@ -172,7 +177,7 @@ const selector = createSelector(
 )
 
 const mapStateToProps = (state:ComputedState, ownProps:ContainerPropsWithStore) => {
-  const s = selector(state)
+  const s = selector(state, ownProps)
   return {
     isInitialized: s.isInitialized,
     loadedFromRefresh: s.loadedFromRefresh,

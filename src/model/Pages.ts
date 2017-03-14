@@ -135,11 +135,11 @@ export default class Pages implements IHistory {
     return this.length - this.activeIndex - 1
   }
 
-  getBackPage():Page|undefined {
+  get backPage():Page|undefined {
     return this.pages[this.activeIndex - 1]
   }
 
-  getForwardPage():Page|undefined {
+  get forwardPage():Page|undefined {
     return this.pages[this.activeIndex + 1]
   }
 

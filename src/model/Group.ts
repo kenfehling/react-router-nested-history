@@ -276,8 +276,9 @@ export default class Group implements IContainer {
     return this.activeContainer.activePage
   }
 
-  get activeUrl():string {
-    return this.activeContainer.activeUrl
+  get activeUrl():string|null {
+    const c = this.activeContainer
+    return c ? c.activeUrl : null
   }
 
   getActiveUrlInContainer(containerName:string):string {
@@ -306,8 +307,9 @@ export default class Group implements IContainer {
     }
   }
 
-  get activeContainerName():string {
-    return this.activeContainer.name
+  get activeContainerName():string|null {
+    const c = this.activeContainer
+    return c ? c.name : null
   }
 
   getShiftAmount(page:Page):number {
@@ -373,7 +375,7 @@ export default class Group implements IContainer {
     return this._go(
       (c, n, t) => c.forward(n, t),
       c => c.forwardLength,
-      c => c.getForwardPage(),
+      c => c.forwardPage,
       n, time)
   }
 
@@ -381,7 +383,7 @@ export default class Group implements IContainer {
     return this._go(
       (c, n, t) => c.back(n, t),
       c => c.backLength,
-      c => c.getBackPage(),
+      c => c.backPage,
       n, time)
   }
 
@@ -389,11 +391,11 @@ export default class Group implements IContainer {
     return n > 0 ? this.forward(n, time) : this.back(0 - n, time)
   }
 
-  getBackPage():Page|undefined {
+  get backPage():Page|undefined {
     return R.last(this.backPages)
   }
 
-  getForwardPage():Page|undefined {
+  get forwardPage():Page|undefined {
     return this.forwardPages[0]
   }
 
@@ -414,7 +416,8 @@ export default class Group implements IContainer {
   }
 
   get wasManuallyVisited():boolean {
-    return this.activeContainer.wasManuallyVisited
+    const c = this.activeContainer
+    return c ? c.wasManuallyVisited : false
   }
 
   getNestedContainerByName(name:string):IGroupContainer|null {
@@ -536,19 +539,19 @@ export default class Group implements IContainer {
   }
 
   get backPages():Page[] {
-    return this.history.back
+    return this.containers.isEmpty() ? [] : this.history.back
   }
 
   get forwardPages():Page[] {
-    return this.history.forward
+    return this.containers.isEmpty() ? [] : this.history.forward
   }
 
   get backLength():number {
-    return this.history.back.length
+    return this.containers.isEmpty() ? 0 : this.history.back.length
   }
 
   get forwardLength():number {
-    return this.history.forward.length
+    return this.containers.isEmpty() ? 0 : this.history.forward.length
   }
 
   get isGroup():boolean {
@@ -563,7 +566,8 @@ export default class Group implements IContainer {
       activeContainerIndex: this.activeContainerIndex,
       activeContainerName: this.activeContainerName,
       activeUrl: this.activeUrl,
-      backPage: this.getBackPage()
+      backPage: this.backPage,
+      history: this.containers.isEmpty() ? null : this.history
     }
   }
 }

@@ -34,7 +34,7 @@ abstract class State {
 
   computeState():PartialComputedState {
     return {
-      isInitialized: true,
+      isInitialized: this.isInitialized,
       loadedFromRefresh: this.loadedFromRefresh,
       activeUrl: this.activeUrl,
       groups: fromJS(this.groups.map((g:Group) => g.computeState())),
@@ -47,9 +47,10 @@ abstract class State {
 
   abstract get pages():Pages
   abstract assign(obj:Object):State
+  abstract get isInitialized():boolean
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
-  abstract get activeGroupName():string
+  abstract get activeGroupName():string|null
 
   abstract switchToContainer({groupName, name, time}:
       {groupName:string, name:string, time:number}):State

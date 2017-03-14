@@ -82,12 +82,12 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
 
 const selector = createSelector(getActiveGroupContainerName, getContainer,
     (activeGroupContainerName:string, container:ComputedContainer) => ({
-  url: container.activeUrl,
+  url: container ? container.activeUrl : '',
   activeGroupContainerName
 }))
 
 const mapStateToProps = (state:ComputedState, ownProps) => {
-  const s = selector(state)
+  const s = selector(state, ownProps)
   return {
     url: s.url,
     isActive: s.activeGroupContainerName === ownProps.toContainer

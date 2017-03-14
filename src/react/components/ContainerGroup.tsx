@@ -109,9 +109,9 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
 const selector = createSelector(getGroup, getLoadedFromRefresh,
   (group:ComputedGroup, loadedFromRefresh:boolean) => ({
     loadedFromRefresh,
-    storedStackOrder: group.stackOrder,
-    storedCurrentContainerIndex: group.activeContainerIndex,
-    storedCurrentContainerName: group.activeContainerName
+    storedStackOrder: group ? group.stackOrder : null,
+    storedCurrentContainerIndex: group ? group.activeContainerIndex : null,
+    storedCurrentContainerName: group ? group.activeContainerName : null
   })
 )
 
