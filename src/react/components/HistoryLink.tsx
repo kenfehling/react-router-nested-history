@@ -9,6 +9,7 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
+import {EMPTY_OBJ, createCachingSelector, getGroupName} from '../selectors'
 
 type HistoryLinkPropsWithStore = LinkProps & {
   store: Store<State, Action, ComputedState>
@@ -68,17 +69,29 @@ class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:HistoryLinkPropsWithStore) => ({
-  push: (url:string) => dispatch(new Push({
-    url,
-    groupName: ownProps.groupName,
-    containerName: ownProps.containerName
+const getContainerName = (_, ownProps) => ownProps.containerName
+
+const nameSelector = createCachingSelector(
+  getGroupName, getContainerName,
+  (groupName:string, containerName:string) => ({
+    groupName,
+    containerName
   }))
-})
+
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
+                            ownProps:HistoryLinkPropsWithStore) => {
+  const {groupName, containerName} = nameSelector(EMPTY_OBJ, ownProps)
+  return {
+    push: (url:string) => dispatch(new Push({
+      url,
+      groupName,
+      containerName
+    }))
+  }
+}
 
 const ConnectedHistoryLink = connect(
-  () => ({}),
+  () => (EMPTY_OBJ),
   mapDispatchToProps,
 )(HistoryLink)
 

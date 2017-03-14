@@ -23,7 +23,7 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
     {loadFromPersist=false, initialState}:
       {loadFromPersist:boolean, initialState:S}) {
   let actions: A[] = []
-  let storedState: S = initialState
+  let storedRawState: S = initialState
   let storedComputedState:IComputedState = { actions: [] }
   let timeStored: number = 0
   let listeners: (() => void)[] = []
@@ -35,16 +35,6 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
         actions = objects.map(obj => deserialize(obj))
       }
     }
-  }
-
-  function clearActions():void {
-    if (store.enabled) {
-      actions = []
-    }
-  }
-
-  function updateListeners():void {
-    listeners.forEach(fn => fn())
   }
 
   function init():void {
@@ -60,10 +50,11 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
     actions = action.store(actions)
     if (action instanceof ClearActions) {
       timeStored = 0
-      storedState = initialState
+      storedRawState = initialState
     }
     else {
-      if (storedState.isInitialized) {
+      recomputeState()
+      if (storedRawState.isInitialized) {
         updateListeners()
       }
     }
@@ -91,25 +82,29 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
       const prevTime:number = actions.length > 1 ?
         R.takeLast(2, actions)[0].time : lastTime
       if (lastTime === prevTime && prevTime === timeStored) { // Rare case
-        storedState = deriveState(actions, initialState)      // Just derive all
+        storedRawState = deriveState(actions, initialState)      // Just derive all
       }
       else {
         const newActions:Action[] = actions.filter(a => a.time > timeStored)
-        storedState = deriveState(newActions, storedState)
+        storedRawState = deriveState(newActions, storedRawState)
         timeStored = lastTime
       }
     }
-    return storedState
+    return storedRawState
   }
 
-  function getState():C {
+  function recomputeState() {
     const rawState:S = getRawState()
     if (rawState.isInitialized) {
       storedComputedState = rawState.computeState()
     }
+  }
+
+
+  function getState():C {
     return {
       ...Object(storedComputedState),
-      isInitialized: rawState.isInitialized,
+      isInitialized: storedRawState.isInitialized,
       actions
     }
   }
@@ -123,6 +118,16 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
         ...listeners.slice(index + 1)
       ]
     }
+  }
+
+  function clearActions():void {
+    if (store.enabled) {
+      actions = []
+    }
+  }
+
+  function updateListeners():void {
+    listeners.forEach(fn => fn())
   }
 
   init()

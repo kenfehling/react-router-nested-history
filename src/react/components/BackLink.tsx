@@ -10,7 +10,10 @@ import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
 import {createSelector} from 'reselect'
-import {getBackPageInGroup} from '../selectors'
+import {
+  getBackPageInGroup, createCachingSelector,
+  getGroupName, EMPTY_OBJ
+} from '../selectors'
 
 export type ChildrenFunctionArgs = {
   params: Object
@@ -92,6 +95,12 @@ const selector = createSelector(getBackPageInGroup, (backPage:Page) => ({
   backPage
 }))
 
+const nameSelector = createCachingSelector(
+  getGroupName, (groupName:string) => ({
+    groupName
+  })
+)
+
 const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
   const s = selector(state, ownProps)
   return {
@@ -101,12 +110,15 @@ const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) =
 }
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:BackLinkPropsWithStore) => ({
-  back: () => {
-    dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
-    dispatch(new Back())
+                            ownProps:BackLinkPropsWithStore) => {
+  const {groupName} = nameSelector(EMPTY_OBJ, ownProps)
+  return {
+    back: () => {
+      dispatch(new SwitchToGroup({groupName}))
+      dispatch(new Back())
+    }
   }
-})
+}
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:BackLinkPropsWithStore):ConnectedBackLinkProps => ({

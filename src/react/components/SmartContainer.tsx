@@ -13,11 +13,12 @@ import Action from '../../model/BaseAction'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import ComputedState from '../../model/ComputedState'
 import {ComputedContainer} from '../../model/ComputedState'
-import {createSelector} from 'reselect'
 import {ComputedGroup} from '../../model/ComputedState'
 import {
-  getGroup, getPathname, isGroupActive
+  getGroup, getPathname, isGroupActive, createDeepEqualSelector,
+  createCachingSelector
 } from '../selectors'
+import {createSelector} from 'reselect'
 
 export interface ContainerProps {
   children?: ReactNode

@@ -1,7 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import {connect, Dispatch} from 'react-redux'
-import {createSelector} from 'reselect'
 import DumbContainerGroup, {
   OnContainerSwitch, ChildrenType
 } from './DumbContainerGroup'
@@ -13,6 +12,9 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
+import {createDeepEqualSelector, createCachingSelector} from '../selectors'
+import {createSelector} from 'reselect'
+
 
 export interface ContainerGroupProps {
   name: string
@@ -40,14 +42,23 @@ type ConnectedGroupProps = GroupPropsWithStore & {
   switchToContainerName: (name:string) => void
 }
 
-export const getGroup = (state:ComputedState, ownProps):ComputedGroup =>
-  state.groups.get(ownProps.name)
+export const getGroup = (state:ComputedState, ownProps):ComputedGroup => {
+  return state.groups.get(ownProps.name)
+}
 
-const selector = createSelector(getGroup, (group:ComputedGroup) => ({
-  storedStackOrder: group.stackOrder,
-  storedCurrentContainerIndex: group.activeContainerIndex,
-  storedCurrentContainerName:group.activeContainerName
+/*
+const groupSelector = createCachingSelector(getGroup, (group:ComputedGroup) => ({
+  group
 }))
+*/
+
+const selector = createSelector(getGroup, (group:ComputedGroup) => {
+  return {
+    storedStackOrder: group.stackOrder,
+    storedCurrentContainerIndex: group.activeContainerIndex,
+    storedCurrentContainerName:group.activeContainerName
+  }
+})
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:GroupPropsWithStore) => ({

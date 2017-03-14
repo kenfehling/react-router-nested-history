@@ -1,7 +1,22 @@
+import {createSelectorCreator, defaultMemoize} from 'reselect'
+import * as R from 'ramda'
 import ComputedState, {
   ComputedGroup, ComputedContainer
 } from '../model/ComputedState'
 import Page from '../model/Page'
+
+export const createDeepEqualSelector = createSelectorCreator(
+  defaultMemoize,
+  R.equals
+)
+
+export const createCachingSelector = createSelectorCreator(
+  R.memoize,
+  R.equals
+)
+
+export const EMPTY_OBJ = {}
+export const getGroupName = (_, ownProps):string => ownProps.groupName
 
 export const getGroup = (state:ComputedState, ownProps):ComputedGroup =>
   state.groups.get(ownProps.groupName)

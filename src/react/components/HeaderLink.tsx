@@ -9,7 +9,10 @@ import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
 import {createSelector} from 'reselect'
 import {ComputedContainer} from '../../model/ComputedState'
-import {getGroup, getActiveGroupContainerName} from '../selectors'
+import {
+  getGroup, getActiveGroupContainerName,
+  createCachingSelector, getGroupName, EMPTY_OBJ
+} from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 
 export interface HeaderLinkProps {
@@ -90,6 +93,15 @@ const selector = createSelector(getActiveGroupContainerName, getContainer,
   activeGroupContainerName
 }))
 
+const getContainerName = (_, ownProps) => ownProps.toContainer
+
+const nameSelector = createCachingSelector(
+    getGroupName, getContainerName,
+    (groupName:string, containerName:string) => ({
+  groupName,
+  containerName
+}))
+
 const mapStateToProps = (state:ComputedState, ownProps) => {
   const s = selector(state, ownProps)
   return {
@@ -99,12 +111,15 @@ const mapStateToProps = (state:ComputedState, ownProps) => {
 }
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:HeaderLinkPropsWithStore) => ({
-  onClick: () => dispatch(new SwitchToContainer({
-    groupName: ownProps.groupName,
-    name: ownProps.toContainer
-  }))
-})
+                            ownProps:HeaderLinkPropsWithStore) => {
+  const {groupName, containerName} = nameSelector(EMPTY_OBJ, ownProps)
+  return {
+    onClick: () => dispatch(new SwitchToContainer({
+      groupName,
+      name: containerName
+    }))
+  }
+}
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:HeaderLinkPropsWithStore):ConnectedHeaderLinkProps => ({
