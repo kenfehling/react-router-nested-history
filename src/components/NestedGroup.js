@@ -9,12 +9,6 @@ import Helmet from 'react-helmet'
 const regex = c => `:category(${c})`
 
 const foods = {
-  'Meat': {
-    'Poultry': ['Chicken', 'Turkey', 'Duck'],
-    'Fish': ['Salmon', 'Flounder'],
-    'Pork': ['Ham', 'Chop'],
-    'Beef': ['Hamburger', 'Steak']
-  },
   'Fruit': {
       'Apple': ['Green', 'Red'],
       'Orange': ['Tangerine', 'Mandarin', 'Clementine'],
@@ -23,6 +17,12 @@ const foods = {
   'Vegetables': {
     'Carrot': ['Baby', 'Full'],
     'Pepper': ['Green', 'Red', 'Yellow', 'Orange'],
+  },
+  'Meat': {
+    'Poultry': ['Chicken', 'Turkey', 'Duck'],
+    'Fish': ['Salmon', 'Flounder'],
+    'Pork': ['Ham', 'Chop'],
+    'Beef': ['Hamburger', 'Steak']
   },
   'Dairy': {
     'Milk': ['4%', '2%', '1%', 'Skim'],
