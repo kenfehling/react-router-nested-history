@@ -12436,10 +12436,9 @@ var simpleSortByFirstManualVisit = function (cs) {
 };
 var sort = function (cs, fn) {
     var visited = cs.filter(function (c) { return c.wasManuallyVisited; });
-    var unvisited = R.difference(cs, visited);
-    var du = R.find(function (c) { return !!c.isDefault; }, unvisited);
-    var defaultUnvisited = du ? [du] : [];
-    var nonDefaultUnvisited = R.difference(unvisited, defaultUnvisited);
+    var unvisited = cs.filter(function (c) { return !c.wasManuallyVisited; });
+    var defaultUnvisited = unvisited.filter(function (c) { return c.isDefault; });
+    var nonDefaultUnvisited = unvisited.filter(function (c) { return !c.isDefault; });
     return fn({ visited: visited, defaultUnvisited: defaultUnvisited, nonDefaultUnvisited: nonDefaultUnvisited });
 };
 exports.sortContainersByLastVisited = function (cs) {

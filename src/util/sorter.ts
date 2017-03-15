@@ -35,10 +35,9 @@ const simpleSortByFirstManualVisit = (cs:IContainer[]):IContainer[] =>
 
 const sort = (cs:IContainer[], fn:SortFn):IContainer[] => {
   const visited:IContainer[] = cs.filter(c => c.wasManuallyVisited)
-  const unvisited:IContainer[] = R.difference(cs, visited)
-  const du = R.find((c:IContainer) => !!c.isDefault, unvisited)
-  const defaultUnvisited:IContainer[] = du ? [du] : []
-  const nonDefaultUnvisited = R.difference(unvisited, defaultUnvisited)
+  const unvisited:IContainer[] = cs.filter(c => !c.wasManuallyVisited)
+  const defaultUnvisited:IContainer[] = unvisited.filter(c => c.isDefault)
+  const nonDefaultUnvisited = unvisited.filter(c => !c.isDefault)
   return fn({visited, defaultUnvisited, nonDefaultUnvisited})
 }
 
