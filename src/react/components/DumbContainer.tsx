@@ -15,7 +15,6 @@ export interface DumbContainerProps {
   groupName: string
   isDefault?: boolean
   hideInactiveContainers?: boolean
-  isInitialized: boolean
   switchToGroup: () => void
   matchesLocation: boolean
 }
@@ -100,6 +99,8 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'isInitialized',
       'createContainer',
       'loadedFromRefresh',
+      'group',
+      'isGroupActive',
       'storeSubscription'
     ], this.props)
     if (!hideInactiveContainers || matchesLocation) {

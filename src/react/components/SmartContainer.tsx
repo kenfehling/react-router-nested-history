@@ -1,8 +1,8 @@
 import * as React from 'react'
-import {Component, PropTypes} from 'react'
+import {Component, PropTypes, ReactNode} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import DumbContainer from './DumbContainer'
-import {renderToStaticMarkup} from 'react-dom/server'
+import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
 import {canUseDOM} from 'history/ExecutionEnvironment'
 import {Store} from '../../store/store'
@@ -12,82 +12,36 @@ import State from '../../model/State'
 import Action from '../../model/BaseAction'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import ComputedState from '../../model/ComputedState'
-import SmartContainer, {ContainerProps} from './SmartContainer'
-import waitForInitialization from '../waitForInitialization'
+import {ComputedGroup} from '../../model/ComputedState'
+import {getGroup, getPathname, getIsGroupActive} from '../selectors'
+
+export interface ContainerProps {
+  children?: ReactNode
+  name: string
+  initialUrl: string
+  patterns: string[]
+  animate?: boolean
+  isDefault?: boolean
+  resetOnLeave?: boolean
+  className?: string
+  style?: any
+}
 
 type ContainerPropsWithStore = ContainerProps & {
   store: Store<State, Action, ComputedState>
   groupName: string
   initializing: boolean
+  hideInactiveContainers: boolean
 }
 
 type ConnectedContainerProps = ContainerPropsWithStore & {
-  createContainer: (action:CreateContainer) => void
+  pathname: string
   addTitle: (title:PathTitle) => any
-  isInitialized: boolean
-  loadedFromRefresh: boolean
+  matchesLocation: boolean
+  switchToGroup: () => void
 }
 
 class InnerContainer extends Component<ConnectedContainerProps, undefined> {
-
-  componentWillMount() {
-    const {initializing, loadedFromRefresh} = this.props
-    if (initializing && !loadedFromRefresh) {
-      this.initialize()
-    }
-  }
-
-  initialize() {
-    const {
-      store,
-      children,
-      name,
-      patterns,
-      initialUrl,
-      animate=true,
-      resetOnLeave=false,
-      createContainer,
-      groupName,
-      initializing=false,
-      isDefault=false
-    } = this.props
-
-    createContainer(new CreateContainer({
-      name,
-      groupName,
-      initialUrl,
-      patterns,
-      resetOnLeave,
-      isDefault
-    }))
-
-    if (initializing) {
-      class T extends Component<undefined, undefined> {
-        static childContextTypes = {
-          ...DumbContainer.childContextTypes,
-          rrnhStore: PropTypes.object.isRequired
-        }
-
-        getChildContext() {
-          return {
-            rrnhStore: store,
-            groupName,
-            animate,
-            containerName: name,
-            pathname: initialUrl,
-            patterns: patterns
-          }
-        }
-
-        render() {
-          return <div>{children}</div>
-        }
-      }
-
-      renderToStaticMarkup(<T />)
-      this.addTitleForPath(initialUrl)
-    }
-  }
 
   addTitleForPath(pathname:string) {
     const {addTitle} = this.props
@@ -99,16 +53,61 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
     }
   }
 
+  componentDidUpdate() {
+    const {patterns, pathname} = this.props
+    if (pathname) {
+      if (patternsMatch(patterns, pathname)) {
+        this.addTitleForPath(pathname)
+      }
+    }
+  }
+
   render() {
-    return this.props.isInitialized ?
-        <SmartContainer {...this.props} /> : <div></div>
+    const {initializing} = this.props
+    if (initializing) {
+      return <div></div>
+    }
+    else {
+      const {animate=true} = this.props
+      const props = {...this.props, animate}
+      return <DumbContainer {...props} />
+    }
   }
 }
 
-const mapStateToProps = (state:ComputedState) => ({
-  loadedFromRefresh: state.loadedFromRefresh,
-  isInitialized: state.isInitialized
-})
+const matchesLocation = (group:ComputedGroup, isGroupActive:boolean,
+                         pathname:string, patterns:string[]) => {
+  const activeGroupUrl:string = group.activeUrl
+  if (activeGroupUrl) {
+    const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
+    if (isActiveInGroup) {
+      if (isGroupActive) {
+        return pathname === activeGroupUrl
+      }
+      else {
+        return true
+      }
+    }
+    else {
+      return false
+    }
+  }
+  else {
+    return false
+  }
+}
+
+const mapStateToProps = (state:ComputedState, ownProps:ContainerPropsWithStore) => {
+  const group:ComputedGroup = getGroup(state, ownProps)
+  const pathname:string = getPathname(state)
+  const isGroupActive:boolean = getIsGroupActive(state, ownProps)
+  return {
+    group,
+    isGroupActive,
+    pathname,
+    matchesLocation: matchesLocation(group, isGroupActive, pathname, ownProps.patterns)
+  }
+}
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:ContainerPropsWithStore) => ({
@@ -134,7 +133,8 @@ export default class Container extends Component<ContainerProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
-    initializing: PropTypes.bool
+    initializing: PropTypes.bool,
+    hideInactiveContainers: PropTypes.bool
   }
 
   render() {

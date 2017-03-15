@@ -1,7 +1,9 @@
 import Pages, {HistoryStack} from './Pages'
 import IHistory from './IHistory'
+import {ComputedContainer, ComputedGroup} from './ComputedState'
 
 abstract class IContainer extends IHistory {
+  abstract computeState(): ComputedGroup|ComputedContainer
   abstract get wasManuallyVisited(): boolean
   abstract get pages(): Pages
   abstract updatePages(pages:Pages): IContainer

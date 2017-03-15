@@ -17,6 +17,10 @@ export default class InitializedState extends State {
     return new InitializedState({...Object(this), ...obj})
   }
 
+  get isInitialized():boolean {
+    return true
+  }
+
   switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
     return this.replaceGroup(group.activate({time, type: VisitType.MANUAL}))
@@ -100,11 +104,6 @@ export default class InitializedState extends State {
     return this.replaceGroup(group.push(page, time, VisitType.MANUAL))
   }
 
-  getContainerLinkUrl(groupName:string, containerName:string):string {
-    const group:Group = this.getGroupByName(groupName)
-    return group.getContainerLinkUrl(containerName)
-  }
-
   protected getHistory(maintainFwd:boolean=false):HistoryStack {
     const g:Group = this.activeGroup
     const groupHistory = maintainFwd ? g.historyWithFwdMaintained : g.history
@@ -128,7 +127,7 @@ export default class InitializedState extends State {
   }
 
   getBackPageInGroup(groupName:string):Page|undefined {
-    return this.getGroupByName(groupName).getBackPage()
+    return this.getGroupByName(groupName).backPage
   }
 
   getActiveContainerNameInGroup(groupName:string):string {
@@ -215,5 +214,9 @@ export default class InitializedState extends State {
 
   getContainerStackOrderForGroup(groupName:string):IContainer[] {
     return this.getGroupByName(groupName).containerStackOrder
+  }
+
+  get activeGroupName():string {
+    return this.activeGroup.name
   }
 }

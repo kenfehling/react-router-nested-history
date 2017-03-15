@@ -5,11 +5,9 @@ import {connect, Dispatch} from 'react-redux'
 import {createStore, Store} from '../../store/store'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import cloneElement = React.cloneElement
-import IUpdateData from '../../store/IUpdateData'
 import {
   wasLoadedFromRefresh, canUseWindowLocation
 } from '../../util/browserFunctions'
-import InitializedState from '../../model/InitializedState'
 import LoadFromUrl from '../../model/actions/LoadFromUrl'
 import SetZeroPage from '../../model/actions/SetZeroPage'
 import StepRunner from './StepRunner'
@@ -18,6 +16,7 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import UninitializedState from '../../model/UninitializedState'
 import Refresh from '../../model/actions/Refresh'
+import ComputedState from '../../model/ComputedState'
 declare const window:any
 
 export interface HistoryRouterProps {
@@ -31,7 +30,7 @@ export interface HistoryRouterProps {
 }
 
 type RouterPropsWithStore = HistoryRouterProps & {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
 }
 
 type ConnectedRouterProps = RouterPropsWithStore & {
@@ -42,7 +41,7 @@ type ConnectedRouterProps = RouterPropsWithStore & {
   setZeroPage: (url:string) => void
 }
 
-class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
+class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
   static childContextTypes = {
     rrnhStore: PropTypes.object.isRequired
   }
@@ -142,12 +141,12 @@ class HistoryRouter extends Component<ConnectedRouterProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:IUpdateData<State, Action>) => ({
-  isInitialized: state.state instanceof InitializedState,
+const mapStateToProps = (state:ComputedState) => ({
+  isInitialized: state.isInitialized,
   loadedFromRefresh: wasLoadedFromRefresh
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:RouterPropsWithStore) => ({
   loadFromUrl: (url:string) => dispatch(new LoadFromUrl({url})),
   refresh: () => dispatch(new Refresh()),
@@ -165,12 +164,18 @@ const ConnectedHistoryRouter = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(HistoryRouter)
+)(InnerHistoryRouter)
 
-export default (props:HistoryRouterProps) => (
+const HistoryRouter = (props:HistoryRouterProps) => (
   <ConnectedHistoryRouter
     {...props}
-    store={createStore<State, Action>({
+    store={createStore<State, Action, ComputedState>({
             loadFromPersist: wasLoadedFromRefresh,
             initialState: new UninitializedState()})} />
 )
+
+const WrappedHistoryRouter = (props:HistoryRouterProps) => (
+  <HistoryRouter {...props} />
+)
+
+export default WrappedHistoryRouter

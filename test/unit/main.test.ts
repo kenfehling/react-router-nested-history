@@ -25,18 +25,19 @@ import UninitializedState from '../../src/model/UninitializedState'
 import BaseAction from '../../src/model/BaseAction'
 import {createStepsSince} from '../../src/util/reconciler'
 import {USER} from '../../src/model/BaseAction'
+import ComputedState from '../../src/model/ComputedState'
 declare const describe:any
 declare const it:any
 declare const beforeEach:any
 declare const afterEach:any
 
-const makeNewStore = () => createStore<State, BaseAction>({
+const makeNewStore = () => createStore<State, BaseAction, ComputedState>({
   loadFromPersist: false,
   initialState: new UninitializedState()
 })
 
 describe('main', () => {
-  let store:Store<State, BaseAction>
+  let store:Store<State, BaseAction, ComputedState>
 
   beforeEach(() => {
     store = makeNewStore()
@@ -70,7 +71,7 @@ describe('main', () => {
         })
       ])
       store = makeNewStore()
-      expect(store.getState().actions.length).to.equal(0)
+      expect(store.getRawState()).to.be.an.instanceof(UninitializedState)
     })
 
     it('loads to a non-default page', () => {
@@ -83,7 +84,7 @@ describe('main', () => {
         })
       ])
 
-      const state:State = store.getState().state
+      const state:State = store.getRawState()
       const group = state.groups.toArray()[0]
 
       expect(group.containers.toArray()[0].history.back.length).to.equal(1);
@@ -116,7 +117,7 @@ describe('main', () => {
         })
       ])
 
-      const state:State = store.getState().state
+      const state:State = store.getRawState()
       const group = state.groups.toArray()[0]
 
       expect(group.containers.toArray()[0].history.back.length).to.equal(1);
@@ -169,7 +170,7 @@ describe('main', () => {
         })
       ])
 
-      const state:State = store.getState().state
+      const state:State = store.getRawState()
       const group = state.groups.toArray()[0]
 
       expect(group.containers.toArray()[0].history.back.length).to.equal(0);
@@ -189,7 +190,7 @@ describe('main', () => {
       expect(state.browserHistory.current.url).to.equal('/h');
       expect(state.browserHistory.forward.length).to.equal(0)
     })
-    
+
     it('pushes in a different group', () => {
       dispatchAll([
         createGroup1,
@@ -208,7 +209,7 @@ describe('main', () => {
         time: 3000
       }))
 
-      const state:State = store.getState().state
+      const state:State = store.getRawState()
       const groups = state.groups
 
       expect(groups.toArray()[0].containers.toArray()[0].history.back.length).to.equal(0);
@@ -249,7 +250,7 @@ describe('main', () => {
         })
       ])
 
-      const state:State = store.getState().state
+      const state:State = store.getRawState()
       const group = state.groups.toArray()[0]
 
       expect(group.containers.toArray()[0].history.back.length).to.equal(1);
@@ -284,8 +285,8 @@ describe('main', () => {
       const ps:Promise<any> = actions.reduce((p:Promise<any>, action:Action) =>
         new Promise(resolve => {
           store.dispatch(action)
-          const state:State = store.getState().state
-          const actions:Action[] = store.getState().actions
+          const state:State = store.getRawState()
+          const actions:Action[] = store.getState().actions as Action[]
           if (state instanceof InitializedState) {
             const steps:Step[] = createStepsSince(actions, state.lastUpdate)
             if (steps.length > 0) {

@@ -10,8 +10,10 @@ import VisitedPage from './VistedPage'
 import {VisitType} from './PageVisit'
 import IGroupContainer from './IGroupContainer'
 import {Map, fromJS} from 'immutable'
+import {PartialComputedState, ComputedGroup} from './ComputedState'
+import IState from '../store/IState'
 
-abstract class State {
+abstract class State implements IState {
   readonly groups: Map<string, Group>
   readonly titles: PathTitle[]
   readonly zeroPage?: string
@@ -31,15 +33,36 @@ abstract class State {
     this.titles = titles
   }
 
+  get allComputedGroups():Map<string, ComputedGroup> {
+    return fromJS({}).merge(
+      this.groups.map((g:Group) => g.computeState()),
+      ...this.groups.toArray().map((g:Group) => g.computeSubGroups())
+    )
+  }
+
+  computeState():PartialComputedState {
+    return {
+      isInitialized: this.isInitialized,
+      loadedFromRefresh: this.loadedFromRefresh,
+      activeUrl: this.activeUrl,
+      groups: fromJS(this.allComputedGroups),
+      activeGroupName: this.activeGroupName,
+      lastUpdate: this.lastUpdate,
+      pages: this.pages,
+      activeTitle: this.activeTitle
+    }
+  }
+
   abstract get pages():Pages
   abstract assign(obj:Object):State
+  abstract get isInitialized():boolean
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
+  abstract get activeGroupName():string
 
   abstract switchToContainer({groupName, name, time}:
       {groupName:string, name:string, time:number}):State
 
-  abstract getContainerLinkUrl(groupName:string, containerName:string):string
   abstract getRootGroupOfGroupByName(name:string):Group
   abstract getRootGroupOfGroup(group:Group):Group
   abstract push(page:Page, time:number):State
@@ -146,6 +169,9 @@ abstract class State {
     return this.replaceGroup(group.replaceContainer(container))
   }
 
+  /**
+   * Finds a group (top-level or subgroup) by its name
+   */
   getGroupByName(name:string):Group {
     const g:Group = this.groups.get(name)
     if (g) {

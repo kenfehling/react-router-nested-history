@@ -1,15 +1,20 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import {connect, Dispatch} from 'react-redux'
-import IUpdateData from '../../store/IUpdateData'
 import {Store} from '../../store/store'
 import Page from '../../model/Page'
 import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import Back from '../../model/actions/Back'
-import InitializedState from '../../model/InitializedState'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
+import ComputedState from '../../model/ComputedState'
+import {createSelector} from 'reselect'
+import {
+  getBackPageInGroup, createCachingSelector,
+  getGroupName, EMPTY_OBJ
+} from '../selectors'
+import waitForInitialization from '../waitForInitialization'
 
 export type ChildrenFunctionArgs = {
   params: Object
@@ -23,7 +28,7 @@ export interface BackLinkProps {
 }
 
 type BackLinkPropsWithStore = BackLinkProps & {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
   groupName: string
 }
 
@@ -34,7 +39,7 @@ type ConnectedBackLinkProps = BackLinkPropsWithStore & {
 
 }
 
-class BackLink extends Component<ConnectedBackLinkProps, undefined> {
+class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
   componentDidMount() {
     if (this.props.groupName == null) {
       throw new Error('BackLink needs to be inside a ContainerGroup')
@@ -87,30 +92,49 @@ class BackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData<State, Action>,
-                         ownProps:BackLinkPropsWithStore) => {
-  const isInitialized:boolean = state instanceof InitializedState
-  return {
-    isInitialized,
-    backPage: isInitialized ? state.getBackPageInGroup(ownProps.groupName) : null
-  }
+const selector = createSelector(getBackPageInGroup, (backPage:Page) => ({
+  backPage
+}))
 
+const nameSelector = createCachingSelector(
+  getGroupName, (groupName:string) => ({
+    groupName
+  })
+)
+
+const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
+  const s = selector(state, ownProps)
+  return {
+    isInitialized: state.isInitialized,
+    backPage: s.backPage
+  }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
-                            ownProps:BackLinkPropsWithStore) => ({
-  back: () => {
-    dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
-    dispatch(new Back())
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
+                            ownProps:BackLinkPropsWithStore) => {
+  const {groupName} = nameSelector(EMPTY_OBJ, ownProps)
+  return {
+    back: () => {
+      dispatch(new SwitchToGroup({groupName}))
+      dispatch(new Back())
+    }
   }
+}
+
+const mergeProps = (stateProps, dispatchProps,
+                    ownProps:BackLinkPropsWithStore):ConnectedBackLinkProps => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps
 })
 
 const ConnectedBackLink = connect(
   mapStateToProps,
   mapDispatchToProps,
-)(BackLink)
+  mergeProps
+)(InnerBackLink)
 
-export default class extends Component<BackLinkProps, undefined> {
+class BackLink extends Component<BackLinkProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired
@@ -121,3 +145,5 @@ export default class extends Component<BackLinkProps, undefined> {
     return  <ConnectedBackLink store={rrnhStore} {...context} {...this.props} />
   }
 }
+
+export default waitForInitialization(BackLink)

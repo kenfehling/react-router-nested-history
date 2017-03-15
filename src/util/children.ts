@@ -4,6 +4,18 @@ import * as R from 'ramda'
 
 const match = (comp:any, C:any):boolean => comp instanceof C || comp.type === C
 
+function _processChildren(component:any, next:Function) {
+  const children = component.props.children
+  if (children instanceof Function) {
+    return next(createElement(children))
+  }
+  else {
+    const cs = Array.isArray(children) ?
+        R.flatten(children) : Children.toArray(children)
+    return R.flatten(cs.map((c:ReactNode) => next(c)))
+  }
+}
+
 function _getChildren(component:any,
                       stopAt:any[],
                       stopAtNested:any[]=[], depth:number):ReactNode[] {
@@ -16,16 +28,7 @@ function _getChildren(component:any,
   else if (matchAny(stopAt) || (depth > 0 && matchAny(stopAtNested))) {
     return [component]  // Stop if you find one of the stop classes
   }
-  else if (component.props && component.props.children) {
-    if (component.props.children instanceof Function) {
-      return next(createElement(component.props.children))
-    }
-    else {
-      const children = Children.toArray(component.props.children)
-      return R.flatten(children.map((c:ReactNode) => next(c)))
-    }
-  }
-  else if (component.type instanceof Function && !component.type.name) {
+  else if (component.type instanceof Function) {
     try {
       return next(component.type(component.props))
     }
@@ -35,8 +38,13 @@ function _getChildren(component:any,
       }
       catch(e) {}
     }
-
   }
+  else if (component.props && component.props.children) {
+    return _processChildren(component, next)
+  }
+  //else if (component.type.children) {
+  //  return _processChildren(component.type, next)
+  //}
   return [component]
 }
 

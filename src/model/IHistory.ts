@@ -3,13 +3,14 @@ import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
 
 abstract class IHistory {
-  abstract getBackPage(): Page|undefined
-  abstract getForwardPage(): Page|undefined
+  abstract backPage: Page|undefined
+  abstract forwardPage: Page|undefined
   abstract canGoBack(n: number): boolean
   abstract canGoForward(n: number): boolean
   abstract get firstManualVisit(): PageVisit|null
   abstract get lastVisit(): PageVisit
   abstract get activePage(): VisitedPage
+  abstract get activeUrl(): string
   abstract containsPage(page: Page): boolean
   abstract getShiftAmount(page: Page): number
 

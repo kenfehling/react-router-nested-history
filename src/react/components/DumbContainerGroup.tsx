@@ -4,9 +4,9 @@ import * as R from 'ramda'
 import IContainer from '../../model/IContainer'
 
 export type OnContainerSwitchArgs = {
-  currentContainerIndex: number|null
-  currentContainerName: string|null
-  stackOrder: IContainer[]|null
+  currentContainerIndex: number
+  currentContainerName: string
+  stackOrder: IContainer[]
 }
 
 export type OnContainerSwitch = (args:OnContainerSwitchArgs) => void
@@ -27,9 +27,9 @@ export interface DumbContainerGroupProps {
   onContainerActivate?: OnContainerSwitch  // from user
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
-  storedStackOrder: IContainer[]|null
-  storedCurrentContainerIndex: number|null
-  storedCurrentContainerName: string|null
+  storedStackOrder: IContainer[]
+  storedCurrentContainerIndex: number
+  storedCurrentContainerName: string
   style?: any
 
   switchToContainerIndex: (index:number) => void
@@ -41,14 +41,15 @@ export default class DumbContainerGroup extends
 
   static childContextTypes = {
     groupName: PropTypes.string.isRequired,
-    hideInactiveContainers: PropTypes.bool
+    hideInactiveContainers: PropTypes.bool,
+    initializing: PropTypes.bool
   }
 
   getChildContext() {
     const {name, hideInactiveContainers=true} = this.props
     return {
       groupName: name,
-      hideInactiveContainers
+      hideInactiveContainers,
     }
   }
 
@@ -127,6 +128,8 @@ export default class DumbContainerGroup extends
       'parentGroupName',
       'allowInterContainerHistory',
       'loadedFromRefresh',
+      'isInitialized',
+      'initializing',
       'storeSubscription'
   ], this.props)
     const divStyle={

@@ -1,12 +1,15 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {Dispatch, connect} from 'react-redux'
-import IUpdateData from '../../store/IUpdateData'
 import {Store} from '../../store/store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
+import ComputedState from '../../model/ComputedState'
+import {ComputedContainer} from '../../model/ComputedState'
+import {getGroup, getActiveGroupContainerName} from '../selectors'
+import waitForInitialization from '../waitForInitialization'
 
 export interface HeaderLinkProps {
   children: ReactNode
@@ -16,7 +19,7 @@ export interface HeaderLinkProps {
 }
 
 type HeaderLinkPropsWithStore = HeaderLinkProps & {
-  store: Store<State, Action>
+  store: Store<State, Action, ComputedState>
   groupName: string
 }
 
@@ -26,7 +29,7 @@ type ConnectedHeaderLinkProps = HeaderLinkPropsWithStore & {
   isActive: boolean
 }
 
-class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
+class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
 
   componentDidMount() {
     if (this.props.groupName == null) {
@@ -61,6 +64,7 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
       'store',
       'onClick',
       'isActive',
+      'isInitialized',
       'storeSubscription'
     ], this.props)
     return (
@@ -76,18 +80,29 @@ class HeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = ({state}:IUpdateData<State, Action>, ownProps) => ({
-  url: state.getContainerLinkUrl(ownProps.groupName, ownProps.toContainer),
-  isActive: state.isContainerActive(ownProps.groupName, ownProps.toContainer)
-})
+export const getContainer = (state:ComputedState, ownProps):ComputedContainer => {
+  return getGroup(state, ownProps).containers.get(ownProps.toContainer)
+}
 
-const mapDispatchToProps = (dispatch:Dispatch<IUpdateData<State, Action>>,
-                            ownProps:HeaderLinkPropsWithStore) => ({
-  onClick: () => dispatch(new SwitchToContainer({
-    groupName: ownProps.groupName,
-    name: ownProps.toContainer
-  }))
-})
+const mapStateToProps = (state:ComputedState, ownProps) => {
+  const container:ComputedContainer = getContainer(state, ownProps)
+  const activeGroupContainerName:string = getActiveGroupContainerName(state, ownProps)
+  return {
+    url: container.activeUrl,
+    isActive: activeGroupContainerName === container.name
+  }
+}
+
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
+                            ownProps:HeaderLinkPropsWithStore) => {
+  const {groupName, toContainer} = ownProps
+  return {
+    onClick: () => dispatch(new SwitchToContainer({
+      groupName,
+      name: toContainer
+    }))
+  }
+}
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:HeaderLinkPropsWithStore):ConnectedHeaderLinkProps => ({
@@ -100,9 +115,9 @@ const ConnectedHeaderLink = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(HeaderLink)
+)(InnerHeaderLink)
 
-export default class extends Component<HeaderLinkProps, undefined> {
+class HeaderLink extends Component<HeaderLinkProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired
@@ -113,3 +128,5 @@ export default class extends Component<HeaderLinkProps, undefined> {
     return <ConnectedHeaderLink store={rrnhStore} {...context} {...this.props} />
   }
 }
+
+export default waitForInitialization(HeaderLink)
