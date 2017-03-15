@@ -14,6 +14,7 @@ import {
   getBackPageInGroup, createCachingSelector,
   getGroupName, EMPTY_OBJ
 } from '../selectors'
+import waitForInitialization from '../waitForInitialization'
 
 export type ChildrenFunctionArgs = {
   params: Object
@@ -38,7 +39,7 @@ type ConnectedBackLinkProps = BackLinkPropsWithStore & {
 
 }
 
-class BackLink extends Component<ConnectedBackLinkProps, undefined> {
+class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
   componentDidMount() {
     if (this.props.groupName == null) {
       throw new Error('BackLink needs to be inside a ContainerGroup')
@@ -131,9 +132,9 @@ const ConnectedBackLink = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(BackLink)
+)(InnerBackLink)
 
-export default class extends Component<BackLinkProps, undefined> {
+class BackLink extends Component<BackLinkProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired
@@ -144,3 +145,5 @@ export default class extends Component<BackLinkProps, undefined> {
     return  <ConnectedBackLink store={rrnhStore} {...context} {...this.props} />
   }
 }
+
+export default waitForInitialization(BackLink)

@@ -7,12 +7,8 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
-import {createSelector} from 'reselect'
 import {ComputedContainer} from '../../model/ComputedState'
-import {
-  getGroup, getActiveGroupContainerName,
-  createCachingSelector, getGroupName, EMPTY_OBJ
-} from '../selectors'
+import {getGroup, getActiveGroupContainerName} from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 
 export interface HeaderLinkProps {
@@ -68,6 +64,7 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
       'store',
       'onClick',
       'isActive',
+      'isInitialized',
       'storeSubscription'
     ], this.props)
     return (
@@ -87,36 +84,22 @@ export const getContainer = (state:ComputedState, ownProps):ComputedContainer =>
   return getGroup(state, ownProps).containers.get(ownProps.toContainer)
 }
 
-const selector = createSelector(getActiveGroupContainerName, getContainer,
-    (activeGroupContainerName:string, container:ComputedContainer) => ({
-  url: container.activeUrl,
-  activeGroupContainerName
-}))
-
-const getContainerName = (_, ownProps) => ownProps.toContainer
-
-const nameSelector = createCachingSelector(
-    getGroupName, getContainerName,
-    (groupName:string, containerName:string) => ({
-  groupName,
-  containerName
-}))
-
 const mapStateToProps = (state:ComputedState, ownProps) => {
-  const s = selector(state, ownProps)
+  const container:ComputedContainer = getContainer(state, ownProps)
+  const activeGroupContainerName:string = getActiveGroupContainerName(state, ownProps)
   return {
-    url: s.url,
-    isActive: s.activeGroupContainerName === ownProps.toContainer
+    url: container.activeUrl,
+    isActive: activeGroupContainerName === container.name
   }
 }
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:HeaderLinkPropsWithStore) => {
-  const {groupName, containerName} = nameSelector(EMPTY_OBJ, ownProps)
+  const {groupName, toContainer} = ownProps
   return {
     onClick: () => dispatch(new SwitchToContainer({
       groupName,
-      name: containerName
+      name: toContainer
     }))
   }
 }

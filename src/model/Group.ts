@@ -561,6 +561,9 @@ export default class Group implements IContainer {
   }
 
   computeState():ComputedGroup {
+    if (this.containers.isEmpty()) {
+      throw new Error(`Group '${this.name}' has no containers`)
+    }
     return {
       name: this.name,
       containers: fromJS(this.containers.map((c:IGroupContainer) => c.computeState())),

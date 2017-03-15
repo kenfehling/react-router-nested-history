@@ -100,7 +100,8 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
   }
 
   render() {
-    return this.props.isInitialized ? <SmartContainer {...this.props} /> : <div></div>
+    return this.props.isInitialized ?
+        <SmartContainer {...this.props} /> : <div></div>
   }
 }
 
