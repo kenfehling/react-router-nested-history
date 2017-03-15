@@ -86,7 +86,8 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
   }
 
   render() {
-    return this.props.isInitialized ? <SmartContainerGroup {...this.props} /> : <div></div>
+    return this.props.isInitialized ?
+        <SmartContainerGroup {...this.props} /> : <div></div>
   }
 }
 
