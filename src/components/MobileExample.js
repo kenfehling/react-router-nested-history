@@ -28,6 +28,7 @@ const MobilePage = ({title, children}) => (
     <div className='content'>
       {children}
     </div>
+    <Helmet title={'Mobile: ' + title} />
   </div>
 )
 
@@ -71,6 +72,7 @@ const HomeScreen = () => (
         {app}
       </HeaderLink>
     ))}
+    <Helmet title='Mobile: Home' />
   </div>
 )
 
