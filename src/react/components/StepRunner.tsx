@@ -30,8 +30,8 @@ class InnerStepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   private unlistenForPopState: () => void
   private isListening: boolean = true
 
-  componentWillReceiveProps(newProps) {
-    const {actions, lastUpdate, recordBrowserUpdate} = newProps
+  update(props) {
+    const {actions, lastUpdate, recordBrowserUpdate} = props
     const steps: Step[] = createStepsSince(actions, lastUpdate)
     if (steps.length > 0) {
       recordBrowserUpdate()
@@ -39,6 +39,10 @@ class InnerStepRunner extends Component<ConnectedStepRunnerProps, undefined> {
       const after = () => this.isListening = true
       runSteps(steps, before, after)
     }
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.update(newProps)
   }
 
   componentWillMount() {
@@ -53,6 +57,10 @@ class InnerStepRunner extends Component<ConnectedStepRunnerProps, undefined> {
 
   componentWillUnmount() {
     this.unlistenForPopState()
+  }
+
+  componentDidMount() {
+    this.update(this.props)
   }
 
   render() {
