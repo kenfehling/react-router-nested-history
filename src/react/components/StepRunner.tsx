@@ -13,6 +13,7 @@ import UpdateBrowser from '../../model/actions/UpdateBrowser'
 import {runSteps} from '../../util/stepRunner'
 import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
+import waitForInitialization from '../waitForInitialization'
 
 export interface StepRunnerProps {
   store: Store<State, Action, ComputedState>
@@ -25,7 +26,7 @@ type ConnectedStepRunnerProps = StepRunnerProps & {
   recordBrowserUpdate: () => void
 }
 
-class StepRunner extends Component<ConnectedStepRunnerProps, undefined> {
+class InnerStepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   private unlistenForPopState: () => void
   private isListening: boolean = true
 
@@ -91,8 +92,10 @@ const ConnectedStepRunner = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(StepRunner)
+)(InnerStepRunner)
 
-export default ({store}:StepRunnerProps) => (
+const StepRunner = ({store}:StepRunnerProps) => (
   <ConnectedStepRunner store={store} />
 )
+
+export default waitForInitialization(StepRunner as any)

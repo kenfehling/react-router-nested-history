@@ -10,6 +10,7 @@ import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
 import {EMPTY_OBJ, createCachingSelector, getGroupName} from '../selectors'
+import waitForInitialization from '../waitForInitialization'
 
 type HistoryLinkPropsWithStore = LinkProps & {
   store: Store<State, Action, ComputedState>
@@ -20,7 +21,7 @@ type ConnectedHistoryLinkProps = HistoryLinkPropsWithStore & {
   push: (url:string) => void
 }
 
-class HistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
+class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
 
   componentDidMount() {
     if (this.props.groupName == null) {
@@ -93,9 +94,9 @@ const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
 const ConnectedHistoryLink = connect(
   () => (EMPTY_OBJ),
   mapDispatchToProps,
-)(HistoryLink)
+)(InnerHistoryLink)
 
-export default class extends Component<LinkProps, undefined> {
+class HistoryLink extends Component<LinkProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
@@ -107,3 +108,5 @@ export default class extends Component<LinkProps, undefined> {
     return <ConnectedHistoryLink store={rrnhStore} {...context} {...this.props} />
   }
 }
+
+export default waitForInitialization(HistoryLink)

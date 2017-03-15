@@ -20,10 +20,6 @@ export default class UninitializedState extends State {
     return false
   }
 
-  get lastActionType():string {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
   switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }

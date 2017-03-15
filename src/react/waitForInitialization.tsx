@@ -29,14 +29,14 @@ function waitForInitialization(component:ComponentClass<any>):ComponentClass<any
     ...ownProps
   })
 
-  const WrappedComponent = (props:ConnectedProps) =>
-      props.isInitialized ? createElement(component, props) : <div></div>
+  const WrappedComponent = ({isInitialized, ...props}:ConnectedProps) =>
+      isInitialized ? createElement(component, props) : null
 
   const ConnectedComponent = connect(
     mapStateToProps,
     {},
     mergeProps
-  )(WrappedComponent)
+  )(WrappedComponent as any)
 
   return class WaitForInitialization extends Component<any, any> {
     static contextTypes = {

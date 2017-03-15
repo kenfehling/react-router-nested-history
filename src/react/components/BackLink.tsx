@@ -33,7 +33,6 @@ type BackLinkPropsWithStore = BackLinkProps & {
 }
 
 type ConnectedBackLinkProps = BackLinkPropsWithStore & {
-  isInitialized: boolean
   backPage: Page|null
   back: () => void
 
@@ -48,7 +47,7 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
 
   // Don't disappear when transitioning back to previous page
   shouldComponentUpdate(newProps) {
-    return false
+    return !this.props.backPage && newProps.backPage
   }
 
   onClick(event) {
@@ -68,7 +67,6 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
       'groupName',
       'containerName',
       'store',
-      'isInitialized',
       'back',
       'params',
       'storeSubscription'
@@ -105,7 +103,6 @@ const nameSelector = createCachingSelector(
 const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
   const s = selector(state, ownProps)
   return {
-    isInitialized: state.isInitialized,
     backPage: s.backPage
   }
 }

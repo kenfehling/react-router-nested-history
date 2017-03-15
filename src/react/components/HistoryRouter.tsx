@@ -126,16 +126,11 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
   }
 
   render() {
-    const {isInitialized} = this.props
     return (
       <div>
         <DumbHistoryRouter{...this.props} />
-        {isInitialized && (
-          <div>
-            <StepRunner store={this.props.store}/>
-            <TitleSetter store={this.props.store} />
-          </div>
-        )}
+        <StepRunner store={this.props.store}/>
+        <TitleSetter store={this.props.store} />
       </div>
     )
   }
