@@ -500,43 +500,27 @@ describe('reconciler', () => {
     })
 
     describe('inter-container history (mobile)', () => {
-      describe('after switch container', () => {
+      describe('after load into non-default container', () => {
         const switchActions:Action[] = [
           ...originalNestedActions,
           new LoadFromUrl({
-            url: '/g/1',
+            url: '/h',
             time: 1200
-          }),
-          new SwitchToContainer({
-            groupName: createSubGroup3.name,
-            name: 'Container 2C',
-            time: 2000
           })
         ]
-
         it('removes forward history after going back to default screen', () => {
           const actions:Action[] = [
             ...switchActions,
-            new Push({
-              groupName: createSubGroup3.name,
-              containerName: 'Container 2C',
-              url: '/h/1',
-              time: 3000
-            }),
             new PopState({
               n: -1,
               time: 4000
             }),
-            new PopState({
-              n: -1,
-              time: 5000
-            })
           ]
           expect(createStepsSince(actions, 3500)).to.deep.equal([
             new BackStep(),
             new PushStep(new Page({
-              url: '/g/1',
-              params: {id: '1'},
+              url: '/g',
+              params: {},
               groupName: createSubGroup3.name,
               containerName: 'Container 1C'
             }))

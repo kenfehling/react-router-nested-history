@@ -43,7 +43,7 @@ export default class Container implements IContainer {
         params: parseParamsFromPatterns(patterns, initialUrl),
         containerName: name,
         groupName,
-        visits: [{time, type: VisitType.AUTO}]
+        visits: [{time, type: isDefault ? VisitType.MANUAL : VisitType.AUTO}]
       })
     ])
   }
