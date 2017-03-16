@@ -10,7 +10,7 @@ import {sortContainersByLastVisited} from '../util/sorter'
 export default class InitializedState extends State {
 
   get pages():Pages {
-    return this.browserHistory.toPages()
+    return this.history.toPages()
   }
 
   assign(obj:Object):State {

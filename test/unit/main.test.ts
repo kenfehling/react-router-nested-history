@@ -97,9 +97,9 @@ describe('main', () => {
       expect(group.history.current.url).to.equal('/a/1');
       expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).to.equal(2);
-      expect(state.browserHistory.current.url).to.equal('/a/1');
-      expect(state.browserHistory.forward.length).to.equal(0)
+      expect(state.history.back.length).to.equal(2);
+      expect(state.history.current.url).to.equal('/a/1');
+      expect(state.history.forward.length).to.equal(0)
     })
 
     it('switches to container', () => {
@@ -135,12 +135,12 @@ describe('main', () => {
       expect(group.history.current.url).to.equal('/b');
       expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).to.equal(3);
-      expect(state.browserHistory.back[0].url).to.equal('/a');
-      expect(state.browserHistory.back[1].url).to.equal('/a');
-      expect(state.browserHistory.back[2].url).to.equal('/a/1');
-      expect(state.browserHistory.current.url).to.equal('/b');
-      expect(state.browserHistory.forward.length).to.equal(0)
+      expect(state.history.back.length).to.equal(3);
+      expect(state.history.back[0].url).to.equal('/a');
+      expect(state.history.back[1].url).to.equal('/a');
+      expect(state.history.back[2].url).to.equal('/a/1');
+      expect(state.history.current.url).to.equal('/b');
+      expect(state.history.forward.length).to.equal(0)
     })
 
     it('switches to container with resetOnLeave', () => {
@@ -186,9 +186,9 @@ describe('main', () => {
       expect(group.history.current.url).to.equal('/h');
       expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).to.equal(2);
-      expect(state.browserHistory.current.url).to.equal('/h');
-      expect(state.browserHistory.forward.length).to.equal(0)
+      expect(state.history.back.length).to.equal(2);
+      expect(state.history.current.url).to.equal('/h');
+      expect(state.history.forward.length).to.equal(0)
     })
 
     it('pushes in a different group', () => {
@@ -226,9 +226,9 @@ describe('main', () => {
       expect(groups.toArray()[1].history.current.url).to.equal('/e/1');
       expect(groups.toArray()[1].history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).to.equal(2);
-      expect(state.browserHistory.current.url).to.equal('/e/1');
-      expect(state.browserHistory.forward.length).to.equal(0)
+      expect(state.history.back.length).to.equal(2);
+      expect(state.history.current.url).to.equal('/e/1');
+      expect(state.history.forward.length).to.equal(0)
     })
 
     it('handles popstate after container switch', () => {
@@ -267,11 +267,11 @@ describe('main', () => {
       expect(group.history.current.url).to.equal('/a/1');
       expect(group.history.forward.length).to.equal(0)
 
-      expect(state.browserHistory.back.length).to.equal(2);
-      expect(state.browserHistory.back[0].url).to.equal('/a');
-      expect(state.browserHistory.back[1].url).to.equal('/a');
-      expect(state.browserHistory.current.url).to.equal('/a/1');
-      expect(state.browserHistory.forward.length).to.equal(0)
+      expect(state.history.back.length).to.equal(2);
+      expect(state.history.back[0].url).to.equal('/a');
+      expect(state.history.back[1].url).to.equal('/a');
+      expect(state.history.current.url).to.equal('/a/1');
+      expect(state.history.forward.length).to.equal(0)
     })
   })
 
@@ -454,7 +454,7 @@ describe('main', () => {
       })
     })
 
-    it('pushes in a different group', async () => {
+    it('hides first group history when pushing another group', async () => {
       await run([
         createGroup1,
         createGroup2,

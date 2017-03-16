@@ -19,7 +19,7 @@ describe('PopState action', () => {
         time: 10
       })
       const newState:State = action.reduce(baseState)
-      const h:HistoryStack = newState.browserHistory
+      const h:HistoryStack = newState.history
 
       expect(h.back.length).to.equal(0)
       expect(h.current).to.deep.equal(newState.getZeroPage())

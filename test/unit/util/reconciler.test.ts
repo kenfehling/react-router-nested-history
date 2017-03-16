@@ -10,9 +10,6 @@ import BackStep from '../../../src/model/steps/BackStep'
 import Forward from '../../../src/model/actions/Forward'
 import SetZeroPage from '../../../src/model/actions/SetZeroPage'
 import Action from '../../../src/model/BaseAction'
-import {
-  createStepsSince, diffToSteps, HistoryDiff, diffHistory
-} from '../../../src/util/reconciler'
 import GoStep from '../../../src/model/steps/GoStep'
 import {
   createGroup1, createContainers1, createContainers3, createContainers2,
@@ -21,13 +18,12 @@ import {
 import {expect} from 'chai'
 import VisitedPage from '../../../src/model/VistedPage'
 import State from '../../../src/model/State'
-import {VisitType} from '../../../src/model/PageVisit'
-import Pages from '../../../src/model/Pages'
 import Page from '../../../src/model/Page'
+import {createStepsSince} from '../../../src/util/reconciler'
 declare const describe:any
 declare const it:any
 
-describe('action utils', () => {
+describe('reconciler', () => {
   const zero:VisitedPage = State.createZeroPage('/zero')
   const baseActions:Action[] = [
     new SetZeroPage({
@@ -103,143 +99,6 @@ describe('action utils', () => {
       time: 1000
     })
   ]
-
-  describe('fundamental tests', () => {
-    const a:VisitedPage = new VisitedPage({
-      url: '/a',
-      params: {},
-      groupName: 'Group 1',
-      containerName: 'Container 1A',
-      visits: [
-        {time: 1000, type: VisitType.AUTO},
-        {time: 1001, type: VisitType.MANUAL},
-        {time: 4000, type: VisitType.MANUAL},
-        {time: 6000, type: VisitType.MANUAL}
-      ]
-    })
-    const a1:VisitedPage = new VisitedPage({
-      url: '/a/1',
-      params: {id: '1'},
-      groupName: 'Group 1',
-      containerName: 'Container 1A',
-      visits: [
-        {time: 2000, type: VisitType.MANUAL}
-      ]
-    })
-    const a2:VisitedPage = new VisitedPage({
-      url: '/a/2',
-      params: {id: '2'},
-      groupName: 'Group 1',
-      containerName: 'Container 1A',
-      visits: [
-        {time: 3000, type: VisitType.MANUAL}
-      ]
-    })
-    const b:VisitedPage = new VisitedPage({
-      url: '/b',
-      params: {},
-      groupName: 'Group 1',
-      containerName: 'Container 2A',
-      visits: [
-        {time: 1000, type: VisitType.AUTO},
-        {time: 5000, type: VisitType.MANUAL}
-      ]
-    })
-    const c:VisitedPage = new VisitedPage({
-      url: '/c',
-      params: {},
-      groupName: 'Group 1',
-      containerName: 'Container 2A',
-      visits: [
-        {time: 1000, type: VisitType.AUTO},
-        {time: 7000, type: VisitType.MANUAL}
-      ]
-    })
-
-    describe('diffHistory', () => {
-      it('returns all same if histories are identical', () => {
-        const ps1:Pages = new Pages([zero, a, b])
-        expect(diffHistory(ps1, ps1)).to.deep.equal(new HistoryDiff({
-          same: [new Page(zero), new Page(a), new Page(b)],
-          oldCurrentIndex: 1,
-          newCurrentIndex: 1
-        }))
-      })
-
-      it('returns an added item', () => {
-        const ps1:Pages = new Pages([zero, a])
-        const ps2:Pages = new Pages([zero, a, c])
-        expect(diffHistory(ps1, ps2)).to.deep.equal(new HistoryDiff({
-          same: [new Page(zero), new Page(a)],
-          added: [new Page(c)],
-          oldCurrentIndex: 1,
-          newCurrentIndex: 2
-        }))
-      })
-
-      it('returns adds for h2 if h1 is blank', () => {
-        const ps1:Pages = new Pages()
-        const ps2:Pages = new Pages([zero, a])
-        expect(diffHistory(ps1, ps2)).to.deep.equal(new HistoryDiff({
-          added: [new Page(zero), new Page(a)],
-          oldCurrentIndex: -1,
-          newCurrentIndex: 1
-        }))
-      })
-
-      it('removes forward history', () => {
-        const ps1:Pages = new Pages([zero, a, a1, b])
-        const ps2:Pages = new Pages([zero, a, a1])
-        expect(diffHistory(ps1, ps2)).to.deep.equal(new HistoryDiff({
-          same: [new Page(zero), new Page(a), new Page(a1)],
-          removed: [new Page(b)],
-          oldCurrentIndex: 1,
-          newCurrentIndex: 1
-        }))
-      })
-    })
-
-    describe('diffToSteps', () => {
-      it('removes forward history', () => {
-        const diff:HistoryDiff = new HistoryDiff({
-          same: [zero, a, a1],
-          removed: [b],
-          oldCurrentIndex: 2,
-          newCurrentIndex: 2
-        })
-        expect(diffToSteps(diff)).to.deep.equal([
-          new BackStep(),
-          new PushStep(a1)
-        ])
-      })
-
-      it('keeps default container as a back page', () => {
-        const diff:HistoryDiff = new HistoryDiff({
-          same: [zero, a],
-          removed: [a1],
-          added: [b],
-          oldCurrentIndex: 1,
-          newCurrentIndex: 2
-        })
-        expect(diffToSteps(diff)).to.deep.equal([
-          new PushStep(b)
-        ])
-      })
-
-      it('does a PUSH after a TOP', () => {
-        const diff:HistoryDiff = new HistoryDiff({
-          same: [zero, a],
-          removed: [a1, a2],
-          added: [b],
-          oldCurrentIndex: 1,
-          newCurrentIndex: 2
-        })
-        expect(diffToSteps(diff)).to.deep.equal([
-          new PushStep(b)
-        ])
-      })
-    })
-  })
 
   describe('createStepsSinceUpdate', () => {
     describe('simple group', () => {
@@ -381,19 +240,48 @@ describe('action utils', () => {
         })
 
         describe('back, switch, pop', () => {
-          it('should keep tab 1 forward history, but not tab 2', () => {
+          const backSwitchActions:Action[] = [
+            ...loadActions,
+            new Back({
+              time: 3000
+            }),
+            new SwitchToContainer({
+              groupName: 'Group 1',
+              name: 'Container 2A',
+              time: 4000
+            })
+          ]
+
+          it('should remove tab 2 history', () => {
             const actions:Action[] = [
-              ...loadActions,
-              new Back({
-                time: 3000
-              }),
-              new SwitchToContainer({
-                groupName: 'Group 1',
-                name: 'Container 2A',
-                time: 4000
-              }),
+              ...backSwitchActions,
               new PopState({
                 n: -1,
+                time: 5000
+              })
+            ]
+            expect(createStepsSince(actions, 4500)).to.deep.equal([
+              new PushStep(new Page({
+                url: '/a/1',
+                params: {id: '1'},
+                groupName: 'Group 1',
+                containerName: 'Container 1A'
+              })),
+              new BackStep()
+            ])
+          })
+
+          it('should keep tab 1 forward history, but not tab 2', () => {
+            const actions:Action[] = [
+              ...backSwitchActions,
+              new Push({
+                groupName: 'Group 1',
+                containerName: 'Container 2A',
+                url: '/b/1',
+                time: 4200
+              }),
+              new PopState({
+                n: -2,
                 time: 5000
               })
             ]

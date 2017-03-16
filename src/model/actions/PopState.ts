@@ -21,12 +21,12 @@ export default class PopState extends Action {
 
   addSteps(steps:Step[], state:State):Step[] {
     const newState:State = this.reduce(state)
-    const h1 = newState.browserHistoryWithFwdMaintained
+    const h1 = newState.historyWithFwdMaintained
     if (h1.current.isZeroPage) {
       return steps
     }
     else {
-      const h2 = newState.browserHistory
+      const h2 = newState.history
       return [...steps, ...diffPagesToSteps(h1.toPages(), h2.toPages())]
     }
   }

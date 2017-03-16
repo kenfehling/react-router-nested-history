@@ -212,11 +212,11 @@ abstract class State implements IState {
     }
   }
 
-  get browserHistory():HistoryStack {
+  get history():HistoryStack {
     return this.getHistory(false)
   }
 
-  get browserHistoryWithFwdMaintained():HistoryStack {
+  get historyWithFwdMaintained():HistoryStack {
     return this.getHistory(true)
   }
 

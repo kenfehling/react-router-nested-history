@@ -5,22 +5,24 @@ import VisitedPage from './VistedPage'
 import {VisitType} from './PageVisit'
 import Page from './Page'
 
+/**
+ * A list of VisitedPage objects that's always sorted by first manually visited
+ */
 export default class Pages implements IHistory {
   readonly pages: VisitedPage[]
 
-  constructor(pages:VisitedPage[]=[]) {
-    this.pages = pages
+  constructor(pages:VisitedPage[]=[], sort:boolean=true) {
+    this.pages = sort ? R.sort(Pages.compareByFirstVisited, pages) : pages
   }
   
   toHistoryStack():HistoryStack {
-    const firstVisited:VisitedPage[] = this.byFirstVisited
     const currentIndex = this.activeIndex
     return new HistoryStack({
-      back: firstVisited.slice(0, currentIndex),
+      back: this.slice(0, currentIndex).pages,
       current: this.activePage,
-      forward: firstVisited
+      forward: this
                 .slice(currentIndex + 1)
-                .filter((p:VisitedPage) => p.wasManuallyVisited)
+                .filter((p:VisitedPage) => p.wasManuallyVisited).pages
     })
   }
 
@@ -37,16 +39,16 @@ export default class Pages implements IHistory {
   }
 
   replacePageAtIndex(page:VisitedPage, index:number):Pages {
-    const firstVisited:VisitedPage[] = this.byFirstVisited
+    const pages:VisitedPage[] = this.pages
     return new Pages([
-      ...firstVisited.slice(0, index),
+      ...pages.slice(0, index),
       page,
-      ...firstVisited.slice(index + 1)
+      ...pages.slice(index + 1)
     ])
   }
 
   touchPageAtIndex(index:number, pageVisit:PageVisit):Pages {
-    const page:VisitedPage = this.byFirstVisited[index]
+    const page:VisitedPage = this.pages[index]
     return this.replacePageAtIndex(page.touch(pageVisit), index)
   }
 
@@ -60,7 +62,7 @@ export default class Pages implements IHistory {
       ...Object(page),
       visits:[{time, type}]
     })
-    return new Pages([...this.byFirstVisited.slice(0, index), newPage])
+    return new Pages([...this.pages.slice(0, index), newPage])
   }
 
   /**
@@ -69,9 +71,9 @@ export default class Pages implements IHistory {
    * @param reset - Should it remove the forward pages from history?
    */
   top(time:number, reset:boolean=false):Pages {
-    const firstVisit:VisitedPage[] = this.byFirstVisited
-    const page:VisitedPage = firstVisit[0].touch({time, type: VisitType.MANUAL})
-    return new Pages(reset ? [page] : [page, ...firstVisit.slice(1)])
+    const visit:PageVisit = {time, type: VisitType.MANUAL}
+    const page:VisitedPage = this.pages[0].touch(visit)
+    return new Pages(reset ? [page] : [page, ...this.slice(1).pages])
   }
 
   /**
@@ -81,8 +83,7 @@ export default class Pages implements IHistory {
    * @throws Error if page not found
    */
   getShiftAmount(page:Page):number {
-    const firstVisit:Page[] = this.byFirstVisited
-    const index = R.findIndex((p:Page) => p.equals(page), firstVisit)
+    const index = this.findIndex((p:Page) => p.equals(page))
     if (index === -1) {
       throw new Error('Page not found')
     }
@@ -148,7 +149,7 @@ export default class Pages implements IHistory {
   }
 
   get activePage():VisitedPage {
-    return this.byLastVisited[0]
+    return R.sort(Pages.compareByLastVisited, this.pages)[0]
   }
 
   get activeUrl():string {
@@ -157,8 +158,7 @@ export default class Pages implements IHistory {
 
   get activeIndex():number {
     const current:Page = this.activePage
-    const firstVisited:Page[] = this.byFirstVisited
-    return R.findIndex(p => p === current, firstVisited)
+    return this.findIndex(p => p === current)
   }
 
   get firstManualVisit():PageVisit|null {
@@ -186,6 +186,26 @@ export default class Pages implements IHistory {
     return new Pages([...this.pages, page])
   }
 
+  sort(fn:(a:VisitedPage, b:VisitedPage) => number):Pages {
+    return new Pages(R.sort(fn, this.pages), false)
+  }
+
+  slice(start:number, end?:number):Pages {
+    return new Pages(this.pages.slice(start, end), false)
+  }
+
+  filter(fn:(a:VisitedPage) => boolean):Pages {
+    return new Pages(this.pages.filter(fn), false)
+  }
+
+  map(fn:(a:VisitedPage) => VisitedPage):Pages {
+    return new Pages(this.pages.map(fn), false)
+  }
+
+  findIndex(fn:(a:VisitedPage) => boolean):number {
+    return R.findIndex(fn, this.pages)
+  }
+
   static compareByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
     if (p1.isZeroPage) {
       return -1
@@ -198,15 +218,15 @@ export default class Pages implements IHistory {
         return p1.firstManualVisit.time - p2.firstManualVisit.time
       }
       else {
-        return -1
+        return -1 //1
       }
     }
     else {
       if (p2.wasManuallyVisited) {
-        return 1
+        return 1 //-1
       }
       else {
-        return -1  // 0
+        return 0
       }
     }
   }
@@ -215,12 +235,8 @@ export default class Pages implements IHistory {
     return p2.lastVisit.time - p1.lastVisit.time
   }
 
-  private get byFirstVisited():VisitedPage[] {
-    return R.sort(Pages.compareByFirstVisited, this.pages)
-  }
-
-  private get byLastVisited():VisitedPage[] {
-    return R.sort(Pages.compareByLastVisited, this.pages)
+  private get byLastVisited():Pages {
+    return this.sort(Pages.compareByLastVisited)
   }
 }
 
@@ -249,6 +265,6 @@ export class HistoryStack {
   }
 
   toPages():Pages {
-    return new Pages(this.flatten())
+    return new Pages(this.flatten(), false)
   }
 }

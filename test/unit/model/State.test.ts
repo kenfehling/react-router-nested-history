@@ -61,7 +61,7 @@ describe('State', () => {
           groupName: 'Group 1',
           containerName: 'Container 1A'
         })
-        const h:HistoryStack = state.push(page, 5000).browserHistory
+        const h:HistoryStack = state.push(page, 5000).history
         expect(h.back.length).to.equal(2)
         expect(h.current.url).to.equal('/d')
         expect(h.forward.length).to.equal(0)
@@ -75,7 +75,7 @@ describe('State', () => {
           containerName: 'Container 1A'
         }), time)
         const newState:State = push(push(push(state, '/d', 5000), '/d/1', 6000), '/d/1/1', 7000)
-        const h:HistoryStack = newState.browserHistory
+        const h:HistoryStack = newState.history
         expect(h.back.length).to.equal(4)
         expect(h.back[0].url).to.equal('/a')
         expect(h.back[1].url).to.equal('/a')
@@ -89,7 +89,7 @@ describe('State', () => {
     describe('go', () => {
       it('goes back 1 to zero page', () => {
         const newState:State = state.go(-1, 1000)
-        const h:HistoryStack = newState.browserHistory
+        const h:HistoryStack = newState.history
         expect(h.back.length).to.equal(0)
         expect(h.current).to.deep.equal(newState.getZeroPage())
         expect(h.forward.length).to.equal(1)
@@ -223,7 +223,7 @@ describe('State', () => {
           groupName: 'Group 1',
           containerName: 'Container 1A'
         })
-        const h:HistoryStack = state.push(page, 5000).browserHistory
+        const h:HistoryStack = state.push(page, 5000).history
         expect(h.back.length).to.equal(2)
         expect(h.current.url).to.equal('/d')
         expect(h.forward.length).to.equal(0)
@@ -233,10 +233,10 @@ describe('State', () => {
     describe('go', () => {
       it('goes back 1 to zero page', () => {
         const newState:State = state.go(-1, 1000)
-        expect(newState.browserHistory.back.length).to.equal(0)
-        expect(newState.browserHistory.current).to.deep.equal(newState.getZeroPage())
-        expect(newState.browserHistory.forward.length).to.equal(1)
-        expect(newState.browserHistory.forward[0].url).to.equal('/a')
+        expect(newState.history.back.length).to.equal(0)
+        expect(newState.history.current).to.deep.equal(newState.getZeroPage())
+        expect(newState.history.forward.length).to.equal(1)
+        expect(newState.history.forward[0].url).to.equal('/a')
       })
     })
 

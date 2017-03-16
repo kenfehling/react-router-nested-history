@@ -30,4 +30,8 @@ export default class VisitedPage extends Page {
   get lastVisit():PageVisit {
     return R.last(this.visits)
   }
+
+  toPage():Page {
+    return new Page(this)
+  }
 }

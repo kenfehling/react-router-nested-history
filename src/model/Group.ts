@@ -529,7 +529,7 @@ export default class Group implements IContainer {
   }
 
   get pages():Pages {
-    return new Pages(this.history.flatten())
+    return new Pages(this.history.flatten(), false)
   }
 
   get firstManualVisit():PageVisit|null {
