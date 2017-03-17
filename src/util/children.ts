@@ -39,7 +39,7 @@ function _getChildren(component:any,
       catch(e) {}
     }
   }
-  else if (component.props && component.props.children) {
+  if (component.props && component.props.children) {
     return _processChildren(component, next)
   }
   //else if (component.type.children) {
