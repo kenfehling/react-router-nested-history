@@ -41,7 +41,7 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
   switchToGroup: () => void
 }
 
-class InnerContainer extends Component<ConnectedContainerProps, undefined> {
+class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> {
 
   addTitleForPath(pathname:string) {
     const {addTitle} = this.props
@@ -123,13 +123,13 @@ const mergeProps = (stateProps, dispatchProps,
   ...ownProps
 })
 
-const ConnectedContainer = connect(
+const ConnectedSmartContainer = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(InnerContainer)
+)(InnerSmartContainer)
 
-export default class Container extends Component<ContainerProps, undefined> {
+export default class SmartContainer extends Component<ContainerProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
@@ -139,6 +139,6 @@ export default class Container extends Component<ContainerProps, undefined> {
 
   render() {
     const {rrnhStore, ...context} = this.context
-    return <ConnectedContainer store={rrnhStore} {...context} {...this.props} />
+    return <ConnectedSmartContainer store={rrnhStore} {...context} {...this.props} />
   }
 }

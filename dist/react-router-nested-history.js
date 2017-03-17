@@ -24297,7 +24297,7 @@ var ScrollArea = (function (_super) {
     };
     ScrollArea.prototype.render = function () {
         var _this = this;
-        var _a = R.omit(['resetOnLeave'], this.props), children = _a.children, _b = _a.horizontal, horizontal = _b === void 0 ? true : _b, _c = _a.vertical, vertical = _c === void 0 ? true : _c, _d = _a.style, style = _d === void 0 ? {} : _d, divProps = __rest(_a, ["children", "horizontal", "vertical", "style"]);
+        var _a = R.omit(['resetOnLeave'], this.props), children = _a.children, _b = _a.horizontal, horizontal = _b === void 0 ? false : _b, _c = _a.vertical, vertical = _c === void 0 ? false : _c, _d = _a.style, style = _d === void 0 ? {} : _d, divProps = __rest(_a, ["children", "horizontal", "vertical", "style"]);
         return (React.createElement("div", __assign({ ref: function (ref) { return _this.scrollArea = ref; }, onScroll: this.onScroll.bind(this) }, divProps, { style: __assign({}, style, { width: '100%', height: '100%', overflowX: horizontal ? 'scroll' : 'auto', overflowY: vertical ? 'scroll' : 'auto' }) }), children));
     };
     return ScrollArea;
@@ -25901,18 +25901,18 @@ var willEnter = function (action) { return ({
 var willLeave = function (action) { return ({
     left: getLeft(LifecycleStage.WILL_LEAVE, action)
 }); };
-var AnimatedPage = (function (_super) {
-    __extends(AnimatedPage, _super);
-    function AnimatedPage() {
+var InnerAnimatedPage = (function (_super) {
+    __extends(InnerAnimatedPage, _super);
+    function InnerAnimatedPage() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    AnimatedPage.prototype.shouldComponentUpdate = function (nextProps) {
+    InnerAnimatedPage.prototype.shouldComponentUpdate = function (nextProps) {
         var match = this.props.match;
         var nextMatch = nextProps.match;
         return !(!match && !nextMatch) &&
             (!match || !nextMatch || match.url !== nextMatch.url);
     };
-    AnimatedPage.prototype.render = function () {
+    InnerAnimatedPage.prototype.render = function () {
         var _a = this.props, children = _a.children, lastAction = _a.lastAction;
         var _b = this.context, animate = _b.animate, pathname = _b.pathname;
         if (animate !== false) {
@@ -25927,32 +25927,32 @@ var AnimatedPage = (function (_super) {
             return React.createElement("div", null, children);
         }
     };
-    return AnimatedPage;
+    return InnerAnimatedPage;
 }(react_1.Component));
-AnimatedPage.contextTypes = {
+InnerAnimatedPage.contextTypes = {
     animate: react_1.PropTypes.bool.isRequired,
     pathname: react_1.PropTypes.string.isRequired
 };
 var mapStateToProps = function (state, ownProps) { return ({
     lastAction: R.last(state.actions.filter(function (a) { return !(a instanceof UpdateBrowser_1.default); }))
 }); };
-var ConnectedPage = react_redux_1.connect(mapStateToProps)(AnimatedPage);
-var default_1 = (function (_super) {
-    __extends(default_1, _super);
-    function default_1() {
+var ConnectedPage = react_redux_1.connect(mapStateToProps)(InnerAnimatedPage);
+var AnimatedPage = (function (_super) {
+    __extends(AnimatedPage, _super);
+    function AnimatedPage() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    default_1.prototype.render = function () {
+    AnimatedPage.prototype.render = function () {
         var rrnhStore = this.context.rrnhStore;
         return React.createElement(ConnectedPage, __assign({}, this.props, { store: rrnhStore }));
     };
-    return default_1;
+    return AnimatedPage;
 }(react_1.Component));
-default_1.contextTypes = {
+AnimatedPage.contextTypes = {
     rrnhStore: react_1.PropTypes.object.isRequired
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = default_1;
+exports.default = AnimatedPage;
 
 
 /***/ }),
@@ -26036,12 +26036,12 @@ var ExecutionEnvironment_1 = __webpack_require__(90);
 var AddTitle_1 = __webpack_require__(141);
 var SwitchToGroup_1 = __webpack_require__(63);
 var selectors_1 = __webpack_require__(64);
-var InnerContainer = (function (_super) {
-    __extends(InnerContainer, _super);
-    function InnerContainer() {
+var InnerSmartContainer = (function (_super) {
+    __extends(InnerSmartContainer, _super);
+    function InnerSmartContainer() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    InnerContainer.prototype.addTitleForPath = function (pathname) {
+    InnerSmartContainer.prototype.addTitleForPath = function (pathname) {
         var addTitle = this.props.addTitle;
         if (ExecutionEnvironment_1.canUseDOM) {
             addTitle({
@@ -26050,7 +26050,7 @@ var InnerContainer = (function (_super) {
             });
         }
     };
-    InnerContainer.prototype.componentDidUpdate = function () {
+    InnerSmartContainer.prototype.componentDidUpdate = function () {
         var _a = this.props, patterns = _a.patterns, pathname = _a.pathname;
         if (pathname) {
             if (url_1.patternsMatch(patterns, pathname)) {
@@ -26058,7 +26058,7 @@ var InnerContainer = (function (_super) {
             }
         }
     };
-    InnerContainer.prototype.render = function () {
+    InnerSmartContainer.prototype.render = function () {
         var initializing = this.props.initializing;
         if (initializing) {
             return React.createElement("div", null);
@@ -26069,7 +26069,7 @@ var InnerContainer = (function (_super) {
             return React.createElement(DumbContainer_1.default, __assign({}, props));
         }
     };
-    return InnerContainer;
+    return InnerSmartContainer;
 }(react_1.Component));
 var matchesLocation = function (group, isGroupActive, pathname, patterns) {
     var activeGroupUrl = group.activeUrl;
@@ -26108,26 +26108,26 @@ var mapDispatchToProps = function (dispatch, ownProps) { return ({
     switchToGroup: function () { return dispatch(new SwitchToGroup_1.default({ groupName: ownProps.groupName })); }
 }); };
 var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps)); };
-var ConnectedContainer = react_redux_1.connect(mapStateToProps, mapDispatchToProps, mergeProps)(InnerContainer);
-var Container = (function (_super) {
-    __extends(Container, _super);
-    function Container() {
+var ConnectedSmartContainer = react_redux_1.connect(mapStateToProps, mapDispatchToProps, mergeProps)(InnerSmartContainer);
+var SmartContainer = (function (_super) {
+    __extends(SmartContainer, _super);
+    function SmartContainer() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    Container.prototype.render = function () {
+    SmartContainer.prototype.render = function () {
         var _a = this.context, rrnhStore = _a.rrnhStore, context = __rest(_a, ["rrnhStore"]);
-        return React.createElement(ConnectedContainer, __assign({ store: rrnhStore }, context, this.props));
+        return React.createElement(ConnectedSmartContainer, __assign({ store: rrnhStore }, context, this.props));
     };
-    return Container;
+    return SmartContainer;
 }(react_1.Component));
-Container.contextTypes = {
+SmartContainer.contextTypes = {
     rrnhStore: react_1.PropTypes.object.isRequired,
     groupName: react_1.PropTypes.string.isRequired,
     initializing: react_1.PropTypes.bool,
     hideInactiveContainers: react_1.PropTypes.bool
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = Container;
+exports.default = SmartContainer;
 
 
 /***/ }),

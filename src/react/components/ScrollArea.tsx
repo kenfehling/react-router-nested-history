@@ -76,8 +76,8 @@ export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
   render() {
     const {
       children,
-      horizontal=true,
-      vertical=true,
+      horizontal=false,
+      vertical=false,
       style={},
       ...divProps
     } = R.omit(['resetOnLeave'], this.props)

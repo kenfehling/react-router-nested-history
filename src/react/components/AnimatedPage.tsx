@@ -110,7 +110,7 @@ const willLeave = (action:Action) => ({
   left: getLeft(LifecycleStage.WILL_LEAVE, action)
 })
 
-class AnimatedPage extends Component<InnerProps, undefined> {
+class InnerAnimatedPage extends Component<InnerProps, undefined> {
   static contextTypes = {
     animate: PropTypes.bool.isRequired,
     pathname: PropTypes.string.isRequired
@@ -156,9 +156,9 @@ const mapStateToProps = (state:ComputedState, ownProps:ConnectedProps) => ({
   lastAction: R.last(state.actions.filter(a => !(a instanceof UpdateBrowser)))
 })
 
-const ConnectedPage = connect(mapStateToProps)(AnimatedPage)
+const ConnectedPage = connect(mapStateToProps)(InnerAnimatedPage)
 
-export default class extends Component<AnimatedPageProps, undefined> {
+export default class AnimatedPage extends Component<AnimatedPageProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired
   }
