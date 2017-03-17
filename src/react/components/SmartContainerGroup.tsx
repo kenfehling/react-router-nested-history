@@ -48,7 +48,7 @@ const mapStateToProps = (state:ComputedState, ownProps:GroupPropsWithStore) => {
   return {
     storedStackOrder: group.stackOrder,
     storedCurrentContainerIndex: group.activeContainerIndex,
-    storedCurrentContainerName:group.activeContainerName
+    storedCurrentContainerName: group.activeContainerName
   }
 }
 

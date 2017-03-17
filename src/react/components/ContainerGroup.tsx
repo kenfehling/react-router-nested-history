@@ -81,7 +81,10 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
      // Initialize the Containers in this group
      // (since most tab libraries lazy load tabs)
      const cs = getChildren(this, [Container, DumbContainer],
-     [ContainerGroup, SmartContainerGroup, DumbContainerGroup, WindowGroup])
+     [ContainerGroup, SmartContainerGroup, DumbContainerGroup])
+
+     console.log(cs)
+
      cs.forEach(c => renderToStaticMarkup(<G children={c} />))
   }
 

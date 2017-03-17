@@ -2,6 +2,7 @@ import Page from './Page'
 import IContainer from './IContainer'
 import Group from './Group'
 import State from './State'
+import Window from './Window'
 import IGroupContainer from './IGroupContainer'
 import Pages, {HistoryStack} from './Pages'
 import {VisitType} from './PageVisit'
@@ -23,14 +24,32 @@ export default class InitializedState extends State {
 
   switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
-    return this.replaceGroup(group.activate({time, type: VisitType.MANUAL}))
+    return this
+      .openWindow(groupName)
+      .replaceGroup(group.activate({time, type: VisitType.MANUAL}))
   }
 
   switchToContainer({groupName, name, time}:
       {groupName:string, name:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
     const c = group.activateContainer(name, time)
-    return this.replaceGroup(c)
+    return this
+      .openWindow(name)
+      .replaceGroup(c)
+  }
+
+  private setWindowVisible(forName:string, visible:boolean):State {
+    return this.windows.has(forName) ?
+        this.replaceWindow(this.windows.get(forName).setVisibile(visible)) :
+        this
+  }
+
+  openWindow(forName:string):State {
+    return this.setWindowVisible(forName, true)
+  }
+
+  closeWindow(forName:string):State {
+    return this.setWindowVisible(forName, false)
   }
 
   go(n:number, time:number):State {
