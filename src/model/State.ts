@@ -23,11 +23,13 @@ abstract class State implements IState {
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
-  constructor({groups=fromJS({}), zeroPage, lastUpdate=0,
+  constructor({groups=fromJS({}), windows=fromJS({}), zeroPage, lastUpdate=0,
     loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
-    {groups?:Map<string, Group>, zeroPage?:string, lastUpdate?:number,
-      loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
+    {groups?:Map<string, Group>, windows?:Map<string, Window>,
+      zeroPage?:string, lastUpdate?:number, loadedFromRefresh?:boolean,
+      isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
+    this.windows = windows
     this.zeroPage = zeroPage
     this.lastUpdate = lastUpdate
     this.loadedFromRefresh = loadedFromRefresh

@@ -5,7 +5,6 @@ import {Store} from '../../store/store'
 import ComputedState from '../../model/ComputedState'
 import Action from '../../store/Action'
 import State from '../../model/State'
-import waitForInitialization from '../waitForInitialization'
 import SmartHistoryWindow, {WindowProps} from './SmartHistoryWindow'
 import CreateWindow from '../../model/actions/CreateWindow'
 
@@ -74,4 +73,4 @@ class HistoryWindow extends Component<WindowProps, undefined> {
   }
 }
 
-export default waitForInitialization(HistoryWindow)
+export default HistoryWindow
