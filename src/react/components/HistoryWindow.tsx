@@ -49,7 +49,7 @@ export default class HistoryWindow extends Component<WindowProps, undefined> {
     const {forName} = this.props
     const {setCurrentContainerName} = this.context
     setCurrentContainerName(forName)
-    event.stopPropagation()
+    //event.stopPropagation()
   }
 
   render() {

@@ -24195,7 +24195,7 @@ var HistoryWindow = (function (_super) {
         var forName = this.props.forName;
         var setCurrentContainerName = this.context.setCurrentContainerName;
         setCurrentContainerName(forName);
-        event.stopPropagation();
+        //event.stopPropagation()
     };
     HistoryWindow.prototype.render = function () {
         // Pass through all props you could want on a div
