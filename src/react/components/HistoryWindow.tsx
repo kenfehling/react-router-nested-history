@@ -36,7 +36,8 @@ interface WindowProps {
   top?: number
   left?: number
   children?: ChildrenType
-  style?: Object
+  className?: string
+  topClassName?: string
 }
 
 export default class HistoryWindow extends Component<WindowProps, undefined> {
@@ -52,26 +53,27 @@ export default class HistoryWindow extends Component<WindowProps, undefined> {
     //event.stopPropagation()
   }
 
+  getClassName() {
+    const {className, topClassName, forName} = this.props
+    const {stackOrder} = this.context
+    const isOnTop = isWindowOnTop(stackOrder, forName)
+    return isOnTop && topClassName ? topClassName : className || ''
+  }
+
   render() {
-    // Pass through all props you could want on a div
-    const {forName, top, left, children, style={}, ...divProps} = this.props
+    const {forName, top, left, children} = this.props
     const {stackOrder} = this.context
     const zIndex = getWindowZIndex(stackOrder, forName)
-    const isOnTop = isWindowOnTop(stackOrder, forName)
-    return (
-      <div {...divProps}
-           onMouseDown={this.onMouseDown.bind(this)}
-           style={{
-             ...style,
-             zIndex,
-             position: 'absolute',
-             top: top ? top + 'px' : '',
-             left: left ? left + 'px' : ''
-           }}
-      >
-        {children instanceof Function ? children({isOnTop}) :
-            cloneElement(Children.only(children), {isOnTop})}
-      </div>
-    )
+    const props = {
+      className: this.getClassName(),
+      onMouseDown: this.onMouseDown.bind(this),
+      style: {
+        zIndex,
+        position: 'absolute',
+        top: top ? top + 'px' : '',
+        left: left ? left + 'px' : ''
+      }
+    }
+    return cloneElement(Children.only(children), props)
   }
 }

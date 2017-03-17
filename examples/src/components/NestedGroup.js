@@ -102,38 +102,42 @@ const NestedGroup = () =>(
     </div>
     <WindowGroup name='nested' className='nested'>
       <HistoryWindow forName='foods' className='window foods'>
-        <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
-          <FoodsHeader />
-          {foodGroups.map((c, i) => (
-            <Container
-              key={c}
-              name={c}
-              className={c}
-              initialUrl={`/foods/${c}`}
-              isDefault={i === 0}
-              resetOnLeave={true}
-              patterns={[
-                `/foods/${regex(c)}`,
-                `/foods/${regex(c)}/:food`,
-                `/foods/${regex(c)}/:food/:type`
-              ]}
-            >
-              <div>
-                <HistoryRoute path={`/foods/${regex(c)}`} exact
-                              component={FoodsMaster} />
-                <HistoryRoute path={`/foods/${regex(c)}/:food`} exact
-                              component={FoodDetail} />
-                <HistoryRoute path={`/foods/${regex(c)}/:food/:type`} exact
-                              component={FoodTypeDetail} />
-              </div>
-            </Container>
-          ))}
-        </ContainerGroup>
+        <div>
+          <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
+            <FoodsHeader />
+            {foodGroups.map((c, i) => (
+              <Container
+                key={c}
+                name={c}
+                className={c}
+                initialUrl={`/foods/${c}`}
+                isDefault={i === 0}
+                resetOnLeave={true}
+                patterns={[
+                  `/foods/${regex(c)}`,
+                  `/foods/${regex(c)}/:food`,
+                  `/foods/${regex(c)}/:food/:type`
+                ]}
+              >
+                <div>
+                  <HistoryRoute path={`/foods/${regex(c)}`} exact
+                                component={FoodsMaster} />
+                  <HistoryRoute path={`/foods/${regex(c)}/:food`} exact
+                                component={FoodDetail} />
+                  <HistoryRoute path={`/foods/${regex(c)}/:food/:type`} exact
+                                component={FoodTypeDetail} />
+                </div>
+              </Container>
+            ))}
+          </ContainerGroup>
+        </div>
       </HistoryWindow>
       <HistoryWindow forName='notes' className='window nested-window notes'>
-        <Container name='notes' animate={false} initialUrl='/notes' patterns={['/notes']}>
-          <HistoryRoute path='/notes' exact component={Notes} />
-        </Container>
+        <div>
+          <Container name='notes' animate={false} initialUrl='/notes' patterns={['/notes']}>
+            <HistoryRoute path='/notes' exact component={Notes} />
+          </Container>
+        </div>
       </HistoryWindow>
     </WindowGroup>
   </div>

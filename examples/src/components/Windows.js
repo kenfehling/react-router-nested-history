@@ -31,11 +31,12 @@ const WindowPage = ({match:{params:{page}}}) => (
 )
 
 const ExampleWindow = ({index, masterComponent}) => (
-  <HistoryWindow forName={windowName(index)} className={`window ${windowName(index)}`}>
-    {({isOnTop}) => (
+  <HistoryWindow forName={windowName(index)}
+                 className={`window ${windowName(index)}`}
+                 topClassName={`top window ${windowName(index)}`}>
+    <div>
       <Container name={windowName(index)}
                  animate={false}
-                 className={isOnTop ? 'top container' : 'container'}
                  initialUrl={windowUrl(index)}
                  patterns={[windowUrl(index), windowUrl(index) + '/:page']}
       >
@@ -48,7 +49,7 @@ const ExampleWindow = ({index, masterComponent}) => (
                       component={WindowPage}
         />
       </Container>
-    )}
+    </div>
   </HistoryWindow>
 )
 

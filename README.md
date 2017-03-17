@@ -404,11 +404,16 @@ A single window inside a `WindowGroup`
           <td>The CSS class used to style this window</td>
         </tr>
         <tr>
+          <td>topClassName</td>
+          <td>string</td>
+          <td></td>
+          <td>The CSS class used when this window is on top</td>
+        </tr>
+        <tr>
           <td>children</td>
-          <td>ReactNode or function</td>
+          <td>ReactNode</td>
           <td></td>
-          <td></td>
-          <td>The children of this ContainerGroup</td>
+          <td>The children of this HistoryWindow</td>
         </tr>
     </tbody>   
 </table>

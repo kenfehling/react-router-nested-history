@@ -24150,24 +24150,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
-            t[p[i]] = s[p[i]];
-    return t;
-};
-var React = __webpack_require__(2);
 var react_1 = __webpack_require__(2);
 var R = __webpack_require__(8);
 var getWindowZIndex = function (stackOrder, name) {
@@ -24197,14 +24179,27 @@ var HistoryWindow = (function (_super) {
         setCurrentContainerName(forName);
         //event.stopPropagation()
     };
+    HistoryWindow.prototype.getClassName = function () {
+        var _a = this.props, className = _a.className, topClassName = _a.topClassName, forName = _a.forName;
+        var stackOrder = this.context.stackOrder;
+        var isOnTop = isWindowOnTop(stackOrder, forName);
+        return isOnTop && topClassName ? topClassName : className || '';
+    };
     HistoryWindow.prototype.render = function () {
-        // Pass through all props you could want on a div
-        var _a = this.props, forName = _a.forName, top = _a.top, left = _a.left, children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["forName", "top", "left", "children", "style"]);
+        var _a = this.props, forName = _a.forName, top = _a.top, left = _a.left, children = _a.children;
         var stackOrder = this.context.stackOrder;
         var zIndex = getWindowZIndex(stackOrder, forName);
-        var isOnTop = isWindowOnTop(stackOrder, forName);
-        return (React.createElement("div", __assign({}, divProps, { onMouseDown: this.onMouseDown.bind(this), style: __assign({}, style, { zIndex: zIndex, position: 'absolute', top: top ? top + 'px' : '', left: left ? left + 'px' : '' }) }), children instanceof Function ? children({ isOnTop: isOnTop }) :
-            react_1.cloneElement(react_1.Children.only(children), { isOnTop: isOnTop })));
+        var props = {
+            className: this.getClassName(),
+            onMouseDown: this.onMouseDown.bind(this),
+            style: {
+                zIndex: zIndex,
+                position: 'absolute',
+                top: top ? top + 'px' : '',
+                left: left ? left + 'px' : ''
+            }
+        };
+        return react_1.cloneElement(react_1.Children.only(children), props);
     };
     return HistoryWindow;
 }(react_1.Component));
