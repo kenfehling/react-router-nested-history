@@ -42,9 +42,9 @@ export default class SwitchToContainer extends Action {
     })
   }
 
-  filter(state:State):Action[]​ {
+  filter(state:State) {
     const containerName:string = this.getContainerName(state)
-    if (state.isContainerActive(this.groupName, containerName)) {
+    if (state.isContainerActiveAndEnabled(this.groupName, containerName)) {
       if (this.origin === USER) {
         const group:Group = state.getGroupByName(this.groupName)
         if (group.gotoTopOnSelectActive) {

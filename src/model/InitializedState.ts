@@ -176,8 +176,8 @@ export default class InitializedState extends State {
     return this.activeGroup.activePage
   }
 
-  isContainerActive(groupName:string, containerName:string):boolean {
-    return this.getGroupByName(groupName).isContainerActive(containerName)
+  isContainerActiveAndEnabled(groupName:string, containerName:string):boolean {
+    return this.getGroupByName(groupName).isContainerActiveAndEnabled(containerName)
   }
 
   get activeUrl():string {

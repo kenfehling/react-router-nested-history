@@ -103,8 +103,8 @@ export default class Windows extends Component {
           </WindowGroup>
         </div>
         <div className='window-menu'>
-          <button onClick={() => this.onNameClick(0)}>Window 1</button>
-          <button onClick={() => this.onNameClick(1)}>Window 2</button>
+          <button onClick={() => this.onNameClick(0)}>{windowName(0)}</button>
+          <button onClick={() => this.onNameClick(1)}>{windowName(1)}</button>
           <button onClick={() => this.onIndexClick(0)}>0</button>
           <button onClick={() => this.onIndexClick(1)}>1</button>
         </div>

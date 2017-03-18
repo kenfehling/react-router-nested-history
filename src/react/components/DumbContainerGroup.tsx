@@ -79,6 +79,12 @@ export default class DumbContainerGroup extends
     })
   }
 
+  /**
+   * II = Input Index
+   * SI = Stored Index
+   * IN = Input Name
+   * SN = Stored Name
+   */
   componentWillReceiveProps(nextProps) {
     const oldII:number|undefined = this.props.currentContainerIndex
     const oldSI:number|null = this.props.storedCurrentContainerIndex
@@ -98,10 +104,10 @@ export default class DumbContainerGroup extends
         stackOrder: newStackOrder
       })
     }
-    else if (newII != null && newII !== oldII && newII !== newSI) {
+    else if (newII != null) {
       this.props.switchToContainerIndex(newII)
     }
-    else if (newIN && newIN !== oldIN && newIN !== newSN) {
+    else if (newIN) {
       this.props.switchToContainerName(newIN)
     }
   }

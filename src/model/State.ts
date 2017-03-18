@@ -105,7 +105,7 @@ abstract class State implements IState {
   abstract getActiveUrlInGroup(groupName:string):string
   abstract urlMatchesGroup(url:string, groupName:string):boolean
   abstract get activePage():Page
-  abstract isContainerActive(groupName:string, containerName:string):boolean
+  abstract isContainerActiveAndEnabled(groupName:string, containerName:string):boolean
   abstract get activeUrl():string
   abstract getActivePageInContainer(groupName:string, containerName:string):Page
   abstract getActiveUrlInContainer(groupName:string, containerName:string):string

@@ -127,7 +127,7 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  isContainerActive(groupName:string, containerName:string):boolean {
+  isContainerActiveAndEnabled(groupName:string, containerName:string):boolean {
     return false
   }
 

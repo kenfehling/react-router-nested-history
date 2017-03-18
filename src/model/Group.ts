@@ -229,12 +229,13 @@ export default class Group implements IContainer {
     }
   }
 
-  isContainerActive(containerName:string):boolean {
+  isContainerActiveAndEnabled(containerName:string):boolean {
     if (this.containers.size === 0) {
       return false
     }
     else {
-      return this.activeContainer.name === containerName
+      const c:IContainer = this.activeContainer
+      return c.name === containerName && c.enabled
     }
   }
 
