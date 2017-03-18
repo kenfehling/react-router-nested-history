@@ -35,22 +35,20 @@ const MobilePage = ({title, children}) => (
 const MobileWindow = ({name, path=toPath(name), pattern=toPattern(name),
                        children, isDefault=false}) => (
   <HistoryWindow forName={name} className='mobile-window'>
-    <div>
-      <Container name={name}
-                 initialUrl={path}
-                 patterns={[pattern, `${[pattern]}/:page`]}
-                 isDefault={isDefault}
-      >
-        <HistoryRoute path={pattern} exact children={children} />
-        <HistoryRoute path={`${pattern}/:page`} exact>
-          {({match:{params:{page}}}) => (
-            <MobilePage title={page}>
-              <div>{page}</div>
-            </MobilePage>
-          )}
-        </HistoryRoute>
-      </Container>
-    </div>
+    <Container name={name}
+               initialUrl={path}
+               patterns={[pattern, `${[pattern]}/:page`]}
+               isDefault={isDefault}
+    >
+      <HistoryRoute path={pattern} exact children={children} />
+      <HistoryRoute path={`${pattern}/:page`} exact>
+        {({match:{params:{page}}}) => (
+          <MobilePage title={page}>
+            <div>{page}</div>
+          </MobilePage>
+        )}
+      </HistoryRoute>
+    </Container>
   </HistoryWindow>
 )
 
