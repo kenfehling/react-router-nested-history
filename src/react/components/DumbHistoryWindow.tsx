@@ -60,9 +60,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
   }
 
   componentWillReceiveProps(newProps) {
-    const oldVisible = this.props.visible
     const {visible, open, close} = newProps
-    if (visible !== oldVisible) {
+    if (visible !== this.props.visible) {
       (visible ? open : close)()
     }
   }
