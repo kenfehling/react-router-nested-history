@@ -143,8 +143,7 @@ export default class Group implements IContainer {
     const defaulT:IContainer|undefined = this.defaultContainer
     const h1:HistoryStack = this.computeInterContainer(from, to, keepFwd)
     const h2:HistoryStack = Group.computeDefault(h1, defaulT, from, to, keepFwd)
-    const h3 = Group.computeFwd(h2, keepFwd, from, to)
-    return h3
+    return Group.computeFwd(h2, keepFwd, from, to)
   }
 
   private static getSingleHistory(container:IContainer,

@@ -33,13 +33,21 @@ const simpleSortByFirstManualVisit = (cs:IContainer[]):IContainer[] =>
       }
     }, cs)
 
-const sort = (cs:IContainer[], fn:SortFn):IContainer[] => {
-  const enabled:IContainer[] = cs.filter(c => c.enabled)
-  const visited:IContainer[] = enabled.filter(c => c.wasManuallyVisited)
-  const unvisited:IContainer[] = enabled.filter(c => !c.wasManuallyVisited)
+const _sort = (cs:IContainer[], fn:SortFn):IContainer[] => {
+  const visited:IContainer[] = cs.filter(c => c.wasManuallyVisited)
+  const unvisited:IContainer[] = cs.filter(c => !c.wasManuallyVisited)
   const defaultUnvisited:IContainer[] = unvisited.filter(c => c.isDefault)
   const nonDefaultUnvisited = unvisited.filter(c => !c.isDefault)
   return fn({visited, defaultUnvisited, nonDefaultUnvisited})
+}
+
+const sort = (cs:IContainer[], fn:SortFn):IContainer[] => {
+  const enabled:IContainer[] = cs.filter(c => c.enabled)
+  const disabled:IContainer[] = cs.filter(c => !c.enabled)
+  return [
+    ..._sort(enabled, fn),  // return all enabled
+    ..._sort(disabled, fn)  // followed by all disabled
+  ]
 }
 
 export const sortContainersByLastVisited = (cs:IContainer[]):IContainer[] =>
