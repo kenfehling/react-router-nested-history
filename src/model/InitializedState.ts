@@ -1,8 +1,7 @@
 import Page from './Page'
-import IContainer from './IContainer'
 import Group from './Group'
 import State from './State'
-import IGroupContainer from './IGroupContainer'
+import IContainer from './IContainer'
 import Pages, {HistoryStack} from './Pages'
 import {VisitType} from './PageVisit'
 import {sortContainersByLastVisited} from '../util/sorter'
@@ -84,9 +83,9 @@ export default class InitializedState extends State {
       {groupName:string, containerName:string,
         time:number, reset?:boolean}):State {
     const group:Group = this.getGroupByName(groupName)
-    const container:IGroupContainer = group.getContainerByName(containerName)
+    const container:IContainer = group.getContainerByName(containerName)
     return this.replaceGroup(group.replaceContainer(
-        container.top(time, reset) as IGroupContainer))
+        container.top(time, reset) as IContainer))
   }
 
   getShiftAmount(page:Page):number {

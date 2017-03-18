@@ -1,6 +1,5 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import Container from '../../model/Container'
 import {connect, Dispatch} from 'react-redux'
 import {Store} from '../../store/store'
 import ComputedState from '../../model/ComputedState'

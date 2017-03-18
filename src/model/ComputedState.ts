@@ -24,10 +24,16 @@ export interface ComputedGroup {
   history: HistoryStack
 }
 
+export interface ComputedWindow {
+  forName: string
+  visible: boolean
+}
+
 export interface PartialComputedState {
   isInitialized: boolean
   loadedFromRefresh: boolean
   groups: Map<string, ComputedGroup>
+  windows: Map<string, ComputedWindow>
   activeUrl: string
   activeGroupName: string
   lastUpdate: number

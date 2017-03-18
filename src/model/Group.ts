@@ -7,7 +7,6 @@ import * as removeFwdTabBehavior from '../behaviors/removeFwdTabBehavior'
 import Page from './Page'
 import IHistory from './IHistory'
 import Container from './Container'
-import IGroupContainer from './IGroupContainer'
 import IContainer from './IContainer'
 import ISubGroup from './ISubGroup'
 import Pages, {HistoryStack} from './Pages'
@@ -27,21 +26,22 @@ type NextPageFn = <H extends IHistory> (h:H) => Page
 export default class Group implements IContainer {
   readonly name: string
   readonly enabled: boolean
-  readonly containers: Map<string, IGroupContainer>
+  readonly containers: Map<string, IContainer>
   readonly allowInterContainerHistory: boolean
   readonly resetOnLeave: boolean
   readonly gotoTopOnSelectActive: boolean
-  readonly parentGroupName: string|null
-  readonly isDefault: boolean|null  // Only applies if this has a parent group
+  readonly parentGroupName: string
+  readonly isDefault: boolean  // Only applies if this has a parent group
 
-  constructor({name, containers=fromJS({}), allowInterContainerHistory=false,
-    resetOnLeave=false, gotoTopOnSelectActive=false,
-    parentGroupName=null, isDefault=false}:
-      {name:string, containers?:Map<string, IGroupContainer>,
+  constructor({name, enabled=true, containers=fromJS({}),
+    allowInterContainerHistory=false, resetOnLeave=false,
+    gotoTopOnSelectActive=false, parentGroupName='', isDefault=false}:
+      {name:string, enabled?:boolean, containers?:Map<string, IContainer>,
         allowInterContainerHistory?:boolean, resetOnLeave?:boolean,
         gotoTopOnSelectActive?:boolean,
-        parentGroupName?:string|null, isDefault?:boolean|null}) {
+        parentGroupName?:string, isDefault?:boolean}) {
     this.name = name
+    this.enabled = enabled
     this.containers = containers
     this.allowInterContainerHistory = allowInterContainerHistory
     this.resetOnLeave = resetOnLeave
@@ -50,7 +50,7 @@ export default class Group implements IContainer {
     this.isDefault = isDefault
   }
 
-  replaceContainer(container:IGroupContainer):Group {
+  replaceContainer(container:IContainer):Group {
     const groupName:string = container.groupName
     if (groupName === this.name) {
       return new Group({
@@ -71,7 +71,7 @@ export default class Group implements IContainer {
   updatePages(pages:Pages):IContainer {
     return new Group({
       ...Object(this),
-      containers: this.containers.map((c:IGroupContainer) => c.updatePages(pages))
+      containers: this.containers.map((c:IContainer) => c.updatePages(pages))
     })
   }
 
@@ -140,14 +140,14 @@ export default class Group implements IContainer {
   }
   
   computeHistory(from:IContainer, to:IContainer, keepFwd:boolean):HistoryStack {
-    const defaulT:IGroupContainer|undefined = this.defaultContainer
+    const defaulT:IContainer|undefined = this.defaultContainer
     const h1:HistoryStack = this.computeInterContainer(from, to, keepFwd)
     const h2:HistoryStack = Group.computeDefault(h1, defaulT, from, to, keepFwd)
     const h3 = Group.computeFwd(h2, keepFwd, from, to)
     return h3
   }
 
-  private static getSingleHistory(container:IGroupContainer,
+  private static getSingleHistory(container:IContainer,
                                   keepFwd:boolean):HistoryStack {
     if (container instanceof Group) {
       return container.getHistory(keepFwd)
@@ -163,8 +163,8 @@ export default class Group implements IContainer {
       case 0: return Group.getSingleHistory(this.activeContainer, keepFwd)
       case 1: return Group.getSingleHistory(containers[0], keepFwd)
       default: {
-        const from: IGroupContainer = containers[1]
-        const to: IGroupContainer = containers[0]
+        const from: IContainer = containers[1]
+        const to: IContainer = containers[0]
         return this.computeHistory(from, to, keepFwd)
       }
     }
@@ -172,21 +172,21 @@ export default class Group implements IContainer {
 
   activateContainer(containerName:string, time:number):Group {
     const visit:PageVisit = {time, type: VisitType.MANUAL}
-    const from:IGroupContainer = this.activeContainer
-    const to:IGroupContainer = this.getContainerByName(containerName)
+    const from:IContainer = this.activeContainer
+    const to:IContainer = this.getContainerByName(containerName)
     if (from === to) {
-      return this.replaceContainer(to.activate(visit) as IGroupContainer)
+      return this.replaceContainer(to.activate(visit) as IContainer)
     }
     else {
       const group:Group = from.resetOnLeave && from.name !== to.name ?
-        this.replaceContainer(from.top(time, true) as IGroupContainer) : this
+        this.replaceContainer(from.top(time, true) as IContainer) : this
       return group.replaceContainer(
-        to.activate({...visit, time: visit.time + 1}) as IGroupContainer)
+        to.activate({...visit, time: visit.time + 1}) as IContainer)
     }
   }
 
-  get containerStackOrder():IGroupContainer[] {
-    return sortContainersByLastVisited(this.containers.toArray()) as IGroupContainer[]
+  get containerStackOrder():IContainer[] {
+    return sortContainersByLastVisited(this.containers.toArray()) as IContainer[]
   }
 
   get history():HistoryStack {
@@ -200,7 +200,7 @@ export default class Group implements IContainer {
   loadFromUrl(url:string, time:number):Group {
     return new Group({
       ...Object(this),
-      containers: this.containers.map((c:IGroupContainer) => c.loadFromUrl(url, time))
+      containers: this.containers.map((c:IContainer) => c.loadFromUrl(url, time))
     })
   }
 
@@ -209,15 +209,15 @@ export default class Group implements IContainer {
   }
 
   activate(visit:PageVisit):Group {
-    const container = this.activeContainer.activate(visit) as IGroupContainer
+    const container = this.activeContainer.activate(visit) as IContainer
     return this.replaceContainer(container)
   }
 
-  getContainerIndex(container:IGroupContainer):number {
+  getContainerIndex(container:IContainer):number {
     return R.findIndex(c => c === container, this.containers.toArray())
   }
 
-  get activeContainer():IGroupContainer {
+  get activeContainer():IContainer {
     return this.containerStackOrder[0]
   }
 
@@ -240,7 +240,7 @@ export default class Group implements IContainer {
   }
 
   isNestedGroupActive(groupName:string):boolean {
-    const activeContainer:IGroupContainer = this.activeContainer
+    const activeContainer:IContainer = this.activeContainer
     if (activeContainer instanceof Group) {
       if (activeContainer.name === groupName) {
         return true
@@ -253,7 +253,7 @@ export default class Group implements IContainer {
   }
 
   get activeNestedContainer():Container {
-    const activeContainer:IGroupContainer = this.activeContainer
+    const activeContainer:IContainer = this.activeContainer
     if (activeContainer instanceof Container) {
       return activeContainer
     }
@@ -265,7 +265,7 @@ export default class Group implements IContainer {
     }
   }
 
-  get defaultContainer():IGroupContainer|undefined {
+  get defaultContainer():IContainer|undefined {
     return R.find(c => c.isDefault, this.containers.toArray())
   }
 
@@ -286,15 +286,15 @@ export default class Group implements IContainer {
   }
 
   top(time:number, reset:boolean=false):Group {
-    const container = this.activeContainer.top(time, reset) as IGroupContainer
+    const container = this.activeContainer.top(time, reset) as IContainer
     return this.replaceContainer(container)
   }
 
   push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Group {
     const {groupName, containerName} = page
     if (groupName === this.name) {
-      const container:IGroupContainer = this.getContainerByName(containerName)
-      const newContainer = container.push(page, time, type) as IGroupContainer
+      const container:IContainer = this.getContainerByName(containerName)
+      const newContainer = container.push(page, time, type) as IContainer
       return this.replaceContainer(newContainer)
     }
     else {
@@ -302,7 +302,7 @@ export default class Group implements IContainer {
       if (!group) {
         throw new Error('Group \'' + groupName + '\' not found in ' + this.name)
       }
-      const container = group.push(page, time, type) as IGroupContainer
+      const container = group.push(page, time, type) as IContainer
       return this.replaceContainer(container)
     }
   }
@@ -325,7 +325,7 @@ export default class Group implements IContainer {
       return this.activate(time)
     }
     const next = (g:Group):Group => g._go(goFn, canGoFn, n - 1, time)
-    const container:IGroupContainer = this.activeContainer
+    const container:IContainer = this.activeContainer
     if (canGoFn(container)) {
       return next(this.replaceContainer(goFn(container).activate(time)))
     }
@@ -345,7 +345,7 @@ export default class Group implements IContainer {
     if (n === 0) {
       return this.activate({time, type: VisitType.MANUAL})
     }
-    const container:IGroupContainer = this.activeContainer
+    const container:IContainer = this.activeContainer
     const containerLength:number = lengthFn(container)
     const amount:number = Math.min(n, containerLength)
     const group:Group = this.replaceContainer(goFn(container, amount, time))
@@ -423,9 +423,9 @@ export default class Group implements IContainer {
     return c ? c.wasManuallyVisited : false
   }
 
-  getNestedContainerByName(name:string):IGroupContainer|null {
-    let foundContainer:IGroupContainer|null = null
-    this.containers.forEach((container:IGroupContainer) => {
+  getNestedContainerByName(name:string):IContainer|null {
+    let foundContainer:IContainer|null = null
+    this.containers.forEach((container:IContainer) => {
       if (container.name === name) {
         foundContainer = container
         return
@@ -442,7 +442,7 @@ export default class Group implements IContainer {
   }
 
   getNestedGroupByName(name:string):ISubGroup|null {
-    const container:IGroupContainer|null = this.getNestedContainerByName(name)
+    const container:IContainer|null = this.getNestedContainerByName(name)
     if (container && !(container instanceof Group)) {
       throw new Error(`Found ${name} but it's not a Group`)
     }
@@ -457,8 +457,8 @@ export default class Group implements IContainer {
     return this.hasNestedGroupWithName(group.name)
   }
 
-  getContainerByName(name:string):IGroupContainer {
-    const c:IGroupContainer = this.containers.get(name)
+  getContainerByName(name:string):IContainer {
+    const c:IContainer = this.containers.get(name)
     if (!c) {
       throw new Error(`Container '${name}' not found in '${this.name}'`)
     }
@@ -475,15 +475,15 @@ export default class Group implements IContainer {
     return !!this.getNestedContainerByName(name)
   }
 
-  hasNestedContainer(container:IGroupContainer):boolean {
+  hasNestedContainer(container:IContainer):boolean {
     return this.hasNestedContainerWithName(container.name)
   }
 
-  hasContainer(container:IGroupContainer):boolean {
+  hasContainer(container:IContainer):boolean {
     return this.hasContainerWithName(container.name)
   }
 
-  getSubGroupHavingContainer(container:IGroupContainer):Group {
+  getSubGroupHavingContainer(container:IContainer):Group {
     return R.find(g => g.hasNestedContainer(container), this.subGroups.toArray())
   }
 
@@ -506,12 +506,12 @@ export default class Group implements IContainer {
     }
   }
 
-  get groupName():string|null {
+  get groupName():string {
     return this.parentGroupName
   }
 
   getContainerLinkUrl(containerName:string):string {
-    const activeContainer:IGroupContainer = this.activeContainer
+    const activeContainer:IContainer = this.activeContainer
     const isActive = activeContainer && activeContainer.name === containerName
     if (isActive && this.gotoTopOnSelectActive) {
       return activeContainer.initialUrl
@@ -573,8 +573,8 @@ export default class Group implements IContainer {
       name: this.name,
       enabled: this.enabled,
       isTopLevel: !this.parentGroupName,
-      containers: fromJS(this.containers.map((c:IGroupContainer) => c.computeState())),
-      stackOrder: this.containerStackOrder.map((c:IGroupContainer) => c.computeState()),
+      containers: fromJS(this.containers.map((c:IContainer) => c.computeState())),
+      stackOrder: this.containerStackOrder.map((c:IContainer) => c.computeState()),
       activeContainerIndex: this.activeContainerIndex,
       activeContainerName: this.activeContainerName,
       activeUrl: this.activeUrl,

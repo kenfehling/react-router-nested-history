@@ -2,9 +2,9 @@ import IContainer from '../model/IContainer'
 import * as R from 'ramda'
 
 interface SortFnParams {
-  visited:IContainer[]
-  defaultUnvisited:IContainer[]
-  nonDefaultUnvisited:IContainer[]
+  visited: IContainer[]
+  defaultUnvisited: IContainer[]
+  nonDefaultUnvisited: IContainer[]
 }
 type SortFn = (params:SortFnParams) => IContainer[]
 
@@ -34,8 +34,9 @@ const simpleSortByFirstManualVisit = (cs:IContainer[]):IContainer[] =>
     }, cs)
 
 const sort = (cs:IContainer[], fn:SortFn):IContainer[] => {
-  const visited:IContainer[] = cs.filter(c => c.wasManuallyVisited)
-  const unvisited:IContainer[] = cs.filter(c => !c.wasManuallyVisited)
+  const enabled:IContainer[] = cs.filter(c => c.enabled)
+  const visited:IContainer[] = enabled.filter(c => c.wasManuallyVisited)
+  const unvisited:IContainer[] = enabled.filter(c => !c.wasManuallyVisited)
   const defaultUnvisited:IContainer[] = unvisited.filter(c => c.isDefault)
   const nonDefaultUnvisited = unvisited.filter(c => !c.isDefault)
   return fn({visited, defaultUnvisited, nonDefaultUnvisited})
