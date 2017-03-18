@@ -24,7 +24,9 @@ export default class InitializedState extends State {
     const group:Group = this.getGroupByName(groupName)
     return this
       .replaceGroup(group.activate({time, type: VisitType.MANUAL}))
-      .openWindow(groupName)
+      //.openWindow(groupName)
+
+      // TODO: What if switching to a window holding a Group?
   }
 
   switchToContainer({groupName, name, time}:
@@ -41,7 +43,16 @@ export default class InitializedState extends State {
   }
 
   closeWindow(forName:string, time:number):State {
-    return this.setWindowVisibility({forName, visible: false})
+    const container:IContainer = this.getContainerByName(forName)
+    const groupName:string = container.groupName
+    const state:State = this.setWindowVisibility({forName, visible: false})
+    const group:Group = state.getGroupByName(groupName)
+    if (group.hasEnabledContainers) {
+      return state.switchToGroup({groupName, time})
+    }
+    else {
+      return state.back(1, time)
+    }
   }
 
   go(n:number, time:number):State {
@@ -59,11 +70,11 @@ export default class InitializedState extends State {
   }
 
   back(n:number=1, time:number):State {
-    return this.replaceGroup(this.activeGroup.back(n, time))
+    return this.go(0 - n, time)
   }
 
   forward(n:number=1, time:number):State {
-    return this.replaceGroup(this.activeGroup.forward(n, time))
+    return this.go(n, time)
   }
 
   canGoBack(n:number=1):boolean {

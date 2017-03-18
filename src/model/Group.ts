@@ -483,6 +483,10 @@ export default class Group implements IContainer {
     return this.hasContainerWithName(container.name)
   }
 
+  get hasEnabledContainers():boolean {
+    return this.containers.some((c:IContainer) => c.enabled)
+  }
+
   getSubGroupHavingContainer(container:IContainer):Group {
     return R.find(g => g.hasNestedContainer(container), this.subGroups.toArray())
   }
