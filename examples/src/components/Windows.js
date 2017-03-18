@@ -30,26 +30,42 @@ const WindowPage = ({match:{params:{page}}}) => (
   </div>
 )
 
-const ExampleWindow = ({index, masterComponent}) => (
-  <HistoryWindow forName={windowName(index)}
-                 className={`window ${windowName(index)}`}
-                 topClassName={`top window ${windowName(index)}`}>
-    <div>
-      <Container name={windowName(index)}
-                 animate={false}
-                 initialUrl={windowUrl(index)}
-                 patterns={[windowUrl(index), windowUrl(index) + '/:page']}
-      >
-        <HistoryRoute exact
-                      path={windowUrl(index)}
-                      component={masterComponent}
-        />
-        <HistoryRoute exact
-                      path={windowUrl(index) + '/:page'}
-                      component={WindowPage}
-        />
-      </Container>
-    </div>
+const CloseButton = ({onClick}) => (
+  <div onClick={onClick} className='close-btn'>X</div>
+)
+
+const Toolbar = ({name, onCloseClick}) => (
+  <div className='toolbar'>
+    <div className='title'>{name}</div>
+    <CloseButton onClick={onCloseClick} />
+  </div>
+)
+
+const ExampleWindow = ({index, masterComponent, name=windowName(index),
+                        url=windowUrl(index)}) => (
+  <HistoryWindow forName={name}
+                 className={`window ${name}`}
+                 topClassName={`top window ${name}`}>
+    {({close}) => (
+      <div>
+        <Toolbar name={name} onCloseClick={close} />
+        <Container name={name}
+                   className='content'
+                   animate={false}
+                   initialUrl={url}
+                   patterns={[url, url + '/:page']}
+        >
+          <HistoryRoute exact
+                        path={url}
+                        component={masterComponent}
+          />
+          <HistoryRoute exact
+                        path={url + '/:page'}
+                        component={WindowPage}
+          />
+        </Container>
+      </div>
+    )}
   </HistoryWindow>
 )
 

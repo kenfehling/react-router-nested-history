@@ -2,7 +2,7 @@ import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import ContainerGroup from './ContainerGroup'
 import {ContainerGroupProps} from './SmartContainerGroup'
-import {ChildrenFunctionArgs} from './DumbContainerGroup'
+import {GroupChildrenFunctionArgs} from './DumbContainerGroup'
 import IContainer from '../../model/IContainer'
 
 const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
@@ -46,7 +46,7 @@ class InnerWindowGroup extends Component<InnerWindowGroupProps, undefined> {
 
 const WindowGroup = ({children, ...groupProps}:ContainerGroupProps) => (
   <ContainerGroup {...changeDefaults(groupProps)}>
-    {(props:ChildrenFunctionArgs) => (
+    {(props:GroupChildrenFunctionArgs) => (
       <InnerWindowGroup stackOrder={props.stackOrder}
                         setCurrentContainerName={props.setCurrentContainerName}>
         {children instanceof Function ? children(props) : children}

@@ -84,7 +84,7 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
      const cs = [
        ...getChildren(this, [Container],
        [ContainerGroup, SmartContainerGroup, DumbContainerGroup, WindowGroup]),
-       
+
        ...getChildren(this, [HistoryWindow],
          [ContainerGroup, SmartContainerGroup, DumbContainerGroup, WindowGroup])
       ]

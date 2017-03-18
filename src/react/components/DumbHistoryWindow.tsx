@@ -1,8 +1,31 @@
 import * as React from 'react'
-import {Component, ReactNode, Children, cloneElement} from 'react'
+import {Component, ReactNode, ReactElement} from 'react'
 import IContainer from '../../model/IContainer'
 import * as R from 'ramda'
 import Container from '../../model/Container'
+
+interface ChildrenFunctionArgs {
+  open: () => void
+  close: () => void
+}
+
+type ChildrenType = ReactNode & {props?:any} |
+                    ((args:ChildrenFunctionArgs) => ReactElement<any>)
+
+export interface DumbWindowProps {
+  forName: string
+  top?: number
+  left?: number
+  children: ChildrenType
+  className?: string
+  topClassName?: string
+  visible?: boolean
+
+  stackOrder: Container[]
+  storedVisible: boolean
+  open: () => void
+  close: () => void
+}
 
 const getWindowZIndex = (stackOrder:IContainer[]|null, name:string) => {
   if (stackOrder && !R.isEmpty(stackOrder)) {
@@ -22,26 +45,11 @@ const isWindowOnTop = (stackOrder:IContainer[]|null, name:string) => {
   return false
 }
 
-export interface DumbWindowProps {
-  forName: string
-  top?: number
-  left?: number
-  children?: ReactNode
-  className?: string
-  topClassName?: string
-  visible?: boolean
-
-  stackOrder: Container[]
-  storedVisible: boolean
-  setCurrentContainerName: (name:string) => void
-  close: () => void
-}
-
 class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
 
   onMouseDown(event) {
-    const {forName, setCurrentContainerName} = this.props
-    setCurrentContainerName(forName)
+    const {open} = this.props
+    open()
     //event.stopPropagation()
   }
 
@@ -52,35 +60,39 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
   }
 
   componentWillReceiveProps(newProps) {
-    const {visible, forName, stackOrder} = newProps
-    if (this.props.visible !== visible) {
-      if (visible) {
-
-      }
-      else {
-
-      }
-    }
-    else if (!this.props.visible && isWindowOnTop(stackOrder, forName)) {
-      // make visible again
+    const oldVisible = this.props.visible
+    const {visible, open, close} = newProps
+    if (visible !== oldVisible) {
+      (visible ? open : close)()
     }
   }
 
   render() {
-    const {forName, top, left, children, stackOrder, visible=true} = this.props
+    const {
+      forName,
+      top,
+      left,
+      children,
+      stackOrder,
+      storedVisible,
+      open,
+      close
+    } = this.props
     const zIndex = getWindowZIndex(stackOrder, forName)
-    const props = {
-      className: this.getClassName(),
-      onMouseDown: this.onMouseDown.bind(this),
-      style: {
-        zIndex,
-        position: 'absolute',
-        top: top ? top + 'px' : '',
-        left: left ? left + 'px' : '',
-        visibility: visible ? 'visible' : 'hidden'
-      }
-    }
-    return cloneElement(Children.only(children), props)
+    return (
+      <div className={this.getClassName()}
+           onMouseDown={this.onMouseDown.bind(this)}
+           style={{
+              zIndex,
+              position: 'absolute',
+              top: top ? top + 'px' : '',
+              left: left ? left + 'px' : '',
+              visibility: storedVisible ? 'visible' : 'hidden'
+           }}
+      >
+        {children instanceof Function ? children({open, close}) : children}
+      </div>
+    )
   }
 }
 

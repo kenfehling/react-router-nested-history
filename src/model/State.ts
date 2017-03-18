@@ -4,7 +4,7 @@ import * as R from 'ramda'
 import IContainer from './IContainer'
 import ISubGroup from './ISubGroup'
 import Group from './Group'
-import Window from './Window'
+import HistoryWindow from './HistoryWindow'
 import PathTitle from './PathTitle'
 import {HistoryStack, default as Pages} from './Pages'
 import VisitedPage from './VistedPage'
@@ -16,7 +16,7 @@ import IState from '../store/IState'
 
 abstract class State implements IState {
   readonly groups: Map<string, Group>
-  readonly windows: Map<string, Window>
+  readonly windows: Map<string, HistoryWindow>
   readonly titles: PathTitle[]
   readonly zeroPage?: string
   readonly lastUpdate: number
@@ -25,7 +25,7 @@ abstract class State implements IState {
 
   constructor({groups=fromJS({}), windows=fromJS({}), zeroPage, lastUpdate=0,
     loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
-    {groups?:Map<string, Group>, windows?:Map<string, Window>,
+    {groups?:Map<string, Group>, windows?:Map<string, HistoryWindow>,
       zeroPage?:string, lastUpdate?:number, loadedFromRefresh?:boolean,
       isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
@@ -50,7 +50,7 @@ abstract class State implements IState {
       loadedFromRefresh: this.loadedFromRefresh,
       activeUrl: this.activeUrl,
       groups: fromJS(this.allComputedGroups),
-      windows: fromJS(this.windows.map((w:Window) => w.computeState())),
+      windows: fromJS(this.windows.map((w:HistoryWindow) => w.computeState())),
       activeGroupName: this.activeGroupName,
       lastUpdate: this.lastUpdate,
       pages: this.pages,
@@ -118,9 +118,9 @@ abstract class State implements IState {
     }
   }
 
-  replaceWindow(window:Window):State {
+  replaceWindow(w:HistoryWindow):State {
     return this.assign({
-      windows: this.windows.set(window.forName, window)
+      windows: this.windows.set(w.forName, w)
     })
   }
 
@@ -190,7 +190,7 @@ abstract class State implements IState {
 
   addWindow({forName, visible=true}:{forName:string, visible?:boolean}):State {
     this.disallowDuplicateWindow(forName)
-    return this.replaceWindow(new Window({forName, visible}))
+    return this.replaceWindow(new HistoryWindow({forName, visible}))
   }
 
   /**

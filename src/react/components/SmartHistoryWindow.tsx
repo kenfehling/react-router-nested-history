@@ -36,8 +36,8 @@ export const getWindow = (state:ComputedState, ownProps):ComputedWindow => {
   return state.windows.get(ownProps.forName)
 }
 
-const selector = createSelector(getWindow, (window:ComputedWindow) => ({
-  window
+const selector = createSelector(getWindow, (w:ComputedWindow) => ({
+  window: w
 }))
 
 const mapStateToProps = (state:ComputedState, ownProps:WindowPropsWithStore) => {
@@ -49,8 +49,9 @@ const mapStateToProps = (state:ComputedState, ownProps:WindowPropsWithStore) => 
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:WindowPropsWithStore) => {
-  const {forName} = ownProps
+  const {forName, setCurrentContainerName} = ownProps
   return {
+    open: () => setCurrentContainerName(forName),
     close: () => dispatch(new CloseWindow({forName}))
   }
 }

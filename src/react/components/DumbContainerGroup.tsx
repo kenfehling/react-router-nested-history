@@ -11,13 +11,13 @@ export type OnContainerSwitchArgs = {
 
 export type OnContainerSwitch = (args:OnContainerSwitchArgs) => void
 
-export type ChildrenFunctionArgs = OnContainerSwitchArgs & {
+export type GroupChildrenFunctionArgs = OnContainerSwitchArgs & {
   setCurrentContainerIndex: (index:number) => void
   setCurrentContainerName: (name:string) => void
 }
 
 export type ChildrenType =
-  ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
+  ReactNode | ((args:GroupChildrenFunctionArgs) => ReactElement<any>)
 
 export interface DumbContainerGroupProps {
   name: string
@@ -153,7 +153,7 @@ export default class DumbContainerGroup extends
     } = this.props
 
     if (children instanceof Function) {
-      const args:ChildrenFunctionArgs = {
+      const args:GroupChildrenFunctionArgs = {
         currentContainerIndex: storedCurrentContainerIndex,
         currentContainerName: storedCurrentContainerName,
         stackOrder: storedStackOrder,

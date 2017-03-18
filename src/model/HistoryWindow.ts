@@ -1,7 +1,7 @@
 import {ComputedWindow} from './ComputedState'
 import {fromJS} from 'immutable'
 
-export default class Window {
+export default class HistoryWindow {
   readonly forName:string
   readonly visible:boolean
 
@@ -10,11 +10,11 @@ export default class Window {
     this.visible = visible
   }
 
-  setVisibile(visible:boolean):Window {
-    return new Window({...Object(this), visible})
+  setVisibile(visible:boolean):HistoryWindow {
+    return new HistoryWindow({...Object(this), visible})
   }
 
   computeState():ComputedWindow {
-    return fromJS({...Object(this)})
+    return {...Object(this)}
   }
 }

@@ -13,14 +13,14 @@ import {createSelector} from 'reselect'
 import {getBackPageInGroup} from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 
-export type ChildrenFunctionArgs = {
+type ChildrenFunctionArgs = {
   params: Object
 }
 
-export type ChildrenType =
+type ChildrenType =
   ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
 
-export interface BackLinkProps {
+interface BackLinkProps {
   children?: ChildrenType
 }
 
