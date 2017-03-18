@@ -37,18 +37,12 @@ export default class InitializedState extends State {
       .replaceGroup(c)
   }
 
-  private setWindowVisible(forName:string, visible:boolean):State {
-    return this.windows.has(forName) ?
-        this.replaceWindow(this.windows.get(forName).setVisibile(visible)) :
-        this
-  }
-
   openWindow(forName:string):State {
-    return this.setWindowVisible(forName, true)
+    return this.setWindowVisibility({forName, visible: true})
   }
 
-  closeWindow(forName:string):State {
-    return this.setWindowVisible(forName, false)
+  closeWindow(forName:string, time:number):State {
+    return this.setWindowVisibility({forName, visible: false})
   }
 
   go(n:number, time:number):State {

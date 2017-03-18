@@ -29,7 +29,7 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  closeWindow(forName: string):State {
+  closeWindow(forName: string, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

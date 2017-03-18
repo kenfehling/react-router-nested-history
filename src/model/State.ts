@@ -4,7 +4,6 @@ import * as R from 'ramda'
 import IContainer from './IContainer'
 import ISubGroup from './ISubGroup'
 import Group from './Group'
-import HistoryWindow from './HistoryWindow'
 import PathTitle from './PathTitle'
 import {HistoryStack, default as Pages} from './Pages'
 import VisitedPage from './VistedPage'
@@ -16,20 +15,17 @@ import IState from '../store/IState'
 
 abstract class State implements IState {
   readonly groups: Map<string, Group>
-  readonly windows: Map<string, HistoryWindow>
   readonly titles: PathTitle[]
   readonly zeroPage?: string
   readonly lastUpdate: number
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
-  constructor({groups=fromJS({}), windows=fromJS({}), zeroPage, lastUpdate=0,
+  constructor({groups=fromJS({}), zeroPage, lastUpdate=0,
     loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
-    {groups?:Map<string, Group>, windows?:Map<string, HistoryWindow>,
-      zeroPage?:string, lastUpdate?:number, loadedFromRefresh?:boolean,
-      isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
+    {groups?:Map<string, Group>, zeroPage?:string, lastUpdate?:number,
+      loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
-    this.windows = windows
     this.zeroPage = zeroPage
     this.lastUpdate = lastUpdate
     this.loadedFromRefresh = loadedFromRefresh
@@ -50,7 +46,6 @@ abstract class State implements IState {
       loadedFromRefresh: this.loadedFromRefresh,
       activeUrl: this.activeUrl,
       groups: fromJS(this.allComputedGroups),
-      windows: fromJS(this.windows.map((w:HistoryWindow) => w.computeState())),
       activeGroupName: this.activeGroupName,
       lastUpdate: this.lastUpdate,
       pages: this.pages,
@@ -63,7 +58,7 @@ abstract class State implements IState {
   abstract get isInitialized():boolean
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
-  abstract closeWindow(forName:string):State
+  abstract closeWindow(forName:string, time:number):State
   abstract get activeGroupName():string
 
   abstract switchToContainer({groupName, name, time}:
@@ -118,21 +113,9 @@ abstract class State implements IState {
     }
   }
 
-  replaceWindow(w:HistoryWindow):State {
-    return this.assign({
-      windows: this.windows.set(w.forName, w)
-    })
-  }
-
   disallowDuplicateContainerOrGroup(name) {
     if (this.hasGroupOrContainerWithName(name)) {
       throw new Error(`A group or container with name: '${name}' already exists`)
-    }
-  }
-
-  disallowDuplicateWindow(forName) {
-    if (this.windows.has(forName)) {
-      throw new Error(`A window for name '${forName}' already exists`)
     }
   }
 
@@ -188,9 +171,15 @@ abstract class State implements IState {
     return this.replaceGroup(group.replaceContainer(container))
   }
 
+  setWindowVisibility({forName, visible=true}:
+                      {forName:string, visible?:boolean}):State {
+    const container:IGroupContainer = this.getContainerByName(forName)
+    const group:Group = this.getGroupByName(container.groupName)
+    return this.replaceGroup(group.replaceContainer(container.setEnabled(visible)))
+  }
+
   addWindow({forName, visible=true}:{forName:string, visible?:boolean}):State {
-    this.disallowDuplicateWindow(forName)
-    return this.replaceWindow(new HistoryWindow({forName, visible}))
+    return this.setWindowVisibility({forName, visible})
   }
 
   /**

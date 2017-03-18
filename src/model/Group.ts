@@ -26,6 +26,7 @@ type NextPageFn = <H extends IHistory> (h:H) => Page
 
 export default class Group implements IContainer {
   readonly name: string
+  readonly enabled: boolean
   readonly containers: Map<string, IGroupContainer>
   readonly allowInterContainerHistory: boolean
   readonly resetOnLeave: boolean
@@ -560,12 +561,17 @@ export default class Group implements IContainer {
     return true
   }
 
+  setEnabled(enabled:boolean):Group {
+    return new Group({...Object(this), enabled})
+  }
+
   computeState():ComputedGroup {
     if (this.containers.isEmpty()) {
       throw new Error(`Group '${this.name}' has no containers`)
     }
     return {
       name: this.name,
+      enabled: this.enabled,
       isTopLevel: !this.parentGroupName,
       containers: fromJS(this.containers.map((c:IGroupContainer) => c.computeState())),
       stackOrder: this.containerStackOrder.map((c:IGroupContainer) => c.computeState()),

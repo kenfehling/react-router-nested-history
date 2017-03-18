@@ -6,12 +6,14 @@ import {HistoryStack} from './Pages'
 
 export interface ComputedContainer {
   name: string
+  enabled: boolean
   activeUrl: string
   history: HistoryStack
 }
 
 export interface ComputedGroup {
   name: string
+  enabled: boolean
   isTopLevel: boolean
   containers: Map<string, ComputedContainer|ComputedGroup>
   stackOrder: (ComputedContainer|ComputedGroup)[]
@@ -22,16 +24,10 @@ export interface ComputedGroup {
   history: HistoryStack
 }
 
-export interface ComputedWindow {
-  forName: string
-  visible: boolean
-}
-
 export interface PartialComputedState {
   isInitialized: boolean
   loadedFromRefresh: boolean
   groups: Map<string, ComputedGroup>
-  windows: Map<string, ComputedWindow>
   activeUrl: string
   activeGroupName: string
   lastUpdate: number

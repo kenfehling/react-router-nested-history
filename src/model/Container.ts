@@ -8,6 +8,7 @@ import {ComputedContainer} from './ComputedState'
 
 export default class Container implements IContainer {
   readonly name: string
+  readonly enabled: boolean
   readonly initialUrl: string
   readonly patterns: string[]
   readonly isDefault: boolean
@@ -192,9 +193,14 @@ export default class Container implements IContainer {
     return false
   }
 
+  setEnabled(enabled:boolean):Container {
+    return new Container({...Object(this), enabled})
+  }
+
   computeState():ComputedContainer {
     return {
       name: this.name,
+      enabled: this.enabled,
       activeUrl: this.activeUrl,
       history: this.history
     }
