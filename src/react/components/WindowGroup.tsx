@@ -3,7 +3,7 @@ import {Component, PropTypes} from 'react'
 import ContainerGroup from './ContainerGroup'
 import {ContainerGroupProps} from './SmartContainerGroup'
 import {GroupChildrenFunctionArgs} from './DumbContainerGroup'
-import IContainer from '../../model/IContainer'
+import {ComputedContainer} from '../../model/ComputedState'
 
 const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
 
@@ -13,7 +13,7 @@ const changeDefaults = (props:ContainerGroupProps):ContainerGroupProps => ({
 })
 
 interface InnerWindowGroupProps {
-  stackOrder: IContainer[]
+  stackOrder: ComputedContainer[]
   setCurrentContainerName: (name:string) => void
 }
 

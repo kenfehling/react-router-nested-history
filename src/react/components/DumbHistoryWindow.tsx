@@ -1,8 +1,7 @@
 import * as React from 'react'
 import {Component, ReactNode, ReactElement} from 'react'
-import IContainer from '../../model/IContainer'
 import * as R from 'ramda'
-import Container from '../../model/Container'
+import {ComputedContainer} from '../../model/ComputedState'
 
 interface ChildrenFunctionArgs {
   open: () => void
@@ -21,13 +20,13 @@ export interface DumbWindowProps {
   topClassName?: string
   visible?: boolean
 
-  stackOrder: Container[]
+  stackOrder: ComputedContainer[]
   storedVisible: boolean
   open: () => void
   close: () => void
 }
 
-const getWindowZIndex = (stackOrder:IContainer[]|null, name:string) => {
+const getWindowZIndex = (stackOrder:ComputedContainer[]|null, name:string) => {
   if (stackOrder && !R.isEmpty(stackOrder)) {
     const index = R.findIndex(c => c.name === name, stackOrder)
     if (index !== -1) {
@@ -37,7 +36,7 @@ const getWindowZIndex = (stackOrder:IContainer[]|null, name:string) => {
   return 1
 }
 
-const isWindowOnTop = (stackOrder:IContainer[]|null, name:string) => {
+const isWindowOnTop = (stackOrder:ComputedContainer[]|null, name:string) => {
   if (stackOrder && !R.isEmpty(stackOrder)) {
     const index = R.findIndex(c => c.name === name, stackOrder)
     return index === 0

@@ -10,6 +10,7 @@ import {createSelector} from 'reselect'
 import {ComputedWindow} from '../../model/ComputedState'
 import CloseWindow from '../../model/actions/CloseWindow'
 import DumbHistoryWindow from './DumbHistoryWindow'
+import {ComputedContainer} from '../../model/ComputedState'
 
 export interface WindowProps {
   forName: string
@@ -23,7 +24,7 @@ export interface WindowProps {
 
 type WindowPropsWithStore = WindowProps & {
   store: Store<State, Action, ComputedState>
-  stackOrder: Container[]
+  stackOrder: ComputedContainer[]
   setCurrentContainerName: (name:string) => void
 }
 
@@ -72,8 +73,8 @@ const ConnectedSmartHistoryWindow = connect(
 class SmartHistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
-    stackOrder: PropTypes.arrayOf(PropTypes.object), //.isRequired,
-    setCurrentContainerName: PropTypes.func //.isRequired
+    stackOrder: PropTypes.arrayOf(PropTypes.object).isRequired,
+    setCurrentContainerName: PropTypes.func.isRequired
   }
 
   render() {

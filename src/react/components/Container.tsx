@@ -132,7 +132,8 @@ export default class Container extends Component<ContainerProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
-    initializing: PropTypes.bool
+    initializing: PropTypes.bool,
+    hideInactiveContainers: PropTypes.bool
   }
 
   render() {

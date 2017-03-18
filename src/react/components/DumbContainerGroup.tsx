@@ -1,12 +1,12 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
-import IContainer from '../../model/IContainer'
+import {ComputedContainer} from '../../model/ComputedState'
 
 export type OnContainerSwitchArgs = {
   currentContainerIndex: number
   currentContainerName: string
-  stackOrder: IContainer[]
+  stackOrder: ComputedContainer[]
 }
 
 export type OnContainerSwitch = (args:OnContainerSwitchArgs) => void
@@ -27,7 +27,7 @@ export interface DumbContainerGroupProps {
   onContainerActivate?: OnContainerSwitch  // from user
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
-  storedStackOrder: IContainer[]
+  storedStackOrder: ComputedContainer[]
   storedCurrentContainerIndex: number
   storedCurrentContainerName: string
   style?: any
@@ -55,7 +55,7 @@ export default class DumbContainerGroup extends
 
   update({currentContainerIndex, currentContainerName, stackOrder}:
          {currentContainerIndex:number|null, currentContainerName:string|null,
-           stackOrder: IContainer[]|null}) {
+           stackOrder: ComputedContainer[]|null}) {
     if (this.props.onContainerActivate &&
         currentContainerIndex != null && currentContainerName && stackOrder) {
       this.props.onContainerActivate({
@@ -88,8 +88,8 @@ export default class DumbContainerGroup extends
     const oldSN:string|null = this.props.storedCurrentContainerName
     const newIN:string|undefined = nextProps.currentContainerName
     const newSN:string|null = nextProps.storedCurrentContainerName
-    const oldStackOrder:IContainer[]|null = this.props.storedStackOrder
-    const newStackOrder:IContainer[]|null = nextProps.storedStackOrder
+    const oldStackOrder:ComputedContainer[]|null = this.props.storedStackOrder
+    const newStackOrder:ComputedContainer[]|null = nextProps.storedStackOrder
     if (newSI !== oldSI || newSN !== oldSN ||
         !R.equals(oldStackOrder, newStackOrder)) {
       this.update({
