@@ -566,6 +566,7 @@ export default class Group implements IContainer {
     }
     return {
       name: this.name,
+      isTopLevel: !this.parentGroupName,
       containers: fromJS(this.containers.map((c:IGroupContainer) => c.computeState())),
       stackOrder: this.containerStackOrder.map((c:IGroupContainer) => c.computeState()),
       activeContainerIndex: this.activeContainerIndex,

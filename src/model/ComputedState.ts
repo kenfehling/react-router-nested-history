@@ -12,6 +12,7 @@ export interface ComputedContainer {
 
 export interface ComputedGroup {
   name: string
+  isTopLevel: boolean
   containers: Map<string, ComputedContainer|ComputedGroup>
   stackOrder: (ComputedContainer|ComputedGroup)[]
   activeContainerIndex: number
