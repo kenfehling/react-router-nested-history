@@ -100,9 +100,9 @@ const NestedGroup = () =>(
       <p>{foodGroups[0]} is considered the default tab.</p>
       <p>When selecting an already active tab, it will go to the top of that tree.</p>
     </div>
-    <WindowGroup name='nested' className='nested window'>
-      <HistoryWindow forName='foods'>
-        <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
+    <WindowGroup name='nested'>
+      <HistoryWindow forName='foods' className='window nested-window foods'>
+        <ContainerGroup name='foods' gotoTopOnSelectActive={true} className='content'>
           <FoodsHeader />
           {foodGroups.map((c, i) => (
             <Container
@@ -131,7 +131,7 @@ const NestedGroup = () =>(
         </ContainerGroup>
       </HistoryWindow>
       <HistoryWindow forName='notes' className='window nested-window notes'>
-        <Container name='notes' animate={false} initialUrl='/notes' patterns={['/notes']}>
+        <Container name='notes' className='content' animate={false} initialUrl='/notes' patterns={['/notes']}>
           <HistoryRoute path='/notes' exact component={Notes} />
         </Container>
       </HistoryWindow>
