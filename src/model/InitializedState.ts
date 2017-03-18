@@ -23,8 +23,8 @@ export default class InitializedState extends State {
   switchToGroup({groupName, time}:{groupName:string, time:number}):State {
     const group:Group = this.getGroupByName(groupName)
     return this
-      .openWindow(groupName)
       .replaceGroup(group.activate({time, type: VisitType.MANUAL}))
+      .openWindow(groupName)
   }
 
   switchToContainer({groupName, name, time}:
@@ -32,8 +32,8 @@ export default class InitializedState extends State {
     const group:Group = this.getGroupByName(groupName)
     const c = group.activateContainer(name, time)
     return this
-      .openWindow(name)
       .replaceGroup(c)
+      .openWindow(name)
   }
 
   openWindow(forName:string):State {
