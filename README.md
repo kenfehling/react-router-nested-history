@@ -24,7 +24,7 @@ version 4 is officially released the library will be updated for that API.
 
 This library is very new and not battle-tested, although it does have
 unit tests, end-to-end tests, [examples](https://react-router-nested-history.herokuapp.com),
-and is used on my [personal webpage](http://kenfehling.com)). I
+and is used on my (soon to be released) [personal webpage](http://kenfehling.com). I
 would **very much** appreciate any feedback as I continue to solidify it.
 
 Right now this library only works with browserHistory (HTML5 History API, not with hash history)
