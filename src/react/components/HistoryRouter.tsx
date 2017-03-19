@@ -19,6 +19,12 @@ import Refresh from '../../model/actions/Refresh'
 import ComputedState from '../../model/ComputedState'
 declare const window:any
 
+// For IE
+import * as Promise from 'promise-polyfill'
+if (!window.Promise) {
+  window.Promise = Promise
+}
+
 export interface HistoryRouterProps {
   basename?: string
   forceRefresh?: boolean
