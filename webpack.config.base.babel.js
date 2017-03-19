@@ -1,21 +1,23 @@
 var webpack = require('webpack');
 
 module.exports = {
-  devtool: 'cheap-module-source-map',
+  entry: "./src/index.ts",
+  devtool: 'source-map',
   output: {
     libraryTarget: 'umd',
     library: 'ReactRouterNestedHistory',
     path: './dist/'
   },
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.(js|jsx)?$/,
-        loaders: ['babel-loader'],
-        exclude: /node_modules/
-      }, {
+        enforce: 'pre',
         test: /\.(ts|tsx)?$/,
         loader: "awesome-typescript-loader"
+      }, {
+        enforce: 'pre',
+        test: /\.(ts|tsx)?$/,
+        loader: 'source-map-loader'
       }
     ]
   },

@@ -1,8 +1,10 @@
-import React, {Component, PropTypes} from 'react'
+import * as React from 'react'
+import {Component, PropTypes, ReactNode} from 'react'
 import matchPath from 'react-router/matchPath'
 import AnimatedPage from './AnimatedPage'
 
-const computeMatch = (pathname, { computedMatch, path, exact, strict }) =>
+const computeMatch:(...args:any[])=>any =
+  (pathname, { computedMatch, path, exact, strict }) =>
     computedMatch || matchPath(pathname, { path, exact, strict })
 
 const r = ({component, children, render, match, props}) => {
@@ -25,7 +27,14 @@ const r = ({component, children, render, match, props}) => {
   )
 }
 
-class InnerHistoryRoute extends Component {
+interface InnerHistoryRouteProps {
+  pathname: string,
+  children?: ReactNode,
+  component?: Component<any, any>,
+  render: Function
+}
+
+class InnerHistoryRoute extends Component<InnerHistoryRouteProps, undefined> {
 
   shouldComponentUpdate(nextProps) {
     return this.props.pathname !== nextProps.pathname
@@ -39,7 +48,7 @@ class InnerHistoryRoute extends Component {
   }
 }
 
-const HistoryRoute = ({component, children, render, ...props}, {pathname}) => (
+const HistoryRoute:any = ({component, children, render, ...props}:any, {pathname}) => (
   <InnerHistoryRoute {...props} pathname={pathname} children={p => (
     <AnimatedPage {...p}>
       {p.match && r({component, children, render, match: p.match, props: p})}

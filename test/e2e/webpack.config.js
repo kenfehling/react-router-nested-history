@@ -11,15 +11,6 @@ module.exports = {
     publicPath: '/public/'
   },
   module: {
-    /*
-    rules: [
-      {
-        enforce: 'pre',
-        test: /\.js$/,
-        loader: 'source-map-loader'
-      }
-    ],
-    */
     loaders: [
       {
         test: /\.(js|jsx)?$/,

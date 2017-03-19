@@ -24518,6 +24518,91 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var React = __webpack_require__(1);
+var react_1 = __webpack_require__(1);
+var matchPath_1 = __webpack_require__(248);
+var AnimatedPage_1 = __webpack_require__(283);
+var computeMatch = function (pathname, _a) {
+    var computedMatch = _a.computedMatch, path = _a.path, exact = _a.exact, strict = _a.strict;
+    return computedMatch || matchPath_1.default(pathname, { path: path, exact: exact, strict: strict });
+};
+var r = function (_a) {
+    var component = _a.component, children = _a.children, render = _a.render, match = _a.match, props = _a.props;
+    return (component ? (match ? React.createElement(component, props) : null) : render ? (match ? render(props) : null) : children ? (typeof children === 'function' ? (children(props)) : !Array.isArray(children) || children.length ? (React.Children.only(children)) : (null)) : (null));
+};
+var InnerHistoryRoute = (function (_super) {
+    __extends(InnerHistoryRoute, _super);
+    function InnerHistoryRoute() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InnerHistoryRoute.prototype.shouldComponentUpdate = function (nextProps) {
+        return this.props.pathname !== nextProps.pathname;
+    };
+    InnerHistoryRoute.prototype.render = function () {
+        var _a = this.props, pathname = _a.pathname, children = _a.children, component = _a.component, render = _a.render;
+        var match = computeMatch(pathname, this.props);
+        var props = { match: match, location: { pathname: pathname } };
+        return r({ component: component, children: children, render: render, match: match, props: props });
+    };
+    return InnerHistoryRoute;
+}(react_1.Component));
+var HistoryRoute = function (_a, _b) {
+    var component = _a.component, children = _a.children, render = _a.render, props = __rest(_a, ["component", "children", "render"]);
+    var pathname = _b.pathname;
+    return (React.createElement(InnerHistoryRoute, __assign({}, props, { pathname: pathname, children: function (p) { return (React.createElement(AnimatedPage_1.default, __assign({}, p), p.match && r({ component: component, children: children, render: render, match: p.match, props: p }))); } })));
+};
+HistoryRoute.contextTypes = {
+    pathname: react_1.PropTypes.string.isRequired
+};
+HistoryRoute.propTypes = {
+    computedMatch: react_1.PropTypes.object,
+    path: react_1.PropTypes.string,
+    exact: react_1.PropTypes.bool,
+    strict: react_1.PropTypes.bool,
+    component: react_1.PropTypes.func,
+    render: react_1.PropTypes.func,
+    children: react_1.PropTypes.oneOfType([
+        react_1.PropTypes.func,
+        react_1.PropTypes.node
+    ])
+};
+exports.default = HistoryRoute;
+
+
+/***/ }),
+/* 261 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(1);
 var react_1 = __webpack_require__(1);
@@ -24643,7 +24728,7 @@ exports.default = WrappedHistoryRouter;
 
 
 /***/ }),
-/* 261 */
+/* 262 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24744,7 +24829,7 @@ exports.default = ScrollArea;
 
 
 /***/ }),
-/* 262 */
+/* 263 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24794,130 +24879,6 @@ function connectToStore(component) {
 }
 exports.default = connectToStore;
 
-
-/***/ }),
-/* 263 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = __webpack_require__(1);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _matchPath = __webpack_require__(248);
-
-var _matchPath2 = _interopRequireDefault(_matchPath);
-
-var _AnimatedPage = __webpack_require__(283);
-
-var _AnimatedPage2 = _interopRequireDefault(_AnimatedPage);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var computeMatch = function computeMatch(pathname, _ref) {
-  var computedMatch = _ref.computedMatch,
-      path = _ref.path,
-      exact = _ref.exact,
-      strict = _ref.strict;
-  return computedMatch || (0, _matchPath2.default)(pathname, { path: path, exact: exact, strict: strict });
-};
-
-var r = function r(_ref2) {
-  var component = _ref2.component,
-      children = _ref2.children,
-      render = _ref2.render,
-      match = _ref2.match,
-      props = _ref2.props;
-
-  return component ? // component prop gets first priority, only called if there's a match
-  match ? _react2.default.createElement(component, props) : null : render ? // render prop is next, only called if there's a match
-  match ? render(props) : null : children ? // children come last, always called
-  typeof children === 'function' ? children(props) : !Array.isArray(children) || children.length ? // Preact defaults to empty children array
-  _react2.default.Children.only(children) : null : null;
-};
-
-var InnerHistoryRoute = function (_Component) {
-  _inherits(InnerHistoryRoute, _Component);
-
-  function InnerHistoryRoute() {
-    _classCallCheck(this, InnerHistoryRoute);
-
-    return _possibleConstructorReturn(this, (InnerHistoryRoute.__proto__ || Object.getPrototypeOf(InnerHistoryRoute)).apply(this, arguments));
-  }
-
-  _createClass(InnerHistoryRoute, [{
-    key: 'shouldComponentUpdate',
-    value: function shouldComponentUpdate(nextProps) {
-      return this.props.pathname !== nextProps.pathname;
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var _props = this.props,
-          pathname = _props.pathname,
-          children = _props.children,
-          component = _props.component,
-          render = _props.render;
-
-      var match = computeMatch(pathname, this.props);
-      var props = { match: match, location: { pathname: pathname } };
-      return r({ component: component, children: children, render: render, match: match, props: props });
-    }
-  }]);
-
-  return InnerHistoryRoute;
-}(_react.Component);
-
-var HistoryRoute = function HistoryRoute(_ref3, _ref4) {
-  var pathname = _ref4.pathname;
-
-  var component = _ref3.component,
-      _children = _ref3.children,
-      render = _ref3.render,
-      props = _objectWithoutProperties(_ref3, ['component', 'children', 'render']);
-
-  return _react2.default.createElement(InnerHistoryRoute, _extends({}, props, { pathname: pathname, children: function children(p) {
-      return _react2.default.createElement(
-        _AnimatedPage2.default,
-        p,
-        p.match && r({ component: component, children: _children, render: render, match: p.match, props: p })
-      );
-    } }));
-};
-
-HistoryRoute.contextTypes = {
-  pathname: _react.PropTypes.string.isRequired
-};
-
-HistoryRoute.propTypes = {
-  computedMatch: _react.PropTypes.object, // private, from <Switch>
-  path: _react.PropTypes.string,
-  exact: _react.PropTypes.bool,
-  strict: _react.PropTypes.bool,
-  component: _react.PropTypes.func,
-  render: _react.PropTypes.func,
-  children: _react.PropTypes.oneOfType([_react.PropTypes.func, _react.PropTypes.node])
-};
-
-exports.default = HistoryRoute;
 
 /***/ }),
 /* 264 */
@@ -52104,74 +52065,34 @@ module.exports = function(module) {
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+var HistoryLink = __webpack_require__(259);
+var BackLink = __webpack_require__(257);
+var HeaderLink = __webpack_require__(258);
+var ContainerGroup = __webpack_require__(138);
+var Container = __webpack_require__(137);
+var WindowGroup = __webpack_require__(140);
+var HistoryWindow = __webpack_require__(139);
+var HistoryRouter = __webpack_require__(261);
+var HistoryRoute = __webpack_require__(260);
+var ScrollArea = __webpack_require__(262);
+var connectToStore = __webpack_require__(263);
+var waitForInitialization = __webpack_require__(41);
+exports.default = {
+    HistoryLink: HistoryLink,
+    BackLink: BackLink,
+    HeaderLink: HeaderLink,
+    ContainerGroup: ContainerGroup,
+    Container: Container,
+    WindowGroup: WindowGroup,
+    HistoryWindow: HistoryWindow,
+    HistoryRouter: HistoryRouter,
+    HistoryRoute: HistoryRoute,
+    ScrollArea: ScrollArea,
+    connectToStore: connectToStore,
+    waitForInitialization: waitForInitialization
+};
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.waitForInitialization = exports.connectToStore = exports.ScrollArea = exports.HistoryRoute = exports.HistoryRouter = exports.HistoryWindow = exports.WindowGroup = exports.Container = exports.ContainerGroup = exports.HeaderLink = exports.BackLink = exports.HistoryLink = undefined;
-
-var _HistoryLink2 = __webpack_require__(259);
-
-var _HistoryLink3 = _interopRequireDefault(_HistoryLink2);
-
-var _BackLink2 = __webpack_require__(257);
-
-var _BackLink3 = _interopRequireDefault(_BackLink2);
-
-var _HeaderLink2 = __webpack_require__(258);
-
-var _HeaderLink3 = _interopRequireDefault(_HeaderLink2);
-
-var _ContainerGroup2 = __webpack_require__(138);
-
-var _ContainerGroup3 = _interopRequireDefault(_ContainerGroup2);
-
-var _Container2 = __webpack_require__(137);
-
-var _Container3 = _interopRequireDefault(_Container2);
-
-var _WindowGroup2 = __webpack_require__(140);
-
-var _WindowGroup3 = _interopRequireDefault(_WindowGroup2);
-
-var _HistoryWindow2 = __webpack_require__(139);
-
-var _HistoryWindow3 = _interopRequireDefault(_HistoryWindow2);
-
-var _HistoryRouter2 = __webpack_require__(260);
-
-var _HistoryRouter3 = _interopRequireDefault(_HistoryRouter2);
-
-var _HistoryRoute2 = __webpack_require__(263);
-
-var _HistoryRoute3 = _interopRequireDefault(_HistoryRoute2);
-
-var _ScrollArea2 = __webpack_require__(261);
-
-var _ScrollArea3 = _interopRequireDefault(_ScrollArea2);
-
-var _connectToStore2 = __webpack_require__(262);
-
-var _connectToStore3 = _interopRequireDefault(_connectToStore2);
-
-var _waitForInitialization2 = __webpack_require__(41);
-
-var _waitForInitialization3 = _interopRequireDefault(_waitForInitialization2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.HistoryLink = _HistoryLink3.default;
-exports.BackLink = _BackLink3.default;
-exports.HeaderLink = _HeaderLink3.default;
-exports.ContainerGroup = _ContainerGroup3.default;
-exports.Container = _Container3.default;
-exports.WindowGroup = _WindowGroup3.default;
-exports.HistoryWindow = _HistoryWindow3.default;
-exports.HistoryRouter = _HistoryRouter3.default;
-exports.HistoryRoute = _HistoryRoute3.default;
-exports.ScrollArea = _ScrollArea3.default;
-exports.connectToStore = _connectToStore3.default;
-exports.waitForInitialization = _waitForInitialization3.default;
 
 /***/ })
 /******/ ]);
