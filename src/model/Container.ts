@@ -8,6 +8,7 @@ import {ComputedContainer} from './ComputedState'
 
 export default class Container implements IContainer {
   readonly name: string
+  readonly enabled: boolean
   readonly initialUrl: string
   readonly patterns: string[]
   readonly isDefault: boolean
@@ -19,6 +20,7 @@ export default class Container implements IContainer {
    * Construct a new Container
    * @param time - The time this container was created
    * @param name - The container's name
+   * @param enabled - Is this container enabled/visible?
    * @param initialUrl - The starting URL of this container
    * @param patterns - Patterns of URLs that this container handles
    * @param isDefault - Is this the default container?
@@ -26,12 +28,13 @@ export default class Container implements IContainer {
    * @param groupName - The name of this container's group
    * @param pages - The pages visited in this container
    */
-  constructor({time, name, initialUrl, patterns, isDefault=false,
+  constructor({time, name, enabled=true, initialUrl, patterns, isDefault=false,
       resetOnLeave=false, groupName, pages}:
-      {time:number, name: string, initialUrl: string, patterns: string[],
-        isDefault?: boolean, resetOnLeave?: boolean, groupName:string,
-        pages?:Pages}) {
+      {time:number, name:string, enabled?:boolean, initialUrl:string,
+        patterns:string[], isDefault?:boolean, resetOnLeave?:boolean,
+        groupName:string, pages?:Pages}) {
     this.name = name
+    this.enabled = enabled
     this.initialUrl = initialUrl
     this.patterns = patterns
     this.isDefault = isDefault
@@ -192,9 +195,14 @@ export default class Container implements IContainer {
     return false
   }
 
+  setEnabled(enabled:boolean):Container {
+    return new Container({...Object(this), enabled})
+  }
+
   computeState():ComputedContainer {
     return {
       name: this.name,
+      enabled: this.enabled,
       activeUrl: this.activeUrl,
       history: this.history
     }

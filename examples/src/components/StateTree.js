@@ -2,14 +2,16 @@ import React, {Component} from 'react'
 import {connectToStore, waitForInitialization} from 'react-router-nested-history'
 import './StateTree.css'
 
-const HistoryTree = ({history, className}) => (
+const HistoryTree = ({history, className, enabled=true}) => (
   history ?
     <div>
       <div>
         {history.back.map((page, i) => <div key={i}>{page.url}</div>)}
       </div>
       <div>
-        <span className={`${className} current-page`}>{history.current.url}</span>
+        <span className={`current-page ${enabled ? className : 'disabled'}`}>
+          {history.current.url}
+        </span>
       </div>
       <div>
         {history.forward.map((page, i) => <div key={i}>{page.url}</div>)}
@@ -27,12 +29,15 @@ const GroupTree = ({group, activeGroupName}) => (
     <div>
       {group.containers.map(container =>
         <div key={group.name + ' ' + container.name}>
-          {container.isGroup ?
+          {container.containers ?
             <GroupTree group={container} activeGroupName={activeGroupName} />
             : (
               <div>
                 <div>{'Container: ' + container.name}</div>
-                <HistoryTree history={container.history} className={`container`} />
+                <HistoryTree history={container.history}
+                             className={`container`}
+                             enabled={container.enabled}
+                />
               </div>
             )
           }
@@ -44,7 +49,7 @@ const GroupTree = ({group, activeGroupName}) => (
 
 const DumbStateTree = ({groups, activeGroupName}) => (
   <div className="state-tree">
-    {groups.map(group => (
+    {groups.filter(group => group.isTopLevel).map(group => (
       <GroupTree key={group.name}
                  group={group}
                  activeGroupName={activeGroupName}

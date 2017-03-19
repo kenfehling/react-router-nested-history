@@ -7,11 +7,11 @@ import DumbContainerGroup, {
 import CreateGroup from '../../model/actions/CreateGroup'
 import {Store} from '../../store/store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import IContainer from '../../model/IContainer'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
+import {ComputedContainer} from '../../model/ComputedState'
 
 export interface ContainerGroupProps {
   name: string
@@ -32,7 +32,7 @@ type GroupPropsWithStore = ContainerGroupProps & {
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
-  storedStackOrder: IContainer[]
+  storedStackOrder: ComputedContainer[]
   storedCurrentContainerIndex: number
   storedCurrentContainerName: string
   switchToContainerIndex: (index:number) => void
@@ -48,7 +48,7 @@ const mapStateToProps = (state:ComputedState, ownProps:GroupPropsWithStore) => {
   return {
     storedStackOrder: group.stackOrder,
     storedCurrentContainerIndex: group.activeContainerIndex,
-    storedCurrentContainerName:group.activeContainerName
+    storedCurrentContainerName: group.activeContainerName
   }
 }
 

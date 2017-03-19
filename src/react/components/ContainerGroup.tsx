@@ -14,6 +14,7 @@ import DumbContainer from './DumbContainer'
 import Container from './Container'
 import {getChildren} from '../../util/children'
 import waitForInitialization from '../waitForInitialization'
+import HistoryWindow from './HistoryWindow'
 
 type GroupPropsWithStore = ContainerGroupProps & {
   store: Store<State, Action, ComputedState>
@@ -80,8 +81,13 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
      // Initialize the Containers in this group
      // (since most tab libraries lazy load tabs)
-     const cs = getChildren(this, [Container, DumbContainer],
-     [ContainerGroup, SmartContainerGroup, DumbContainerGroup, WindowGroup])
+     const cs = [
+       ...getChildren(this, [Container],
+       [ContainerGroup, SmartContainerGroup, DumbContainerGroup, WindowGroup]),
+
+       ...getChildren(this, [HistoryWindow],
+         [ContainerGroup, SmartContainerGroup, DumbContainerGroup, WindowGroup])
+      ]
      cs.forEach(c => renderToStaticMarkup(<G children={c} />))
   }
 

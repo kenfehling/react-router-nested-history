@@ -1,23 +1,23 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
-import IContainer from '../../model/IContainer'
+import {ComputedContainer} from '../../model/ComputedState'
 
 export type OnContainerSwitchArgs = {
   currentContainerIndex: number
   currentContainerName: string
-  stackOrder: IContainer[]
+  stackOrder: ComputedContainer[]
 }
 
 export type OnContainerSwitch = (args:OnContainerSwitchArgs) => void
 
-export type ChildrenFunctionArgs = OnContainerSwitchArgs & {
+export type GroupChildrenFunctionArgs = OnContainerSwitchArgs & {
   setCurrentContainerIndex: (index:number) => void
   setCurrentContainerName: (name:string) => void
 }
 
 export type ChildrenType =
-  ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
+  ReactNode | ((args:GroupChildrenFunctionArgs) => ReactElement<any>)
 
 export interface DumbContainerGroupProps {
   name: string
@@ -27,7 +27,7 @@ export interface DumbContainerGroupProps {
   onContainerActivate?: OnContainerSwitch  // from user
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
-  storedStackOrder: IContainer[]
+  storedStackOrder: ComputedContainer[]
   storedCurrentContainerIndex: number
   storedCurrentContainerName: string
   style?: any
@@ -55,7 +55,7 @@ export default class DumbContainerGroup extends
 
   update({currentContainerIndex, currentContainerName, stackOrder}:
          {currentContainerIndex:number|null, currentContainerName:string|null,
-           stackOrder: IContainer[]|null}) {
+           stackOrder: ComputedContainer[]|null}) {
     if (this.props.onContainerActivate &&
         currentContainerIndex != null && currentContainerName && stackOrder) {
       this.props.onContainerActivate({
@@ -79,6 +79,12 @@ export default class DumbContainerGroup extends
     })
   }
 
+  /**
+   * II = Input Index
+   * SI = Stored Index
+   * IN = Input Name
+   * SN = Stored Name
+   */
   componentWillReceiveProps(nextProps) {
     const oldII:number|undefined = this.props.currentContainerIndex
     const oldSI:number|null = this.props.storedCurrentContainerIndex
@@ -88,8 +94,8 @@ export default class DumbContainerGroup extends
     const oldSN:string|null = this.props.storedCurrentContainerName
     const newIN:string|undefined = nextProps.currentContainerName
     const newSN:string|null = nextProps.storedCurrentContainerName
-    const oldStackOrder:IContainer[]|null = this.props.storedStackOrder
-    const newStackOrder:IContainer[]|null = nextProps.storedStackOrder
+    const oldStackOrder:ComputedContainer[]|null = this.props.storedStackOrder
+    const newStackOrder:ComputedContainer[]|null = nextProps.storedStackOrder
     if (newSI !== oldSI || newSN !== oldSN ||
         !R.equals(oldStackOrder, newStackOrder)) {
       this.update({
@@ -98,10 +104,10 @@ export default class DumbContainerGroup extends
         stackOrder: newStackOrder
       })
     }
-    else if (newII != null && newII !== oldII && newII !== newSI) {
+    else if (newII != null) {
       this.props.switchToContainerIndex(newII)
     }
-    else if (newIN && newIN !== oldIN && newIN !== newSN) {
+    else if (newIN) {
       this.props.switchToContainerName(newIN)
     }
   }
@@ -153,7 +159,7 @@ export default class DumbContainerGroup extends
     } = this.props
 
     if (children instanceof Function) {
-      const args:ChildrenFunctionArgs = {
+      const args:GroupChildrenFunctionArgs = {
         currentContainerIndex: storedCurrentContainerIndex,
         currentContainerName: storedCurrentContainerName,
         stackOrder: storedStackOrder,

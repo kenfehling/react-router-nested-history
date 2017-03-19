@@ -6,12 +6,11 @@
   height: 100%;
   padding: 1px 25px;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
 }
 
 .window-group {
-  flex: 1;
+  height: 250px;
+  padding-top: 15px;
 }
 
 .window-menu {
@@ -36,7 +35,36 @@
   height: 175px;
 }
 
-.window > div {
+.window .toolbar {
+  height: 24px;
+  padding: 4px;
+  box-sizing: border-box;
+  background-color: #CCC;
+  position: relative;
+  display: flex;
+}
+
+.window .toolbar .title {
+  margin-left: 4px;
+  color: #444;
+}
+
+.window .toolbar .close-btn {
+  position: absolute;
+  right: 6px;
+  color: #777;
+  cursor: pointer;
+}
+
+.window .toolbar .close-btn:hover {
+  color: #C00;
+}
+
+.window .toolbar .close-btn:active {
+  color: #F00;
+}
+
+.window .content {
   padding: 20px;
   box-sizing: border-box;
 }

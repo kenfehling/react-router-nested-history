@@ -10,7 +10,6 @@ import AddTitle from '../../model/actions/AddTitle'
 import PathTitle from '../../model/PathTitle'
 import State from '../../model/State'
 import Action from '../../model/BaseAction'
-import SwitchToGroup from '../../model/actions/SwitchToGroup'
 import ComputedState from '../../model/ComputedState'
 import SmartContainer, {ContainerProps} from './SmartContainer'
 import waitForInitialization from '../waitForInitialization'
@@ -113,8 +112,7 @@ const mapStateToProps = (state:ComputedState) => ({
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:ContainerPropsWithStore) => ({
   createContainer: (action:CreateContainer) => dispatch(action),
-  addTitle: (title:PathTitle) => dispatch(new AddTitle(title)),
-  switchToGroup: () => dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
+  addTitle: (title:PathTitle) => dispatch(new AddTitle(title))
 })
 
 const mergeProps = (stateProps, dispatchProps,
@@ -134,7 +132,8 @@ export default class Container extends Component<ContainerProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
-    initializing: PropTypes.bool
+    initializing: PropTypes.bool,
+    hideInactiveContainers: PropTypes.bool
   }
 
   render() {

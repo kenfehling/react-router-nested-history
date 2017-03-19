@@ -5,6 +5,11 @@
   flex-direction: column;
 }
 
+.nested .window .content {
+  padding: 20px;
+  box-sizing: border-box;
+}
+
 .nested .window.foods {
   top: 0;
   left: 10px;

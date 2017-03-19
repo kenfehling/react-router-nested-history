@@ -374,6 +374,7 @@ A single window inside a `WindowGroup`
     <tr>
         <th>name</th>
         <th>type</th>
+        <th>default</th>
         <th>required</th>
         <th>description</th>
     </tr>
@@ -386,8 +387,16 @@ A single window inside a `WindowGroup`
           <td>The name of the `Container` or `Group` this window wraps</td>
         </tr>
         <tr>
+          <td>visible</td>
+          <td>boolean</td>
+          <td>true</td>
+          <td></td>
+          <td>Is this window visible?</td>
+        </tr>
+        <tr>
           <td>top</td>
           <td>number</td>
+          <td></td>
           <td></td>
           <td>The top of the window in px</td>
         </tr>
@@ -395,11 +404,13 @@ A single window inside a `WindowGroup`
           <td>left</td>
           <td>number</td>
           <td></td>
+          <td></td>
           <td>The left of the window in px</td>
         </tr>
         <tr>
           <td>className</td>
           <td>string</td>
+          <td></td>
           <td></td>
           <td>The CSS class used to style this window</td>
         </tr>
@@ -407,12 +418,14 @@ A single window inside a `WindowGroup`
           <td>topClassName</td>
           <td>string</td>
           <td></td>
+          <td></td>
           <td>The CSS class used when this window is on top</td>
         </tr>
         <tr>
           <td>children</td>
-          <td>ReactNode</td>
+          <td>ReactNode or Function</td>
           <td></td>
+          <td align="center">✓</td>
           <td>The children of this HistoryWindow</td>
         </tr>
     </tbody>   
@@ -429,9 +442,14 @@ A single window inside a `WindowGroup`
     </thead>
     <tbody>
         <tr>
-          <td>isOnTop/td>
-          <td>boolean</td>
-          <td>Is this window on the top of the stack in its `WindowGroup`</td>
+          <td>open/td>
+          <td>() => void</td>
+          <td>Make this window visible</td>
+        </tr>
+        <tr>
+          <td>close/td>
+          <td>() => void</td>
+          <td>Make this window invisible</td>
         </tr>
     </tbody>
 </table>

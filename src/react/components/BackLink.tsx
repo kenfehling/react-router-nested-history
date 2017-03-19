@@ -10,20 +10,17 @@ import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
 import {createSelector} from 'reselect'
-import {
-  getBackPageInGroup, createCachingSelector,
-  getGroupName, EMPTY_OBJ
-} from '../selectors'
+import {getBackPageInGroup} from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 
-export type ChildrenFunctionArgs = {
+type ChildrenFunctionArgs = {
   params: Object
 }
 
-export type ChildrenType =
+type ChildrenType =
   ReactNode | ((args:ChildrenFunctionArgs) => ReactElement<any>)
 
-export interface BackLinkProps {
+interface BackLinkProps {
   children?: ChildrenType
 }
 
@@ -94,12 +91,6 @@ const selector = createSelector(getBackPageInGroup, (backPage:Page) => ({
   backPage
 }))
 
-const nameSelector = createCachingSelector(
-  getGroupName, (groupName:string) => ({
-    groupName
-  })
-)
-
 const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
   const s = selector(state, ownProps)
   return {
@@ -109,10 +100,9 @@ const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) =
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:BackLinkPropsWithStore) => {
-  const {groupName} = nameSelector(EMPTY_OBJ, ownProps)
   return {
     back: () => {
-      dispatch(new SwitchToGroup({groupName}))
+      dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
       dispatch(new Back())
     }
   }

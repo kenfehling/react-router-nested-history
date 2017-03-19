@@ -1,31 +1,37 @@
 import Page from './Page'
 import Container from './Container'
 import * as R from 'ramda'
-import IContainer from './IContainer'
 import ISubGroup from './ISubGroup'
 import Group from './Group'
 import PathTitle from './PathTitle'
 import {HistoryStack, default as Pages} from './Pages'
 import VisitedPage from './VistedPage'
 import {VisitType} from './PageVisit'
-import IGroupContainer from './IGroupContainer'
+import IContainer from './IContainer'
 import {Map, fromJS} from 'immutable'
-import {PartialComputedState, ComputedGroup} from './ComputedState'
+import {
+  PartialComputedState, ComputedGroup,
+  ComputedWindow
+} from './ComputedState'
 import IState from '../store/IState'
+import HistoryWindow from './HistoryWindow'
 
 abstract class State implements IState {
   readonly groups: Map<string, Group>
+  readonly windows: Map<string, HistoryWindow>
   readonly titles: PathTitle[]
   readonly zeroPage?: string
   readonly lastUpdate: number
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
-  constructor({groups=fromJS({}), zeroPage, lastUpdate=0,
+  constructor({groups=fromJS({}), windows=fromJS({}), zeroPage, lastUpdate=0,
     loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
-    {groups?:Map<string, Group>, zeroPage?:string, lastUpdate?:number,
-      loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
+    {groups?:Map<string, Group>, windows?:Map<string, HistoryWindow>,
+      zeroPage?:string, lastUpdate?:number, loadedFromRefresh?:boolean,
+      isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
+    this.windows = windows
     this.zeroPage = zeroPage
     this.lastUpdate = lastUpdate
     this.loadedFromRefresh = loadedFromRefresh
@@ -40,12 +46,20 @@ abstract class State implements IState {
     )
   }
 
+  get computedWindows():Map<string, ComputedWindow> {
+    return fromJS(this.windows.map((w:HistoryWindow) => ({
+      ...w,
+      visible: this.getContainerByName(w.forName).enabled
+    })))
+  }
+
   computeState():PartialComputedState {
     return {
       isInitialized: this.isInitialized,
       loadedFromRefresh: this.loadedFromRefresh,
       activeUrl: this.activeUrl,
-      groups: fromJS(this.allComputedGroups),
+      groups: this.allComputedGroups,
+      windows: this.computedWindows,
       activeGroupName: this.activeGroupName,
       lastUpdate: this.lastUpdate,
       pages: this.pages,
@@ -58,6 +72,8 @@ abstract class State implements IState {
   abstract get isInitialized():boolean
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
+  abstract openWindow(forName:string):State
+  abstract closeWindow(forName:string, time:number):State
   abstract get activeGroupName():string
 
   abstract switchToContainer({groupName, name, time}:
@@ -69,6 +85,7 @@ abstract class State implements IState {
   abstract go(n:number, time:number):State
   abstract back(n:number, time:number):State
   abstract forward(n:number, time:number):State
+
   abstract canGoBack(n:number):boolean
   abstract canGoForward(n:number):boolean
   abstract isContainerAtTopPage(groupName:string, containerName:string):boolean
@@ -88,7 +105,7 @@ abstract class State implements IState {
   abstract getActiveUrlInGroup(groupName:string):string
   abstract urlMatchesGroup(url:string, groupName:string):boolean
   abstract get activePage():Page
-  abstract isContainerActive(groupName:string, containerName:string):boolean
+  abstract isContainerActiveAndEnabled(groupName:string, containerName:string):boolean
   abstract get activeUrl():string
   abstract getActivePageInContainer(groupName:string, containerName:string):Page
   abstract getActiveUrlInContainer(groupName:string, containerName:string):string
@@ -111,7 +128,14 @@ abstract class State implements IState {
     }
   }
 
-  disallowDuplicateName(name) {
+  replaceWindow(w:HistoryWindow):State {
+    return this.assign({
+      windows: this.windows.set(w.forName, w)
+    })
+  }
+
+
+  disallowDuplicateContainerOrGroup(name) {
     if (this.hasGroupOrContainerWithName(name)) {
       throw new Error(`A group or container with name: '${name}' already exists`)
     }
@@ -121,14 +145,14 @@ abstract class State implements IState {
     gotoTopOnSelectActive=false}:
     {name:string, resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
       gotoTopOnSelectActive?:boolean}):State {
-    this.disallowDuplicateName(name)
+    this.disallowDuplicateContainerOrGroup(name)
     const group:Group = new Group({
       name,
       resetOnLeave,
       gotoTopOnSelectActive,
       allowInterContainerHistory,
-      parentGroupName: null,
-      isDefault: null
+      parentGroupName: '',
+      isDefault: false
     })
     return this.replaceGroup(group)
   }
@@ -139,7 +163,7 @@ abstract class State implements IState {
     {name:string, parentGroupName:string, isDefault:boolean,
       allowInterContainerHistory?:boolean,
       resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}):State {
-    this.disallowDuplicateName(name)
+    this.disallowDuplicateContainerOrGroup(name)
     const group:Group = new Group({
       name,
       resetOnLeave,
@@ -155,7 +179,7 @@ abstract class State implements IState {
     resetOnLeave=false, patterns}:
     {time:number, name:string, groupName:string, initialUrl:string,
       patterns:string[], isDefault:boolean, resetOnLeave:boolean}):State {
-    this.disallowDuplicateName(name)
+    this.disallowDuplicateContainerOrGroup(name)
     const group:Group = this.getGroupByName(groupName)
     const container:Container = new Container({
       time,
@@ -167,6 +191,18 @@ abstract class State implements IState {
       isDefault
     })
     return this.replaceGroup(group.replaceContainer(container))
+  }
+
+  setWindowVisibility({forName, visible=true}:
+                      {forName:string, visible?:boolean}):State {
+    const container:IContainer = this.getContainerByName(forName)
+    const group:Group = this.getGroupByName(container.groupName)
+    return this.replaceGroup(group.replaceContainer(container.setEnabled(visible)))
+  }
+
+  addWindow({forName, visible=true}:{forName:string, visible?:boolean}):State {
+    const w:HistoryWindow = new HistoryWindow({forName})
+    return this.replaceWindow(w).setWindowVisibility({forName, visible})
   }
 
   /**
@@ -195,10 +231,10 @@ abstract class State implements IState {
     }
   }
 
-  getContainerByName(name:string):IGroupContainer {
-    let foundContainer:IGroupContainer|null = null
+  getContainerByName(name:string):IContainer {
+    let foundContainer:IContainer|null = null
     this.groups.forEach((group:Group) => {
-      const c:IGroupContainer|null = group.getNestedContainerByName(name)
+      const c:IContainer|null = group.getNestedContainerByName(name)
       if (c) {
         foundContainer = c
         return

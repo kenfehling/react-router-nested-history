@@ -29,6 +29,14 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
+  openWindow(forName: string):State {
+    throw new Error(UNINITIALIZED_MESSAGE)
+  }
+
+  closeWindow(forName: string, time:number):State {
+    throw new Error(UNINITIALIZED_MESSAGE)
+  }
+
   go(n:number, time:number):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
@@ -119,7 +127,7 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  isContainerActive(groupName:string, containerName:string):boolean {
+  isContainerActiveAndEnabled(groupName:string, containerName:string):boolean {
     return false
   }
 
