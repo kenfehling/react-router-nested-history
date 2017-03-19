@@ -1,0 +1,1 @@
+{"version":3,"file":"ForwardStep.js","sourceRoot":"","sources":["../../../src/model/steps/ForwardStep.ts"],"names":[],"mappings":";;AACA,qDAAsD;AAEtD;IAIE,qBAAY,CAAU;QAAV,kBAAA,EAAA,KAAU;QAFb,qBAAgB,GAAW,IAAI,CAAA;QAGtC,IAAI,CAAC,CAAC,GAAG,CAAC,CAAA;IACZ,CAAC;IAED,yBAAG,GAAH;QACE,OAAO,CAAC,OAAO,CAAC,IAAI,CAAC,CAAC,CAAC,CAAA;IACzB,CAAC;IACH,kBAAC;AAAD,CAAC,AAXD,IAWC"}
