@@ -19,7 +19,7 @@ npm install --save kenfehling/react-router-nested-history
 This library is built to support
 [react-router 4](https://github.com/ReactTraining/react-router/tree/v4). It's
 been developed and tested against
-[v4.0.0-beta.6](https://github.com/ReactTraining/react-router/releases/tag/v4.0.0-beta.6). When
+[v4.0.0](https://github.com/ReactTraining/react-router/releases/tag/v4.0.0). When
 version 4 is officially released the library will be updated for that API.
 
 This library is very new and not battle-tested, although it does have

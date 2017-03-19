@@ -8,12 +8,18 @@ declare const performance:any
 declare const Promise:any
 declare const window:any
 
-export const canUseWindowLocation = canUseDOM &&
-  window.location instanceof Object
+export const canUseWindowLocation =
+  canUseDOM &&
+  typeof window.location === 'object'
 
-export const needsPopstateConfirmation = canUseWindowLocation && !bowser.gecko
+export const needsPopstateConfirmation =
+  canUseWindowLocation &&
+  !bowser.gecko &&
+  !bowser.msedge &&
+  !bowser.msie
 
-export const wasLoadedFromRefresh = canUseWindowLocation &&
+export const wasLoadedFromRefresh =
+  canUseWindowLocation &&
   window.performance &&
   window.performance.navigation.type === 1
 
