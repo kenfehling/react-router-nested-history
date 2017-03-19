@@ -19,7 +19,7 @@ export default class DumbHistoryRouter extends
                      children={children} />
     }
     else {
-      return <StaticRouter {...this.props} />
+      return <StaticRouter {...this.props} context={{}} />
     }
   }
 }

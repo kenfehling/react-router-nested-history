@@ -1,6 +1,6 @@
 {
   "name": "react-router-nested-history",
-  "version": "4.0.0-beta.6",
+  "version": "4.0.0",
   "description": "A library to help build React apps with nested tabs and other containers that have their own history, complete with automatic altering of the browser's back and forward history to make it behave as you would expect",
   "author": "Ken Fehling",
   "license": "MIT",
@@ -72,8 +72,8 @@
     "react": "^15.4.2",
     "react-addons-perf": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-router": "4.0.0-beta.6",
-    "react-router-dom": "4.0.0-beta.6",
+    "react-router": "4.0.0",
+    "react-router-dom": "4.0.0",
     "rimraf": "^2.5.4",
     "source-map-loader": "^0.1.6",
     "ts-node": "^2.1.0",
@@ -83,7 +83,7 @@
   "peerDependencies": {
     "react": ">=15",
     "react-dom": ">=15",
-    "react-router": "4.0.0-beta.6",
-    "react-router-dom": "4.0.0-beta.6"
+    "react-router": "4.0.0",
+    "react-router-dom": "4.0.0"
   }
 }
