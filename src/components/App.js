@@ -4,7 +4,7 @@ import Tabs from './Tabs'
 import Windows from './Windows'
 import NestedGroup from './NestedGroup'
 import ScrollAreaExample from './ScrollAreaExample'
-import MobileExample from './MobileExample'
+import MobileExample from './Mobile'
 import StateTree from './StateTree'
 import './App.css'
 
