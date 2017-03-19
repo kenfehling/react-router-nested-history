@@ -1,7 +1,26 @@
 import ISerializableClass from './ISerializableClass'
+import {Map, fromJS} from 'immutable'
 
-// Map to store all classes with @Serializable decorator
-const serializables:Map<string, ISerializableClass> =
-  new Map<string, ISerializableClass>()
+// Stores all classes with @Serializable decorator
 
-export default serializables
+class Serializables {
+  serializables:Map<string, ISerializableClass>
+
+  constructor() {
+    this.serializables = fromJS({})
+  }
+
+  set(key:string, value:ISerializableClass) {
+    this.serializables = this.serializables.set(key, value)
+  }
+
+  get(key:string) {
+    return this.serializables.get(key)
+  }
+
+  has(key:string) {
+    return this.serializables.has(key)
+  }
+}
+
+export default new Serializables()

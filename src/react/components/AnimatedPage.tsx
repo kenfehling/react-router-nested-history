@@ -13,6 +13,7 @@ import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import UpdateBrowser from '../../model/actions/UpdateBrowser'
 import * as R from 'ramda'
+import {Map, fromJS} from 'immutable'
 
 interface AnimatedPageProps {
   children?: ReactNode
@@ -85,7 +86,7 @@ const slideRight:Transition = new Transition({
 // Slide right by default, reverses if n > 0 (popped to a forward page)
 const popstate:PopStateTransition = new PopStateTransition({...slideRight})
 
-const transitions:Map<string, Transition> = new Map<string, Transition>()
+const transitions:Map<string, Transition> = fromJS({})
 transitions.set(Push.type, slideLeft)
 transitions.set(Forward.type, slideLeft)
 transitions.set(Back.type, slideRight)
