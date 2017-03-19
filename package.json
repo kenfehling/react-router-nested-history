@@ -36,6 +36,7 @@
     "tree"
   ],
   "dependencies": {
+    "bowser": "^1.6.0",
     "history": "4.5.1",
     "immutable": "^3.8.1",
     "invariant": "^2.2.2",

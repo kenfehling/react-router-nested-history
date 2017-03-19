@@ -3,12 +3,15 @@ import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import createBrowserHistory from 'history/createBrowserHistory'
 import createMemoryHistory from 'history/createMemoryHistory'
 import {Location, History} from 'history'
+import * as bowser from 'bowser'
 declare const performance:any
 declare const Promise:any
 declare const window:any
 
 export const canUseWindowLocation = canUseDOM &&
   window.location instanceof Object
+
+export const needsPopstateConfirmation = canUseWindowLocation && !bowser.gecko
 
 export const wasLoadedFromRefresh = canUseWindowLocation &&
   window.performance &&
@@ -42,5 +45,3 @@ export const listenPromise = () : Promise<Location> => new Promise(resolve => {
     return resolve(location)
   })
 })
-
-export const getLocation = () : Location => _history.location

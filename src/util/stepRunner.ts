@@ -8,7 +8,7 @@ const noop:()=>void = () => {}
 function runStep(step:Step, before=noop, after=noop):Promise<any> {
   before()
   step.run()
-  return browser.canUseWindowLocation && step.needsPopListener ?
+  return browser.needsPopstateConfirmation && step.needsPopListener ?
     browser.listenPromise().then(after) : Promise.resolve().then(after)
 }
 
