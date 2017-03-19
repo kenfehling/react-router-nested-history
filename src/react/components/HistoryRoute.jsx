@@ -3,7 +3,7 @@ import matchPath from 'react-router/matchPath'
 import AnimatedPage from './AnimatedPage'
 
 const computeMatch = (pathname, { computedMatch, path, exact, strict }) =>
-    computedMatch || matchPath(pathname, path, { exact, strict })
+    computedMatch || matchPath(pathname, { path, exact, strict })
 
 const r = ({component, children, render, match, props}) => {
   return (
