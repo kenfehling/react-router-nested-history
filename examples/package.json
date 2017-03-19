@@ -11,7 +11,7 @@
     "react-helmet": "^4.0.0",
     "react-router": "4.0.0",
     "react-router-dom": "4.0.0",
-    "react-router-nested-history": "github:kenfehling/react-router-nested-history#master",
+    "react-router-nested-history": "github:kenfehling/react-router-nested-history",
     "react-router-server": "^2.1.0",
     "react-tabs": "^0.8.2"
   },

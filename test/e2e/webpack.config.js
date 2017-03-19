@@ -4,7 +4,7 @@ var path = require('path');
 module.exports = {
   context: path.resolve('./'),
   entry: '../../examples/src/index.js',
-  devtool: 'source-map',
+  devtool: 'cheap-module-source-map',
   output: {
     path: path.resolve('./build'),
     filename: 'bundle.js',
@@ -38,12 +38,12 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('test')
+    })
+  ],
   resolve: {
-    plugins: [
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('development')
-      })
-    ],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
     alias: {
       'react-router-nested-history': path.resolve('../../src')

@@ -10,7 +10,7 @@ import './App.css'
 
 export default () => (
   <div>
-    <Route path='/' exact render={() => <Redirect to="/tabs/1" />} />
+    <Route path='/' exact render={() => <Redirect to="/windows/1" />} />
     <Route path='/tabs' exact render={() => <Redirect to="/tabs/1" />} />
     <Route path='/windows' exact render={() => <Redirect to="/windows/1" />} />
     <Route path='/foods' exact render={() => <Redirect to="/foods/Fruit" />} />

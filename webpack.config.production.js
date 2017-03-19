@@ -1,7 +1,5 @@
-'use strict';
-
-var webpack = require('webpack');
-var base = require('./webpack.config.base');
+const webpack = require('webpack')
+const base = require('./webpack.config.base')
 
 module.exports = Object.assign({}, base, {
   plugins: [
@@ -9,6 +7,7 @@ module.exports = Object.assign({}, base, {
       'process.env.NODE_ENV': JSON.stringify('production')
     }),
     new webpack.optimize.UglifyJsPlugin({
+      sourceMap: true,
       compressor: {
         warnings: false,
         screw_ie8: false
@@ -19,4 +18,4 @@ module.exports = Object.assign({}, base, {
       mangle: false
     })
   ]
-});
+})

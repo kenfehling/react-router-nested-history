@@ -52176,3 +52176,4 @@ exports.waitForInitialization = _waitForInitialization3.default;
 /***/ })
 /******/ ]);
 });
+//# sourceMappingURL=react-router-nested-history.js.map
