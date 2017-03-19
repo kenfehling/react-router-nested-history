@@ -1,27 +1,12 @@
-import HistoryLink from './react/components/HistoryLink'
-import BackLink from './react/components/BackLink'
-import HeaderLink from './react/components/HeaderLink'
-import ContainerGroup from './react/components/ContainerGroup'
-import Container from './react/components/Container'
-import WindowGroup from './react/components/WindowGroup'
-import HistoryWindow from './react/components/HistoryWindow'
-import HistoryRouter from './react/components/HistoryRouter'
-import HistoryRoute from './react/components/HistoryRoute'
-import ScrollArea from './react/components/ScrollArea'
-import connectToStore from './react/connectToStore'
-import waitForInitialization from './react/waitForInitialization'
-
-export default {
-  HistoryLink,
-  BackLink,
-  HeaderLink,
-  ContainerGroup,
-  Container,
-  WindowGroup,
-  HistoryWindow,
-  HistoryRouter,
-  HistoryRoute,
-  ScrollArea,
-  connectToStore,
-  waitForInitialization
-}
+export {default as HistoryLink} from './react/components/HistoryLink'
+export {default as BackLink} from './react/components/BackLink'
+export {default as HeaderLink} from './react/components/HeaderLink'
+export {default as ContainerGroup} from './react/components/ContainerGroup'
+export {default as Container} from './react/components/Container'
+export {default as WindowGroup} from './react/components/WindowGroup'
+export {default as HistoryWindow} from './react/components/HistoryWindow'
+export {default as HistoryRouter} from './react/components/HistoryRouter'
+export {default as HistoryRoute} from './react/components/HistoryRoute'
+export {default as ScrollArea} from './react/components/ScrollArea'
+export {default as connectToStore} from './react/connectToStore'
+export {default as waitForInitialization} from './react/waitForInitialization'
