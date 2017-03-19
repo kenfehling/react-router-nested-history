@@ -1,7 +1,7 @@
 {
   "version": "2.1.5",
   "compilerOptions": {
-    "outDir": "./dist/",
+    "outDir": "./lib/",
     "module": "commonjs",
     "target": "es5",
     "lib": ["dom", "es6", "ES2015"],
@@ -18,8 +18,5 @@
   "include": [
     "src/**/*",
     "src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
   ]
 }
