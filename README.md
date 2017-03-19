@@ -32,7 +32,15 @@ Right now this library only works with browserHistory (HTML5 History API, not wi
 - [x] Support for title libraries like [react-helmet](https://github.com/nfl/react-helmet)
 - [x] Transition animations (slide-in, slide-out)
 - [x] Support for server rendering
-- [ ] Support for components that lazy render (many existing React tab libraries)
+- [x] Support for components that lazy render (many existing React tab libraries)
+
+### Browser support
+- [x] Chrome
+- [x] Safari (OS X and iOS)
+- [x] Firefox
+- [x] Edge
+- [ ] IE 11
+- [x] Opera
 
 ## API
 
