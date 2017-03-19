@@ -11,7 +11,8 @@
   "bugs": "https://github.com/kenfehling/react-router-nested-history/issues",
   "main": "dist/react-router-nested-history.min.js",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "clean": "rimraf dist",
