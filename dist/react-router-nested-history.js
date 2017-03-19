@@ -26518,12 +26518,16 @@ var slideRight = new Transition({
 });
 // Slide right by default, reverses if n > 0 (popped to a forward page)
 var popstate = new PopStateTransition(__assign({}, slideRight));
-var transitions = immutable_1.fromJS({});
-transitions.set(Push_1.default.type, slideLeft);
-transitions.set(Forward_1.default.type, slideLeft);
-transitions.set(Back_1.default.type, slideRight);
-transitions.set(Top_1.default.type, slideRight);
-transitions.set(PopState_1.default.type, popstate);
+var createTransitions = function () {
+    var ts = {};
+    ts[Push_1.default.type] = slideLeft;
+    ts[Forward_1.default.type] = slideLeft;
+    ts[Back_1.default.type] = slideRight;
+    ts[Top_1.default.type] = slideRight;
+    ts[PopState_1.default.type] = popstate;
+    return ts;
+};
+var transitions = immutable_1.fromJS(createTransitions());
 function getLeft(stage, action) {
     var transition = transitions.get(action.type);
     if (transition) {
