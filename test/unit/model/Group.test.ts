@@ -2,9 +2,8 @@ import Group from '../../../src/model/Group'
 import Container from '../../../src/model/Container'
 import {HistoryStack} from '../../../src/model/Pages'
 import Page from '../../../src/model/Page'
-import IContainer from '../../../src/model/IContainer'
 import * as fixtures from '../fixtures'
-import IGroupContainer from '../../../src/model/IGroupContainer'
+import IContainer from '../../../src/model/IContainer'
 import {Map} from 'immutable'
 import {expect} from 'chai'
 import State from '../../../src/model/State'
@@ -30,7 +29,7 @@ describe('Group', () => {
       })
 
       it('replaces an existing container', () => {
-        const container:IGroupContainer = group.containers.toArray()[0]
+        const container:IContainer = group.containers.toArray()[0]
         const newContainer = container.push(new Page({
           url: '/x/1',
           params: {id: '1'},
@@ -38,7 +37,7 @@ describe('Group', () => {
           containerName: container.name
         }), 10000)
         const newGroup:Group =
-            group.replaceContainer(newContainer as IGroupContainer)
+            group.replaceContainer(newContainer as IContainer)
         expect(newGroup.containers.size).to.equal(group.containers.size)
         expect(newGroup.containers.toArray()[0].name).to.equal(container.name)
         expect(newGroup.containers.toArray()[0].activePage.url).to.equal('/x/1')
@@ -263,7 +262,7 @@ describe('Group', () => {
       })
 
       it('replaces an existing container', () => {
-        const container:IGroupContainer = nestedGroup1.containers.toArray()[0]
+        const container:IContainer = nestedGroup1.containers.toArray()[0]
         const newContainer = container.push(new Page({
           url: '/x/1',
           params: {id: '1'},
@@ -271,7 +270,7 @@ describe('Group', () => {
           containerName: container.name
         }), 10000)
         const newGroup:Group =
-            nestedGroup1.replaceContainer(newContainer as IGroupContainer)
+            nestedGroup1.replaceContainer(newContainer as IContainer)
         expect(newGroup.containers.size).to.equal(parentGroup.containers.size)
         expect(newGroup.containers.toArray()[0].name).to.equal(container.name)
         expect(newGroup.containers.toArray()[0].activePage.url).to.equal('/x/1')

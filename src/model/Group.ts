@@ -431,7 +431,7 @@ export default class Group implements IContainer {
         return
       }
       else if (container instanceof Group) {
-        const c = container.getNestedGroupByName(name)
+        const c = container.getNestedContainerByName(name)
         if (c) {
           foundContainer = c
           return
