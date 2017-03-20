@@ -391,18 +391,18 @@ A single window inside a `WindowGroup`
           <td>Is this window visible?</td>
         </tr>
         <tr>
-          <td>top</td>
+          <td>x</td>
           <td>number</td>
           <td></td>
           <td></td>
-          <td>The top of the window in px</td>
+          <td>The x of the window in px</td>
         </tr>
         <tr>
-          <td>left</td>
+          <td>y</td>
           <td>number</td>
           <td></td>
           <td></td>
-          <td>The left of the window in px</td>
+          <td>The y of the window in px</td>
         </tr>
         <tr>
           <td>className</td>
@@ -439,20 +439,32 @@ A single window inside a `WindowGroup`
     </thead>
     <tbody>
         <tr>
-          <td>open/td>
+          <td>open</td>
           <td>() => void</td>
           <td>Make this window visible</td>
         </tr>
         <tr>
-          <td>close/td>
+          <td>close</td>
           <td>() => void</td>
           <td>Make this window invisible</td>
         </tr>
          <tr>
-           <td>zIndex/td>
+           <td>zIndex</td>
            <td>number</td>
            <td>The z-index of this window</td>
          </tr>
+         <!--
+        <tr>
+          <td>x</td>
+          <td>number</td>
+          <td>The x of the window in px</td>
+        </tr>
+        <tr>
+          <td>y</td>
+          <td>number</td>
+          <td>The y of the window in px</td>
+        </tr>
+        -->
     </tbody>
 </table>
 

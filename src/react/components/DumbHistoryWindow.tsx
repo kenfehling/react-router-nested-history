@@ -14,8 +14,8 @@ type ChildrenType = ReactNode & {props?:any} |
 
 export interface DumbWindowProps {
   forName: string
-  top?: number
-  left?: number
+  x?: number
+  y?: number
   children: ChildrenType
   className?: string
   style?: Object
@@ -70,8 +70,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
   render() {
     const {
       forName,
-      top,
-      left,
+      y,
+      x,
       children,
       style={},
       stackOrder,
@@ -98,8 +98,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
               ...style,
               zIndex,
               position: 'absolute',
-              top: top ? top + 'px' : '',
-              left: left ? left + 'px' : '',
+              x: x ? x + 'px' : '',
+              y: y ? y + 'px' : '',
               visibility: storedVisible ? 'visible' : 'hidden'
            }}
       >

@@ -13,8 +13,8 @@ import {ComputedContainer} from '../../model/ComputedState'
 
 export interface WindowProps {
   forName: string
-  top?: number
-  left?: number
+  x?: number
+  y?: number
   children?: ReactNode
   className?: string
   topClassName?: string
