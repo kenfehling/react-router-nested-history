@@ -91,9 +91,9 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
     ], this.props)
     const zIndex = getWindowZIndex(stackOrder, forName)
     return (
-      <div className={this.getClassName()}
+      <div {...divProps}
+           className={this.getClassName()}
            onMouseDown={this.onMouseDown.bind(this)}
-           {...divProps}
            style={{
               ...style,
               zIndex,
