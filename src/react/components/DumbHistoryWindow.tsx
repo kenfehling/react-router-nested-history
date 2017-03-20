@@ -17,6 +17,7 @@ export interface DumbWindowProps {
   left?: number
   children: ChildrenType
   className?: string
+  style?: Object
   topClassName?: string
   visible?: boolean
 
@@ -71,16 +72,29 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
       top,
       left,
       children,
+      style={},
       stackOrder,
       storedVisible,
       open,
-      close
-    } = this.props
+      close,
+      ...divProps
+    } = R.omit([
+      'store',
+      'setCurrentContainerName',
+      'loadedFromRefresh',
+      'isInitialized',
+      'createWindow',
+      'initializing',
+      'topClassName',
+      'storeSubscription'
+    ], this.props)
     const zIndex = getWindowZIndex(stackOrder, forName)
     return (
       <div className={this.getClassName()}
            onMouseDown={this.onMouseDown.bind(this)}
+           {...divProps}
            style={{
+              ...style,
               zIndex,
               position: 'absolute',
               top: top ? top + 'px' : '',
