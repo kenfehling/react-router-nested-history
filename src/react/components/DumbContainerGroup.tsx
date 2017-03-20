@@ -104,10 +104,10 @@ export default class DumbContainerGroup extends
         stackOrder: newStackOrder
       })
     }
-    else if (newII != null) {
+    else if (newII != null && newII !== oldII) {
       this.props.switchToContainerIndex(newII)
     }
-    else if (newIN) {
+    else if (newIN && newIN !== oldIN) {
       this.props.switchToContainerName(newIN)
     }
   }
