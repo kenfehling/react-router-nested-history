@@ -53,13 +53,8 @@ const MobileWindow = ({name, path=toPath(name), pattern=toPattern(name),
 )
 
 const apps = [
-  'Map',
-  'Terminal',
-  'Tools',
-  'Editor',
-  'Social',
-  'Audio',
-  'PDF'
+  'Email',
+  'Music'
 ]
 
 const HomeScreen = () => (
