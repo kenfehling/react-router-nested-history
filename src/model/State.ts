@@ -18,20 +18,17 @@ import HistoryWindow from './HistoryWindow'
 
 abstract class State implements IState {
   readonly groups: Map<string, Group>
-  readonly windows: Map<string, HistoryWindow>
   readonly titles: PathTitle[]
   readonly zeroPage?: string
   readonly lastUpdate: number
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
-  constructor({groups=fromJS({}), windows=fromJS({}), zeroPage, lastUpdate=0,
+  constructor({groups=fromJS({}), zeroPage, lastUpdate=0,
     loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
-    {groups?:Map<string, Group>, windows?:Map<string, HistoryWindow>,
-      zeroPage?:string, lastUpdate?:number, loadedFromRefresh?:boolean,
-      isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
+    {groups?:Map<string, Group>, zeroPage?:string, lastUpdate?:number,
+      loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
-    this.windows = windows
     this.zeroPage = zeroPage
     this.lastUpdate = lastUpdate
     this.loadedFromRefresh = loadedFromRefresh
@@ -47,10 +44,9 @@ abstract class State implements IState {
   }
 
   get computedWindows():Map<string, ComputedWindow> {
-    return fromJS(this.windows.map((w:HistoryWindow) => ({
-      ...w,
-      visible: this.getContainerByName(w.forName).enabled
-    })))
+    return this.groups.reduce(
+      (map:Map<string, ComputedWindow>, g:Group) =>
+        fromJS({}).merge(map, g.computeWindows()), fromJS({}))
   }
 
   computeState():PartialComputedState {
@@ -128,13 +124,6 @@ abstract class State implements IState {
     }
   }
 
-  replaceWindow(w:HistoryWindow):State {
-    return this.assign({
-      windows: this.windows.set(w.forName, w)
-    })
-  }
-
-
   disallowDuplicateContainerOrGroup(name) {
     if (this.hasGroupOrContainerWithName(name)) {
       throw new Error(`A group or container with name: '${name}' already exists`)
@@ -193,16 +182,19 @@ abstract class State implements IState {
     return this.replaceGroup(group.replaceContainer(container))
   }
 
-  setWindowVisibility({forName, visible=true}:
-                      {forName:string, visible?:boolean}):State {
-    const container:IContainer = this.getContainerByName(forName)
-    const group:Group = this.getGroupByName(container.groupName)
-    return this.replaceGroup(group.replaceContainer(container.setEnabled(visible)))
+  setWindowVisibility({forName, visible}:
+                      {forName:string, visible:boolean}):State {
+    const c:IContainer = this.getContainerByName(forName)
+    const group:Group = this.getGroupByName(c.groupName)
+    return this.replaceGroup(group.replaceContainer(c.setEnabled(visible)))
   }
 
   addWindow({forName, visible=true}:{forName:string, visible?:boolean}):State {
     const w:HistoryWindow = new HistoryWindow({forName})
-    return this.replaceWindow(w).setWindowVisibility({forName, visible})
+    const c:IContainer = this.getContainerByName(forName)
+    const newContainer:IContainer = c.replaceWindow(w).setEnabled(visible)
+    const group:Group = this.getGroupByName(c.groupName)
+    return this.replaceGroup(group.replaceContainer(newContainer))
   }
 
   /**

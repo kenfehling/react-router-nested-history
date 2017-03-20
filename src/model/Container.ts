@@ -4,11 +4,14 @@ import IContainer from './IContainer'
 import Pages, {HistoryStack} from './Pages'
 import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
-import {ComputedContainer} from './ComputedState'
+import {ComputedContainer, ComputedWindow} from './ComputedState'
+import HistoryWindow from './HistoryWindow'
+import {Map, fromJS} from 'immutable'
 
 export default class Container implements IContainer {
   readonly name: string
   readonly enabled: boolean
+  readonly associatedWindow: HistoryWindow|undefined
   readonly initialUrl: string
   readonly patterns: string[]
   readonly isDefault: boolean
@@ -28,13 +31,14 @@ export default class Container implements IContainer {
    * @param groupName - The name of this container's group
    * @param pages - The pages visited in this container
    */
-  constructor({time, name, enabled=true, initialUrl, patterns, isDefault=false,
-      resetOnLeave=false, groupName, pages}:
-      {time:number, name:string, enabled?:boolean, initialUrl:string,
-        patterns:string[], isDefault?:boolean, resetOnLeave?:boolean,
-        groupName:string, pages?:Pages}) {
+  constructor({time, name, enabled=true, associatedWindow, initialUrl, patterns,
+               isDefault=false, resetOnLeave=false, groupName, pages}:
+      {time:number, name:string, enabled?:boolean,
+        associatedWindow?: HistoryWindow, initialUrl:string, patterns:string[],
+        isDefault?:boolean, resetOnLeave?:boolean, groupName:string, pages?:Pages}) {
     this.name = name
     this.enabled = enabled
+    this.associatedWindow = associatedWindow
     this.initialUrl = initialUrl
     this.patterns = patterns
     this.isDefault = isDefault
@@ -58,10 +62,17 @@ export default class Container implements IContainer {
     })
   }
 
-  updatePages(pages:Pages):IContainer {
+  updatePages(pages:Pages):Container {
     return new Container({
       ...Object(this),
       pages: this.pages.update(pages)
+    })
+  }
+
+  replaceWindow(w:HistoryWindow):Container {
+    return new Container({
+      ...Object(this),
+      associatedWindow: w
     })
   }
 
@@ -205,6 +216,22 @@ export default class Container implements IContainer {
       enabled: this.enabled,
       activeUrl: this.activeUrl,
       history: this.history
+    }
+  }
+
+  private computeWindow():ComputedWindow {
+    return {
+      forName: this.name,
+      visible: this.enabled
+    }
+  }
+
+  computeWindows():Map<string, ComputedWindow> {
+    if (this.associatedWindow) {
+      return fromJS({}).set(this.name, this.computeWindow())
+    }
+    else {
+      return fromJS({})
     }
   }
 }

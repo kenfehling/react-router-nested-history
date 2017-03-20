@@ -1,11 +1,16 @@
 import Pages, {HistoryStack} from './Pages'
 import IHistory from './IHistory'
-import {ComputedContainer, ComputedGroup} from './ComputedState'
+import {ComputedContainer, ComputedGroup, ComputedWindow} from './ComputedState'
+import HistoryWindow from './HistoryWindow'
+import {Map} from 'immutable'
 
 abstract class IContainer extends IHistory {
   abstract computeState(): ComputedGroup|ComputedContainer
   abstract get wasManuallyVisited(): boolean
   abstract get pages(): Pages
+  abstract get associatedWindow(): HistoryWindow|undefined
+  abstract replaceWindow(w:HistoryWindow):IContainer
+  abstract computeWindows():Map<string, ComputedWindow>
   abstract updatePages(pages:Pages): IContainer
   abstract get name(): string
   abstract get patterns(): string[]

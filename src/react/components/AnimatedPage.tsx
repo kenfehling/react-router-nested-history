@@ -86,17 +86,13 @@ const slideRight:Transition = new Transition({
 // Slide right by default, reverses if n > 0 (popped to a forward page)
 const popstate:PopStateTransition = new PopStateTransition({...slideRight})
 
-const createTransitions = () => {
-  let ts = {};
-  ts[Push.type] = slideLeft
-  ts[Forward.type] = slideLeft
-  ts[Back.type] = slideRight
-  ts[Top.type] = slideRight
-  ts[PopState.type] = popstate
-  return ts
-}
-
-const transitions:Map<string, Transition> = fromJS(createTransitions())
+const transitions:Map<string, Transition> = fromJS({
+  [Push.type]: slideLeft,
+  [Forward.type]: slideLeft,
+  [Back.type]: slideRight,
+  [Top.type]: slideRight,
+  [PopState.type]: popstate
+})
 
 function getLeft(stage:LifecycleStage, action:Action):number {
   const transition:Transition|undefined = transitions.get(action.type)

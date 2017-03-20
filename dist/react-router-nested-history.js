@@ -5250,7 +5250,7 @@ var UIEventInterface = {
     }
 
     var target = getEventTarget(event);
-    if (target.window === target) {
+    if (target.associatedWindow === target) {
       // target is a window object
       return target;
     }
@@ -26936,7 +26936,7 @@ var selector = reselect_1.createSelector(exports.getWindow, function (w) { retur
 var mapStateToProps = function (state, ownProps) {
     var s = selector(state, ownProps);
     return {
-        storedVisible: s.window.visible
+        storedVisible: s.associatedWindow.visible
     };
 };
 var mapDispatchToProps = function (dispatch, ownProps) {
@@ -38011,7 +38011,7 @@ var EnterLeaveEventPlugin = {
     }
 
     var win;
-    if (nativeEventTarget.window === nativeEventTarget) {
+    if (nativeEventTarget.associatedWindow === nativeEventTarget) {
       // `nativeEventTarget` is probably a window object.
       win = nativeEventTarget;
     } else {
