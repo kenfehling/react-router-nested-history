@@ -22,8 +22,9 @@
 }
 
 .state-tree .current-page.disabled {
-  background-color: #CCC;
-  border: thin solid #AAA;
+  color: #777;
+  background-color: #DDD;
+  border: thin solid #BBB;
 }
 
 .state-tree .current-page.active.group {
