@@ -219,16 +219,16 @@ export default class Container implements IContainer {
     }
   }
 
-  private computeWindow():ComputedWindow {
+  private computeWindow(parentVisible:boolean):ComputedWindow {
     return {
       forName: this.name,
-      visible: this.enabled
+      visible: parentVisible && this.enabled
     }
   }
 
-  computeWindows():Map<string, ComputedWindow> {
+  computeWindows(parentVisible:boolean):Map<string, ComputedWindow> {
     if (this.associatedWindow) {
-      return fromJS({}).set(this.name, this.computeWindow())
+      return fromJS({}).set(this.name, this.computeWindow(parentVisible))
     }
     else {
       return fromJS({})

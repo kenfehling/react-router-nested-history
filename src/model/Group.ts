@@ -597,28 +597,29 @@ export default class Group implements IContainer {
     return fromJS(this.subGroups.map((g:Group) => g.computeState()))
   }
 
-  private computeWindow():ComputedWindow {
+  private computeWindow(parentVisible:boolean):ComputedWindow {
     return {
       forName: this.name,
-      visible: this.enabled
+      visible: parentVisible && this.enabled
     }
   }
 
-  private _computeWindows():Map<string, ComputedWindow> {
+  private _computeWindows(parentVisible:boolean):Map<string, ComputedWindow> {
     if (this.associatedWindow) {
-      return fromJS({}).set(this.name, this.computeWindow())
+      return fromJS({}).set(this.name, this.computeWindow(parentVisible))
     }
     else {
       return fromJS({})
     }
   }
 
-  computeWindows():Map<string, ComputedWindow> {
+  computeWindows(parentVisible:boolean=true):Map<string, ComputedWindow> {
     return fromJS({}).merge(
-      this._computeWindows(),
+      this._computeWindows(parentVisible),
       this.containers.reduce(
         (map:Map<string, ComputedWindow>, c:IContainer) =>
-          fromJS({}).merge(map, c.computeWindows()), fromJS({}))
+          fromJS({}).merge(map, c.computeWindows(parentVisible && this.enabled)),
+        fromJS({}))
     )
   }
 }

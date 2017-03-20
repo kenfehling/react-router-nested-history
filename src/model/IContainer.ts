@@ -10,7 +10,7 @@ abstract class IContainer extends IHistory {
   abstract get pages(): Pages
   abstract get associatedWindow(): HistoryWindow|undefined
   abstract replaceWindow(w:HistoryWindow):IContainer
-  abstract computeWindows():Map<string, ComputedWindow>
+  abstract computeWindows(parentVisible:boolean):Map<string, ComputedWindow>
   abstract updatePages(pages:Pages): IContainer
   abstract get name(): string
   abstract get patterns(): string[]
