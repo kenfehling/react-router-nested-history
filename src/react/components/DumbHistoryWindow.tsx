@@ -6,6 +6,7 @@ import {ComputedContainer} from '../../model/ComputedState'
 interface ChildrenFunctionArgs {
   open: () => void
   close: () => void
+  zIndex: number
 }
 
 type ChildrenType = ReactNode & {props?:any} |
@@ -102,7 +103,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
               visibility: storedVisible ? 'visible' : 'hidden'
            }}
       >
-        {children instanceof Function ? children({open, close}) : children}
+        {children instanceof Function ? children({open, close, zIndex}) : children}
       </div>
     )
   }

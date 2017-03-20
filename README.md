@@ -448,6 +448,11 @@ A single window inside a `WindowGroup`
           <td>() => void</td>
           <td>Make this window invisible</td>
         </tr>
+         <tr>
+           <td>zIndex/td>
+           <td>number</td>
+           <td>The z-index of this window</td>
+         </tr>
     </tbody>
 </table>
 
