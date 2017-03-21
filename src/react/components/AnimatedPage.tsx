@@ -136,13 +136,14 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
           runOnMount={false}
           atEnter={willEnter(lastAction)}
           atLeave={willLeave(lastAction)}
-          atActive={{left: 0}}
+          atActive={{left: 0, transform: 'translateX(0)'}}
           mapStyles={styles => ({
               position: 'absolute',
               width: '100%',
               height: '100%',
-              left: styles.left + '%'
-              //transform: 'translateX(' + styles.left + '%)'
+              //left: styles.left + '%'
+              left: 0,
+              transform: 'translateX(' + styles.left + '%)'
           })}
         >
           {children}
