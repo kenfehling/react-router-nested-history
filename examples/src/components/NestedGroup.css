@@ -5,9 +5,13 @@
   flex-direction: column;
 }
 
-.nested .window .content {
-  padding: 20px;
-  box-sizing: border-box;
+.nested .window .header {
+  padding: 22px 10px 2px 10px;
+  display: flex;
+}
+
+.nested .window .page {
+  padding-left: 50px;
 }
 
 .nested .window.foods {
@@ -20,15 +24,11 @@
   left: 95px;
 }
 
-.header {
-  height: 2em;
-  margin-bottom: 20px;
-}
-
 .header-item, .active-header-item {
+  display: block;
+  margin: auto;
   font-weight: bold;
   text-decoration: none;
-  display: inline-block;
   padding: 5px 10px;
   border-radius: 3px;
 }

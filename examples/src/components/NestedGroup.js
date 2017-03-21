@@ -45,7 +45,7 @@ const FoodsHeader = () => (
 )
 
 const FoodsMaster = ({match:{params:{category}}}) => (
-  <div>
+  <div className='page'>
     <div className='food-title'>{category}</div>
     <ul>
       {Object.keys(foods[category]).map(foods => (
@@ -61,7 +61,7 @@ const FoodsMaster = ({match:{params:{category}}}) => (
 )
 
 const FoodDetail = ({match:{params:{category, food}}, className}) => (
-  <div>
+  <div className='page'>
     <BackLink />
     <p className='food-title'>{category} > {food}</p>
     <ul>
@@ -78,7 +78,7 @@ const FoodDetail = ({match:{params:{category, food}}, className}) => (
 )
 
 const FoodTypeDetail = ({match:{params:{category, food, type}}, className}) => (
-  <div>
+  <div className='page'>
     <BackLink />
     <p className='food-title'>{category} > {food} > {type}</p>
     <Helmet title={category + ' - ' + food + ' - ' + type} />
@@ -102,7 +102,7 @@ const NestedGroup = () =>(
     </div>
     <WindowGroup name='nested'>
       <HistoryWindow forName='foods' className='window nested-window foods'>
-        <ContainerGroup name='foods' gotoTopOnSelectActive={true} className='content'>
+        <ContainerGroup name='foods' gotoTopOnSelectActive={true}>
           <FoodsHeader />
           {foodGroups.map((c, i) => (
             <Container
@@ -131,7 +131,7 @@ const NestedGroup = () =>(
         </ContainerGroup>
       </HistoryWindow>
       <HistoryWindow forName='notes' className='window nested-window notes'>
-        <Container name='notes' className='content' animate={false} initialUrl='/notes' patterns={['/notes']}>
+        <Container name='notes' animate={false} initialUrl='/notes' patterns={['/notes']}>
           <HistoryRoute path='/notes' exact component={Notes} />
         </Container>
       </HistoryWindow>
