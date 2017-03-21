@@ -55,7 +55,7 @@ class Transition {
     this.didLeave = didLeave
   }
 
-  getLeft(stage:LifecycleStage, action:Action):number {
+  getOffset(stage:LifecycleStage, action:Action):number {
     switch(stage) {
       case LifecycleStage.WILL_ENTER: return this.willEnter
       case LifecycleStage.DID_ENTER: return this.didEnter
@@ -67,9 +67,9 @@ class Transition {
 }
 
 class PopStateTransition extends Transition {
-  getLeft(stage:LifecycleStage, action:PopState):number {
-    const left:number = super.getLeft(stage, action)
-    return action.n > 0 ? 0 - left : left
+  getOffset(stage:LifecycleStage, action:PopState):number {
+    const offset:number = super.getOffset(stage, action)
+    return action.n > 0 ? 0 - offset : offset
   }
 }
 
@@ -94,10 +94,10 @@ const transitions:Map<string, Transition> = fromJS({
   [PopState.type]: popstate
 })
 
-function getLeft(stage:LifecycleStage, action:Action):number {
+function getOffset(stage:LifecycleStage, action:Action):number {
   const transition:Transition|undefined = transitions.get(action.type)
   if (transition) {
-    return transition.getLeft(stage, action)
+    return transition.getOffset(stage, action)
   }
   else {
     return 0
@@ -105,11 +105,11 @@ function getLeft(stage:LifecycleStage, action:Action):number {
 }
 
 const willEnter = (action:Action) => ({
-  left: getLeft(LifecycleStage.WILL_ENTER, action)
+  offset: getOffset(LifecycleStage.WILL_ENTER, action)
 })
 
 const willLeave = (action:Action) => ({
-  left: getLeft(LifecycleStage.WILL_LEAVE, action)
+  offset: getOffset(LifecycleStage.WILL_LEAVE, action)
 })
 
 class InnerAnimatedPage extends Component<InnerProps, undefined> {
@@ -136,14 +136,13 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
           runOnMount={false}
           atEnter={willEnter(lastAction)}
           atLeave={willLeave(lastAction)}
-          atActive={{left: 0, transform: 'translateX(0)'}}
+          atActive={{offset: 0}}
           mapStyles={styles => ({
+              willChange: 'transform',
               position: 'absolute',
               width: '100%',
               height: '100%',
-              //left: styles.left + '%'
-              left: 0,
-              transform: 'translateX(' + styles.left + '%)'
+              transform: 'translateX(' + styles.offset + '%)'
           })}
         >
           {children}
