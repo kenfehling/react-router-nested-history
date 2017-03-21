@@ -9,7 +9,7 @@ const windowName = (index:number) => 'window' + (index + 1)
 const windowUrl = (index:number) => '/windows/' + (index + 1)
 
 const WindowMaster1 = () => (
-  <div>
+  <div className='page'>
     <p>Hello</p>
     <HistoryLink to="/windows/1/boris">Boris</HistoryLink>
     <Helmet title='Window 1' />
@@ -17,14 +17,14 @@ const WindowMaster1 = () => (
 )
 
 const WindowMaster2 = () => (
-  <div>
+  <div className='page'>
     <div>World</div>
     <Helmet title='Window 2' />
   </div>
 )
 
 const WindowPage = ({match:{params:{page}}}) => (
-  <div>
+  <div className='page'>
     Page: {page}
     <Helmet title={'Windows: ' + page} />
   </div>
@@ -50,7 +50,6 @@ const ExampleWindow = ({index, masterComponent, name=windowName(index),
       <div>
         <Toolbar name={name} onCloseClick={close} />
         <Container name={name}
-                   className='content'
                    animate={false}
                    initialUrl={url}
                    patterns={[url, url + '/:page']}
