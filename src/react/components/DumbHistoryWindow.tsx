@@ -87,6 +87,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
       'createWindow',
       'initializing',
       'topClassName',
+      'visible',
       'storeSubscription'
     ], this.props)
     const zIndex = getWindowZIndex(stackOrder, forName)
