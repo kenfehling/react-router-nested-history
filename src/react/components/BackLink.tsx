@@ -44,7 +44,7 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
 
   // Don't disappear when transitioning back to previous page
   shouldComponentUpdate(newProps) {
-    return !this.props.backPage && newProps.backPage
+    return !this.props.backPage && !!newProps.backPage
   }
 
   onClick(event) {
