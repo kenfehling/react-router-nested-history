@@ -109,9 +109,11 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
              onMouseDown={switchToGroup}
              style={{
                ...style,
-               width: '100%',
+               width: '200%',
                height: '100%',
-               position: 'relative'
+               position: 'relative',
+
+               display: 'flex'
                /*
 
                position: 'inherit',

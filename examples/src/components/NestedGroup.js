@@ -118,14 +118,14 @@ const NestedGroup = () =>(
                 `/foods/${regex(c)}/:food/:type`
               ]}
             >
-              <div>
+
                 <HistoryRoute path={`/foods/${regex(c)}`} exact
                               component={FoodsMaster} />
                 <HistoryRoute path={`/foods/${regex(c)}/:food`} exact
                               component={FoodDetail} />
                 <HistoryRoute path={`/foods/${regex(c)}/:food/:type`} exact
                               component={FoodTypeDetail} />
-              </div>
+
             </Container>
           ))}
         </ContainerGroup>

@@ -104,13 +104,22 @@ function getOffset(stage:LifecycleStage, action:Action):number {
   }
 }
 
-const willEnter = (action:Action) => ({
+const willEnter = (action:Action):Object => ({
   offset: getOffset(LifecycleStage.WILL_ENTER, action)
 })
 
-const willLeave = (action:Action) => ({
+const willLeave = (action:Action):Object => ({
   offset: getOffset(LifecycleStage.WILL_LEAVE, action)
 })
+
+const getWidth = (offset:number, match:boolean):number => {
+  if (offset === 0) {
+    return match ? 100 : 0
+  }
+  else {
+    return 100
+  }
+}
 
 class InnerAnimatedPage extends Component<InnerProps, undefined> {
   static contextTypes = {
@@ -126,7 +135,7 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
   }
 
   render() {
-    const {children, lastAction} = this.props
+    const {children, lastAction, match} = this.props
     const {animate, pathname} = this.context
 
     if (animate !== false) {
@@ -137,11 +146,16 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
           atEnter={willEnter(lastAction)}
           atLeave={willLeave(lastAction)}
           atActive={{offset: 0}}
+          style={{
+            width: '50%',
+            height: '100%'
+          }}
           mapStyles={styles => ({
               willChange: 'transform',
               position: 'absolute',
-              width: '100%',
+              width: '50%',
               height: '100%',
+              left: 0,
               transform: 'translateX(' + styles.offset + '%)'
           })}
         >
