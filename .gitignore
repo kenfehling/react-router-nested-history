@@ -64,5 +64,8 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+# Nightwatch
+test/e2e/reports/
+
 # ALM
 .alm/
