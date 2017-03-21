@@ -1,7 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {RouteTransition} from 'react-router-transition'
-import {spring} from 'react-motion'
 import Push from '../../model/actions/Push'
 import Back from '../../model/actions/Back'
 import Forward from '../../model/actions/Forward'
@@ -39,11 +38,6 @@ enum LifecycleStage {
 enum Side {
   LEFT = -100,
   RIGHT = 100
-}
-
-const config = {
-  stiffness: 330,
-  damping: 30
 }
 
 class Transition {
@@ -147,8 +141,8 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
               position: 'absolute',
               width: '100%',
               height: '100%',
-              //left: styles.left + '%'
-              transform: 'translateX(' + styles.left + '%)'
+              left: styles.left + '%'
+              //transform: 'translateX(' + styles.left + '%)'
           })}
         >
           {children}
