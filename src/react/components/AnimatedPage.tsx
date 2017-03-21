@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {RouteTransition} from 'react-router-transition'
+import {spring} from 'react-motion'
 import Push from '../../model/actions/Push'
 import Back from '../../model/actions/Back'
 import Forward from '../../model/actions/Forward'
@@ -39,6 +40,8 @@ enum Side {
   LEFT = -100,
   RIGHT = 100
 }
+
+const config = {stiffness: 250, damping: 40, precision: 1};
 
 class Transition {
   readonly willEnter: Side
@@ -109,7 +112,7 @@ const willEnter = (action:Action) => ({
 })
 
 const willLeave = (action:Action) => ({
-  offset: getOffset(LifecycleStage.WILL_LEAVE, action)
+  offset: spring(getOffset(LifecycleStage.WILL_LEAVE, action), config)
 })
 
 class InnerAnimatedPage extends Component<InnerProps, undefined> {
@@ -136,7 +139,7 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
           runOnMount={false}
           atEnter={willEnter(lastAction)}
           atLeave={willLeave(lastAction)}
-          atActive={{offset: 0}}
+          atActive={{offset: spring(0, config)}}
           mapStyles={styles => ({
               willChange: 'transform',
               position: 'absolute',
