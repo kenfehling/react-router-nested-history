@@ -3,9 +3,10 @@ import {Component, PropTypes, ReactNode} from 'react'
 import matchPath from 'react-router/matchPath'
 import AnimatedPage from './AnimatedPage'
 
-const computeMatch:(...args:any[])=>any =
-  (pathname, { computedMatch, path, exact, strict }) =>
-    computedMatch || matchPath(pathname, { path, exact, strict })
+const computeMatch:(...args:any[])=>any = (pathname, options) => {
+    const { computedMatch, path, exact, strict } = options
+    return computedMatch || matchPath(pathname, {path, exact, strict})
+  }
 
 const r = ({component, children, render, match, props}) => {
   return (

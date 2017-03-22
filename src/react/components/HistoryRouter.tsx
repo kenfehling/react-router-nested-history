@@ -4,7 +4,7 @@ import {Route} from 'react-router'
 import {connect, Dispatch} from 'react-redux'
 import {createStore, Store} from '../../store/store'
 import DumbHistoryRouter from './DumbHistoryRouter'
-import cloneElement = React.cloneElement
+import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import {
   wasLoadedFromRefresh, canUseWindowLocation
 } from '../../util/browserFunctions'
@@ -21,7 +21,8 @@ declare const window:any
 
 // For IE
 import * as Promise from 'promise-polyfill'
-if (!window.Promise) {
+
+if (canUseDOM && !window.Promise) {
   window.Promise = Promise
 }
 
