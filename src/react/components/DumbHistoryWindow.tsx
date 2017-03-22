@@ -101,7 +101,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
               position: 'absolute',
               x: x ? x + 'px' : '',
               y: y ? y + 'px' : '',
-              visibility: storedVisible ? 'visible' : 'hidden'
+              display: storedVisible ? 'block' : 'none'
            }}
       >
         {children instanceof Function ? children({open, close, zIndex}) : children}
