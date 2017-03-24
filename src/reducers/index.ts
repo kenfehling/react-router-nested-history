@@ -5,7 +5,7 @@ export interface ReduxState {
   windowPositions: Map<string, {x:number, y:number}>
 }
 
-const initialState:ReduxState = {
+export const initialState:ReduxState = {
   windowPositions: fromJS({})
 }
 

@@ -6,7 +6,6 @@ import ClearActions from './actions/ClearActions'
 import IState from './IState'
 import ISerialized from './ISerialized'
 import IComputedState from './IComputedState'
-import {Reducer, createStore as createRegularReduxStore} from 'redux'
 
 export interface Store<S extends IState, A extends Action, C extends IComputedState> {
   dispatch: (action:Action) => void
@@ -21,15 +20,14 @@ export function deriveState<S extends IState>(actions:Action[], state:S):S {
 }
 
 export function createStore<S extends IState, A extends Action,
-                            C extends IComputedState, RS extends Object>(
-    {loadFromPersist=false, initialState, reducer}:
-      {loadFromPersist?:boolean, initialState:S, reducer?:Reducer<RS>}) {
+                            C extends IComputedState>(
+    {loadFromPersist=false, initialState, regularReduxStore}:
+      {loadFromPersist?:boolean, initialState:S, regularReduxStore:any}) {
   let actions: A[] = []
   let storedRawState: S = initialState
   let storedComputedState:IComputedState = { actions: [] }
   let timeStored: number = 0
   let listeners: (() => void)[] = []
-  let regularReduxStore = reducer ? createRegularReduxStore(reducer) : null
 
   function loadActions():void {
     if (store.enabled) {

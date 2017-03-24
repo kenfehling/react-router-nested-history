@@ -17,12 +17,13 @@ import State from '../../model/State'
 import UninitializedState from '../../model/UninitializedState'
 import Refresh from '../../model/actions/Refresh'
 import ComputedState from '../../model/ComputedState'
-import reducer from '../../reducers'
+import reducer, {initialState, ReduxState} from '../../reducers'
+import {createStore as createRegularReduxStore} from 'redux'
+import {autoRehydrate, persistStore} from 'redux-persist'
 declare const window:any
 
 // For IE
 import * as Promise from 'promise-polyfill'
-import {ReduxState} from '../../reducers/index'
 
 if (canUseDOM && !window.Promise) {
   window.Promise = Promise
@@ -48,6 +49,16 @@ type ConnectedRouterProps = RouterPropsWithStore & {
   refresh: () => void
   loadFromUrl: (url:string) => void
   setZeroPage: (url:string) => void
+}
+
+function makeReduxStore() {
+  const store = createRegularReduxStore<ReduxState>(
+    reducer,
+    initialState,
+    autoRehydrate<ReduxState>()
+  )
+  persistStore(store)
+  return store
 }
 
 class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
@@ -174,10 +185,10 @@ const HistoryRouter = (props:HistoryRouterProps) => (
   <ConnectedHistoryRouter
     {...props}
     store={
-      createStore<State, Action, ComputedState, ReduxState>({
+      createStore<State, Action, ComputedState>({
             loadFromPersist: wasLoadedFromRefresh,
             initialState: new UninitializedState(),
-            reducer
+            regularReduxStore: makeReduxStore()
       })
     } />
 )
