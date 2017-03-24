@@ -1,9 +1,18 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import ContainerGroup from './ContainerGroup'
-import {ContainerGroupProps} from './SmartContainerGroup'
+import {
+  ContainerGroupPropsWithoutChildren, ContainerGroupProps
+} from './SmartContainerGroup'
 import {GroupChildrenFunctionArgs} from './DumbContainerGroup'
-import {ComputedContainer} from '../../model/ComputedState'
+import ComputedState, {ComputedContainer} from '../../model/ComputedState'
+import ReactNode = React.ReactNode
+import ReactElement = React.ReactElement
+import {connect, Dispatch} from 'react-redux'
+import {Store} from '../../store/store'
+import State from '../../model/State'
+import Action from '../../store/Action'
+import {resetWindowPositions} from '../../actions/WindowActions'
 
 const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
 
@@ -11,6 +20,25 @@ const changeDefaults = (props:ContainerGroupProps):ContainerGroupProps => ({
   ...props,
   hideInactiveContainers: defaultToFalse(props.hideInactiveContainers)
 })
+
+type WindowGroupChildrenFunctionArgs = GroupChildrenFunctionArgs & {
+  resetWindowPositions: () => void
+}
+
+type ChildrenType =
+  ReactNode | ((args:WindowGroupChildrenFunctionArgs) => ReactElement<any>)
+
+type WindowGroupProps = ContainerGroupPropsWithoutChildren & {
+  children: ChildrenType
+}
+
+type WindowGroupPropsWithStore = WindowGroupProps & {
+  store: Store<State, Action, ComputedState>
+}
+
+type ConnectedWindowGroupProps = WindowGroupPropsWithStore & {
+  resetWindowPositions: () => void
+}
 
 interface InnerWindowGroupState {
   width: number
@@ -22,7 +50,7 @@ type InnerWindowGroupProps = {
   setCurrentContainerName: (name:string) => void
 }
 
-class InnerWindowGroup extends Component<InnerWindowGroupProps, InnerWindowGroupState> {
+class InnerInnerWindowGroup extends Component<InnerWindowGroupProps, InnerWindowGroupState> {
   static childContextTypes = {
     stackOrder: PropTypes.arrayOf(PropTypes.object).isRequired,
     setCurrentContainerName: PropTypes.func.isRequired,
@@ -72,16 +100,50 @@ class InnerWindowGroup extends Component<InnerWindowGroupProps, InnerWindowGroup
   }
 }
 
-const WindowGroup = ({children, ...groupProps}:ContainerGroupProps) => (
+const InnerWindowGroup = ({children, resetWindowPositions,
+                           ...groupProps}:ConnectedWindowGroupProps) => (
   <ContainerGroup {...changeDefaults(groupProps)}>
     {(props:GroupChildrenFunctionArgs) => (
-      <InnerWindowGroup stackOrder={props.stackOrder}
+      <InnerInnerWindowGroup stackOrder={props.stackOrder}
                         setCurrentContainerName={props.setCurrentContainerName}
       >
-        {children instanceof Function ? children(props) : children}
-      </InnerWindowGroup>
+        {
+          children instanceof Function ?
+              children({...props, resetWindowPositions}) :
+              children
+        }
+      </InnerInnerWindowGroup>
     )}
   </ContainerGroup>
 )
 
-export default WindowGroup
+const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
+                            ownProps:WindowGroupPropsWithStore) => ({
+  resetWindowPositions: () => dispatch(resetWindowPositions())
+})
+
+const mergeProps = (stateProps, dispatchProps,
+                    ownProps:WindowGroupPropsWithStore):ConnectedWindowGroupProps => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps
+})
+
+const ConnectedWindowGroup = connect(
+  () => ({}),
+  mapDispatchToProps,
+  mergeProps
+)(InnerWindowGroup)
+
+export default class WindowGroup extends Component<WindowGroupProps, undefined> {
+  static contextTypes = {
+    rrnhStore: PropTypes.object.isRequired
+  }
+
+  render() {
+    const {rrnhStore} = this.context
+    return (
+      <ConnectedWindowGroup store={rrnhStore} {...this.props} />
+    )
+  }
+}
