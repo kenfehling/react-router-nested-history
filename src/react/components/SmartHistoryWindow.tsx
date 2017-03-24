@@ -10,11 +10,19 @@ import {ComputedWindow} from '../../model/ComputedState'
 import CloseWindow from '../../model/actions/CloseWindow'
 import DumbHistoryWindow from './DumbHistoryWindow'
 import {ComputedContainer} from '../../model/ComputedState'
+import {moveWindow} from '../../actions/WindowActions'
+import {ReduxState} from '../../reducers/index'
 
 export interface WindowProps {
   forName: string
-  x?: number
-  y?: number
+  top?: number
+  middle?: number
+  bottom?:number
+  left?: number
+  center?: number
+  right?: number
+  draggable?: boolean
+  draggableProps?: Object
   children?: ReactNode
   className?: string
   topClassName?: string
@@ -32,18 +40,11 @@ type ConnectedWindowProps = WindowPropsWithStore & {
   close: () => void
 }
 
-export const getWindow = (state:ComputedState, ownProps):ComputedWindow => {
-  return state.windows.get(ownProps.forName)
-}
-
-const selector = createSelector(getWindow, (w:ComputedWindow) => ({
-  window: w
-}))
-
 const mapStateToProps = (state:ComputedState, ownProps:WindowPropsWithStore) => {
-  const s = selector(state, ownProps)
+  const w:ComputedWindow = state.windows.get(ownProps.forName)
   return {
-    storedVisible: s.window.visible
+    storedVisible: w.visible,
+    storedPosition: state.windowPositions[ownProps.forName]
   }
 }
 
@@ -52,7 +53,8 @@ const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
   const {forName, setCurrentContainerName} = ownProps
   return {
     open: () => setCurrentContainerName(forName),
-    close: () => dispatch(new CloseWindow({forName}))
+    close: () => dispatch(new CloseWindow({forName})),
+    move: ({x, y}:{x:number, y:number}) => dispatch(moveWindow(forName, x, y))
   }
 }
 
@@ -73,7 +75,9 @@ class SmartHistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     stackOrder: PropTypes.arrayOf(PropTypes.object).isRequired,
-    setCurrentContainerName: PropTypes.func.isRequired
+    setCurrentContainerName: PropTypes.func.isRequired,
+    windowGroupWidth: PropTypes.number.isRequired,
+    windowGroupHeight: PropTypes.number.isRequired
   }
 
   render() {

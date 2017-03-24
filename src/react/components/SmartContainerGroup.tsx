@@ -13,9 +13,9 @@ import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
 import {ComputedContainer} from '../../model/ComputedState'
 
-export interface ContainerGroupProps {
+export interface ContainerGroupPropsWithoutChildren {
   name: string
-  children?: ChildrenType
+
   currentContainerIndex?: number
   currentContainerName?: string
   onContainerActivate?: OnContainerSwitch
@@ -24,6 +24,10 @@ export interface ContainerGroupProps {
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
   isDefault: boolean
+}
+
+export type ContainerGroupProps = ContainerGroupPropsWithoutChildren & {
+  children?: ChildrenType
 }
 
 type GroupPropsWithStore = ContainerGroupProps & {

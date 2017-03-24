@@ -17,6 +17,9 @@ import State from '../../model/State'
 import UninitializedState from '../../model/UninitializedState'
 import Refresh from '../../model/actions/Refresh'
 import ComputedState from '../../model/ComputedState'
+import reducer, {initialState, ReduxState} from '../../reducers'
+import {createStore as createRegularReduxStore} from 'redux'
+import {autoRehydrate, persistStore} from 'redux-persist'
 declare const window:any
 
 // For IE
@@ -46,6 +49,10 @@ type ConnectedRouterProps = RouterPropsWithStore & {
   refresh: () => void
   loadFromUrl: (url:string) => void
   setZeroPage: (url:string) => void
+}
+
+interface HistoryRouterState {
+  loaded: boolean
 }
 
 class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
@@ -168,16 +175,36 @@ const ConnectedHistoryRouter = connect(
   mergeProps
 )(InnerHistoryRouter)
 
-const HistoryRouter = (props:HistoryRouterProps) => (
-  <ConnectedHistoryRouter
-    {...props}
-    store={createStore<State, Action, ComputedState>({
-            loadFromPersist: wasLoadedFromRefresh,
-            initialState: new UninitializedState()})} />
-)
+class HistoryRouter extends Component<HistoryRouterProps, HistoryRouterState> {
+  private store:Store<State, Action, ComputedState>
 
-const WrappedHistoryRouter = (props:HistoryRouterProps) => (
-  <HistoryRouter {...props} />
-)
+  constructor(props) {
+    super(props)
+    this.state = {
+      loaded: false
+    }
+    this.store = createStore<State, Action, ComputedState>({
+      loadFromPersist: wasLoadedFromRefresh,
+      initialState: new UninitializedState(),
+      regularReduxStore: this.makeReduxStore()
+    })
+  }
 
-export default WrappedHistoryRouter
+  makeReduxStore() {
+    const store = createRegularReduxStore<ReduxState>(
+      reducer,
+      initialState,
+      autoRehydrate<ReduxState>()
+    )
+    persistStore(store, {}, () => this.setState({loaded: true}))
+    return store
+  }
+
+  render() {
+    return this.state.loaded ?
+      <ConnectedHistoryRouter {...this.props} store={this.store} /> :
+      <div></div>
+  }
+}
+
+export default HistoryRouter

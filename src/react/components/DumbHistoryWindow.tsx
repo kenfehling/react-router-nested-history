@@ -2,11 +2,11 @@ import * as React from 'react'
 import {Component, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
 import {ComputedContainer} from '../../model/ComputedState'
+import * as Draggable from 'react-draggable'
 
 interface ChildrenFunctionArgs {
   open: () => void
   close: () => void
-  zIndex: number
 }
 
 type ChildrenType = ReactNode & {props?:any} |
@@ -14,18 +14,34 @@ type ChildrenType = ReactNode & {props?:any} |
 
 export interface DumbWindowProps {
   forName: string
-  x?: number
-  y?: number
+  top?: number
+  middle?: number
+  bottom?:number
+  left?: number
+  center?: number
+  right?: number
+  draggable?: boolean
+  draggableProps?: Object
   children: ChildrenType
   className?: string
   style?: Object
   topClassName?: string
   visible?: boolean
 
+  windowGroupWidth: number
+  windowGroupHeight: number
+
   stackOrder: ComputedContainer[]
   storedVisible: boolean
+  storedPosition: {x:number, y:number}|undefined
   open: () => void
   close: () => void
+  move: (data: {x:number, y:number}) => void
+}
+
+interface DumbWindowState {
+  width: number,
+  height: number
 }
 
 const getWindowZIndex = (stackOrder:ComputedContainer[]|null, name:string) => {
@@ -46,7 +62,18 @@ const isWindowOnTop = (stackOrder:ComputedContainer[]|null, name:string) => {
   return false
 }
 
-class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
+const countNonNulls = (...params:any[]):number =>
+    params.reduce((n:number, param:any) => param != null ? n + 1 : n, 0)
+
+class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      width: 0,
+      height: 0
+    }
+  }
 
   onMouseDown(event) {
     const {open} = this.props
@@ -60,6 +87,23 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
     return isOnTop && topClassName ? topClassName : className || ''
   }
 
+  componentWillMount() {
+    const {
+      top,
+      middle,
+      bottom,
+      left,
+      center,
+      right
+    } = this.props
+    if (countNonNulls(top, middle, bottom) > 1) {
+      throw new Error('You can only pass one: top, middle, or bottom')
+    }
+    if (countNonNulls(left, center, right) > 1) {
+      throw new Error('You can only pass one: left, center, or right')
+    }
+  }
+
   componentWillReceiveProps(newProps) {
     const {visible, open, close} = newProps
     if (visible !== this.props.visible) {
@@ -67,17 +111,66 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
     }
   }
 
+  calculateDimensions(element:HTMLElement) {
+    if (element && this.state.width === 0) {
+      this.setState({
+        width: element.offsetWidth,
+        height: element.offsetHeight
+      })
+    }
+  }
+
+  calculateX():number|undefined {
+    const {left, center, right, windowGroupWidth, storedPosition} = this.props
+    if (storedPosition) {
+      return storedPosition.x
+    }
+    else {
+      if (left != null) {
+        return left
+      }
+      else if (right != null) {
+        return windowGroupWidth - right
+      }
+      else if (center != null) {
+        return (windowGroupWidth - this.state.width) / 2 + center
+      }
+    }
+  }
+
+  calculateY():number|undefined {
+    const {top, middle, bottom, windowGroupHeight, storedPosition} = this.props
+    if (storedPosition) {
+      return storedPosition.y
+    }
+    else {
+      if (top != null) {
+        return top
+      }
+      else if (bottom != null) {
+        return windowGroupHeight - bottom
+      }
+      else if (middle != null) {
+        return Math.round((windowGroupHeight - this.state.height) / 2) + middle
+      }
+    }
+  }
+
+  onDrag(event:MouseEvent, data:any) {
+    this.props.move({x: data.x, y: data.y})
+  }
+
   render() {
     const {
       forName,
-      y,
-      x,
       children,
       style={},
       stackOrder,
       storedVisible,
       open,
       close,
+      draggable,
+      draggableProps={},
       ...divProps
     } = R.omit([
       'store',
@@ -88,25 +181,55 @@ class DumbHistoryWindow extends Component<DumbWindowProps, undefined> {
       'initializing',
       'topClassName',
       'visible',
+      'windowGroupWidth',
+      'windowGroupHeight',
+      'updateDimensions',
+      'top',
+      'middle',
+      'bottom',
+      'left',
+      'center',
+      'right',
+      'move',
+      'storedPosition',
       'storeSubscription'
     ], this.props)
     const zIndex = getWindowZIndex(stackOrder, forName)
-    return (
+    const x:number|undefined = this.calculateX()
+    const y:number|undefined = this.calculateY()
+    const w = (
       <div {...divProps}
-           className={this.getClassName()}
-           onMouseDown={this.onMouseDown.bind(this)}
-           style={{
-              ...style,
-              zIndex,
-              position: 'absolute',
-              x: x ? x + 'px' : '',
-              y: y ? y + 'px' : '',
-              display: storedVisible ? 'block' : 'none'
-           }}
+          ref={(element) => this.calculateDimensions(element)}
+          className={this.getClassName()}
+          onMouseDown={this.onMouseDown.bind(this)}
+          style={{
+                ...style,
+                zIndex,
+                position: 'absolute',
+                /*
+                transform: 'translate(' + x ? x + 'px' : 0 + ', ' +
+                                          y ? y + 'px' : 0 + ')',
+                */
+                display: storedVisible ? 'block' : 'none'
+             }}
       >
-        {children instanceof Function ? children({open, close, zIndex}) : children}
+        {children instanceof Function ? children({open, close}) : children}
       </div>
     )
+    if (draggable) {
+      return (
+        <Draggable {...draggableProps}
+                    onStop={this.onDrag.bind(this)}
+                    onMouseDown={this.onMouseDown.bind(this)}
+                    position={{x, y}}
+        >
+          {w}
+        </Draggable>
+      )
+    }
+    else {
+      return w
+    }
   }
 }
 

@@ -28,8 +28,6 @@ app.use((req, res) => {
     return res.redirect(302, context.url);
   }
 
-  //console.log(html)
-
   return res
     .status(context.status || 200)
     .render('index.ejs', {html})
