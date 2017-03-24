@@ -136,6 +136,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
         return (windowGroupWidth - this.state.width) / 2 + center
       }
     }
+    return 0
   }
 
   calculateY():number|undefined {
@@ -154,6 +155,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
         return Math.round((windowGroupHeight - this.state.height) / 2) + middle
       }
     }
+    return 0
   }
 
   onDrag(event:MouseEvent, data:any) {
@@ -206,10 +208,6 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
                 ...style,
                 zIndex,
                 position: 'absolute',
-                /*
-                transform: 'translate(' + x ? x + 'px' : 0 + ', ' +
-                                          y ? y + 'px' : 0 + ')',
-                */
                 display: storedVisible ? 'block' : 'none'
              }}
       >

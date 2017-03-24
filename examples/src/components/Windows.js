@@ -108,9 +108,6 @@ export default class Windows extends Component {
               <div className='window-group'>
                 <ExampleWindow index={0}
                                masterComponent={WindowMaster1}
-                               top={0}
-                               left={15}
-
                 />
                 <ExampleWindow index={1}
                                masterComponent={WindowMaster2}
