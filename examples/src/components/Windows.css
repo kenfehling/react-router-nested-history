@@ -42,6 +42,7 @@
   background-color: #CCC;
   position: relative;
   display: flex;
+  cursor: move;
 }
 
 .window .toolbar .title {

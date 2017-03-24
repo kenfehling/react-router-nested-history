@@ -2,7 +2,7 @@ import * as React from 'react'
 import {Component, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
 import {ComputedContainer} from '../../model/ComputedState'
-import * as Dimensions from 'react-dimensions'
+import * as Draggable from 'react-draggable'
 
 interface ChildrenFunctionArgs {
   open: () => void
@@ -21,19 +21,23 @@ export interface DumbWindowProps {
   left?: number
   center?: number
   right?: number
+  draggable?: boolean
+  draggableProps?: Object
   children: ChildrenType
   className?: string
   style?: Object
   topClassName?: string
   visible?: boolean
 
-  containerWidth: number,  // From react-dimensions
-  containerHeight: number,
+  windowGroupWidth: number  // From react-dimensions
+  windowGroupHeight: number
 
   stackOrder: ComputedContainer[]
   storedVisible: boolean
+  storedPosition: {x:number, y:number}|undefined
   open: () => void
   close: () => void
+  move: (data: {x:number, y:number}) => void
 }
 
 interface DumbWindowState {
@@ -118,29 +122,43 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
   }
 
   calculateX():number|undefined {
-    const {left, center, right, containerWidth} = this.props
-    if (left != null) {
-      return left
+    const {left, center, right, windowGroupWidth, storedPosition} = this.props
+    if (storedPosition) {
+      return storedPosition.x
     }
-    else if (right != null) {
-      return containerWidth - right
-    }
-    else if (center != null) {
-      return (containerWidth - this.state.width) / 2 + center
+    else {
+      if (left != null) {
+        return left
+      }
+      else if (right != null) {
+        return windowGroupWidth - right
+      }
+      else if (center != null) {
+        return (windowGroupWidth - this.state.width) / 2 + center
+      }
     }
   }
 
   calculateY():number|undefined {
-    const {top, middle, bottom, containerHeight} = this.props
-    if (top != null) {
-      return top
+    const {top, middle, bottom, windowGroupHeight, storedPosition} = this.props
+    if (storedPosition) {
+      return storedPosition.y
     }
-    else if (bottom != null) {
-      return containerHeight - bottom
+    else {
+      if (top != null) {
+        return top
+      }
+      else if (bottom != null) {
+        return windowGroupHeight - bottom
+      }
+      else if (middle != null) {
+        return (windowGroupHeight - this.state.height) / 2 + middle
+      }
     }
-    else if (middle != null) {
-      return (containerHeight - this.state.height) / 2 + middle
-    }
+  }
+
+  onDrag(event:MouseEvent, data:any) {
+    this.props.move({x: event.offsetX, y: event.offsetY})
   }
 
   render() {
@@ -152,6 +170,9 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       storedVisible,
       open,
       close,
+      draggable,
+      draggableProps={},
+      storedPosition,
       ...divProps
     } = R.omit([
       'store',
@@ -162,8 +183,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'initializing',
       'topClassName',
       'visible',
-      'containerWidth',
-      'containerHeight',
+      'windowGroupWidth',
+      'windowGroupHeight',
       'updateDimensions',
       'top',
       'middle',
@@ -171,29 +192,46 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'left',
       'center',
       'right',
+      'move',
       'storeSubscription'
     ], this.props)
     const zIndex = getWindowZIndex(stackOrder, forName)
     const x:number|undefined = this.calculateX()
     const y:number|undefined = this.calculateY()
-    return (
+    const w = (
       <div {...divProps}
-           ref={(element) => this.calculateDimensions(element)}
-           className={this.getClassName()}
-           onMouseDown={this.onMouseDown.bind(this)}
-           style={{
-              ...style,
-              zIndex,
-              position: 'absolute',
-              left: x ? x + 'px' : '',
-              top: y ? y + 'px' : '',
-              display: storedVisible ? 'block' : 'none'
-           }}
+          ref={(element) => this.calculateDimensions(element)}
+          className={this.getClassName()}
+          onMouseDown={this.onMouseDown.bind(this)}
+          style={{
+                ...style,
+                zIndex,
+                position: 'absolute',
+                /*
+                transform: 'translate(' + x ? x + 'px' : 0 + ', ' +
+                                          y ? y + 'px' : 0 + ')',
+                */
+                display: storedVisible ? 'block' : 'none'
+             }}
       >
         {children instanceof Function ? children({open, close, zIndex}) : children}
       </div>
     )
+    if (draggable) {
+      return (
+        <Draggable {...draggableProps}
+                    onStop={this.onDrag.bind(this)}
+                    onMouseDown={this.onMouseDown.bind(this)}
+                    defaultPosition={{x, y}}
+        >
+          {w}
+        </Draggable>
+      )
+    }
+    else {
+      return w
+    }
   }
 }
 
-export default Dimensions()(DumbHistoryWindow)
+export default DumbHistoryWindow

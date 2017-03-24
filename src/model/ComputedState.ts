@@ -3,6 +3,7 @@ import Page from './Page'
 import IComputedState from '../store/IComputedState'
 import Pages from './Pages'
 import {HistoryStack} from './Pages'
+import {ReduxState} from '../reducers/index'
 
 export interface ComputedContainer {
   name: string
@@ -41,6 +42,6 @@ export interface PartialComputedState {
   activeTitle: string|null
 }
 
-type ComputedState = IComputedState & PartialComputedState
+type ComputedState = IComputedState & PartialComputedState & ReduxState
 
 export default ComputedState

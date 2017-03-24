@@ -47,6 +47,10 @@ const ExampleWindow = ({index, masterComponent, name=windowName(index),
                  className={`window ${name}`}
                  topClassName={`top window ${name}`}
                  {...windowProps}
+                 draggable={true}
+                 draggableProps={{
+                   handle: '.toolbar'
+                 }}
   >
     {({close}) => (
       <div>

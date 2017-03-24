@@ -17,10 +17,12 @@ import State from '../../model/State'
 import UninitializedState from '../../model/UninitializedState'
 import Refresh from '../../model/actions/Refresh'
 import ComputedState from '../../model/ComputedState'
+import reducer from '../../reducers'
 declare const window:any
 
 // For IE
 import * as Promise from 'promise-polyfill'
+import {ReduxState} from '../../reducers/index'
 
 if (canUseDOM && !window.Promise) {
   window.Promise = Promise
@@ -171,9 +173,13 @@ const ConnectedHistoryRouter = connect(
 const HistoryRouter = (props:HistoryRouterProps) => (
   <ConnectedHistoryRouter
     {...props}
-    store={createStore<State, Action, ComputedState>({
+    store={
+      createStore<State, Action, ComputedState, ReduxState>({
             loadFromPersist: wasLoadedFromRefresh,
-            initialState: new UninitializedState()})} />
+            initialState: new UninitializedState(),
+            reducer
+      })
+    } />
 )
 
 const WrappedHistoryRouter = (props:HistoryRouterProps) => (

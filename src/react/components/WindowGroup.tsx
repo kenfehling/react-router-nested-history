@@ -12,32 +12,60 @@ const changeDefaults = (props:ContainerGroupProps):ContainerGroupProps => ({
   hideInactiveContainers: defaultToFalse(props.hideInactiveContainers)
 })
 
-interface InnerWindowGroupProps {
+interface InnerWindowGroupState {
+  width: number
+  height: number
+}
+
+type InnerWindowGroupProps = {
   stackOrder: ComputedContainer[]
   setCurrentContainerName: (name:string) => void
 }
 
-class InnerWindowGroup extends Component<InnerWindowGroupProps, undefined> {
+class InnerWindowGroup extends Component<InnerWindowGroupProps, InnerWindowGroupState> {
   static childContextTypes = {
     stackOrder: PropTypes.arrayOf(PropTypes.object).isRequired,
-    setCurrentContainerName: PropTypes.func.isRequired
+    setCurrentContainerName: PropTypes.func.isRequired,
+    windowGroupWidth: PropTypes.number.isRequired,
+    windowGroupHeight: PropTypes.number.isRequired
+  }
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      width: 0,
+      height: 0
+    }
   }
 
   getChildContext() {
     const {stackOrder, setCurrentContainerName} = this.props
     return {
       stackOrder,
-      setCurrentContainerName
+      setCurrentContainerName,
+      windowGroupWidth: this.state.width,
+      windowGroupHeight: this.state.height
+    }
+  }
+
+  calculateDimensions(element:HTMLElement) {
+    if (element && this.state.width === 0) {
+      this.setState({
+        width: element.offsetWidth,
+        height: element.offsetHeight
+      })
     }
   }
 
   render() {
     return (
-      <div style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative'
-      }}>
+      <div ref={(element) => this.calculateDimensions(element)}
+           style={{
+            width: '100%',
+            height: '100%',
+            position: 'relative'
+           }}
+      >
         {this.props.children}
       </div>
     )
@@ -48,7 +76,8 @@ const WindowGroup = ({children, ...groupProps}:ContainerGroupProps) => (
   <ContainerGroup {...changeDefaults(groupProps)}>
     {(props:GroupChildrenFunctionArgs) => (
       <InnerWindowGroup stackOrder={props.stackOrder}
-                        setCurrentContainerName={props.setCurrentContainerName}>
+                        setCurrentContainerName={props.setCurrentContainerName}
+      >
         {children instanceof Function ? children(props) : children}
       </InnerWindowGroup>
     )}

@@ -6,6 +6,7 @@ import ClearActions from './actions/ClearActions'
 import IState from './IState'
 import ISerialized from './ISerialized'
 import IComputedState from './IComputedState'
+import {Reducer, createStore as createRegularReduxStore} from 'redux'
 
 export interface Store<S extends IState, A extends Action, C extends IComputedState> {
   dispatch: (action:Action) => void
@@ -19,14 +20,16 @@ export function deriveState<S extends IState>(actions:Action[], state:S):S {
   return actions.reduce((s: S, a: Action): S => a.reduce(s), state)
 }
 
-export function createStore<S extends IState, A extends Action, C extends IComputedState>(
-    {loadFromPersist=false, initialState}:
-      {loadFromPersist:boolean, initialState:S}) {
+export function createStore<S extends IState, A extends Action,
+                            C extends IComputedState, RS extends Object>(
+    {loadFromPersist=false, initialState, reducer}:
+      {loadFromPersist?:boolean, initialState:S, reducer?:Reducer<RS>}) {
   let actions: A[] = []
   let storedRawState: S = initialState
   let storedComputedState:IComputedState = { actions: [] }
   let timeStored: number = 0
   let listeners: (() => void)[] = []
+  let regularReduxStore = reducer ? createRegularReduxStore(reducer) : null
 
   function loadActions():void {
     if (store.enabled) {
@@ -64,9 +67,21 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
   }
 
   function dispatch(action:A):void {
-    const state:S = getRawState()
-    const as:A[] = action.filter(state) as A[]
-    as.forEach(a => (a === action ? _dispatch : dispatch)(a))
+    if (action instanceof Action) {  // it's a class object
+      const state:S = getRawState()
+      const as:A[] = action.filter(state) as A[]
+      as.forEach(a => (a === action ? _dispatch : dispatch)(a))
+    }
+    else {  // it's a plain JS object meant for ordinary Redux
+      if (regularReduxStore) {
+        regularReduxStore.dispatch(action)
+        updateListeners()
+      }
+      else {
+        throw new Error(
+            'No regular Redux store was created for plain JS object actions')
+      }
+    }
   }
 
   /**
@@ -105,7 +120,8 @@ export function createStore<S extends IState, A extends Action, C extends ICompu
     return {
       ...Object(storedComputedState),
       isInitialized: storedRawState.isInitialized,
-      actions
+      actions,
+      ...(regularReduxStore ? regularReduxStore.getState() : {})
     }
   }
 
