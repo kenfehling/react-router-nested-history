@@ -158,7 +158,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
   }
 
   onDrag(event:MouseEvent, data:any) {
-    this.props.move({x: event.offsetX, y: event.offsetY})
+    this.props.move({x: data.x, y: data.y})
   }
 
   render() {
@@ -172,7 +172,6 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       close,
       draggable,
       draggableProps={},
-      storedPosition,
       ...divProps
     } = R.omit([
       'store',
@@ -193,6 +192,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'center',
       'right',
       'move',
+      'storedPosition',
       'storeSubscription'
     ], this.props)
     const zIndex = getWindowZIndex(stackOrder, forName)
@@ -222,7 +222,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
         <Draggable {...draggableProps}
                     onStop={this.onDrag.bind(this)}
                     onMouseDown={this.onMouseDown.bind(this)}
-                    defaultPosition={{x, y}}
+                    position={{x, y}}
         >
           {w}
         </Draggable>
