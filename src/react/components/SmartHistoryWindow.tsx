@@ -40,19 +40,11 @@ type ConnectedWindowProps = WindowPropsWithStore & {
   close: () => void
 }
 
-export const getWindow = (state:ComputedState, ownProps):ComputedWindow => {
-  return state.windows.get(ownProps.forName)
-}
-
-const selector = createSelector(getWindow, (w:ComputedWindow) => ({
-  window: w
-}))
-
 const mapStateToProps = (state:ComputedState, ownProps:WindowPropsWithStore) => {
-  const s = selector(state, ownProps)
+  const w:ComputedWindow = state.windows.get(ownProps.forName)
   return {
-    storedVisible: s.window.visible,
-    storedPosition: state.windowPositions.get(ownProps.forName)
+    storedVisible: w.visible,
+    storedPosition: state.windowPositions[ownProps.forName]
   }
 }
 

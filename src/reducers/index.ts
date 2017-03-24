@@ -1,12 +1,11 @@
 import {MOVE_WINDOW} from '../constants/ActionTypes'
-import {Map, fromJS} from 'immutable'
 
 export interface ReduxState {
-  windowPositions: Map<string, {x:number, y:number}>
+  windowPositions
 }
 
 export const initialState:ReduxState = {
-  windowPositions: fromJS({})
+  windowPositions: {}
 }
 
 export default (state:ReduxState=initialState, action):ReduxState => {
@@ -14,10 +13,10 @@ export default (state:ReduxState=initialState, action):ReduxState => {
     case MOVE_WINDOW:
       return {
         ...state,
-        windowPositions: state.windowPositions.set(action.forName, {
-          x: action.x,
-          y: action.y
-        })
+        windowPositions: {
+          ...state.windowPositions,
+          [action.forName]: {x: action.x, y: action.y}
+        }
       }
     default: return state
   }

@@ -29,7 +29,7 @@ export interface DumbWindowProps {
   topClassName?: string
   visible?: boolean
 
-  windowGroupWidth: number  // From react-dimensions
+  windowGroupWidth: number
   windowGroupHeight: number
 
   stackOrder: ComputedContainer[]
@@ -152,7 +152,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
         return windowGroupHeight - bottom
       }
       else if (middle != null) {
-        return (windowGroupHeight - this.state.height) / 2 + middle
+        return Math.round((windowGroupHeight - this.state.height) / 2) + middle
       }
     }
   }
