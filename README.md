@@ -340,7 +340,7 @@ creating a group of `HistoryWindow` components that overlap and are layered in
 the order that they were last accessed.
 
 #### props
-Same as `WindowGroup` but with changes in defaults.
+Same as `ContainerGroup` but with changes in defaults.
 <table class="table table-bordered table-striped">
     <thead>
     <tr>
@@ -358,6 +358,25 @@ Same as `WindowGroup` but with changes in defaults.
           <td>false</td>
           <td></td>
           <td>Don't show the content of inactive containers</td>
+        </tr>
+    </tbody>
+</table>
+
+#### `children` function params
+Same as `ContainerGroup` except with these additions:
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>resetWindowPositions</td>
+          <td>() => void</td>
+          <td>Restore the positions of the windows in this group to their original values</td>
         </tr>
     </tbody>
 </table>
@@ -390,19 +409,33 @@ A single window inside a `WindowGroup`
           <td></td>
           <td>Is this window visible?</td>
         </tr>
+         <tr>
+           <td>draggable</td>
+           <td>boolean</td>
+           <td>false</td>
+           <td></td>
+           <td>Uses [react-draggable](https://github.com/mzabriskie/react-draggable) to make window draggable</td>
+         </tr>
+         <tr>
+           <td>draggableProps</td>
+           <td>Object</td>
+           <td>{}</td>
+           <td></td>
+           <td>Props passed to the Draggable component</td>
+         </tr>
         <tr>
-          <td>x</td>
-          <td>number</td>
+          <td>left/center/right</td>
+          <td>number (in pixels)</td>
           <td></td>
           <td></td>
-          <td>The x of the window in px</td>
+          <td>Position horizontally based on (only) one of these anchor points</td>
         </tr>
-        <tr>
-          <td>y</td>
-          <td>number</td>
+       <tr>
+          <td>top/middle/bottom</td>
+          <td>number (in pixels)</td>
           <td></td>
           <td></td>
-          <td>The y of the window in px</td>
+          <td>Position vertically based on (only) one of these anchor points</td>
         </tr>
         <tr>
           <td>className</td>
@@ -448,23 +481,6 @@ A single window inside a `WindowGroup`
           <td>() => void</td>
           <td>Make this window invisible</td>
         </tr>
-         <tr>
-           <td>zIndex</td>
-           <td>number</td>
-           <td>The z-index of this window</td>
-         </tr>
-         <!--
-        <tr>
-          <td>x</td>
-          <td>number</td>
-          <td>The x of the window in px</td>
-        </tr>
-        <tr>
-          <td>y</td>
-          <td>number</td>
-          <td>The y of the window in px</td>
-        </tr>
-        -->
     </tbody>
 </table>
 

@@ -7,7 +7,6 @@ import * as Draggable from 'react-draggable'
 interface ChildrenFunctionArgs {
   open: () => void
   close: () => void
-  zIndex: number
 }
 
 type ChildrenType = ReactNode & {props?:any} |
@@ -214,7 +213,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
                 display: storedVisible ? 'block' : 'none'
              }}
       >
-        {children instanceof Function ? children({open, close, zIndex}) : children}
+        {children instanceof Function ? children({open, close}) : children}
       </div>
     )
     if (draggable) {
