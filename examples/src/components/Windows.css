@@ -69,16 +69,6 @@
   box-sizing: border-box;
 }
 
-.window1 {
-  top: 0;
-  left: 15px;
-}
-
-.window2 {
-  top: 65px;
-  left: 95px;
-}
-
 .top.container {
   border: 1px solid #a1ff9d;
 }
