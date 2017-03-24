@@ -42,10 +42,12 @@ const Toolbar = ({name, onCloseClick}) => (
 )
 
 const ExampleWindow = ({index, masterComponent, name=windowName(index),
-                        url=windowUrl(index)}) => (
+                        url=windowUrl(index), ...windowProps}) => (
   <HistoryWindow forName={name}
                  className={`window ${name}`}
-                 topClassName={`top window ${name}`}>
+                 topClassName={`top window ${name}`}
+                 {...windowProps}
+  >
     {({close}) => (
       <div>
         <Toolbar name={name} onCloseClick={close} />
@@ -97,8 +99,17 @@ export default class Windows extends Component {
           <WindowGroup name='windows'
                        currentContainerName={this.state.currentName}
                        currentContainerIndex={this.state.currentIndex}>
-            <ExampleWindow index={0} masterComponent={WindowMaster1} />
-            <ExampleWindow index={1} masterComponent={WindowMaster2} />
+            <ExampleWindow index={0}
+                           masterComponent={WindowMaster1}
+                           top={0}
+                           left={15}
+
+            />
+            <ExampleWindow index={1}
+                           masterComponent={WindowMaster2}
+                           middle={0}
+                           center={0}
+            />
           </WindowGroup>
         </div>
         <div className='window-menu'>
