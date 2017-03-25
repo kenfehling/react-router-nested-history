@@ -4,6 +4,8 @@ import * as R from 'ramda'
 import {ComputedContainer} from '../../model/ComputedState'
 import * as Draggable from 'react-draggable'
 
+const noop = () => {}
+
 interface ChildrenFunctionArgs {
   open: () => void
   close: () => void
@@ -197,13 +199,11 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'storeSubscription'
     ], this.props)
     const zIndex = getWindowZIndex(stackOrder, forName)
-    const x:number|undefined = this.calculateX()
-    const y:number|undefined = this.calculateY()
     const w = (
       <div {...divProps}
-          ref={(element) => this.calculateDimensions(element)}
+          ref={draggable ? (el:HTMLElement) => this.calculateDimensions(el) : noop}
           className={this.getClassName()}
-          onMouseDown={this.onMouseDown.bind(this)}
+          onMouseDown={draggable ? noop : this.onMouseDown.bind(this)}
           style={{
                 ...style,
                 zIndex,
@@ -215,6 +215,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       </div>
     )
     if (draggable) {
+      const x:number|undefined = this.calculateX()
+      const y:number|undefined = this.calculateY()
       return (
         <Draggable {...draggableProps}
                     onStop={this.onDrag.bind(this)}

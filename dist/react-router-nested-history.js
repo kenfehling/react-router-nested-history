@@ -28603,6 +28603,7 @@ var React = __webpack_require__(1);
 var react_1 = __webpack_require__(1);
 var R = __webpack_require__(9);
 var Draggable = __webpack_require__(616);
+var noop = function () { };
 var getWindowZIndex = function (stackOrder, name) {
     if (stackOrder && !R.isEmpty(stackOrder)) {
         var index = R.findIndex(function (c) { return c.name === name; }, stackOrder);
@@ -28733,10 +28734,10 @@ var DumbHistoryWindow = (function (_super) {
             'storeSubscription'
         ], this.props), forName = _a.forName, children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, stackOrder = _a.stackOrder, storedVisible = _a.storedVisible, open = _a.open, close = _a.close, draggable = _a.draggable, _c = _a.draggableProps, draggableProps = _c === void 0 ? {} : _c, divProps = __rest(_a, ["forName", "children", "style", "stackOrder", "storedVisible", "open", "close", "draggable", "draggableProps"]);
         var zIndex = getWindowZIndex(stackOrder, forName);
-        var x = this.calculateX();
-        var y = this.calculateY();
-        var w = (React.createElement("div", __assign({}, divProps, { ref: function (element) { return _this.calculateDimensions(element); }, className: this.getClassName(), onMouseDown: this.onMouseDown.bind(this), style: __assign({}, style, { zIndex: zIndex, position: 'absolute', display: storedVisible ? 'block' : 'none' }) }), children instanceof Function ? children({ open: open, close: close }) : children));
+        var w = (React.createElement("div", __assign({}, divProps, { ref: draggable ? function (el) { return _this.calculateDimensions(el); } : noop, className: this.getClassName(), onMouseDown: draggable ? noop : this.onMouseDown.bind(this), style: __assign({}, style, { zIndex: zIndex, position: 'absolute', display: storedVisible ? 'block' : 'none' }) }), children instanceof Function ? children({ open: open, close: close }) : children));
         if (draggable) {
+            var x = this.calculateX();
+            var y = this.calculateY();
             return (React.createElement(Draggable, __assign({}, draggableProps, { onStop: this.onDrag.bind(this), onMouseDown: this.onMouseDown.bind(this), position: { x: x, y: y } }), w));
         }
         else {
