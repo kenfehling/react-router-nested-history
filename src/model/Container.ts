@@ -93,7 +93,7 @@ export default class Container implements IContainer {
   }
 
   push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Container {
-    return this.replacePages(this.pages.push(page, time, type))
+    return this.setEnabled(true).replacePages(this.pages.push(page, time, type))
   }
 
   pushUrl(url:string, time:number, type:VisitType=VisitType.MANUAL):Container {
@@ -123,7 +123,7 @@ export default class Container implements IContainer {
   }
 
   activate(visit:PageVisit):Container {
-    return this.replacePages(this.pages.activate(visit))
+    return this.setEnabled(true).replacePages(this.pages.activate(visit))
   }
 
   top(time:number, reset:boolean=false):Container {

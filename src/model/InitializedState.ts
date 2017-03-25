@@ -25,7 +25,6 @@ export default class InitializedState extends State {
     return this
       .replaceGroup(group.activate({time, type: VisitType.MANUAL}))
       //.openWindow(groupName)
-
       // TODO: What if switching to a window holding a Group?
   }
 

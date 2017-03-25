@@ -129,6 +129,11 @@ describe('Container', () => {
       expect(history.current.url).to.equal('/b/1')
       expect(history.forward.length).to.equal(0)
     })
+
+    it('enables a container when loading into it', () => {
+      const c:Container = container.setEnabled(false)
+      expect(c.loadFromUrl('/a/3', 7500).enabled).to.be.true
+    })
   })
 
   describe('top', () => {
