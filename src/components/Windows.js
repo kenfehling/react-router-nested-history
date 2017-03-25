@@ -113,6 +113,7 @@ export default class Windows extends Component {
                                masterComponent={WindowMaster2}
                                middle={0}
                                center={0}
+                               visible={false}
                 />
               </div>
               <div className='window-menu'>
