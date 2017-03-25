@@ -198,41 +198,38 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'storedPosition',
       'storeSubscription'
     ], this.props)
-    const zIndex = getWindowZIndex(stackOrder, forName)
-    if (storedVisible) {
-      const w = (
-        <div {...divProps}
-          ref={draggable ? (el:HTMLElement) => this.calculateDimensions(el) : noop}
+    const zIndex:number = getWindowZIndex(stackOrder, forName)
+    const drag:boolean = !!draggable && !!storedVisible
+    const w = (
+      <div {...divProps}
+          ref={drag ? (el:HTMLElement) => this.calculateDimensions(el) : noop}
           className={this.getClassName()}
           onMouseDown={draggable ? noop : this.onMouseDown.bind(this)}
           style={{
                 ...style,
                 zIndex,
-                position: 'absolute'
+                position: 'absolute',
+                display: storedVisible ? 'block' : 'none'
              }}
+      >
+        {children instanceof Function ? children({open, close}) : children}
+      </div>
+    )
+    if (drag) {
+      const x:number|undefined = this.calculateX()
+      const y:number|undefined = this.calculateY()
+      return (
+        <Draggable {...draggableProps}
+                    onStop={this.onDrag.bind(this)}
+                    onMouseDown={this.onMouseDown.bind(this)}
+                    position={{x, y}}
         >
-          {children instanceof Function ? children({open, close}) : children}
-        </div>
+          {w}
+        </Draggable>
       )
-      if (draggable) {
-        const x:number|undefined = this.calculateX()
-        const y:number|undefined = this.calculateY()
-        return (
-          <Draggable {...draggableProps}
-            onStop={this.onDrag.bind(this)}
-            onMouseDown={this.onMouseDown.bind(this)}
-            position={{x, y}}
-          >
-            {w}
-          </Draggable>
-        )
-      }
-      else {
-        return w
-      }
     }
     else {
-      return <div></div>
+      return w
     }
   }
 }
