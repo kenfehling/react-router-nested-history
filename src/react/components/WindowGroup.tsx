@@ -79,8 +79,8 @@ class InnerInnerWindowGroup extends Component<InnerWindowGroupProps, InnerWindow
   calculateDimensions(element:HTMLElement) {
     if (element && this.state.width === 0) {
       this.setState({
-        width: element.offsetWidth,
-        height: element.offsetHeight
+        width: element.offsetWidth || window.innerWidth,
+        height: element.offsetHeight || window.innerHeight
       })
     }
   }
