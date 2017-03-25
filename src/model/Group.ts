@@ -207,10 +207,10 @@ export default class Group implements IContainer {
   }
 
   loadFromUrl(url:string, time:number):Group {
-    return new Group({
+    return this.patternsMatch(url) ? new Group({
       ...Object(this),
       containers: this.containers.map((c:IContainer) => c.loadFromUrl(url, time))
-    })
+    }).setEnabled(true) : this
   }
 
   patternsMatch(url:string):boolean {
