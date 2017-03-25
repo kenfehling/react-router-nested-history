@@ -1,3 +1,7 @@
+.nested.windows {
+  height: 100%;
+}
+
 .nested .window {
   width: 320px;
   height: 240px;
@@ -25,6 +29,7 @@
 .nested .window.notes {
   top: 80px;
   left: 95px;
+  padding: 30px;
 }
 
 .header-item, .active-header-item {
