@@ -28680,7 +28680,7 @@ var DumbHistoryWindow = (function (_super) {
                 return left;
             }
             else if (right != null) {
-                return windowGroupWidth - right;
+                return windowGroupWidth - right - this.state.width;
             }
             else if (center != null) {
                 return (windowGroupWidth - this.state.width) / 2 + center;
@@ -28698,7 +28698,7 @@ var DumbHistoryWindow = (function (_super) {
                 return top;
             }
             else if (bottom != null) {
-                return windowGroupHeight - bottom;
+                return windowGroupHeight - bottom - this.state.height;
             }
             else if (middle != null) {
                 return Math.round((windowGroupHeight - this.state.height) / 2) + middle;
