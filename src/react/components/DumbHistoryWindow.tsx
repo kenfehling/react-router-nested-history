@@ -199,36 +199,40 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'storeSubscription'
     ], this.props)
     const zIndex = getWindowZIndex(stackOrder, forName)
-    const w = (
-      <div {...divProps}
+    if (storedVisible) {
+      const w = (
+        <div {...divProps}
           ref={draggable ? (el:HTMLElement) => this.calculateDimensions(el) : noop}
           className={this.getClassName()}
           onMouseDown={draggable ? noop : this.onMouseDown.bind(this)}
           style={{
                 ...style,
                 zIndex,
-                position: 'absolute',
-                display: storedVisible ? 'block' : 'none'
+                position: 'absolute'
              }}
-      >
-        {children instanceof Function ? children({open, close}) : children}
-      </div>
-    )
-    if (draggable) {
-      const x:number|undefined = this.calculateX()
-      const y:number|undefined = this.calculateY()
-      return (
-        <Draggable {...draggableProps}
-                    onStop={this.onDrag.bind(this)}
-                    onMouseDown={this.onMouseDown.bind(this)}
-                    position={{x, y}}
         >
-          {w}
-        </Draggable>
+          {children instanceof Function ? children({open, close}) : children}
+        </div>
       )
+      if (draggable) {
+        const x:number|undefined = this.calculateX()
+        const y:number|undefined = this.calculateY()
+        return (
+          <Draggable {...draggableProps}
+            onStop={this.onDrag.bind(this)}
+            onMouseDown={this.onMouseDown.bind(this)}
+            position={{x, y}}
+          >
+            {w}
+          </Draggable>
+        )
+      }
+      else {
+        return w
+      }
     }
     else {
-      return w
+      return <div></div>
     }
   }
 }

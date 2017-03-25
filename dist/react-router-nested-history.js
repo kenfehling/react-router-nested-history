@@ -28734,14 +28734,19 @@ var DumbHistoryWindow = (function (_super) {
             'storeSubscription'
         ], this.props), forName = _a.forName, children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, stackOrder = _a.stackOrder, storedVisible = _a.storedVisible, open = _a.open, close = _a.close, draggable = _a.draggable, _c = _a.draggableProps, draggableProps = _c === void 0 ? {} : _c, divProps = __rest(_a, ["forName", "children", "style", "stackOrder", "storedVisible", "open", "close", "draggable", "draggableProps"]);
         var zIndex = getWindowZIndex(stackOrder, forName);
-        var w = (React.createElement("div", __assign({}, divProps, { ref: draggable ? function (el) { return _this.calculateDimensions(el); } : noop, className: this.getClassName(), onMouseDown: draggable ? noop : this.onMouseDown.bind(this), style: __assign({}, style, { zIndex: zIndex, position: 'absolute', display: storedVisible ? 'block' : 'none' }) }), children instanceof Function ? children({ open: open, close: close }) : children));
-        if (draggable) {
-            var x = this.calculateX();
-            var y = this.calculateY();
-            return (React.createElement(Draggable, __assign({}, draggableProps, { onStop: this.onDrag.bind(this), onMouseDown: this.onMouseDown.bind(this), position: { x: x, y: y } }), w));
+        if (storedVisible) {
+            var w = (React.createElement("div", __assign({}, divProps, { ref: draggable ? function (el) { return _this.calculateDimensions(el); } : noop, className: this.getClassName(), onMouseDown: draggable ? noop : this.onMouseDown.bind(this), style: __assign({}, style, { zIndex: zIndex, position: 'absolute' }) }), children instanceof Function ? children({ open: open, close: close }) : children));
+            if (draggable) {
+                var x = this.calculateX();
+                var y = this.calculateY();
+                return (React.createElement(Draggable, __assign({}, draggableProps, { onStop: this.onDrag.bind(this), onMouseDown: this.onMouseDown.bind(this), position: { x: x, y: y } }), w));
+            }
+            else {
+                return w;
+            }
         }
         else {
-            return w;
+            return React.createElement("div", null);
         }
     };
     return DumbHistoryWindow;
