@@ -24,8 +24,6 @@ export default class InitializedState extends State {
     const group:Group = this.getGroupByName(groupName)
     return this
       .replaceGroup(group.activate({time, type: VisitType.MANUAL}))
-      //.openWindow(groupName)
-      // TODO: What if switching to a window holding a Group?
   }
 
   switchToContainer({groupName, name, time}:

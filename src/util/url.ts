@@ -2,33 +2,6 @@ import * as pathToRegexp from 'path-to-regexp'
 import matchPath from 'react-router/matchPath'
 import * as R from 'ramda'
 
-export const addLeadingSlash = (path) => path.replace(/\/?(\?|#|$)?/, '/$1');
-
-export const addTrailingSlash = (path) => path.replace(/\/?(\?|#|$)/, '/$1');
-
-export const stripLeadingSlash = (path) => path.charAt(0) === '/' ? path.substr(1) : path;
-
-export const stripTrailingSlash = (path) =>
-    path.charAt(path.length - 1) === '/' ? path.substr(0, path.length - 1) : path;
-
-export const getPathParts = (path) => {
-  const strippedPath = stripTrailingSlash(stripLeadingSlash(path));
-  if (!strippedPath) {
-    return [];
-  }
-  else {
-    return strippedPath.split('/');
-  }
-};
-
-export const appendToPath = (path, newPart) => (path ? addTrailingSlash(path) : '/') + newPart;
-
-export const getParentPath = (path) => R.init(getPathParts(path)).join('/');
-
-export const getParentPaths = (path) =>
-    R.init(getPathParts(path)).reduce((array:string[], part:string) =>
-        [...array, appendToPath(R.last(array), part)], []);
-
 export const patternMatches = (pattern:string, path:string):boolean => {
   const re = pathToRegexp(pattern);
   return !!re.exec(path);

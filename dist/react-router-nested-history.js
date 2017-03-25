@@ -10499,28 +10499,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var pathToRegexp = __webpack_require__(102);
 var matchPath_1 = __webpack_require__(267);
 var R = __webpack_require__(9);
-exports.addLeadingSlash = function (path) { return path.replace(/\/?(\?|#|$)?/, '/$1'); };
-exports.addTrailingSlash = function (path) { return path.replace(/\/?(\?|#|$)/, '/$1'); };
-exports.stripLeadingSlash = function (path) { return path.charAt(0) === '/' ? path.substr(1) : path; };
-exports.stripTrailingSlash = function (path) {
-    return path.charAt(path.length - 1) === '/' ? path.substr(0, path.length - 1) : path;
-};
-exports.getPathParts = function (path) {
-    var strippedPath = exports.stripTrailingSlash(exports.stripLeadingSlash(path));
-    if (!strippedPath) {
-        return [];
-    }
-    else {
-        return strippedPath.split('/');
-    }
-};
-exports.appendToPath = function (path, newPart) { return (path ? exports.addTrailingSlash(path) : '/') + newPart; };
-exports.getParentPath = function (path) { return R.init(exports.getPathParts(path)).join('/'); };
-exports.getParentPaths = function (path) {
-    return R.init(exports.getPathParts(path)).reduce(function (array, part) {
-        return array.concat([exports.appendToPath(R.last(array), part)]);
-    }, []);
-};
 exports.patternMatches = function (pattern, path) {
     var re = pathToRegexp(pattern);
     return !!re.exec(path);
@@ -27100,7 +27078,7 @@ var Group = (function () {
     };
     Group.prototype.activate = function (visit) {
         var container = this.activeContainer.activate(visit);
-        return this.replaceContainer(container);
+        return this.setEnabled(true).replaceContainer(container);
     };
     Group.prototype.getContainerIndex = function (container) {
         return R.findIndex(function (c) { return c === container; }, this.containers.toArray());
@@ -27207,7 +27185,7 @@ var Group = (function () {
                 throw new Error('Group \'' + groupName + '\' not found in ' + this.name);
             }
             var container = group.push(page, time, type);
-            return this.replaceContainer(container);
+            return this.setEnabled(true).replaceContainer(container);
         }
     };
     Object.defineProperty(Group.prototype, "activeContainerName", {
@@ -27621,8 +27599,6 @@ var InitializedState = (function (_super) {
         var group = this.getGroupByName(groupName);
         return this
             .replaceGroup(group.activate({ time: time, type: PageVisit_1.VisitType.MANUAL }));
-        //.openWindow(groupName)
-        // TODO: What if switching to a window holding a Group?
     };
     InitializedState.prototype.switchToContainer = function (_a) {
         var groupName = _a.groupName, name = _a.name, time = _a.time;

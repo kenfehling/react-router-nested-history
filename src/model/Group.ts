@@ -219,7 +219,7 @@ export default class Group implements IContainer {
 
   activate(visit:PageVisit):Group {
     const container = this.activeContainer.activate(visit) as IContainer
-    return this.replaceContainer(container)
+    return this.setEnabled(true).replaceContainer(container)
   }
 
   getContainerIndex(container:IContainer):number {
@@ -313,7 +313,7 @@ export default class Group implements IContainer {
         throw new Error('Group \'' + groupName + '\' not found in ' + this.name)
       }
       const container = group.push(page, time, type) as IContainer
-      return this.replaceContainer(container)
+      return this.setEnabled(true).replaceContainer(container)
     }
   }
 
