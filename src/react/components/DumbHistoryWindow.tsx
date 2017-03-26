@@ -164,6 +164,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'createWindow',
       'initializing',
       'topClassName',
+      'forName',
       'visible',
       'windowGroupWidth',
       'windowGroupHeight',

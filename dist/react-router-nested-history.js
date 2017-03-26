@@ -27519,9 +27519,10 @@ var Group = (function () {
     Group.prototype.computeWindows = function (parentVisible) {
         var _this = this;
         if (parentVisible === void 0) { parentVisible = true; }
-        return immutable_1.fromJS({}).merge(this._computeWindows(parentVisible), this.containerStackOrder.reduce(function (map, c) {
-            return immutable_1.fromJS({}).merge(map, c.computeWindows(parentVisible && _this.enabled));
-        }, immutable_1.fromJS({})));
+        var om = function () { return immutable_1.OrderedMap(); };
+        return om().merge(this._computeWindows(parentVisible), this.containerStackOrder.reduce(function (map, c) {
+            return om().merge(map, c.computeWindows(parentVisible && _this.enabled));
+        }, om()));
     };
     return Group;
 }());
@@ -28684,6 +28685,7 @@ var DumbHistoryWindow = (function (_super) {
             'createWindow',
             'initializing',
             'topClassName',
+            'forName',
             'visible',
             'windowGroupWidth',
             'windowGroupHeight',
