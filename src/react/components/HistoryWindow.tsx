@@ -64,8 +64,7 @@ const ConnectedHistoryWindow = connect(
 class HistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
-    initializing: PropTypes.bool,
-    stackOrder: PropTypes.arrayOf(PropTypes.object).isRequired
+    initializing: PropTypes.bool
   }
 
   render() {

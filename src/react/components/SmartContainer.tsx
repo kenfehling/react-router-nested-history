@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {connect, Dispatch} from 'react-redux'
+import {connect} from 'react-redux'
 import DumbContainer from './DumbContainer'
 import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
@@ -10,10 +10,13 @@ import AddTitle from '../../model/actions/AddTitle'
 import PathTitle from '../../model/PathTitle'
 import State from '../../model/State'
 import Action from '../../model/BaseAction'
-import SwitchToGroup from '../../model/actions/SwitchToGroup'
+import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
-import {getGroup, getPathname, getIsGroupActive} from '../selectors'
+import {
+  getGroup, getPathname, getIsGroupActive,
+  getDispatch, createCachingSelector, getGroupName, getName
+} from '../selectors'
 
 export interface ContainerProps {
   children?: ReactNode
@@ -38,7 +41,7 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
   pathname: string
   addTitle: (title:PathTitle) => any
   matchesLocation: boolean
-  switchToGroup: () => void
+  switchToContainer: () => void
 }
 
 class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> {
@@ -97,6 +100,15 @@ const matchesLocation = (group:ComputedGroup, isGroupActive:boolean,
   }
 }
 
+const makeGetActions = () => createCachingSelector(
+  getName, getGroupName, getDispatch,
+  (name, groupName, dispatch) => ({
+    createContainer: (action:CreateContainer) => dispatch(action),
+    addTitle: (title:PathTitle) => dispatch(new AddTitle(title)),
+    switchToContainer: () => dispatch(new SwitchToContainer({name}))
+  })
+)
+
 const mapStateToProps = (state:ComputedState, ownProps:ContainerPropsWithStore) => {
   const group:ComputedGroup = getGroup(state, ownProps)
   const pathname:string = getPathname(state)
@@ -109,13 +121,6 @@ const mapStateToProps = (state:ComputedState, ownProps:ContainerPropsWithStore) 
   }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:ContainerPropsWithStore) => ({
-  createContainer: (action:CreateContainer) => dispatch(action),
-  addTitle: (title:PathTitle) => dispatch(new AddTitle(title)),
-  switchToGroup: () => dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
-})
-
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:ContainerPropsWithStore):ConnectedContainerProps => ({
   ...stateProps,
@@ -125,7 +130,7 @@ const mergeProps = (stateProps, dispatchProps,
 
 const ConnectedSmartContainer = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  makeGetActions,
   mergeProps
 )(InnerSmartContainer)
 

@@ -4,7 +4,7 @@ import IContainer from './IContainer'
 import Pages, {HistoryStack} from './Pages'
 import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
-import {ComputedContainer, ComputedWindow} from './ComputedState'
+import {ComputedContainer, ComputingWindow} from './ComputedState'
 import HistoryWindow from './HistoryWindow'
 import {Map, fromJS} from 'immutable'
 
@@ -105,7 +105,6 @@ export default class Container implements IContainer {
         url,
         params: parseParamsFromPatterns(this.patterns, url),
         containerName: this.name,
-        groupName: this.groupName
       })
       return this.push(page, time, type)
     }
@@ -219,14 +218,23 @@ export default class Container implements IContainer {
     }
   }
 
-  private computeWindow(parentVisible:boolean):ComputedWindow {
-    return {
-      forName: this.name,
-      visible: parentVisible && this.enabled
+  private computeWindow(parentVisible:boolean):ComputingWindow {
+    if (this.associatedWindow) {
+      return {
+        forName: this.name,
+        visible: parentVisible && this.enabled,
+        groupName: this.groupName
+      }
+    }
+    else {
+      throw new Error('No associated window')
     }
   }
 
-  computeWindows(parentVisible:boolean):Map<string, ComputedWindow> {
+  /**
+   * Returns a map with 0 or 1 items
+   */
+  computeWindows(parentVisible:boolean):Map<string, ComputingWindow> {
     if (this.associatedWindow) {
       return fromJS({}).set(this.name, this.computeWindow(parentVisible))
     }

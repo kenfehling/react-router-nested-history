@@ -3,7 +3,7 @@ import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import {Store} from '../../store/store'
 import Page from '../../model/Page'
-import SwitchToGroup from '../../model/actions/SwitchToGroup'
+import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import Back from '../../model/actions/Back'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
@@ -12,6 +12,7 @@ import ComputedState from '../../model/ComputedState'
 import {createSelector} from 'reselect'
 import {getBackPageInGroup} from '../selectors'
 import waitForInitialization from '../waitForInitialization'
+import ownKeys = Reflect.ownKeys
 
 type ChildrenFunctionArgs = {
   params: Object
@@ -102,8 +103,7 @@ const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:BackLinkPropsWithStore) => {
   return {
     back: () => {
-      dispatch(new SwitchToGroup({groupName: ownProps.groupName}))
-      dispatch(new Back())
+      dispatch(new Back({n: 1, container: ownProps.groupName}))
     }
   }
 }

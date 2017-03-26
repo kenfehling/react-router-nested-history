@@ -15,8 +15,10 @@ import VisitedPage from './VistedPage'
 import {
   sortContainersByLastVisited, sortContainersByFirstVisited
 } from '../util/sorter'
-import {Map, fromJS} from 'immutable'
-import {ComputedGroup, ComputedWindow} from './ComputedState'
+import {Map, fromJS, OrderedMap} from 'immutable'
+import {
+  ComputedGroup, ComputingWindow
+} from './ComputedState'
 import HistoryWindow from './HistoryWindow'
 
 // Param types for _go method
@@ -301,9 +303,9 @@ export default class Group implements IContainer {
   }
 
   push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Group {
-    const {groupName, containerName} = page
+    const container:IContainer = this.getContainerByName(page.containerName)
+    const groupName:string = container.groupName
     if (groupName === this.name) {
-      const container:IContainer = this.getContainerByName(containerName)
       const newContainer = container.push(page, time, type) as IContainer
       return this.replaceContainer(newContainer)
     }
@@ -312,8 +314,8 @@ export default class Group implements IContainer {
       if (!group) {
         throw new Error('Group \'' + groupName + '\' not found in ' + this.name)
       }
-      const container = group.push(page, time, type) as IContainer
-      return this.setEnabled(true).replaceContainer(container)
+      const newContainer = group.push(page, time, type) as IContainer
+      return this.setEnabled(true).replaceContainer(newContainer)
     }
   }
 
@@ -584,7 +586,6 @@ export default class Group implements IContainer {
       enabled: this.enabled,
       isTopLevel: !this.parentGroupName,
       containers: fromJS(this.containers.map((c:IContainer) => c.computeState())),
-      stackOrder: this.containerStackOrder.map((c:IContainer) => c.computeState()),
       activeContainerIndex: this.activeContainerIndex,
       activeContainerName: this.activeContainerName,
       activeUrl: this.activeUrl,
@@ -597,14 +598,20 @@ export default class Group implements IContainer {
     return fromJS(this.subGroups.map((g:Group) => g.computeState()))
   }
 
-  private computeWindow(parentVisible:boolean):ComputedWindow {
-    return {
-      forName: this.name,
-      visible: parentVisible && this.enabled
+  private computeWindow(parentVisible:boolean):ComputingWindow {
+    if (this.associatedWindow) {
+      return {
+        forName: this.name,
+        visible: parentVisible && this.enabled,
+        groupName: this.groupName
+      }
+    }
+    else {
+      throw new Error('No associated window')
     }
   }
 
-  private _computeWindows(parentVisible:boolean):Map<string, ComputedWindow> {
+  private _computeWindows(parentVisible:boolean):OrderedMap<string, ComputingWindow> {
     if (this.associatedWindow) {
       return fromJS({}).set(this.name, this.computeWindow(parentVisible))
     }
@@ -613,13 +620,14 @@ export default class Group implements IContainer {
     }
   }
 
-  computeWindows(parentVisible:boolean=true):Map<string, ComputedWindow> {
+  computeWindows(parentVisible:boolean=true):OrderedMap<string, ComputingWindow> {
     return fromJS({}).merge(
       this._computeWindows(parentVisible),
-      this.containers.reduce(
-        (map:Map<string, ComputedWindow>, c:IContainer) =>
+      this.containerStackOrder.reduce(
+        (map:Map<string, ComputingWindow>, c:IContainer) =>
           fromJS({}).merge(map, c.computeWindows(parentVisible && this.enabled)),
-        fromJS({}))
+        fromJS({})
+      )
     )
   }
 }

@@ -3,7 +3,7 @@ import Group from './Group'
 import State from './State'
 import IContainer from './IContainer'
 import Pages, {HistoryStack} from './Pages'
-import {VisitType} from './PageVisit'
+import {VisitType, default as PageVisit} from './PageVisit'
 import {sortContainersByLastVisited} from '../util/sorter'
 
 export default class InitializedState extends State {
@@ -26,9 +26,9 @@ export default class InitializedState extends State {
       .replaceGroup(group.activate({time, type: VisitType.MANUAL}))
   }
 
-  switchToContainer({groupName, name, time}:
-      {groupName:string, name:string, time:number}):State {
-    const group:Group = this.getGroupByName(groupName)
+  switchToContainer({name, time}:{name:string, time:number}):State {
+    const container:IContainer = this.getContainerByName(name)
+    const group:Group = this.getGroupByName(container.groupName)
     const c = group.activateContainer(name, time)
     return this
       .replaceGroup(c)
@@ -48,14 +48,23 @@ export default class InitializedState extends State {
       return state.switchToGroup({groupName, time})
     }
     else {
-      return state.back(1, time)
+      return state.back({n: 1, time})
     }
   }
 
-  go(n:number, time:number):State {
+  activateContainer(containerName:string, visit:PageVisit):State {
+    const container:IContainer = this.getContainerByName(containerName)
+    return this.replaceContainer(container.activate(visit) as IContainer)
+  }
+
+  go({n, time, container}:{n:number, time:number, container?:string}):State {
+    if (container) {
+      const visit:PageVisit = {time, type:VisitType.MANUAL}
+      return this.activateContainer(container, visit).go({n, time})
+    }
     if (this.isOnZeroPage && n > 0) {
       const state:State = this.assign({isOnZeroPage: false})
-      return state.go(n - 1, time)
+      return state.go({n: n - 1, time})
     }
     const f = (x:number):State => this.replaceGroup(this.activeGroup.go(x, time))
     if (n < 0 && !this.canGoBack(0 - n)) {  // if going back to zero page
@@ -66,12 +75,12 @@ export default class InitializedState extends State {
     }
   }
 
-  back(n:number=1, time:number):State {
-    return this.go(0 - n, time)
+  back({n=1, time, container}:{n:number, time:number, container?:string}):State {
+    return this.go({n: 0 - n, time, container})
   }
 
-  forward(n:number=1, time:number):State {
-    return this.go(n, time)
+  forward({n=1, time, container}:{n:number, time:number, container?:string}):State {
+    return this.go({n, time, container})
   }
 
   canGoBack(n:number=1):boolean {
@@ -82,16 +91,15 @@ export default class InitializedState extends State {
     return this.activeGroup.canGoForward(n)
   }
 
-  isContainerAtTopPage(groupName:string, containerName:string):boolean {
-    const container:IContainer = this.getContainer(groupName, containerName)
+  isContainerAtTopPage(containerName:string):boolean {
+    const container:IContainer = this.getContainerByName(containerName)
     return container.isAtTopPage
   }
 
-  top({groupName, containerName, time, reset=false}:
-      {groupName:string, containerName:string,
-        time:number, reset?:boolean}):State {
-    const group:Group = this.getGroupByName(groupName)
-    const container:IContainer = group.getContainerByName(containerName)
+  top({containerName, time, reset=false}:
+      {containerName:string, time:number, reset?:boolean}):State {
+    const container:IContainer = this.getContainerByName(containerName)
+    const group:Group = this.getGroupByName(container.groupName)
     return this.replaceGroup(group.replaceContainer(
         container.top(time, reset) as IContainer))
   }
@@ -119,7 +127,8 @@ export default class InitializedState extends State {
   }
 
   push(page:Page, time:number):State {
-    const group:Group = this.getRootGroupOfGroupByName(page.groupName)
+    const container:IContainer = this.getContainerByName(page.containerName)
+    const group:Group = this.getGroupByName(container.groupName)
     return this.replaceGroup(group.push(page, time, VisitType.MANUAL))
   }
 
@@ -173,8 +182,10 @@ export default class InitializedState extends State {
     return this.activeGroup.activePage
   }
 
-  isContainerActiveAndEnabled(groupName:string, containerName:string):boolean {
-    return this.getGroupByName(groupName).isContainerActiveAndEnabled(containerName)
+  isContainerActiveAndEnabled(containerName:string):boolean {
+    const container:IContainer = this.getContainerByName(containerName)
+    const group:Group = this.getGroupByName(container.groupName)
+    return group.isContainerActiveAndEnabled(containerName)
   }
 
   get activeUrl():string {
@@ -208,10 +219,6 @@ export default class InitializedState extends State {
 
   get activeContainer():IContainer {
     return this.activeGroup.activeContainer
-  }
-
-  getContainer(groupName:string, containerName:string):IContainer {
-    return this.getGroupByName(groupName).getContainerByName(containerName)
   }
 
   getContainerNameByIndex(groupName: string, index: number): string {
