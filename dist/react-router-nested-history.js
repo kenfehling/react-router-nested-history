@@ -17430,11 +17430,12 @@ var Container = (function () {
      * Returns a map with 0 or 1 items
      */
     Container.prototype.computeWindows = function (parentVisible) {
+        var map = immutable_1.OrderedMap();
         if (this.associatedWindow) {
-            return immutable_1.fromJS({}).set(this.name, this.computeWindow(parentVisible));
+            return map.set(this.name, this.computeWindow(parentVisible));
         }
         else {
-            return immutable_1.fromJS({});
+            return map;
         }
     };
     return Container;
@@ -17485,8 +17486,8 @@ var State = (function () {
     Object.defineProperty(State.prototype, "computingWindows", {
         get: function () {
             return this.groups.reduce(function (map, g) {
-                return immutable_1.fromJS({}).merge(map, g.computeWindows());
-            }, immutable_1.fromJS({}));
+                return map.merge(g.computeWindows());
+            }, immutable_1.OrderedMap());
         },
         enumerable: true,
         configurable: true
@@ -17496,11 +17497,11 @@ var State = (function () {
             var ws = this.computingWindows;
             var i = ws.size;
             var seenGroups = immutable_1.Set();
-            return immutable_1.fromJS(ws.map(function (w) {
+            return ws.map(function (w) {
                 var sawGroup = seenGroups.has(w.groupName);
                 seenGroups = seenGroups.add(w.groupName);
                 return __assign({}, w, { zIndex: i--, isOnTop: !sawGroup });
-            }));
+            });
         },
         enumerable: true,
         configurable: true
@@ -27509,11 +27510,12 @@ var Group = (function () {
         }
     };
     Group.prototype._computeWindows = function (parentVisible) {
+        var map = immutable_1.OrderedMap();
         if (this.associatedWindow) {
-            return immutable_1.fromJS({}).set(this.name, this.computeWindow(parentVisible));
+            return map.set(this.name, this.computeWindow(parentVisible));
         }
         else {
-            return immutable_1.fromJS({});
+            return map;
         }
     };
     Group.prototype.computeWindows = function (parentVisible) {

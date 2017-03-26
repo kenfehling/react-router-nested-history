@@ -6,7 +6,7 @@ import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
 import {ComputedContainer, ComputingWindow} from './ComputedState'
 import HistoryWindow from './HistoryWindow'
-import {Map, fromJS} from 'immutable'
+import {Map, fromJS, OrderedMap} from 'immutable'
 
 export default class Container implements IContainer {
   readonly name: string
@@ -235,11 +235,12 @@ export default class Container implements IContainer {
    * Returns a map with 0 or 1 items
    */
   computeWindows(parentVisible:boolean):Map<string, ComputingWindow> {
+    const map = OrderedMap<string, ComputingWindow>()
     if (this.associatedWindow) {
-      return fromJS({}).set(this.name, this.computeWindow(parentVisible))
+      return map.set(this.name, this.computeWindow(parentVisible))
     }
     else {
-      return fromJS({})
+      return map
     }
   }
 }

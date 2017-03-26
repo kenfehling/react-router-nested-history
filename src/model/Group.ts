@@ -612,11 +612,12 @@ export default class Group implements IContainer {
   }
 
   private _computeWindows(parentVisible:boolean):OrderedMap<string, ComputingWindow> {
+    const map = OrderedMap<string, ComputingWindow>()
     if (this.associatedWindow) {
-      return fromJS({}).set(this.name, this.computeWindow(parentVisible))
+      return map.set(this.name, this.computeWindow(parentVisible))
     }
     else {
-      return fromJS({})
+      return map
     }
   }
 
