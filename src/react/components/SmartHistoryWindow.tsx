@@ -9,7 +9,6 @@ import {createSelector} from 'reselect'
 import {ComputedWindow} from '../../model/ComputedState'
 import CloseWindow from '../../model/actions/CloseWindow'
 import DumbHistoryWindow from './DumbHistoryWindow'
-import {ComputedContainer} from '../../model/ComputedState'
 import {moveWindow} from '../../actions/WindowActions'
 import {Map} from 'immutable'
 import {createCachingSelector, getDispatch} from '../selectors'
@@ -28,11 +27,12 @@ export interface WindowProps {
   className?: string
   topClassName?: string
   visible?: boolean
+  zIndex: number
+  isOnTop: boolean
 }
 
 type WindowPropsWithStore = WindowProps & {
   store: Store<State, Action, ComputedState>
-  stackOrder: ComputedContainer[]
   setCurrentContainerName: (name:string) => void
 }
 
@@ -65,10 +65,12 @@ const makeGetActions = () => createCachingSelector(
 const makeMapStateToProps = () => {
   const getWindow = makeGetWindow()
   return (state:ComputedState, ownProps:WindowPropsWithStore) => {
-    const w = getWindow(state, ownProps)
+    const w:ComputedWindow & {position:Object} = getWindow(state, ownProps)
     return {
       storedVisible: w.visible,
-      storedPosition: w.position
+      storedPosition: w.position,
+      zIndex: w.zIndex,
+      isOnTop: w.isOnTop
     }
   }
 }
@@ -89,7 +91,6 @@ const ConnectedSmartHistoryWindow = connect(
 class SmartHistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
-    stackOrder: PropTypes.arrayOf(PropTypes.object).isRequired,
     setCurrentContainerName: PropTypes.func.isRequired,
     windowGroupWidth: PropTypes.number.isRequired,
     windowGroupHeight: PropTypes.number.isRequired

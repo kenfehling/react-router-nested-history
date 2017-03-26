@@ -10,7 +10,7 @@ import AddTitle from '../../model/actions/AddTitle'
 import PathTitle from '../../model/PathTitle'
 import State from '../../model/State'
 import Action from '../../model/BaseAction'
-import SwitchToGroup from '../../model/actions/SwitchToGroup'
+import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
 import {
@@ -41,7 +41,7 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
   pathname: string
   addTitle: (title:PathTitle) => any
   matchesLocation: boolean
-  switchToGroup: () => void
+  switchToContainer: () => void
 }
 
 class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> {
@@ -105,7 +105,7 @@ const makeGetActions = () => createCachingSelector(
   (name, groupName, dispatch) => ({
     createContainer: (action:CreateContainer) => dispatch(action),
     addTitle: (title:PathTitle) => dispatch(new AddTitle(title)),
-    switchToGroup: () => dispatch(new SwitchToGroup({groupName}))
+    switchToContainer: () => dispatch(new SwitchToContainer({name}))
   })
 )
 

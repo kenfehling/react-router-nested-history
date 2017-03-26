@@ -1,19 +1,13 @@
-import Action from '../BaseAction'
 import State from '../State'
 import Serializable from '../../store/decorators/Serializable'
+import ShiftAction from './ShiftAction'
 
 @Serializable
-export default class Go extends Action {
+export default class Go extends ShiftAction {
   static readonly type: string = 'Go'
   readonly type: string = Go.type
-  readonly n: number
 
-  constructor({time, n}:{time?:number, n:number}) {
-    super({time})
-    this.n = n
-  }
-
-  reduce(state:State):State {
-    return state.go(this.n, this.time)
+  fn(state:State) {
+    return state.go
   }
 }

@@ -24,8 +24,7 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  switchToContainer({groupName, name, time}:
-    {groupName:string, name:string, time:number}):State {
+  switchToContainer({name, time}:{name:string, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -37,15 +36,15 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  go(n:number, time:number):State {
+  go({n, time, container}:{n:number, time:number, container?:string}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  back(n:number=1, time:number):State {
+  back({n=1, time, container}:{n:number, time:number, container?:string}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  forward(n:number=1, time:number):State {
+  forward({n=1, time, container}:{n:number, time:number, container?:string}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -57,13 +56,12 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  isContainerAtTopPage(groupName:string, containerName:string):boolean {
+  isContainerAtTopPage(containerName:string):boolean {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  top({groupName, time, reset=false}:
-      {groupName:string, containerName:string, time:number,
-        reset?:boolean}):State {
+  top({time, reset=false}:
+      {containerName:string, time:number, reset?:boolean}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -127,7 +125,7 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  isContainerActiveAndEnabled(groupName:string, containerName:string):boolean {
+  isContainerActiveAndEnabled(containerName:string):boolean {
     return false
   }
 
@@ -152,10 +150,6 @@ export default class UninitializedState extends State {
   }
 
   get activeContainer():IContainer {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
-  getContainer(groupName:string, containerName:string):IContainer {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

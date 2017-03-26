@@ -1,7 +1,6 @@
 import * as React from 'react'
 import {Component, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
-import {ComputedContainer} from '../../model/ComputedState'
 import * as Draggable from 'react-draggable'
 
 const noop = () => {}
@@ -33,7 +32,8 @@ export interface DumbWindowProps {
   windowGroupWidth: number
   windowGroupHeight: number
 
-  stackOrder: ComputedContainer[]
+  zIndex: number
+  isOnTop: boolean
   storedVisible: boolean
   storedPosition: {x:number, y:number}|undefined
   open: () => void
@@ -44,24 +44,6 @@ export interface DumbWindowProps {
 interface DumbWindowState {
   width: number,
   height: number
-}
-
-const getWindowZIndex = (stackOrder:ComputedContainer[]|null, name:string) => {
-  if (stackOrder && !R.isEmpty(stackOrder)) {
-    const index = R.findIndex(c => c.name === name, stackOrder)
-    if (index !== -1) {
-      return stackOrder.length - index + 1
-    }
-  }
-  return 1
-}
-
-const isWindowOnTop = (stackOrder:ComputedContainer[]|null, name:string) => {
-  if (stackOrder && !R.isEmpty(stackOrder)) {
-    const index = R.findIndex(c => c.name === name, stackOrder)
-    return index === 0
-  }
-  return false
 }
 
 const countNonNulls = (...params:any[]):number =>
@@ -84,8 +66,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
   }
 
   getClassName() {
-    const {className, topClassName, forName, stackOrder} = this.props
-    const isOnTop = isWindowOnTop(stackOrder, forName)
+    const {className, topClassName, isOnTop} = this.props
     return isOnTop && topClassName ? topClassName : className || ''
   }
 
@@ -166,10 +147,9 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
 
   render() {
     const {
-      forName,
       children,
       style={},
-      stackOrder,
+      zIndex,
       storedVisible,
       open,
       close,
@@ -195,10 +175,10 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'center',
       'right',
       'move',
+      'isOnTop',
       'storedPosition',
       'storeSubscription'
     ], this.props)
-    const zIndex:number = getWindowZIndex(stackOrder, forName)
     const drag:boolean = !!draggable && !!storedVisible
     const w = (
       <div {...divProps}

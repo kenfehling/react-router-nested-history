@@ -8,10 +8,10 @@ import {HistoryStack, default as Pages} from './Pages'
 import VisitedPage from './VistedPage'
 import {VisitType} from './PageVisit'
 import IContainer from './IContainer'
-import {Map, fromJS} from 'immutable'
+import {Map, OrderedMap, Set, fromJS} from 'immutable'
 import {
   PartialComputedState, ComputedGroup,
-  ComputedWindow
+  ComputedWindow, ComputingWindow
 } from './ComputedState'
 import IState from '../store/IState'
 import HistoryWindow from './HistoryWindow'
@@ -36,17 +36,73 @@ abstract class State implements IState {
     this.titles = titles
   }
 
+  abstract get pages():Pages
+  abstract assign(obj:Object):State
+  abstract get isInitialized():boolean
+  abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
+  abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
+  abstract openWindow(forName:string):State
+  abstract closeWindow(forName:string, time:number):State
+  abstract get activeGroupName():string
+  abstract switchToContainer({name, time}:{name:string, time:number}):State
+  abstract getRootGroupOfGroupByName(name:string):Group
+  abstract getRootGroupOfGroup(group:Group):Group
+  abstract push(page:Page, time:number):State
+  abstract go({n, time, container}:{n:number, time:number, container?:string}):State
+  abstract back({n, time, container}:{n:number, time:number, container?:string}):State
+  abstract forward({n, time, container}:{n:number, time:number, container?:string}):State
+  abstract canGoBack(n:number):boolean
+  abstract canGoForward(n:number):boolean
+  abstract isContainerAtTopPage(containerName:string):boolean
+  abstract top({containerName, time, reset}:
+               {containerName:string, time:number, reset?:boolean}):State
+  abstract getShiftAmount(page:Page):number
+  abstract containsPage(page:Page):boolean
+  protected abstract getHistory(maintainFwd:boolean):HistoryStack
+  abstract get groupStackOrder():Group[]
+  abstract getBackPageInGroup(groupName:string):Page|undefined
+  abstract getActiveContainerNameInGroup(groupName:string)
+  abstract getActiveContainerIndexInGroup(groupName:string)
+  abstract getActivePageInGroup(groupName:string):Page
+  abstract getActiveUrlInGroup(groupName:string):string
+  abstract urlMatchesGroup(url:string, groupName:string):boolean
+  abstract get activePage():Page
+  abstract isContainerActiveAndEnabled(containerName:string):boolean
+  abstract get activeUrl():string
+  abstract getActivePageInContainer(groupName:string, containerName:string):Page
+  abstract getActiveUrlInContainer(groupName:string, containerName:string):string
+  abstract get activeGroup():Group
+  abstract isGroupActive(groupName:string):boolean
+  abstract get activeContainer():IContainer
+  abstract isActiveContainer(groupName:string, containerName:string):boolean
+  abstract getContainerNameByIndex(groupName:string, index:number):string
+
   get allComputedGroups():Map<string, ComputedGroup> {
     return fromJS({}).merge(
       this.groups.map((g:Group) => g.computeState()),
       ...this.groups.toArray().map((g:Group) => g.computeSubGroups())
     )
   }
-
-  get computedWindows():Map<string, ComputedWindow> {
+  
+  private get computingWindows():OrderedMap<string, ComputingWindow> {
     return this.groups.reduce(
       (map:Map<string, ComputedWindow>, g:Group) =>
         fromJS({}).merge(map, g.computeWindows()), fromJS({}))
+  }
+
+  get computedWindows():OrderedMap<string, ComputedWindow> {
+    const ws = this.computingWindows
+    let i:number = ws.size
+    let seenGroups:Set<string> = Set<string>()
+    return fromJS(ws.map((w:ComputingWindow):ComputedWindow => {
+      const sawGroup:boolean = seenGroups.has(w.groupName)
+      seenGroups = seenGroups.add(w.groupName)
+      return {
+        ...w,
+        zIndex: i--,
+        isOnTop: !sawGroup
+      }
+    }))
   }
 
   computeState():PartialComputedState {
@@ -63,55 +119,6 @@ abstract class State implements IState {
     }
   }
 
-  abstract get pages():Pages
-  abstract assign(obj:Object):State
-  abstract get isInitialized():boolean
-  abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
-  abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
-  abstract openWindow(forName:string):State
-  abstract closeWindow(forName:string, time:number):State
-  abstract get activeGroupName():string
-
-  abstract switchToContainer({groupName, name, time}:
-      {groupName:string, name:string, time:number}):State
-
-  abstract getRootGroupOfGroupByName(name:string):Group
-  abstract getRootGroupOfGroup(group:Group):Group
-  abstract push(page:Page, time:number):State
-  abstract go(n:number, time:number):State
-  abstract back(n:number, time:number):State
-  abstract forward(n:number, time:number):State
-
-  abstract canGoBack(n:number):boolean
-  abstract canGoForward(n:number):boolean
-  abstract isContainerAtTopPage(groupName:string, containerName:string):boolean
-  abstract top({groupName, containerName, time, reset}:
-      {groupName:string, containerName:string,
-        time:number, reset?:boolean}):State
-
-  abstract getShiftAmount(page:Page):number
-
-  abstract containsPage(page:Page):boolean
-  protected abstract getHistory(maintainFwd:boolean):HistoryStack
-  abstract get groupStackOrder():Group[]
-  abstract getBackPageInGroup(groupName:string):Page|undefined
-  abstract getActiveContainerNameInGroup(groupName:string)
-  abstract getActiveContainerIndexInGroup(groupName:string)
-  abstract getActivePageInGroup(groupName:string):Page
-  abstract getActiveUrlInGroup(groupName:string):string
-  abstract urlMatchesGroup(url:string, groupName:string):boolean
-  abstract get activePage():Page
-  abstract isContainerActiveAndEnabled(groupName:string, containerName:string):boolean
-  abstract get activeUrl():string
-  abstract getActivePageInContainer(groupName:string, containerName:string):Page
-  abstract getActiveUrlInContainer(groupName:string, containerName:string):string
-  abstract get activeGroup():Group
-  abstract isGroupActive(groupName:string):boolean
-  abstract get activeContainer():IContainer
-  abstract getContainer(groupName:string, containerName:string):IContainer
-  abstract isActiveContainer(groupName:string, containerName:string):boolean
-  abstract getContainerNameByIndex(groupName:string, index:number):string
-
   replaceGroup(group:Group):State {
     if (group.parentGroupName) {
       const parentGroup:Group = this.getGroupByName(group.parentGroupName)
@@ -122,6 +129,22 @@ abstract class State implements IState {
         groups: this.groups.set(group.name, group)
       })
     }
+  }
+
+  replaceContainer(container:IContainer):State {
+    if (container instanceof Group) {
+      return this.replaceGroup(container)
+    }
+    else {
+      const group:Group = this.getGroupByName(container.groupName)
+      return this.replaceGroup(group.replaceContainer(container))
+    }
+  }
+
+  replaceWindow(w:HistoryWindow, c:IContainer):State {
+    const newContainer:IContainer = c.replaceWindow(w)
+    const group:Group = this.getGroupByName(c.groupName)
+    return this.replaceGroup(group.replaceContainer(newContainer))
   }
 
   disallowDuplicateContainerOrGroup(name) {
@@ -192,9 +215,7 @@ abstract class State implements IState {
   addWindow({forName, visible=true}:{forName:string, visible?:boolean}):State {
     const w:HistoryWindow = new HistoryWindow({forName})
     const c:IContainer = this.getContainerByName(forName)
-    const newContainer:IContainer = c.replaceWindow(w).setEnabled(visible)
-    const group:Group = this.getGroupByName(c.groupName)
-    return this.replaceGroup(group.replaceContainer(newContainer))
+    return this.replaceWindow(w, c.setEnabled(visible))
   }
 
   /**
@@ -226,10 +247,16 @@ abstract class State implements IState {
   getContainerByName(name:string):IContainer {
     let foundContainer:IContainer|null = null
     this.groups.forEach((group:Group) => {
-      const c:IContainer|null = group.getNestedContainerByName(name)
-      if (c) {
-        foundContainer = c
+      if (group.name === name) {
+        foundContainer = group
         return
+      }
+      else {
+        const c:IContainer|null = group.getNestedContainerByName(name)
+        if (c) {
+          foundContainer = c
+          return
+        }
       }
     })
     if (foundContainer) {

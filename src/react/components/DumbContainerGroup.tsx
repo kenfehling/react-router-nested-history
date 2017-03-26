@@ -1,12 +1,10 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
-import {ComputedContainer} from '../../model/ComputedState'
 
 export type OnContainerSwitchArgs = {
   currentContainerIndex: number
   currentContainerName: string
-  stackOrder: ComputedContainer[]
 }
 
 export type OnContainerSwitch = (args:OnContainerSwitchArgs) => void
@@ -27,7 +25,6 @@ export interface DumbContainerGroupProps {
   onContainerActivate?: OnContainerSwitch  // from user
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
-  storedStackOrder: ComputedContainer[]
   storedCurrentContainerIndex: number
   storedCurrentContainerName: string
   style?: any
@@ -53,15 +50,13 @@ export default class DumbContainerGroup extends
     }
   }
 
-  update({currentContainerIndex, currentContainerName, stackOrder}:
-         {currentContainerIndex:number|null, currentContainerName:string|null,
-           stackOrder: ComputedContainer[]|null}) {
+  update({currentContainerIndex, currentContainerName}:
+         {currentContainerIndex:number|null, currentContainerName:string|null}) {
     if (this.props.onContainerActivate &&
-        currentContainerIndex != null && currentContainerName && stackOrder) {
+        currentContainerIndex != null && currentContainerName) {
       this.props.onContainerActivate({
         currentContainerIndex,
-        currentContainerName,
-        stackOrder
+        currentContainerName
       })
     }
   }
@@ -69,13 +64,11 @@ export default class DumbContainerGroup extends
   componentDidMount() {
     const {
       storedCurrentContainerIndex,
-      storedCurrentContainerName,
-      storedStackOrder
+      storedCurrentContainerName
     } = this.props
     this.update({
       currentContainerIndex: storedCurrentContainerIndex,
-      currentContainerName: storedCurrentContainerName,
-      stackOrder: storedStackOrder
+      currentContainerName: storedCurrentContainerName
     })
   }
 
@@ -94,14 +87,10 @@ export default class DumbContainerGroup extends
     const oldSN:string|null = this.props.storedCurrentContainerName
     const newIN:string|undefined = nextProps.currentContainerName
     const newSN:string|null = nextProps.storedCurrentContainerName
-    const oldStackOrder:ComputedContainer[]|null = this.props.storedStackOrder
-    const newStackOrder:ComputedContainer[]|null = nextProps.storedStackOrder
-    if (newSI !== oldSI || newSN !== oldSN ||
-        !R.equals(oldStackOrder, newStackOrder)) {
+    if (newSI !== oldSI || newSN !== oldSN) {
       this.update({
         currentContainerIndex:newSI,
-        currentContainerName: newSN,
-        stackOrder: newStackOrder
+        currentContainerName: newSN
       })
     }
     else if (newII != null && newII !== oldII) {
@@ -153,7 +142,6 @@ export default class DumbContainerGroup extends
       children,
       storedCurrentContainerIndex,
       storedCurrentContainerName,
-      storedStackOrder,
       switchToContainerName,
       switchToContainerIndex
     } = this.props
@@ -162,7 +150,6 @@ export default class DumbContainerGroup extends
       const args:GroupChildrenFunctionArgs = {
         currentContainerIndex: storedCurrentContainerIndex,
         currentContainerName: storedCurrentContainerName,
-        stackOrder: storedStackOrder,
         setCurrentContainerIndex: switchToContainerIndex,
         setCurrentContainerName: switchToContainerName,
       }

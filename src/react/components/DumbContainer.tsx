@@ -15,7 +15,7 @@ export interface DumbContainerProps {
   groupName: string
   isDefault?: boolean
   hideInactiveContainers?: boolean
-  switchToGroup: () => void
+  switchToContainer: () => void
   matchesLocation: boolean
 }
 
@@ -80,7 +80,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       hideInactiveContainers,
       children,
       style={},
-      switchToGroup,
+      switchToContainer,
       matchesLocation,
       ...divProps
     } = R.omit([
@@ -106,7 +106,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
     if (!hideInactiveContainers || matchesLocation) {
       return (
         <div {...divProps}
-             onMouseDown={switchToGroup}
+             onMouseDown={switchToContainer}
              style={{
                ...style,
                width: '100%',

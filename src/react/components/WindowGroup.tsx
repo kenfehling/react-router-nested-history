@@ -5,7 +5,7 @@ import {
   ContainerGroupPropsWithoutChildren, ContainerGroupProps
 } from './SmartContainerGroup'
 import {GroupChildrenFunctionArgs} from './DumbContainerGroup'
-import ComputedState, {ComputedContainer} from '../../model/ComputedState'
+import ComputedState from '../../model/ComputedState'
 import ReactNode = React.ReactNode
 import ReactElement = React.ReactElement
 import {connect, Dispatch} from 'react-redux'
@@ -46,13 +46,11 @@ interface InnerWindowGroupState {
 }
 
 type InnerWindowGroupProps = {
-  stackOrder: ComputedContainer[]
   setCurrentContainerName: (name:string) => void
 }
 
 class InnerInnerWindowGroup extends Component<InnerWindowGroupProps, InnerWindowGroupState> {
   static childContextTypes = {
-    stackOrder: PropTypes.arrayOf(PropTypes.object).isRequired,
     setCurrentContainerName: PropTypes.func.isRequired,
     windowGroupWidth: PropTypes.number.isRequired,
     windowGroupHeight: PropTypes.number.isRequired
@@ -67,9 +65,8 @@ class InnerInnerWindowGroup extends Component<InnerWindowGroupProps, InnerWindow
   }
 
   getChildContext() {
-    const {stackOrder, setCurrentContainerName} = this.props
+    const {setCurrentContainerName} = this.props
     return {
-      stackOrder,
       setCurrentContainerName,
       windowGroupWidth: this.state.width,
       windowGroupHeight: this.state.height
@@ -104,9 +101,7 @@ const InnerWindowGroup = ({children, resetWindowPositions,
                            ...groupProps}:ConnectedWindowGroupProps) => (
   <ContainerGroup {...changeDefaults(groupProps)}>
     {(props:GroupChildrenFunctionArgs) => (
-      <InnerInnerWindowGroup stackOrder={props.stackOrder}
-                        setCurrentContainerName={props.setCurrentContainerName}
-      >
+      <InnerInnerWindowGroup setCurrentContainerName={props.setCurrentContainerName}>
         {
           children instanceof Function ?
               children({...props, resetWindowPositions}) :

@@ -11,7 +11,6 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
-import {ComputedContainer} from '../../model/ComputedState'
 import {createCachingSelector, getName, getDispatch} from '../selectors'
 import {createSelector} from 'reselect'
 
@@ -38,7 +37,6 @@ type GroupPropsWithStore = ContainerGroupProps & {
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
-  storedStackOrder: ComputedContainer[]
   storedCurrentContainerIndex: number
   storedCurrentContainerName: string
   switchToContainerIndex: (index:number) => void
@@ -80,7 +78,6 @@ const makeMapStateToProps = () => {
   return (state:ComputedState, ownProps:GroupPropsWithStore) => {
     const group:ComputedGroup = getGroup(state, ownProps)
     return {
-      storedStackOrder: group.stackOrder,
       storedCurrentContainerIndex: group.activeContainerIndex,
       storedCurrentContainerName: group.activeContainerName
     }

@@ -16,7 +16,7 @@ export default class PopState extends Action {
   }
 
   reduce(state:State):State {
-    return state.go(this.n, this.time)
+    return state.go({n: this.n, time: this.time})
   }
 
   addSteps(steps:Step[], state:State):Step[] {

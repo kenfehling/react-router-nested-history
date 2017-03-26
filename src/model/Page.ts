@@ -7,24 +7,20 @@ export default class Page {
   readonly type: string = Page.type
   readonly url: string
   readonly params: Object
-  readonly groupName: string
   readonly containerName: string
   readonly isZeroPage: boolean
 
-  constructor({url, params, groupName, containerName, isZeroPage=false}:
-      {url:string, params:Object, groupName:string, containerName:string,
-        isZeroPage?:boolean}) {
+  constructor({url, params, containerName, isZeroPage=false}:
+      {url:string, params:Object, containerName:string, isZeroPage?:boolean}) {
     this.url = url
     this.params = params
     this.containerName = containerName
-    this.groupName = groupName
     this.isZeroPage = isZeroPage
   }
 
   get state():Object {
     return {
       url: this.url,
-      groupName: this.groupName,
       containerName: this.containerName,
       isZeroPage: this.isZeroPage
     }

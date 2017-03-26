@@ -94,12 +94,9 @@ const mapStateToProps = (state:ComputedState, ownProps) => {
 
 const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
                             ownProps:HeaderLinkPropsWithStore) => {
-  const {groupName, toContainer} = ownProps
+  const {toContainer} = ownProps
   return {
-    onClick: () => dispatch(new SwitchToContainer({
-      groupName,
-      name: toContainer
-    }))
+    onClick: () => dispatch(new SwitchToContainer({name: toContainer}))
   }
 }
 
