@@ -14,8 +14,8 @@ import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
 import {
-  getGroup, getPathname, getIsGroupActive,
-  getDispatch, createCachingSelector, getGroupName, getName
+  getDispatch, createCachingSelector, getName, makeGetGroup,
+  makeGetIsGroupActive, getGroupName
 } from '../selectors'
 
 export interface ContainerProps {
@@ -101,23 +101,30 @@ const matchesLocation = (group:ComputedGroup, isGroupActive:boolean,
 }
 
 const makeGetActions = () => createCachingSelector(
-  getName, getGroupName, getDispatch,
-  (name, groupName, dispatch) => ({
+  getName, getDispatch,
+  (name, dispatch) => ({
     createContainer: (action:CreateContainer) => dispatch(action),
     addTitle: (title:PathTitle) => dispatch(new AddTitle(title)),
     switchToContainer: () => dispatch(new SwitchToContainer({name}))
   })
 )
 
-const mapStateToProps = (state:ComputedState, ownProps:ContainerPropsWithStore) => {
-  const group:ComputedGroup = getGroup(state, ownProps)
-  const pathname:string = getPathname(state)
-  const isGroupActive:boolean = getIsGroupActive(state, ownProps)
-  return {
-    group,
-    isGroupActive,
-    pathname,
-    matchesLocation: matchesLocation(group, isGroupActive, pathname, ownProps.patterns)
+const makeMapStateToProps = () => {
+  const getGroup = makeGetGroup(getGroupName)
+  const getIsGroupActive = makeGetIsGroupActive()
+  return (state:ComputedState, ownProps:ContainerPropsWithStore) => {
+    const group = getGroup(state, ownProps)
+    const isGroupActive = getIsGroupActive(state, ownProps)
+    const pathname = state.activeUrl
+
+    console.log(pathname)
+
+    return {
+      group,
+      isGroupActive,
+      pathname,
+      matchesLocation: matchesLocation(group, isGroupActive, pathname, ownProps.patterns)
+    }
   }
 }
 
@@ -129,7 +136,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedSmartContainer = connect(
-  mapStateToProps,
+  makeMapStateToProps,
   makeGetActions,
   mergeProps
 )(InnerSmartContainer)

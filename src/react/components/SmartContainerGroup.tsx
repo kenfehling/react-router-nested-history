@@ -11,7 +11,10 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
-import {createCachingSelector, getName, getDispatch} from '../selectors'
+import {
+  createCachingSelector, getName, getDispatch,
+  makeGetGroup
+} from '../selectors'
 import {createSelector} from 'reselect'
 
 export interface ContainerGroupPropsWithoutChildren {
@@ -43,21 +46,6 @@ type ConnectedGroupProps = GroupPropsWithStore & {
   switchToContainerName: (name:string) => void
 }
 
-const getGroups = (state):Map<string, ComputedGroup> => state.groups
-
-const makeGetGroup = () => createSelector(
-  getName, getGroups,
-  (name, groups):ComputedGroup => {
-    const group:ComputedGroup|undefined = groups.get(name)
-    if (!group) {
-      throw new Error(`Group '${name}' not found`)
-    }
-    else {
-      return group
-    }
-  }
-)
-
 const makeGetActions = () => createCachingSelector(
   getName, getDispatch,
   (groupName, dispatch) => ({
@@ -74,7 +62,7 @@ const makeGetActions = () => createCachingSelector(
 )
 
 const makeMapStateToProps = () => {
-  const getGroup = makeGetGroup()
+  const getGroup = makeGetGroup(getName)
   return (state:ComputedState, ownProps:GroupPropsWithStore) => {
     const group:ComputedGroup = getGroup(state, ownProps)
     return {
