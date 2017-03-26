@@ -27519,10 +27519,10 @@ var Group = (function () {
     Group.prototype.computeWindows = function (parentVisible) {
         var _this = this;
         if (parentVisible === void 0) { parentVisible = true; }
-        var om = function () { return immutable_1.OrderedMap(); };
-        return om().merge(this._computeWindows(parentVisible), this.containerStackOrder.reduce(function (map, c) {
-            return om().merge(map, c.computeWindows(parentVisible && _this.enabled));
-        }, om()));
+        var cs = this.containerStackOrder;
+        return this._computeWindows(parentVisible).merge(cs.reduce(function (map, c) {
+            return map.merge(c.computeWindows(parentVisible && _this.enabled));
+        }, immutable_1.OrderedMap()));
     };
     return Group;
 }());
