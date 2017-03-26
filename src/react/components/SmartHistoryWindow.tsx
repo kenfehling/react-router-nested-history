@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {connect, Dispatch} from 'react-redux'
+import {connect} from 'react-redux'
 import {Store} from '../../store/store'
 import ComputedState from '../../model/ComputedState'
 import Action from '../../store/Action'
@@ -11,7 +11,8 @@ import CloseWindow from '../../model/actions/CloseWindow'
 import DumbHistoryWindow from './DumbHistoryWindow'
 import {ComputedContainer} from '../../model/ComputedState'
 import {moveWindow} from '../../actions/WindowActions'
-import {ReduxState} from '../../reducers/index'
+import {Map} from 'immutable'
+import {createCachingSelector, getDispatch} from '../selectors'
 
 export interface WindowProps {
   forName: string
@@ -40,21 +41,35 @@ type ConnectedWindowProps = WindowPropsWithStore & {
   close: () => void
 }
 
-const mapStateToProps = (state:ComputedState, ownProps:WindowPropsWithStore) => {
-  const w:ComputedWindow = state.windows.get(ownProps.forName)
-  return {
-    storedVisible: w.visible,
-    storedPosition: state.windowPositions[ownProps.forName]
-  }
-}
+const getForName = (state, props):string => props.forName
+const getWindows = (state):Map<string, ComputedWindow> => state.windows
+const getPositions = (state):Map<string, Object> => state.windowPositions
+const getSetCurrentContainerName = (state, props) => props.setCurrentContainerName
 
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:WindowPropsWithStore) => {
-  const {forName, setCurrentContainerName} = ownProps
-  return {
+const makeGetWindow = () => createSelector(
+  getForName, getWindows, getPositions,
+  (forName, ws, ps) => {
+    return {...ws.get(forName), position: ps[forName]}
+  }
+)
+
+const makeGetActions = () => createCachingSelector(
+  getForName, getSetCurrentContainerName, getDispatch,
+  (forName, setCurrentContainerName, dispatch) => ({
     open: () => setCurrentContainerName(forName),
     close: () => dispatch(new CloseWindow({forName})),
     move: ({x, y}:{x:number, y:number}) => dispatch(moveWindow(forName, x, y))
+  })
+)
+
+const makeMapStateToProps = () => {
+  const getWindow = makeGetWindow()
+  return (state:ComputedState, ownProps:WindowPropsWithStore) => {
+    const w = getWindow(state, ownProps)
+    return {
+      storedVisible: w.visible,
+      storedPosition: w.position
+    }
   }
 }
 
@@ -66,8 +81,8 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedSmartHistoryWindow = connect(
-  mapStateToProps,
-  mapDispatchToProps,
+  makeMapStateToProps,
+  makeGetActions,
   mergeProps
 )(DumbHistoryWindow)
 

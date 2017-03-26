@@ -15,8 +15,11 @@ export const createCachingSelector = createSelectorCreator(
   R.equals
 )
 
+export const getDispatch = (dispatch) => dispatch
+
 export const EMPTY_OBJ = {}
-export const getGroupName = (_, ownProps):string => ownProps.groupName
+export const getName = (state, props):string => props.name
+export const getGroupName = (state, props):string => props.groupName
 
 export const getGroup = (state:ComputedState, ownProps):ComputedGroup =>
   state.groups.get(ownProps.groupName)

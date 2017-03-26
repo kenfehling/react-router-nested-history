@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
-import {connect, Dispatch} from 'react-redux'
+import {connect} from 'react-redux'
 import DumbContainerGroup, {
   OnContainerSwitch, ChildrenType
 } from './DumbContainerGroup'
@@ -12,6 +12,8 @@ import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
 import {ComputedContainer} from '../../model/ComputedState'
+import {createCachingSelector, getName, getDispatch} from '../selectors'
+import {createSelector} from 'reselect'
 
 export interface ContainerGroupPropsWithoutChildren {
   name: string
@@ -43,31 +45,47 @@ type ConnectedGroupProps = GroupPropsWithStore & {
   switchToContainerName: (name:string) => void
 }
 
-export const getGroup = (state:ComputedState, ownProps):ComputedGroup => {
-  return state.groups.get(ownProps.name)
-}
+const getGroups = (state):Map<string, ComputedGroup> => state.groups
 
-const mapStateToProps = (state:ComputedState, ownProps:GroupPropsWithStore) => {
-  const group:ComputedGroup = getGroup(state, ownProps)
-  return {
-    storedStackOrder: group.stackOrder,
-    storedCurrentContainerIndex: group.activeContainerIndex,
-    storedCurrentContainerName: group.activeContainerName
+const makeGetGroup = () => createSelector(
+  getName, getGroups,
+  (name, groups):ComputedGroup => {
+    const group:ComputedGroup|undefined = groups.get(name)
+    if (!group) {
+      throw new Error(`Group '${name}' not found`)
+    }
+    else {
+      return group
+    }
+  }
+)
+
+const makeGetActions = () => createCachingSelector(
+  getName, getDispatch,
+  (groupName, dispatch) => ({
+    createGroup: (action:CreateGroup) => dispatch(action),
+    switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({
+      groupName,
+      index
+    })),
+    switchToContainerName: (name:string) => dispatch(new SwitchToContainer({
+      groupName,
+      name
+    }))
+  })
+)
+
+const makeMapStateToProps = () => {
+  const getGroup = makeGetGroup()
+  return (state:ComputedState, ownProps:GroupPropsWithStore) => {
+    const group:ComputedGroup = getGroup(state, ownProps)
+    return {
+      storedStackOrder: group.stackOrder,
+      storedCurrentContainerIndex: group.activeContainerIndex,
+      storedCurrentContainerName: group.activeContainerName
+    }
   }
 }
-
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:GroupPropsWithStore) => ({
-  createGroup: (action:CreateGroup) => dispatch(action),
-  switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({
-    groupName: ownProps.name,
-    index
-  })),
-  switchToContainerName: (name:string) => dispatch(new SwitchToContainer({
-    groupName: ownProps.name,
-    name
-  }))
-})
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:GroupPropsWithStore):ConnectedGroupProps => ({
@@ -77,8 +95,8 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainerGroup = connect(
-  mapStateToProps,
-  mapDispatchToProps,
+  makeMapStateToProps,
+  makeGetActions,
   mergeProps
 )(DumbContainerGroup)
 

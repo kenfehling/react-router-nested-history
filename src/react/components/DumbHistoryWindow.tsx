@@ -204,7 +204,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       <div {...divProps}
           ref={drag ? (el:HTMLElement) => this.calculateDimensions(el) : noop}
           className={this.getClassName()}
-          onMouseDown={draggable ? noop : this.onMouseDown.bind(this)}
+          onMouseDown={drag ? noop : this.onMouseDown.bind(this)}
           style={{
                 ...style,
                 zIndex,
