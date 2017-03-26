@@ -106,7 +106,6 @@ export default class DumbContainerGroup extends
       'groupName',
       'children',
       'storedCurrentContainerIndex',
-      'storedStackOrder',
       'hideInactiveContainers',
       'store',
       'isOnTop',
