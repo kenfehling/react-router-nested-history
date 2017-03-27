@@ -24,7 +24,7 @@ const foods = {
     'Beef': ['Hamburger', 'Steak']
   },
   'Dairy': {
-    'Milk': ['4%', '2%', '1%', 'Skim'],
+    'Milk': ['Whole', 'Skim'],
     'Cheese': ['Cheddar', 'Swiss', 'Gouda']
   }
 }
