@@ -1,9 +1,9 @@
 import {createSelector, createSelectorCreator, defaultMemoize} from 'reselect'
+import {Map} from 'immutable'
 import * as R from 'ramda'
 import ComputedState, {
   ComputedGroup, ComputedContainer
 } from '../model/ComputedState'
-import Page from '../model/Page'
 
 export const createDeepEqualSelector = createSelectorCreator(
   defaultMemoize,
@@ -15,14 +15,13 @@ export const createCachingSelector = createSelectorCreator(
   R.equals
 )
 
-export const getDispatch = (dispatch) => dispatch
-
 export const EMPTY_OBJ = {}
+export const getDispatch = (dispatch) => dispatch
 export const getName = (state, props):string => props.name
 export const getGroupName = (state, props):string => props.groupName
 export const getContainerName = (state, props):string => props.containerName
-
 export const getGroups = (state):Map<string, ComputedGroup> => state.groups
+export const getActiveGroupName = (state:ComputedState) => state.activeGroupName
 
 export const makeGetGroup = (groupNameSelector) => createSelector(
   groupNameSelector, getGroups,
@@ -63,8 +62,6 @@ export const makeGetContainer = () => createSelector(
 
 export const getGroup = (state:ComputedState, ownProps):ComputedGroup =>
   state.groups.get(ownProps.groupName)
-
-export const getActiveGroupName = (state:ComputedState) => state.activeGroupName
 
 export const makeGetIsGroupActive = () => createSelector(
   getGroupName, getActiveGroupName,
