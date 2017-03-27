@@ -9,7 +9,10 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
-import {EMPTY_OBJ, createCachingSelector, getGroupName} from '../selectors'
+import {
+  EMPTY_OBJ, createCachingSelector, getGroupName,
+  getDispatch, getContainerName
+} from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 
 type HistoryLinkPropsWithStore = LinkProps & {
@@ -70,30 +73,28 @@ class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 }
 
-const getContainerName = (_, ownProps) => ownProps.containerName
-
-const nameSelector = createCachingSelector(
-  getGroupName, getContainerName,
-  (groupName:string, containerName:string) => ({
-    groupName,
-    containerName
-  }))
-
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:HistoryLinkPropsWithStore) => {
-  const {groupName, containerName} = nameSelector(EMPTY_OBJ, ownProps)
-  return {
+const makeGetActions = () => createCachingSelector(
+  getGroupName, getContainerName, getDispatch,
+  (groupName, containerName, dispatch) => ({
     push: (url:string) => dispatch(new Push({
       url,
       groupName,
       containerName
     }))
-  }
-}
+  })
+)
+
+const mergeProps = (stateProps, dispatchProps,
+                    ownProps:HistoryLinkPropsWithStore):ConnectedHistoryLinkProps => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps
+})
 
 const ConnectedHistoryLink = connect(
   () => (EMPTY_OBJ),
-  mapDispatchToProps,
+  makeGetActions,
+  mergeProps
 )(InnerHistoryLink)
 
 class HistoryLink extends Component<LinkProps, undefined> {

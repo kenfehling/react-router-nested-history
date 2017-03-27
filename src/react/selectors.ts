@@ -20,6 +20,7 @@ export const getDispatch = (dispatch) => dispatch
 export const EMPTY_OBJ = {}
 export const getName = (state, props):string => props.name
 export const getGroupName = (state, props):string => props.groupName
+export const getContainerName = (state, props):string => props.containerName
 
 export const getGroups = (state):Map<string, ComputedGroup> => state.groups
 
@@ -36,30 +37,36 @@ export const makeGetGroup = (groupNameSelector) => createSelector(
   }
 )
 
+export const makeGetGroupActiveContainerName = () => createSelector(
+  getActiveGroupName, getGroups,
+  (activeGroupName, groups):string => {
+    const group:ComputedGroup|undefined = groups.get(activeGroupName)
+    if (!group) {
+      throw new Error(`Group '${name}' not found`)
+    }
+    else {
+      return group.name
+    }
+  }
+)
+
+export const makeGetBackPageInGroup = () => createSelector(
+  getGroup, (group) => group.backPage
+)
+
+export const makeGetContainer = () => createSelector(
+  getContainerName, getGroup,
+  (containerName, group):ComputedContainer => {
+    return group.containers.get(containerName)
+  }
+)
+
 export const getGroup = (state:ComputedState, ownProps):ComputedGroup =>
   state.groups.get(ownProps.groupName)
 
-export const getActiveGroup = (state:ComputedState) => state.activeGroupName
+export const getActiveGroupName = (state:ComputedState) => state.activeGroupName
 
 export const makeGetIsGroupActive = () => createSelector(
-  getGroupName, getActiveGroup,
+  getGroupName, getActiveGroupName,
   (groupName, activeGroupName) => groupName === activeGroupName
 )
-
-export const getContainer = (state:ComputedState, ownProps):ComputedContainer =>
-  getGroup(state, ownProps).containers.get(ownProps.containerName)
-
-export const getActiveGroupContainerName = (state:ComputedState, ownProps):string =>
-  getGroup(state, ownProps).activeContainerName
-
-export const getBackPageInGroup = (state:ComputedState, ownProps):Page|undefined =>
-  getGroup(state, ownProps).backPage
-
-export const getIsInitialized = (state:ComputedState) =>
-  state.isInitialized
-
-export const getLoadedFromRefresh = (state:ComputedState) =>
-  state.loadedFromRefresh
-
-export const getPathname = (state:ComputedState) =>
-  state.activeUrl

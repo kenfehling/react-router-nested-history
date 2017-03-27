@@ -116,9 +116,6 @@ const makeMapStateToProps = () => {
     const group = getGroup(state, ownProps)
     const isGroupActive = getIsGroupActive(state, ownProps)
     const pathname = state.activeUrl
-
-    console.log(pathname)
-
     return {
       group,
       isGroupActive,

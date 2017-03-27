@@ -7,20 +7,26 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
-import {ComputedContainer} from '../../model/ComputedState'
-import {getGroup, getActiveGroupContainerName} from '../selectors'
+import {
+  makeGetGroupActiveContainerName,
+  makeGetContainer, getDispatch, createCachingSelector, getContainerName
+} from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 
-export interface HeaderLinkProps {
+interface BaseHeaderLinkProps {
   children: ReactNode
-  toContainer: string,
   className?: string,
   activeClassName?: string
 }
 
-type HeaderLinkPropsWithStore = HeaderLinkProps & {
+export type HeaderLinkProps = BaseHeaderLinkProps& {
+  toContainer: string
+}
+
+type HeaderLinkPropsWithStore = BaseHeaderLinkProps & {
   store: Store<State, Action, ComputedState>
   groupName: string
+  containerName: string
 }
 
 type ConnectedHeaderLinkProps = HeaderLinkPropsWithStore & {
@@ -56,7 +62,6 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
 
   render() {
     const {children, url, ...aProps} = R.omit([
-      'toContainer',
       'groupName',
       'containerName',
       'activeClassName',
@@ -79,26 +84,25 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 }
 
-export const getContainer = (state:ComputedState, ownProps):ComputedContainer => {
-  return getGroup(state, ownProps).containers.get(ownProps.toContainer)
-}
-
-const mapStateToProps = (state:ComputedState, ownProps) => {
-  const container:ComputedContainer = getContainer(state, ownProps)
-  const activeGroupContainerName:string = getActiveGroupContainerName(state, ownProps)
-  return {
-    url: container.activeUrl,
-    isActive: activeGroupContainerName === container.name
+const makeMapStateToProps = () => {
+  const getContainer = makeGetContainer()
+  const getGroupActiveContainerName = makeGetGroupActiveContainerName()
+  return (state:ComputedState, ownProps) => {
+    const container = getContainer(state, ownProps)
+    const groupActiveContainerName = getGroupActiveContainerName(state, ownProps)
+    return {
+      url: container.activeUrl,
+      isActive: groupActiveContainerName === container.name
+    }
   }
 }
 
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:HeaderLinkPropsWithStore) => {
-  const {toContainer} = ownProps
-  return {
-    onClick: () => dispatch(new SwitchToContainer({name: toContainer}))
-  }
-}
+const makeGetActions = () => createCachingSelector(
+  getContainerName, getDispatch,
+  (containerName, dispatch) => ({
+    onClick: () => dispatch(new SwitchToContainer({name: containerName}))
+  })
+)
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:HeaderLinkPropsWithStore):ConnectedHeaderLinkProps => ({
@@ -108,8 +112,8 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedHeaderLink = connect(
-  mapStateToProps,
-  mapDispatchToProps,
+  makeMapStateToProps,
+  makeGetActions,
   mergeProps
 )(InnerHeaderLink)
 
@@ -121,7 +125,12 @@ class HeaderLink extends Component<HeaderLinkProps, undefined> {
 
   render() {
     const {rrnhStore, ...context} = this.context
-    return <ConnectedHeaderLink store={rrnhStore} {...context} {...this.props} />
+    const {toContainer, ...props} = this.props
+    return <ConnectedHeaderLink store={rrnhStore}
+                                containerName={toContainer}
+                                {...context}
+                                {...props}
+    />
   }
 }
 
