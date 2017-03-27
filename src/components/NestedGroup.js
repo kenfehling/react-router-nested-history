@@ -21,7 +21,6 @@ const foods = {
   'Meat': {
     'Poultry': ['Chicken', 'Turkey', 'Duck'],
     'Fish': ['Salmon', 'Flounder'],
-    'Pork': ['Ham', 'Chop'],
     'Beef': ['Hamburger', 'Steak']
   },
   'Dairy': {
