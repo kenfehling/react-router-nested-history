@@ -4,7 +4,6 @@ import * as R from 'ramda'
 import ComputedState, {
   ComputedGroup, ComputedContainer
 } from '../model/ComputedState'
-import {patternsMatch} from '../util/url'
 
 export const createDeepEqualSelector = createSelectorCreator(
   defaultMemoize,
@@ -13,7 +12,7 @@ export const createDeepEqualSelector = createSelectorCreator(
 
 export const createCachingSelector = createSelectorCreator(
   R.memoize,
-  R.equals
+  R.identical
 )
 
 export const EMPTY_OBJ = {}
@@ -23,8 +22,6 @@ export const getGroupName = (state, props):string => props.groupName
 export const getContainerName = (state, props):string => props.containerName
 export const getGroups = (state):Map<string, ComputedGroup> => state.groups
 export const getActiveGroupName = (state:ComputedState) => state.activeGroupName
-export const getPatterns = (state, props) => props.patterns
-export const getPathname = (state, props) => state.activeUrl
 
 // TODO: Should we only use makeGetGroup?
 export const getGroup = (state, props):ComputedGroup => state.groups.get(props.groupName)
