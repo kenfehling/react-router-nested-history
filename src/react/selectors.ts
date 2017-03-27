@@ -17,6 +17,7 @@ export const createCachingSelector = createSelectorCreator(
 )
 
 export const EMPTY_OBJ = {}
+//export const getState = (state) => state
 export const getDispatch = (dispatch) => dispatch
 export const getGroupName = (state, props):string => props.groupName
 export const getContainerName = (state, props):string => props.containerName
@@ -27,6 +28,14 @@ export const getPathname = (state, props) => state.activeUrl
 
 // TODO: Should we only use makeGetGroup?
 export const getGroup = (state, props):ComputedGroup => state.groups.get(props.groupName)
+
+const getIsInitialized = state => state.isInitialized
+const getLoadedFromRefresh = state => state.loadedFromRefresh
+
+export const getIsInitializedAndLoadedFromRefresh = createCachingSelector(
+  getIsInitialized, getLoadedFromRefresh,
+  (isInitialized, loadedFromRefresh) => ({isInitialized, loadedFromRefresh})
+)
 
 export const makeGetGroup = () => createSelector(
   getGroupName, getGroups,

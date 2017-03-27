@@ -16,7 +16,10 @@ import {getChildren} from '../../util/children'
 import waitForInitialization from '../waitForInitialization'
 import HistoryWindow from './HistoryWindow'
 import SmartContainer from './SmartContainer'
-import {getDispatch, createCachingSelector} from '../selectors'
+import {
+  getDispatch, createCachingSelector,
+  getIsInitializedAndLoadedFromRefresh
+} from '../selectors'
 
 type GroupPropsWithStore = ContainerGroupProps & {
   store: Store<State, Action, ComputedState>
@@ -99,11 +102,6 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:ComputedState) => ({
-  loadedFromRefresh: state.loadedFromRefresh,
-  isInitialized: state.isInitialized
-})
-
 const makeGetActions = () => createCachingSelector(
   getDispatch,
   (dispatch) => ({
@@ -119,7 +117,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainerGroup = connect(
-  mapStateToProps,
+  getIsInitializedAndLoadedFromRefresh,
   makeGetActions,
   mergeProps
 )(InnerContainerGroup)

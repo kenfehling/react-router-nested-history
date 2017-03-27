@@ -7,7 +7,10 @@ import Action from '../../store/Action'
 import State from '../../model/State'
 import SmartHistoryWindow, {WindowProps} from './SmartHistoryWindow'
 import CreateWindow from '../../model/actions/CreateWindow'
-import {getDispatch, createCachingSelector} from '../selectors'
+import {
+  getDispatch, createCachingSelector,
+  getIsInitializedAndLoadedFromRefresh
+} from '../selectors'
 
 type WindowPropsWithStore = WindowProps & {
   store: Store<State, Action, ComputedState>
@@ -35,16 +38,10 @@ class InnerHistoryWindow extends Component<ConnectedWindowProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:ComputedState,
-                         ownProps:WindowPropsWithStore) => ({
-  loadedFromRefresh: state.loadedFromRefresh,
-  isInitialized: state.isInitialized
-})
-
 const makeGetActions = () => createCachingSelector(
   getDispatch,
   (dispatch) => ({
-    createWindow: () => (action:CreateWindow) => dispatch(action)
+    createWindow: (action:CreateWindow) => dispatch(action)
   })
 )
 
@@ -56,7 +53,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedHistoryWindow = connect(
-  mapStateToProps,
+  getIsInitializedAndLoadedFromRefresh,
   makeGetActions,
   mergeProps
 )(InnerHistoryWindow)

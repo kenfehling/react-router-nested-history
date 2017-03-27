@@ -24,6 +24,7 @@ declare const window:any
 
 // For IE
 import * as Promise from 'promise-polyfill'
+import {getDispatch, createCachingSelector} from '../selectors'
 
 if (canUseDOM && !window.Promise) {
   window.Promise = Promise
@@ -155,12 +156,14 @@ const mapStateToProps = (state:ComputedState) => ({
   loadedFromRefresh: wasLoadedFromRefresh
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:RouterPropsWithStore) => ({
-  loadFromUrl: (url:string) => dispatch(new LoadFromUrl({url})),
-  refresh: () => dispatch(new Refresh()),
-  setZeroPage: (url:string) => dispatch(new SetZeroPage({url}))
-})
+const makeGetActions = () => createCachingSelector(
+  getDispatch,
+  (dispatch) => ({
+    loadFromUrl: (url:string) => dispatch(new LoadFromUrl({url})),
+    refresh: () => dispatch(new Refresh()),
+    setZeroPage: (url:string) => dispatch(new SetZeroPage({url}))
+  })
+)
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:RouterPropsWithStore):ConnectedRouterProps => ({
@@ -171,7 +174,7 @@ const mergeProps = (stateProps, dispatchProps,
 
 const ConnectedHistoryRouter = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  makeGetActions,
   mergeProps
 )(InnerHistoryRouter)
 

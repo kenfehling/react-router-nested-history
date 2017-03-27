@@ -15,7 +15,7 @@ import SmartContainer, {ContainerProps} from './SmartContainer'
 import waitForInitialization from '../waitForInitialization'
 import {
   getDispatch, createCachingSelector,
-  getContainerName
+  getContainerName, getIsInitializedAndLoadedFromRefresh
 } from '../selectors'
 
 type ContainerPropsWithStore = ContainerProps & {
@@ -108,11 +108,6 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:ComputedState) => ({
-  loadedFromRefresh: state.loadedFromRefresh,
-  isInitialized: state.isInitialized
-})
-
 const makeGetActions = () => createCachingSelector(
   getContainerName, getDispatch,
   (containerName, dispatch) => ({
@@ -129,7 +124,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainer = connect(
-  mapStateToProps,
+  getIsInitializedAndLoadedFromRefresh,
   makeGetActions,
   mergeProps
 )(InnerContainer)
