@@ -8,8 +8,8 @@ import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
 import {
-  makeGetGroupActiveContainerName,
-  makeGetContainer, getDispatch, createCachingSelector, getContainerName
+  getDispatch, createCachingSelector, getContainerName,
+  makeGetContainerActiveUrl, makeGetIsActiveInGroup
 } from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 
@@ -85,14 +85,12 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
 }
 
 const makeMapStateToProps = () => {
-  const getContainer = makeGetContainer()
-  const getGroupActiveContainerName = makeGetGroupActiveContainerName()
+  const getContainerActiveUrl = makeGetContainerActiveUrl()
+  const getIsActiveInGroup = makeGetIsActiveInGroup()
   return (state:ComputedState, ownProps) => {
-    const container = getContainer(state, ownProps)
-    const groupActiveContainerName = getGroupActiveContainerName(state, ownProps)
     return {
-      url: container.activeUrl,
-      isActive: groupActiveContainerName === container.name
+      url: getContainerActiveUrl(state, ownProps),
+      isActive: getIsActiveInGroup(state, ownProps)
     }
   }
 }
