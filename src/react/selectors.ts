@@ -4,6 +4,7 @@ import * as R from 'ramda'
 import ComputedState, {
   ComputedGroup, ComputedContainer
 } from '../model/ComputedState'
+import {patternsMatch} from '../util/url'
 
 export const createDeepEqualSelector = createSelectorCreator(
   defaultMemoize,
@@ -17,14 +18,18 @@ export const createCachingSelector = createSelectorCreator(
 
 export const EMPTY_OBJ = {}
 export const getDispatch = (dispatch) => dispatch
-export const getName = (state, props):string => props.name
 export const getGroupName = (state, props):string => props.groupName
 export const getContainerName = (state, props):string => props.containerName
 export const getGroups = (state):Map<string, ComputedGroup> => state.groups
 export const getActiveGroupName = (state:ComputedState) => state.activeGroupName
+export const getPatterns = (state, props) => props.patterns
+export const getPathname = (state, props) => state.activeUrl
 
-export const makeGetGroup = (groupNameSelector) => createSelector(
-  groupNameSelector, getGroups,
+// TODO: Should we only use makeGetGroup?
+export const getGroup = (state, props):ComputedGroup => state.groups.get(props.groupName)
+
+export const makeGetGroup = () => createSelector(
+  getGroupName, getGroups,
   (name:string, groups):ComputedGroup => {
     const group:ComputedGroup|undefined = groups.get(name)
     if (!group) {
@@ -53,17 +58,21 @@ export const makeGetBackPageInGroup = () => createSelector(
   getGroup, (group) => group.backPage
 )
 
-export const makeGetContainer = () => createSelector(
+export const getContainer = createSelector(
   getContainerName, getGroup,
-  (containerName, group):ComputedContainer => {
+  (containerName, group):ComputedContainer|ComputedGroup => {
     return group.containers.get(containerName)
   }
 )
 
-export const getGroup = (state:ComputedState, ownProps):ComputedGroup =>
-  state.groups.get(ownProps.groupName)
+export const makeGetContainer = () => getContainer
 
-export const makeGetIsGroupActive = () => createSelector(
-  getGroupName, getActiveGroupName,
-  (groupName, activeGroupName) => groupName === activeGroupName
+export const makeGetIsActiveInGroup = () => createSelector(
+  getContainer,
+  (container:ComputedContainer) => container.isActiveInGroup
+)
+
+export const makeGetMatchesCurrentUrl = () => createSelector(
+  getContainer,
+  (container:ComputedContainer) => container.matchesCurrentUrl
 )

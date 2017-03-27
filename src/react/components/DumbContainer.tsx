@@ -1,12 +1,11 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {patternsMatch} from '../../util/url'
 import * as R from 'ramda'
 
 export interface DumbContainerProps {
   pathname: string
   children?: ReactNode
-  name: string
+  containerName: string
   animate?: boolean
   initialUrl: string
   patterns: string[]
@@ -16,7 +15,8 @@ export interface DumbContainerProps {
   isDefault?: boolean
   hideInactiveContainers?: boolean
   switchToContainer: () => void
-  matchesLocation: boolean
+  isActiveInGroup: boolean
+  matchesCurrentUrl: boolean
 }
 
 export default class DumbContainer extends Component<DumbContainerProps, undefined> {
@@ -31,31 +31,26 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
   }
 
   getChildContext() {
-    const {name, groupName, patterns, animate} = this.props
+    const {containerName, groupName, patterns, animate} = this.props
     return {
       pathname: this.getFilteredLocation(),
-      containerName: name,
+      containerName,
       groupName,
       patterns,
       animate
     }
   }
 
-  matchesCurrentUrl():boolean {
-    const {patterns, pathname} = this.props
-    return patternsMatch(patterns, pathname)
-  }
-
   getKey():string {
-    const {name, groupName} = this.props
-    return groupName + '_' + name
+    const {containerName, groupName} = this.props
+    return groupName + '_' + containerName
   }
 
   getNewLocation():string {
-    const {initialUrl, pathname} = this.props
+    const {initialUrl, pathname, matchesCurrentUrl} = this.props
     const key = this.getKey()
     if (pathname) {
-      if (this.matchesCurrentUrl()) {        // If url matches container
+      if (matchesCurrentUrl) {              // If url matches container
         return pathname
       }
       else if (DumbContainer.locations[key]) {
@@ -81,7 +76,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       children,
       style={},
       switchToContainer,
-      matchesLocation,
+      isActiveInGroup,
       ...divProps
     } = R.omit([
       'animate',
@@ -91,7 +86,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'pathname',
       'addTitle',
       'groupName',
-      'name',
+      'containerName',
       'isOnTop',
       'store',
       'initializing',
@@ -100,10 +95,10 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'createContainer',
       'loadedFromRefresh',
       'group',
-      'isGroupActive',
+      'matchesCurrentUrl',
       'storeSubscription'
     ], this.props)
-    if (!hideInactiveContainers || matchesLocation) {
+    if (!hideInactiveContainers || isActiveInGroup) {
       return (
         <div {...divProps}
              onMouseDown={switchToContainer}

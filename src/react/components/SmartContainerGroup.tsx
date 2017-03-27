@@ -12,14 +12,10 @@ import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
 import {
-  createCachingSelector, getName, getDispatch,
-  makeGetGroup
+  createCachingSelector, getDispatch, makeGetGroup, getGroupName
 } from '../selectors'
-import {createSelector} from 'reselect'
 
-export interface ContainerGroupPropsWithoutChildren {
-  name: string
-
+interface BaseGroupPropsWithoutChildren {
   currentContainerIndex?: number
   currentContainerName?: string
   onContainerActivate?: OnContainerSwitch
@@ -30,6 +26,10 @@ export interface ContainerGroupPropsWithoutChildren {
   isDefault: boolean
 }
 
+export type ContainerGroupPropsWithoutChildren = BaseGroupPropsWithoutChildren & {
+  name: string
+}
+
 export type ContainerGroupProps = ContainerGroupPropsWithoutChildren & {
   children?: ChildrenType
 }
@@ -37,6 +37,7 @@ export type ContainerGroupProps = ContainerGroupPropsWithoutChildren & {
 type GroupPropsWithStore = ContainerGroupProps & {
   store: Store<State, Action, ComputedState>
   parentGroupName: string
+  groupName: string
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
@@ -47,7 +48,7 @@ type ConnectedGroupProps = GroupPropsWithStore & {
 }
 
 const makeGetActions = () => createCachingSelector(
-  getName, getDispatch,
+  getGroupName, getDispatch,
   (groupName, dispatch) => ({
     createGroup: (action:CreateGroup) => dispatch(action),
     switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({
@@ -62,7 +63,7 @@ const makeGetActions = () => createCachingSelector(
 )
 
 const makeMapStateToProps = () => {
-  const getGroup = makeGetGroup(getName)
+  const getGroup = makeGetGroup()
   return (state:ComputedState, ownProps:GroupPropsWithStore) => {
     const group:ComputedGroup = getGroup(state, ownProps)
     return {
@@ -93,8 +94,10 @@ export default class SmartContainerGroup extends Component<ContainerGroupProps, 
 
   render() {
     const {groupName, rrnhStore} = this.context
+    const {name, ...props} = this.props
     return (
       <ConnectedContainerGroup parentGroupName={groupName}
+                               groupName={name}
                                store={rrnhStore}
                                {...this.props}
       />

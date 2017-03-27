@@ -577,25 +577,32 @@ export default class Group implements IContainer {
     return new Group({...Object(this), enabled})
   }
 
-  computeState():ComputedGroup {
+  computeState(activeUrl:string, activeParentUrl?:string):ComputedGroup {
     if (this.containers.isEmpty()) {
       throw new Error(`Group '${this.name}' has no containers`)
     }
+    const activeGroupUrl:string = this.activeUrl
+    const containers = fromJS(
+      this.containers.map((c:IContainer) =>
+          c.computeState(activeUrl, activeGroupUrl))
+    )
     return {
       name: this.name,
       enabled: this.enabled,
       isTopLevel: !this.parentGroupName,
-      containers: fromJS(this.containers.map((c:IContainer) => c.computeState())),
+      containers,
       activeContainerIndex: this.activeContainerIndex,
       activeContainerName: this.activeContainerName,
-      activeUrl: this.activeUrl,
+      activeUrl: activeGroupUrl,
       backPage: this.backPage,
       history: this.history
     }
   }
 
-  computeSubGroups():Map<string, ComputedGroup> {
-    return fromJS(this.subGroups.map((g:Group) => g.computeState()))
+  computeSubGroups(activeUrl:string):Map<string, ComputedGroup> {
+    return fromJS(
+      this.subGroups.map((g:Group) => g.computeState(activeUrl, this.activeUrl))
+    )
   }
 
   private computeWindow(parentVisible:boolean):ComputingWindow {

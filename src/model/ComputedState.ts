@@ -9,6 +9,8 @@ export interface ComputedContainer {
   name: string
   enabled: boolean
   activeUrl: string
+  isActiveInGroup: boolean
+  matchesCurrentUrl: boolean
   history: HistoryStack
 }
 
