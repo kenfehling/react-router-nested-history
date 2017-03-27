@@ -96,7 +96,7 @@ const NestedGroup = () =>(
   <div className="nested windows">
     <h2>Nested group example</h2>
     <div className="description">
-      <p>Two groups are nested inside another group.</p>
+      <p>A group nested inside another group.</p>
       <p>{foodGroups[0]} is considered the default tab.</p>
       <p>When selecting an already active tab, it will go to the top of that tree.</p>
     </div>
