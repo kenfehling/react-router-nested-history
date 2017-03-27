@@ -10,12 +10,11 @@ import {VisitType} from './PageVisit'
 import IContainer from './IContainer'
 import {Map, OrderedMap, Set, fromJS} from 'immutable'
 import {
-  PartialComputedState, ComputedGroup,
-  ComputedWindow, ComputingWindow
+  PartialComputedState, ComputedGroup, ComputedWindow, ComputingWindow,
+  ComputedContainer, ComputedGroupOrContainer
 } from './ComputedState'
 import IState from '../store/IState'
 import HistoryWindow from './HistoryWindow'
-import Ord = R.Ord
 
 abstract class State implements IState {
   readonly groups: Map<string, Group>
@@ -78,14 +77,28 @@ abstract class State implements IState {
   abstract isActiveContainer(groupName:string, containerName:string):boolean
   abstract getContainerNameByIndex(groupName:string, index:number):string
 
-  get allComputedGroups():Map<string, ComputedGroup> {
-    const activeUrl:string = this.activeUrl
-    return fromJS({}).merge(
-      this.groups.map((g:Group) => g.computeState(activeUrl)),
-      ...this.groups.toArray().map((g:Group) => g.computeSubGroups(activeUrl))
-    )
+  get computedGroupsAndContainers():Map<string, ComputedGroupOrContainer> {
+    return this.groups.reduce(
+        (map:Map<string, ComputedGroupOrContainer>, g:Group) =>
+            map.merge(g.computeContainersAndGroups()),
+      fromJS({}))
   }
-  
+
+  get computedGroups():Map<string, ComputedGroup> {
+    return this.groups.reduce(
+      (map:Map<string, ComputedGroup>, g:Group) =>
+          map.merge(g.computeGroups()),
+      fromJS({}))
+  }
+
+  get computedContainers():Map<string, ComputedContainer> {
+    const currentUrl = this.activeUrl
+    return this.groups.reduce(
+      (map:Map<string, ComputedContainer>, g:Group) =>
+          map.merge(g.computeContainers(currentUrl)),
+      fromJS({}))
+  }
+
   private get computingWindows():OrderedMap<string, ComputingWindow> {
     return this.groups.reduce(
       (map:Map<string, ComputingWindow>, g:Group) =>
@@ -112,7 +125,9 @@ abstract class State implements IState {
       isInitialized: this.isInitialized,
       loadedFromRefresh: this.loadedFromRefresh,
       activeUrl: this.activeUrl,
-      groups: this.allComputedGroups,
+      groupsAndContainers: this.computedGroupsAndContainers,
+      groups: this.computedGroups,
+      containers: this.computedContainers,
       windows: this.computedWindows,
       activeGroupName: this.activeGroupName,
       lastUpdate: this.lastUpdate,

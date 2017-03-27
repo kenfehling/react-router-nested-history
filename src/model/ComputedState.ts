@@ -5,25 +5,25 @@ import Pages from './Pages'
 import {HistoryStack} from './Pages'
 import {ReduxState} from '../reducers/index'
 
-export interface ComputedContainer {
+export interface ComputedGroupOrContainer {
   name: string
   enabled: boolean
   activeUrl: string
+  backPage: Page|undefined
+  history: HistoryStack
+}
+
+export interface ComputedContainer {
+  name: string
   isActiveInGroup: boolean
   matchesCurrentUrl: boolean
-  history: HistoryStack
 }
 
 export interface ComputedGroup {
   name: string
-  enabled: boolean
   isTopLevel: boolean
-  containers: Map<string, ComputedContainer|ComputedGroup>
   activeContainerIndex: number
   activeContainerName: string
-  activeUrl: string
-  backPage: Page|undefined
-  history: HistoryStack
 }
 
 export interface ComputingWindow {
@@ -35,12 +35,15 @@ export interface ComputingWindow {
 export type ComputedWindow = ComputingWindow & {
   zIndex: number
   isOnTop: boolean
+  groupName: string
 }
 
 export interface PartialComputedState {
   isInitialized: boolean
   loadedFromRefresh: boolean
+  groupsAndContainers: Map<string, ComputedGroupOrContainer>
   groups: Map<string, ComputedGroup>
+  containers: Map<string, ComputedContainer>
   windows: OrderedMap<string, ComputedWindow>
   activeUrl: string
   activeGroupName: string

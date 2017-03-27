@@ -17,7 +17,7 @@ import {
 } from '../util/sorter'
 import {Map, fromJS, OrderedMap} from 'immutable'
 import {
-  ComputedGroup, ComputingWindow
+  ComputedGroup, ComputingWindow, ComputedContainer, ComputedGroupOrContainer
 } from './ComputedState'
 import HistoryWindow from './HistoryWindow'
 
@@ -577,31 +577,41 @@ export default class Group implements IContainer {
     return new Group({...Object(this), enabled})
   }
 
-  computeState(activeUrl:string, activeParentUrl?:string):ComputedGroup {
-    if (this.containers.isEmpty()) {
-      throw new Error(`Group '${this.name}' has no containers`)
-    }
-    const activeGroupUrl:string = this.activeUrl
-    const containers = fromJS(
-      this.containers.map((c:IContainer) =>
-          c.computeState(activeUrl, activeGroupUrl))
-    )
-    return {
+  computeContainersAndGroups():Map<string, ComputedGroupOrContainer> {
+    const thisOne:ComputedGroupOrContainer = {
       name: this.name,
       enabled: this.enabled,
-      isTopLevel: !this.parentGroupName,
-      containers,
-      activeContainerIndex: this.activeContainerIndex,
-      activeContainerName: this.activeContainerName,
-      activeUrl: activeGroupUrl,
+      activeUrl: this.activeUrl,
       backPage: this.backPage,
-      history: this.history
+      history: this.history,
     }
+
+    return fromJS({}).merge(
+      fromJS({}).set(this.name, thisOne),
+      ...this.containers.toArray().map((c:IContainer) =>
+          c.computeContainersAndGroups())
+    )
   }
 
-  computeSubGroups(activeUrl:string):Map<string, ComputedGroup> {
-    return fromJS(
-      this.subGroups.map((g:Group) => g.computeState(activeUrl, this.activeUrl))
+  computeContainers(currentUrl:string, activeParentUrl?:string):
+                    Map<string, ComputedContainer> {
+    const activeUrl:string = this.activeUrl
+    return this.containers.reduce(
+      (map:Map<string, ComputedContainer>, c:IContainer) =>
+        map.merge(c.computeContainers(currentUrl, activeUrl)),
+      fromJS({}))
+  }
+
+  computeGroups():Map<string, ComputedGroup> {
+    const thisOne:ComputedGroup = {
+      name: this.name,
+      isTopLevel: !this.parentGroupName,
+      activeContainerIndex: this.activeContainerIndex,
+      activeContainerName: this.activeContainerName
+    }
+    return fromJS({}).merge(
+      fromJS({}).set(this.name, thisOne),
+      ...this.subGroups.toArray().map((g:Group) => g.computeGroups())
     )
   }
 

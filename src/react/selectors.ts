@@ -2,7 +2,7 @@ import {createSelector, createSelectorCreator, defaultMemoize} from 'reselect'
 import {Map} from 'immutable'
 import * as R from 'ramda'
 import ComputedState, {
-  ComputedGroup, ComputedContainer
+  ComputedGroup, ComputedContainer, ComputedGroupOrContainer
 } from '../model/ComputedState'
 
 export const createDeepEqualSelector = createSelectorCreator(
@@ -21,10 +21,11 @@ export const getDispatch = (dispatch) => dispatch
 export const getGroupName = (state, props):string => props.groupName
 export const getContainerName = (state, props):string => props.containerName
 export const getGroups = (state):Map<string, ComputedGroup> => state.groups
-export const getActiveGroupName = (state:ComputedState) => state.activeGroupName
+export const getContainers = (state):Map<string, ComputedContainer> => state.containers
 
-// TODO: Should we only use makeGetGroup?
-export const getGroup = (state, props):ComputedGroup => state.groups.get(props.groupName)
+export const getGroupsAndContainers =
+    (state:ComputedState):Map<string, ComputedGroupOrContainer> =>
+        state.groupsAndContainers
 
 const getIsInitialized = state => state.isInitialized
 const getLoadedFromRefresh = state => state.loadedFromRefresh
@@ -36,7 +37,7 @@ export const getIsInitializedAndLoadedFromRefresh = createCachingSelector(
 
 export const makeGetGroup = () => createSelector(
   getGroupName, getGroups,
-  (name:string, groups):ComputedGroup => {
+  (name:string, groups:Map<string, ComputedGroup>):ComputedGroup => {
     const group:ComputedGroup|undefined = groups.get(name)
     if (!group) {
       throw new Error(`Group '${name}' not found`)
@@ -47,33 +48,63 @@ export const makeGetGroup = () => createSelector(
   }
 )
 
-export const makeGetBackPageInGroup = () => createSelector(
-  getGroup, (group) => group.backPage
-)
-
-export const getContainer = createSelector(
-  getContainerName, getGroup,
-  (containerName, group):ComputedContainer|ComputedGroup => {
-
-    console.log(containerName)
-
-    return group.containers.get(containerName)
+export const makeGetGroupOrContainerFromGroupName = () => createSelector(
+  getGroupName, getGroupsAndContainers,
+  (name:string, groupsAndContainers:Map<string, ComputedGroupOrContainer>):
+                                                ComputedGroupOrContainer => {
+    const gc:ComputedGroupOrContainer|undefined = groupsAndContainers.get(name)
+    if (!gc) {
+      throw new Error(`Group or container '${name}' not found`)
+    }
+    else {
+      return gc
+    }
   }
 )
 
-export const makeGetContainer = () => getContainer
+export const makeGetGroupOrContainerFromContainerName = () => createSelector(
+  getContainerName, getGroupsAndContainers,
+  (name:string, groupsAndContainers:Map<string, ComputedGroupOrContainer>):
+                                                ComputedGroupOrContainer => {
+    const gc:ComputedGroupOrContainer|undefined = groupsAndContainers.get(name)
+    if (!gc) {
+      throw new Error(`Group or container '${name}' not found`)
+    }
+    else {
+      return gc
+    }
+  }
+)
+
+export const makeGetContainer = () => createSelector(
+  getContainerName, getContainers,
+  (name:string, containers:Map<string, ComputedContainer>) => {
+    const container:ComputedContainer|undefined = containers.get(name)
+    if (!container) {
+      throw new Error(`Container '${name}' not found`)
+    }
+    else {
+      return container
+    }
+  }
+)
+
+export const makeGetBackPageInGroup = () => createSelector(
+  makeGetGroupOrContainerFromGroupName(),
+  (group:ComputedGroupOrContainer) => group.backPage
+)
 
 export const makeGetIsActiveInGroup = () => createSelector(
-  getContainer,
+  makeGetContainer(),
   (container:ComputedContainer) => container.isActiveInGroup
 )
 
 export const makeGetMatchesCurrentUrl = () => createSelector(
-  getContainer,
+  makeGetContainer(),
   (container:ComputedContainer) => container.matchesCurrentUrl
 )
 
 export const makeGetContainerActiveUrl = () => createSelector(
-  getContainer,
-  (container:ComputedContainer) => container.activeUrl
+  makeGetGroupOrContainerFromContainerName(),
+  (container:ComputedGroupOrContainer) => container.activeUrl
 )

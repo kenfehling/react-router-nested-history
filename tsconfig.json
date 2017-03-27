@@ -4,7 +4,7 @@
     "outDir": "./lib/",
     "module": "commonjs",
     "target": "es5",
-    "lib": ["dom", "es6", "ES2015"],
+    "lib": ["dom", "es6"],
     "jsx": "react",
     "sourceMap": true,
     "moduleResolution": "node",

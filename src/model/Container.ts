@@ -4,9 +4,11 @@ import IContainer from './IContainer'
 import Pages, {HistoryStack} from './Pages'
 import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
-import {ComputedContainer, ComputingWindow} from './ComputedState'
+import {
+  ComputedContainer, ComputingWindow, ComputedGroupOrContainer
+} from './ComputedState'
 import HistoryWindow from './HistoryWindow'
-import {Map, OrderedMap} from 'immutable'
+import {Map, OrderedMap, fromJS} from 'immutable'
 
 export default class Container implements IContainer {
   readonly name: string
@@ -210,15 +212,41 @@ export default class Container implements IContainer {
     return new Container({...Object(this), enabled})
   }
 
-  computeState(activeUrl:string, activeParentUrl:string):ComputedContainer {
-    return {
+  /**
+   * Returns a map with 1 item
+   */
+  computeContainersAndGroups():Map<string, ComputedGroupOrContainer> {
+    const thisOne:ComputedGroupOrContainer = {
       name: this.name,
       enabled: this.enabled,
       activeUrl: this.activeUrl,
+      backPage: this.backPage,
       history: this.history,
-      isActiveInGroup: activeParentUrl === this.activeUrl,
-      matchesCurrentUrl: patternsMatch(this.patterns, activeUrl)
     }
+
+    if (this.name === 'Meat' || this.name === 'Dairy') {
+      console.log(thisOne)
+    }
+
+    return fromJS({}).set(this.name, thisOne)
+  }
+
+  /**
+   * Returns a map with 1 item
+   */
+  computeContainers(currentUrl:string, activeParentUrl:string):
+                    Map<string, ComputedContainer> {
+    const thisOne:ComputedContainer = {
+      name: this.name,
+      isActiveInGroup: activeParentUrl === this.activeUrl,
+      matchesCurrentUrl: patternsMatch(this.patterns, currentUrl)
+    }
+
+    if (this.name === 'Meat' || this.name === 'Dairy') {
+      console.log(thisOne)
+    }
+
+    return fromJS({}).set(this.name, thisOne)
   }
 
   private computeWindow(parentVisible:boolean):ComputingWindow {

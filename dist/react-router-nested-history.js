@@ -17477,7 +17477,7 @@ var State = (function () {
     }
     Object.defineProperty(State.prototype, "allComputedGroups", {
         get: function () {
-            return (_a = immutable_1.fromJS({})).merge.apply(_a, [this.groups.map(function (g) { return g.computeState(); })].concat(this.groups.toArray().map(function (g) { return g.computeSubGroups(); })));
+            return (_a = immutable_1.fromJS({})).merge.apply(_a, [this.groups.map(function (g) { return g.computeState(); })].concat(this.groups.toArray().map(function (g) { return g.computeGroups(); })));
             var _a;
         },
         enumerable: true,
@@ -17511,7 +17511,7 @@ var State = (function () {
             isInitialized: this.isInitialized,
             loadedFromRefresh: this.loadedFromRefresh,
             activeUrl: this.activeUrl,
-            groups: this.allComputedGroups,
+            groups: this.computingGroups,
             windows: this.computedWindows,
             activeGroupName: this.activeGroupName,
             lastUpdate: this.lastUpdate,
@@ -27494,7 +27494,7 @@ var Group = (function () {
             history: this.history
         };
     };
-    Group.prototype.computeSubGroups = function () {
+    Group.prototype.computeGroups = function () {
         return immutable_1.fromJS(this.subGroups.map(function (g) { return g.computeState(); }));
     };
     Group.prototype.computeWindow = function (parentVisible) {

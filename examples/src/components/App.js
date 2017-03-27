@@ -38,7 +38,9 @@ export default () => (
           */}
         </div>
       </div>
+      {/*
       <div className="state-tree-container"><StateTree /></div>
+       */}
     </div>
   </div>
 )
