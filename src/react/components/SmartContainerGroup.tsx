@@ -30,13 +30,16 @@ export type ContainerGroupPropsWithoutChildren = BaseGroupPropsWithoutChildren &
   name: string
 }
 
-export type ContainerGroupProps = ContainerGroupPropsWithoutChildren & {
+export type ContainerGroupProps = BaseGroupPropsWithoutChildren & {
   children?: ChildrenType
+  name: string
 }
 
-type GroupPropsWithStore = ContainerGroupProps & {
+type GroupPropsWithStore = BaseGroupPropsWithoutChildren & {
   store: Store<State, Action, ComputedState>
   parentGroupName: string
+
+  children?: ChildrenType
   groupName: string
 }
 
@@ -56,7 +59,6 @@ const makeGetActions = () => createCachingSelector(
       index
     })),
     switchToContainerName: (name:string) => dispatch(new SwitchToContainer({
-      groupName,
       name
     }))
   })
@@ -99,7 +101,7 @@ export default class SmartContainerGroup extends Component<ContainerGroupProps, 
       <ConnectedContainerGroup parentGroupName={groupName}
                                groupName={name}
                                store={rrnhStore}
-                               {...this.props}
+                               {...props}
       />
     )
   }

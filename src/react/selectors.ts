@@ -47,19 +47,6 @@ export const makeGetGroup = () => createSelector(
   }
 )
 
-export const makeGetGroupActiveContainerName = () => createSelector(
-  getActiveGroupName, getGroups,
-  (activeGroupName, groups):string => {
-    const group:ComputedGroup|undefined = groups.get(activeGroupName)
-    if (!group) {
-      throw new Error(`Group '${name}' not found`)
-    }
-    else {
-      return group.name
-    }
-  }
-)
-
 export const makeGetBackPageInGroup = () => createSelector(
   getGroup, (group) => group.backPage
 )
@@ -67,6 +54,9 @@ export const makeGetBackPageInGroup = () => createSelector(
 export const getContainer = createSelector(
   getContainerName, getGroup,
   (containerName, group):ComputedContainer|ComputedGroup => {
+
+    console.log(containerName)
+
     return group.containers.get(containerName)
   }
 )
