@@ -73,7 +73,7 @@ export default () => (
     <h2>Mobile example</h2>
     <div className="description">
       <p>
-        A window group with `allowInterContainerHistory` whose
+        A window group with allowInterContainerHistory=true and whose
         windows are 100% width and height therefore hiding each other
       </p>
     </div>
