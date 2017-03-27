@@ -79,9 +79,10 @@ abstract class State implements IState {
   abstract getContainerNameByIndex(groupName:string, index:number):string
 
   get allComputedGroups():Map<string, ComputedGroup> {
+    const activeUrl:string = this.activeUrl
     return fromJS({}).merge(
-      this.groups.map((g:Group) => g.computeState()),
-      ...this.groups.toArray().map((g:Group) => g.computeSubGroups())
+      this.groups.map((g:Group) => g.computeState(activeUrl)),
+      ...this.groups.toArray().map((g:Group) => g.computeSubGroups(activeUrl))
     )
   }
   

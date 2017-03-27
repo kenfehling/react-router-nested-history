@@ -2,7 +2,6 @@ import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {connect} from 'react-redux'
 import DumbContainer from './DumbContainer'
-import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import {Store} from '../../store/store'
@@ -12,15 +11,14 @@ import State from '../../model/State'
 import Action from '../../model/BaseAction'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import ComputedState from '../../model/ComputedState'
-import {ComputedGroup} from '../../model/ComputedState'
 import {
-  getGroup, getPathname, getIsGroupActive,
-  getDispatch, createCachingSelector, getGroupName, getName
+  getDispatch, createCachingSelector,
+  makeGetIsActiveInGroup, makeGetMatchesCurrentUrl, getContainerName,
+  makeGetContainerActiveUrl
 } from '../selectors'
 
-export interface ContainerProps {
+interface BaseContainerProps {
   children?: ReactNode
-  name: string
   initialUrl: string
   patterns: string[]
   animate?: boolean
@@ -30,17 +28,23 @@ export interface ContainerProps {
   style?: any
 }
 
-type ContainerPropsWithStore = ContainerProps & {
+export type ContainerProps = BaseContainerProps & {
+  name: string
+}
+
+type ContainerPropsWithStore = BaseContainerProps & {
   store: Store<State, Action, ComputedState>
   groupName: string
+  containerName: string
   initializing: boolean
   hideInactiveContainers: boolean
 }
 
 type ConnectedContainerProps = ContainerPropsWithStore & {
-  pathname: string
+  activeUrl: string
+  isActiveInGroup: boolean
+  matchesCurrentUrl: boolean
   addTitle: (title:PathTitle) => any
-  matchesLocation: boolean
   switchToContainer: () => void
 }
 
@@ -57,11 +61,9 @@ class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> 
   }
 
   componentDidUpdate() {
-    const {patterns, pathname} = this.props
-    if (pathname) {
-      if (patternsMatch(patterns, pathname)) {
-        this.addTitleForPath(pathname)
-      }
+    const {activeUrl, matchesCurrentUrl} = this.props
+      if (matchesCurrentUrl) {
+        this.addTitleForPath(activeUrl)
     }
   }
 
@@ -78,46 +80,28 @@ class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> 
   }
 }
 
-const matchesLocation = (group:ComputedGroup, isGroupActive:boolean,
-                         pathname:string, patterns:string[]) => {
-  const activeGroupUrl:string = group.activeUrl
-  if (activeGroupUrl) {
-    const isActiveInGroup:boolean = patternsMatch(patterns, activeGroupUrl)
-    if (isActiveInGroup) {
-      if (isGroupActive) {
-        return pathname === activeGroupUrl
-      }
-      else {
-        return true
-      }
-    }
-    else {
-      return false
-    }
-  }
-  else {
-    return false
-  }
-}
-
 const makeGetActions = () => createCachingSelector(
-  getName, getGroupName, getDispatch,
-  (name, groupName, dispatch) => ({
+  getContainerName, getDispatch,
+  (containerName, dispatch) => ({
     createContainer: (action:CreateContainer) => dispatch(action),
     addTitle: (title:PathTitle) => dispatch(new AddTitle(title)),
-    switchToContainer: () => dispatch(new SwitchToContainer({name}))
+    switchToContainer: () => dispatch(new SwitchToContainer({name: containerName}))
   })
 )
 
-const mapStateToProps = (state:ComputedState, ownProps:ContainerPropsWithStore) => {
-  const group:ComputedGroup = getGroup(state, ownProps)
-  const pathname:string = getPathname(state)
-  const isGroupActive:boolean = getIsGroupActive(state, ownProps)
-  return {
-    group,
-    isGroupActive,
-    pathname,
-    matchesLocation: matchesLocation(group, isGroupActive, pathname, ownProps.patterns)
+const makeMapStateToProps = () => {
+  const getContainerActiveUrl = makeGetContainerActiveUrl()
+  const getIsActiveInGroup = makeGetIsActiveInGroup()
+  const getMatchesCurrentUrl = makeGetMatchesCurrentUrl()
+  return (state:ComputedState, ownProps:ContainerPropsWithStore) => {
+    const activeUrl = getContainerActiveUrl(state, ownProps)
+    const isActiveInGroup = getIsActiveInGroup(state, ownProps)
+    const matchesCurrentUrl = getMatchesCurrentUrl(state, ownProps)
+    return {
+      activeUrl,
+      isActiveInGroup,
+      matchesCurrentUrl
+    }
   }
 }
 
@@ -129,7 +113,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedSmartContainer = connect(
-  mapStateToProps,
+  makeMapStateToProps,
   makeGetActions,
   mergeProps
 )(InnerSmartContainer)
@@ -144,6 +128,11 @@ export default class SmartContainer extends Component<ContainerProps, undefined>
 
   render() {
     const {rrnhStore, ...context} = this.context
-    return <ConnectedSmartContainer store={rrnhStore} {...context} {...this.props} />
+    const {name, ...props} = this.props
+    return <ConnectedSmartContainer store={rrnhStore}
+                                    containerName={name}
+                                    {...context}
+                                    {...props}
+    />
   }
 }

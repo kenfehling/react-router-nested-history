@@ -13,6 +13,10 @@ import Action from '../../model/BaseAction'
 import ComputedState from '../../model/ComputedState'
 import SmartContainer, {ContainerProps} from './SmartContainer'
 import waitForInitialization from '../waitForInitialization'
+import {
+  getDispatch, createCachingSelector,
+  getContainerName, getIsInitializedAndLoadedFromRefresh
+} from '../selectors'
 
 type ContainerPropsWithStore = ContainerProps & {
   store: Store<State, Action, ComputedState>
@@ -104,16 +108,13 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:ComputedState) => ({
-  loadedFromRefresh: state.loadedFromRefresh,
-  isInitialized: state.isInitialized
-})
-
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:ContainerPropsWithStore) => ({
-  createContainer: (action:CreateContainer) => dispatch(action),
-  addTitle: (title:PathTitle) => dispatch(new AddTitle(title))
-})
+const makeGetActions = () => createCachingSelector(
+  getContainerName, getDispatch,
+  (containerName, dispatch) => ({
+    createContainer: (action:CreateContainer) => dispatch(action),
+    addTitle: (title:PathTitle) => dispatch(new AddTitle(title))
+  })
+)
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:ContainerPropsWithStore):ConnectedContainerProps => ({
@@ -123,8 +124,8 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps,
+  getIsInitializedAndLoadedFromRefresh,
+  makeGetActions,
   mergeProps
 )(InnerContainer)
 

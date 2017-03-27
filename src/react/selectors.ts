@@ -1,9 +1,9 @@
-import {createSelectorCreator, defaultMemoize} from 'reselect'
+import {createSelector, createSelectorCreator, defaultMemoize} from 'reselect'
+import {Map} from 'immutable'
 import * as R from 'ramda'
 import ComputedState, {
   ComputedGroup, ComputedContainer
 } from '../model/ComputedState'
-import Page from '../model/Page'
 
 export const createDeepEqualSelector = createSelectorCreator(
   defaultMemoize,
@@ -12,35 +12,68 @@ export const createDeepEqualSelector = createSelectorCreator(
 
 export const createCachingSelector = createSelectorCreator(
   R.memoize,
-  R.equals
+  R.identical
 )
 
-export const getDispatch = (dispatch) => dispatch
-
 export const EMPTY_OBJ = {}
-export const getName = (state, props):string => props.name
+//export const getState = (state) => state
+export const getDispatch = (dispatch) => dispatch
 export const getGroupName = (state, props):string => props.groupName
+export const getContainerName = (state, props):string => props.containerName
+export const getGroups = (state):Map<string, ComputedGroup> => state.groups
+export const getActiveGroupName = (state:ComputedState) => state.activeGroupName
 
-export const getGroup = (state:ComputedState, ownProps):ComputedGroup =>
-  state.groups.get(ownProps.groupName)
+// TODO: Should we only use makeGetGroup?
+export const getGroup = (state, props):ComputedGroup => state.groups.get(props.groupName)
 
-export const getContainer = (state:ComputedState, ownProps):ComputedContainer =>
-  getGroup(state, ownProps).containers.get(ownProps.containerName)
+const getIsInitialized = state => state.isInitialized
+const getLoadedFromRefresh = state => state.loadedFromRefresh
 
-export const getActiveGroupContainerName = (state:ComputedState, ownProps):string =>
-  getGroup(state, ownProps).activeContainerName
+export const getIsInitializedAndLoadedFromRefresh = createCachingSelector(
+  getIsInitialized, getLoadedFromRefresh,
+  (isInitialized, loadedFromRefresh) => ({isInitialized, loadedFromRefresh})
+)
 
-export const getBackPageInGroup = (state:ComputedState, ownProps):Page|undefined =>
-  getGroup(state, ownProps).backPage
+export const makeGetGroup = () => createSelector(
+  getGroupName, getGroups,
+  (name:string, groups):ComputedGroup => {
+    const group:ComputedGroup|undefined = groups.get(name)
+    if (!group) {
+      throw new Error(`Group '${name}' not found`)
+    }
+    else {
+      return group
+    }
+  }
+)
 
-export const getIsGroupActive = (state:ComputedState, ownProps):boolean =>
-  getGroup(state, ownProps).name === state.activeGroupName
+export const makeGetBackPageInGroup = () => createSelector(
+  getGroup, (group) => group.backPage
+)
 
-export const getIsInitialized = (state:ComputedState) =>
-  state.isInitialized
+export const getContainer = createSelector(
+  getContainerName, getGroup,
+  (containerName, group):ComputedContainer|ComputedGroup => {
 
-export const getLoadedFromRefresh = (state:ComputedState) =>
-  state.loadedFromRefresh
+    console.log(containerName)
 
-export const getPathname = (state:ComputedState) =>
-  state.activeUrl
+    return group.containers.get(containerName)
+  }
+)
+
+export const makeGetContainer = () => getContainer
+
+export const makeGetIsActiveInGroup = () => createSelector(
+  getContainer,
+  (container:ComputedContainer) => container.isActiveInGroup
+)
+
+export const makeGetMatchesCurrentUrl = () => createSelector(
+  getContainer,
+  (container:ComputedContainer) => container.matchesCurrentUrl
+)
+
+export const makeGetContainerActiveUrl = () => createSelector(
+  getContainer,
+  (container:ComputedContainer) => container.activeUrl
+)

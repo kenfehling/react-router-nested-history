@@ -11,12 +11,11 @@ import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
-import {createCachingSelector, getName, getDispatch} from '../selectors'
-import {createSelector} from 'reselect'
+import {
+  createCachingSelector, getDispatch, makeGetGroup, getGroupName
+} from '../selectors'
 
-export interface ContainerGroupPropsWithoutChildren {
-  name: string
-
+interface BaseGroupPropsWithoutChildren {
   currentContainerIndex?: number
   currentContainerName?: string
   onContainerActivate?: OnContainerSwitch
@@ -27,13 +26,21 @@ export interface ContainerGroupPropsWithoutChildren {
   isDefault: boolean
 }
 
-export type ContainerGroupProps = ContainerGroupPropsWithoutChildren & {
-  children?: ChildrenType
+export type ContainerGroupPropsWithoutChildren = BaseGroupPropsWithoutChildren & {
+  name: string
 }
 
-type GroupPropsWithStore = ContainerGroupProps & {
+export type ContainerGroupProps = BaseGroupPropsWithoutChildren & {
+  children?: ChildrenType
+  name: string
+}
+
+type GroupPropsWithStore = BaseGroupPropsWithoutChildren & {
   store: Store<State, Action, ComputedState>
   parentGroupName: string
+
+  children?: ChildrenType
+  groupName: string
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
@@ -43,23 +50,8 @@ type ConnectedGroupProps = GroupPropsWithStore & {
   switchToContainerName: (name:string) => void
 }
 
-const getGroups = (state):Map<string, ComputedGroup> => state.groups
-
-const makeGetGroup = () => createSelector(
-  getName, getGroups,
-  (name, groups):ComputedGroup => {
-    const group:ComputedGroup|undefined = groups.get(name)
-    if (!group) {
-      throw new Error(`Group '${name}' not found`)
-    }
-    else {
-      return group
-    }
-  }
-)
-
 const makeGetActions = () => createCachingSelector(
-  getName, getDispatch,
+  getGroupName, getDispatch,
   (groupName, dispatch) => ({
     createGroup: (action:CreateGroup) => dispatch(action),
     switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({
@@ -67,7 +59,6 @@ const makeGetActions = () => createCachingSelector(
       index
     })),
     switchToContainerName: (name:string) => dispatch(new SwitchToContainer({
-      groupName,
       name
     }))
   })
@@ -105,10 +96,12 @@ export default class SmartContainerGroup extends Component<ContainerGroupProps, 
 
   render() {
     const {groupName, rrnhStore} = this.context
+    const {name, ...props} = this.props
     return (
       <ConnectedContainerGroup parentGroupName={groupName}
+                               groupName={name}
                                store={rrnhStore}
-                               {...this.props}
+                               {...props}
       />
     )
   }

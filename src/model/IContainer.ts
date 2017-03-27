@@ -5,7 +5,7 @@ import HistoryWindow from './HistoryWindow'
 import {OrderedMap} from 'immutable'
 
 abstract class IContainer extends IHistory {
-  abstract computeState(): ComputedGroup|ComputedContainer
+  abstract computeState(activeUrl:string, activeParentUrl?:string): ComputedGroup|ComputedContainer
   abstract get wasManuallyVisited(): boolean
   abstract get pages(): Pages
   abstract get associatedWindow(): HistoryWindow|undefined

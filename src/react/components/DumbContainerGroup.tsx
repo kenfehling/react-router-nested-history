@@ -18,7 +18,7 @@ export type ChildrenType =
   ReactNode | ((args:GroupChildrenFunctionArgs) => ReactElement<any>)
 
 export interface DumbContainerGroupProps {
-  name: string
+  groupName: string
   children?: ChildrenType
   currentContainerIndex?: number           // from user
   currentContainerName?: string            // from user
@@ -43,9 +43,9 @@ export default class DumbContainerGroup extends
   }
 
   getChildContext() {
-    const {name, hideInactiveContainers=true} = this.props
+    const {groupName, hideInactiveContainers=true} = this.props
     return {
-      groupName: name,
+      groupName,
       hideInactiveContainers,
     }
   }

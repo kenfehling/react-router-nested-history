@@ -6,7 +6,7 @@ import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
 import {ComputedContainer, ComputingWindow} from './ComputedState'
 import HistoryWindow from './HistoryWindow'
-import {Map, fromJS, OrderedMap} from 'immutable'
+import {Map, OrderedMap} from 'immutable'
 
 export default class Container implements IContainer {
   readonly name: string
@@ -24,6 +24,7 @@ export default class Container implements IContainer {
    * @param time - The time this container was created
    * @param name - The container's name
    * @param enabled - Is this container enabled/visible?
+   * @param associatedWindow - The HistoryWindow associated with this container
    * @param initialUrl - The starting URL of this container
    * @param patterns - Patterns of URLs that this container handles
    * @param isDefault - Is this the default container?
@@ -209,12 +210,14 @@ export default class Container implements IContainer {
     return new Container({...Object(this), enabled})
   }
 
-  computeState():ComputedContainer {
+  computeState(activeUrl:string, activeParentUrl:string):ComputedContainer {
     return {
       name: this.name,
       enabled: this.enabled,
       activeUrl: this.activeUrl,
-      history: this.history
+      history: this.history,
+      isActiveInGroup: activeParentUrl === this.activeUrl,
+      matchesCurrentUrl: patternsMatch(this.patterns, activeUrl)
     }
   }
 

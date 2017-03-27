@@ -3,14 +3,15 @@ import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import {Store} from '../../store/store'
 import Page from '../../model/Page'
-import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import Back from '../../model/actions/Back'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
-import {createSelector} from 'reselect'
-import {getBackPageInGroup} from '../selectors'
+import {
+  makeGetBackPageInGroup, createCachingSelector,
+  getDispatch, getGroupName
+} from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 import ownKeys = Reflect.ownKeys
 
@@ -88,25 +89,22 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 }
 
-const selector = createSelector(getBackPageInGroup, (backPage:Page) => ({
-  backPage
-}))
-
-const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
-  const s = selector(state, ownProps)
-  return {
-    backPage: s.backPage
-  }
-}
-
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:BackLinkPropsWithStore) => {
-  return {
-    back: () => {
-      dispatch(new Back({n: 1, container: ownProps.groupName}))
+const makeMapStateToProps = () => {
+  const getBackPageInGroup = makeGetBackPageInGroup()
+  return (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
+    const backPage = getBackPageInGroup(state, ownProps)
+    return {
+      backPage
     }
   }
 }
+
+const makeGetActions = () => createCachingSelector(
+  getGroupName, getDispatch,
+  (groupName, dispatch) => ({
+    back: () => dispatch(new Back({n: 1, container: groupName}))
+  })
+)
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:BackLinkPropsWithStore):ConnectedBackLinkProps => ({
@@ -116,8 +114,8 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedBackLink = connect(
-  mapStateToProps,
-  mapDispatchToProps,
+  makeMapStateToProps,
+  makeGetActions,
   mergeProps
 )(InnerBackLink)
 
