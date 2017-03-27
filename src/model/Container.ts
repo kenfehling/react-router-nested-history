@@ -223,11 +223,6 @@ export default class Container implements IContainer {
       backPage: this.backPage,
       history: this.history,
     }
-
-    if (this.name === 'Meat' || this.name === 'Dairy') {
-      console.log(thisOne)
-    }
-
     return fromJS({}).set(this.name, thisOne)
   }
 
@@ -241,11 +236,6 @@ export default class Container implements IContainer {
       isActiveInGroup: activeParentUrl === this.activeUrl,
       matchesCurrentUrl: patternsMatch(this.patterns, currentUrl)
     }
-
-    if (this.name === 'Meat' || this.name === 'Dairy') {
-      console.log(thisOne)
-    }
-
     return fromJS({}).set(this.name, thisOne)
   }
 

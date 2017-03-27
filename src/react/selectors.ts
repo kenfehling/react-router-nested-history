@@ -1,4 +1,5 @@
 import {createSelector, createSelectorCreator, defaultMemoize} from 'reselect'
+import createReselector from 're-reselect'
 import {Map} from 'immutable'
 import * as R from 'ramda'
 import ComputedState, {
@@ -35,7 +36,7 @@ export const getIsInitializedAndLoadedFromRefresh = createCachingSelector(
   (isInitialized, loadedFromRefresh) => ({isInitialized, loadedFromRefresh})
 )
 
-export const makeGetGroup = () => createSelector(
+export const getGroup = createReselector(
   getGroupName, getGroups,
   (name:string, groups:Map<string, ComputedGroup>):ComputedGroup => {
     const group:ComputedGroup|undefined = groups.get(name)
@@ -46,9 +47,9 @@ export const makeGetGroup = () => createSelector(
       return group
     }
   }
-)
+)((state, props) => props.groupName)
 
-export const makeGetGroupOrContainerFromGroupName = () => createSelector(
+export const getGroupOrContainerFromGroupName = createReselector(
   getGroupName, getGroupsAndContainers,
   (name:string, groupsAndContainers:Map<string, ComputedGroupOrContainer>):
                                                 ComputedGroupOrContainer => {
@@ -60,9 +61,9 @@ export const makeGetGroupOrContainerFromGroupName = () => createSelector(
       return gc
     }
   }
-)
+)((state, props) => props.groupName)
 
-export const makeGetGroupOrContainerFromContainerName = () => createSelector(
+export const getGroupOrContainerFromContainerName = createReselector(
   getContainerName, getGroupsAndContainers,
   (name:string, groupsAndContainers:Map<string, ComputedGroupOrContainer>):
                                                 ComputedGroupOrContainer => {
@@ -74,9 +75,9 @@ export const makeGetGroupOrContainerFromContainerName = () => createSelector(
       return gc
     }
   }
-)
+)((state, props) => props.containerName)
 
-export const makeGetContainer = () => createSelector(
+export const getContainer = createReselector(
   getContainerName, getContainers,
   (name:string, containers:Map<string, ComputedContainer>) => {
     const container:ComputedContainer|undefined = containers.get(name)
@@ -87,24 +88,26 @@ export const makeGetContainer = () => createSelector(
       return container
     }
   }
-)
+)((state, props) => props.containerName)
 
-export const makeGetBackPageInGroup = () => createSelector(
-  makeGetGroupOrContainerFromGroupName(),
+export const getBackPageInGroup = createReselector(
+  getGroupOrContainerFromGroupName,
   (group:ComputedGroupOrContainer) => group.backPage
-)
+)((state, props) => props.groupName)
 
-export const makeGetIsActiveInGroup = () => createSelector(
-  makeGetContainer(),
+export const getIsActiveInGroup = createReselector(
+  getContainer,
   (container:ComputedContainer) => container.isActiveInGroup
-)
+)((state, props) => props.containerName)
 
-export const makeGetMatchesCurrentUrl = () => createSelector(
-  makeGetContainer(),
+export const getMatchesCurrentUrl = createReselector(
+  getContainer,
   (container:ComputedContainer) => container.matchesCurrentUrl
-)
+)((state, props) => props.containerName)
 
-export const makeGetContainerActiveUrl = () => createSelector(
-  makeGetGroupOrContainerFromContainerName(),
-  (container:ComputedGroupOrContainer) => container.activeUrl
-)
+export const getContainerActiveUrl = createReselector(
+  getGroupOrContainerFromContainerName,
+  (container:ComputedGroupOrContainer) => {
+    return container.activeUrl
+  }
+)((state, props) => props.containerName)

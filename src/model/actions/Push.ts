@@ -13,8 +13,7 @@ export default class Push extends Action {
   readonly url:string
 
   constructor({time, origin, containerName, url}:
-              {time?:number, origin?:Origin, groupName:string,
-                containerName:string, url:string}) {
+              {time?:number, origin?:Origin, containerName:string, url:string}) {
     super({time, origin})
     this.containerName = containerName
     this.url = url

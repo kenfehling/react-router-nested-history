@@ -9,8 +9,7 @@ import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
 import {
-  makeGetBackPageInGroup, createCachingSelector,
-  getDispatch, getGroupName
+  createCachingSelector, getDispatch, getGroupName, getBackPageInGroup
 } from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 import ownKeys = Reflect.ownKeys
@@ -89,13 +88,10 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 }
 
-const makeMapStateToProps = () => {
-  const getBackPageInGroup = makeGetBackPageInGroup()
-  return (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
-    const backPage = getBackPageInGroup(state, ownProps)
-    return {
-      backPage
-    }
+const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
+  const backPage = getBackPageInGroup(state, ownProps)
+  return {
+    backPage
   }
 }
 
@@ -114,7 +110,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedBackLink = connect(
-  makeMapStateToProps,
+  mapStateToProps,
   makeGetActions,
   mergeProps
 )(InnerBackLink)

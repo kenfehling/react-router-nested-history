@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
+import {createStructuredSelector} from 'reselect'
 import {connect} from 'react-redux'
 import DumbContainer from './DumbContainer'
 import CreateContainer from '../../model/actions/CreateContainer'
@@ -13,8 +14,7 @@ import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import ComputedState from '../../model/ComputedState'
 import {
   getDispatch, createCachingSelector,
-  makeGetIsActiveInGroup, makeGetMatchesCurrentUrl, getContainerName,
-  makeGetContainerActiveUrl
+  getContainerName, getContainerActiveUrl, getIsActiveInGroup, getMatchesCurrentUrl
 } from '../selectors'
 
 interface BaseContainerProps {
@@ -49,6 +49,10 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
 }
 
 class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> {
+
+  componentWillReceiveProps(newProps) {
+    console.log(newProps)
+  }
 
   addTitleForPath(pathname:string) {
     const {addTitle} = this.props
@@ -89,21 +93,11 @@ const makeGetActions = () => createCachingSelector(
   })
 )
 
-const makeMapStateToProps = () => {
-  const getContainerActiveUrl = makeGetContainerActiveUrl()
-  const getIsActiveInGroup = makeGetIsActiveInGroup()
-  const getMatchesCurrentUrl = makeGetMatchesCurrentUrl()
-  return (state:ComputedState, ownProps:ContainerPropsWithStore) => {
-    const activeUrl = getContainerActiveUrl(state, ownProps)
-    const isActiveInGroup = getIsActiveInGroup(state, ownProps)
-    const matchesCurrentUrl = getMatchesCurrentUrl(state, ownProps)
-    return {
-      activeUrl,
-      isActiveInGroup,
-      matchesCurrentUrl
-    }
-  }
-}
+const mapStateToProps = createStructuredSelector({
+  activeUrl: getContainerActiveUrl,
+  isActiveInGroup: getIsActiveInGroup,
+  matchesCurrentUrl: getMatchesCurrentUrl
+})
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:ContainerPropsWithStore):ConnectedContainerProps => ({
@@ -113,7 +107,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedSmartContainer = connect(
-  makeMapStateToProps,
+  mapStateToProps,
   makeGetActions,
   mergeProps
 )(InnerSmartContainer)

@@ -45,6 +45,7 @@
     "promise-polyfill": "^6.0.2",
     "promise-queue": "^2.2.3",
     "ramda": "^0.23.0",
+    "re-reselect": "^0.1.0",
     "react-draggable": "^2.2.3",
     "react-motion": "^0.4.7",
     "react-redux": "^5.0.3",

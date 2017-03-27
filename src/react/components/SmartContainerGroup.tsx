@@ -12,7 +12,7 @@ import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
 import {
-  createCachingSelector, getDispatch, makeGetGroup, getGroupName
+  createCachingSelector, getDispatch, getGroupName, getGroup
 } from '../selectors'
 
 interface BaseGroupPropsWithoutChildren {
@@ -64,14 +64,11 @@ const makeGetActions = () => createCachingSelector(
   })
 )
 
-const makeMapStateToProps = () => {
-  const getGroup = makeGetGroup()
-  return (state:ComputedState, ownProps:GroupPropsWithStore) => {
-    const group:ComputedGroup = getGroup(state, ownProps)
-    return {
-      storedCurrentContainerIndex: group.activeContainerIndex,
-      storedCurrentContainerName: group.activeContainerName
-    }
+const mapStateToProps = (state:ComputedState, ownProps:GroupPropsWithStore) => {
+  const group:ComputedGroup = getGroup(state, ownProps)
+  return {
+    storedCurrentContainerIndex: group.activeContainerIndex,
+    storedCurrentContainerName: group.activeContainerName
   }
 }
 
@@ -83,7 +80,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainerGroup = connect(
-  makeMapStateToProps,
+  mapStateToProps,
   makeGetActions,
   mergeProps
 )(DumbContainerGroup)
