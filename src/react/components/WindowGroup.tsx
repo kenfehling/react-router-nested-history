@@ -13,6 +13,7 @@ import {Store} from '../../store/store'
 import State from '../../model/State'
 import Action from '../../store/Action'
 import {resetWindowPositions} from '../../actions/WindowActions'
+import {getDispatch, createCachingSelector} from '../selectors'
 
 const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
 
@@ -112,10 +113,12 @@ const InnerWindowGroup = ({children, resetWindowPositions,
   </ContainerGroup>
 )
 
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:WindowGroupPropsWithStore) => ({
-  resetWindowPositions: () => dispatch(resetWindowPositions())
-})
+const makeGetActions = () => createCachingSelector(
+  getDispatch,
+  (dispatch) => ({
+    resetWindowPositions: () => dispatch(resetWindowPositions())
+  })
+)
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:WindowGroupPropsWithStore):ConnectedWindowGroupProps => ({
@@ -126,7 +129,7 @@ const mergeProps = (stateProps, dispatchProps,
 
 const ConnectedWindowGroup = connect(
   () => ({}),
-  mapDispatchToProps,
+  makeGetActions,
   mergeProps
 )(InnerWindowGroup)
 

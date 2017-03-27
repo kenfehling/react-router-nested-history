@@ -2,7 +2,6 @@ import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {connect} from 'react-redux'
 import DumbContainer from './DumbContainer'
-import {patternsMatch} from '../../util/url'
 import CreateContainer from '../../model/actions/CreateContainer'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import {Store} from '../../store/store'
@@ -13,8 +12,9 @@ import Action from '../../model/BaseAction'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import ComputedState from '../../model/ComputedState'
 import {
-  getDispatch, createCachingSelector, makeGetGroup,
-  makeGetIsActiveInGroup, makeGetMatchesCurrentUrl, getContainerName
+  getDispatch, createCachingSelector,
+  makeGetIsActiveInGroup, makeGetMatchesCurrentUrl, getContainerName,
+  makeGetContainerActiveUrl
 } from '../selectors'
 
 interface BaseContainerProps {
@@ -41,7 +41,7 @@ type ContainerPropsWithStore = BaseContainerProps & {
 }
 
 type ConnectedContainerProps = ContainerPropsWithStore & {
-  pathname: string
+  activeUrl: string
   isActiveInGroup: boolean
   matchesCurrentUrl: boolean
   addTitle: (title:PathTitle) => any
@@ -61,11 +61,9 @@ class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> 
   }
 
   componentDidUpdate() {
-    const {patterns, pathname} = this.props
-    if (pathname) {
-      if (patternsMatch(patterns, pathname)) {
-        this.addTitleForPath(pathname)
-      }
+    const {activeUrl, matchesCurrentUrl} = this.props
+      if (matchesCurrentUrl) {
+        this.addTitleForPath(activeUrl)
     }
   }
 
@@ -92,19 +90,15 @@ const makeGetActions = () => createCachingSelector(
 )
 
 const makeMapStateToProps = () => {
-  const getGroup = makeGetGroup()
+  const getContainerActiveUrl = makeGetContainerActiveUrl()
   const getIsActiveInGroup = makeGetIsActiveInGroup()
   const getMatchesCurrentUrl = makeGetMatchesCurrentUrl()
   return (state:ComputedState, ownProps:ContainerPropsWithStore) => {
-    const group = getGroup(state, ownProps)
+    const activeUrl = getContainerActiveUrl(state, ownProps)
     const isActiveInGroup = getIsActiveInGroup(state, ownProps)
     const matchesCurrentUrl = getMatchesCurrentUrl(state, ownProps)
-
-    const pathname = state.activeUrl  // TODO: Should this use a selector?
-
     return {
-      group,
-      pathname,
+      activeUrl,
       isActiveInGroup,
       matchesCurrentUrl
     }

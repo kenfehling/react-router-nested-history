@@ -76,3 +76,8 @@ export const makeGetMatchesCurrentUrl = () => createSelector(
   getContainer,
   (container:ComputedContainer) => container.matchesCurrentUrl
 )
+
+export const makeGetContainerActiveUrl = () => createSelector(
+  getContainer,
+  (container:ComputedContainer) => container.activeUrl
+)

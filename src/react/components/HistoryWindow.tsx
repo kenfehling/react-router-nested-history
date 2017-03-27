@@ -7,6 +7,7 @@ import Action from '../../store/Action'
 import State from '../../model/State'
 import SmartHistoryWindow, {WindowProps} from './SmartHistoryWindow'
 import CreateWindow from '../../model/actions/CreateWindow'
+import {getDispatch, createCachingSelector} from '../selectors'
 
 type WindowPropsWithStore = WindowProps & {
   store: Store<State, Action, ComputedState>
@@ -14,7 +15,7 @@ type WindowPropsWithStore = WindowProps & {
 }
 
 type ConnectedWindowProps = WindowPropsWithStore & {
-  createWindow: () => void
+  createWindow: (action:CreateWindow) => void
   isInitialized: boolean
   loadedFromRefresh: boolean
 }
@@ -22,9 +23,9 @@ type ConnectedWindowProps = WindowPropsWithStore & {
 class InnerHistoryWindow extends Component<ConnectedWindowProps, undefined> {
 
   componentWillMount() {
-    const {initializing, loadedFromRefresh} = this.props
+    const {initializing, loadedFromRefresh, forName, visible} = this.props
     if (initializing && !loadedFromRefresh) {
-      this.props.createWindow()
+      this.props.createWindow(new CreateWindow({forName, visible}))
     }
   }
 
@@ -40,13 +41,12 @@ const mapStateToProps = (state:ComputedState,
   isInitialized: state.isInitialized
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:WindowPropsWithStore) => ({
-  createWindow: () => dispatch(new CreateWindow({
-    forName: ownProps.forName,
-    visible: ownProps.visible
-  }))
-})
+const makeGetActions = () => createCachingSelector(
+  getDispatch,
+  (dispatch) => ({
+    createWindow: () => (action:CreateWindow) => dispatch(action)
+  })
+)
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:WindowPropsWithStore):ConnectedWindowProps => ({
@@ -57,7 +57,7 @@ const mergeProps = (stateProps, dispatchProps,
 
 const ConnectedHistoryWindow = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  makeGetActions,
   mergeProps
 )(InnerHistoryWindow)
 

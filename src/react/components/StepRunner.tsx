@@ -14,6 +14,7 @@ import {runSteps} from '../../util/stepRunner'
 import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import waitForInitialization from '../waitForInitialization'
+import {getDispatch, createCachingSelector} from '../selectors'
 
 export interface StepRunnerProps {
   store: Store<State, Action, ComputedState>
@@ -74,11 +75,13 @@ const mapStateToProps = (state:ComputedState) => ({
   pages: state.pages
 })
 
-const mapDispatchToProps = (dispatch:Dispatch<ComputedState>,
-                            ownProps:StepRunnerProps) => ({
-  recordBrowserUpdate: () => dispatch(new UpdateBrowser()),
-  dispatch
-})
+const makeGetActions = () => createCachingSelector(
+  getDispatch,
+  (dispatch) => ({
+    recordBrowserUpdate: () => dispatch(new UpdateBrowser()),
+    dispatch
+  })
+)
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:StepRunnerProps):ConnectedStepRunnerProps => {
@@ -98,7 +101,7 @@ const mergeProps = (stateProps, dispatchProps,
 
 const ConnectedStepRunner = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  makeGetActions,
   mergeProps
 )(InnerStepRunner)
 
