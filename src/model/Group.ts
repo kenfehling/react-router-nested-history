@@ -612,21 +612,21 @@ export default class Group implements IContainer {
   }
 
   private _computeWindows(parentVisible:boolean):OrderedMap<string, ComputingWindow> {
+    const map = OrderedMap<string, ComputingWindow>()
     if (this.associatedWindow) {
-      return fromJS({}).set(this.name, this.computeWindow(parentVisible))
+      return map.set(this.name, this.computeWindow(parentVisible))
     }
     else {
-      return fromJS({})
+      return map
     }
   }
 
   computeWindows(parentVisible:boolean=true):OrderedMap<string, ComputingWindow> {
-    return fromJS({}).merge(
-      this._computeWindows(parentVisible),
-      this.containerStackOrder.reduce(
-        (map:Map<string, ComputingWindow>, c:IContainer) =>
-          fromJS({}).merge(map, c.computeWindows(parentVisible && this.enabled)),
-        fromJS({})
+    const cs:IContainer[] = this.containerStackOrder
+    return this._computeWindows(parentVisible).merge(cs.reduce(
+        (map:OrderedMap<string, ComputingWindow>, c:IContainer) =>
+          map.merge(c.computeWindows(parentVisible && this.enabled)),
+      OrderedMap<string, ComputingWindow>()
       )
     )
   }

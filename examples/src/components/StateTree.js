@@ -9,7 +9,7 @@ const HistoryTree = ({history, className, enabled=true}) => (
         {history.back.map((page, i) => <div key={i}>{page.url}</div>)}
       </div>
       <div>
-        <span className={`current-page ${enabled ? className : 'disabled'}`}>
+        <span className={`current-page ${className} ${enabled ? '' : 'disabled'}`}>
           {history.current.url}
         </span>
       </div>
@@ -22,7 +22,9 @@ const HistoryTree = ({history, className, enabled=true}) => (
 
 const GroupTree = ({group, activeGroupName}) => (
   <div>
-    <div>{'Group: ' + group.name}</div>
+    <div className='group-label'>
+      {'Group: ' + group.name}
+    </div>
     <HistoryTree history={group.history}
                  className={activeGroupName === group.name ?
                     'active group' : 'group'} />
@@ -33,7 +35,9 @@ const GroupTree = ({group, activeGroupName}) => (
             <GroupTree group={container} activeGroupName={activeGroupName} />
             : (
               <div>
-                <div>{'Container: ' + container.name}</div>
+                <div className='container-label'>
+                  {'Container: ' + container.name}
+                </div>
                 <HistoryTree history={container.history}
                              className={`container`}
                              enabled={container.enabled}

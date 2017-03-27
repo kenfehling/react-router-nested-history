@@ -15,6 +15,7 @@ import {
 } from './ComputedState'
 import IState from '../store/IState'
 import HistoryWindow from './HistoryWindow'
+import Ord = R.Ord
 
 abstract class State implements IState {
   readonly groups: Map<string, Group>
@@ -86,15 +87,15 @@ abstract class State implements IState {
   
   private get computingWindows():OrderedMap<string, ComputingWindow> {
     return this.groups.reduce(
-      (map:Map<string, ComputedWindow>, g:Group) =>
-        fromJS({}).merge(map, g.computeWindows()), fromJS({}))
+      (map:Map<string, ComputingWindow>, g:Group) =>
+        map.merge(g.computeWindows()), OrderedMap<string, ComputingWindow>())
   }
 
   get computedWindows():OrderedMap<string, ComputedWindow> {
     const ws = this.computingWindows
     let i:number = ws.size
     let seenGroups:Set<string> = Set<string>()
-    return fromJS(ws.map((w:ComputingWindow):ComputedWindow => {
+    return ws.map((w:ComputingWindow):ComputedWindow => {
       const sawGroup:boolean = seenGroups.has(w.groupName)
       seenGroups = seenGroups.add(w.groupName)
       return {
@@ -102,7 +103,7 @@ abstract class State implements IState {
         zIndex: i--,
         isOnTop: !sawGroup
       }
-    }))
+    }) as OrderedMap<string, ComputedWindow>
   }
 
   computeState():PartialComputedState {

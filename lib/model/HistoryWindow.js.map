@@ -1,1 +1,1 @@
-{"version":3,"file":"HistoryWindow.js","sourceRoot":"","sources":["../../src/model/HistoryWindow.ts"],"names":[],"mappings":";;AAAA;IAEE,qBAAqB;IACrB,qBAAqB;IAErB,uEAAuE;IACvE,uBAAY,EAA2B;YAA1B,oBAAO;QAClB,IAAI,CAAC,OAAO,GAAG,OAAO,CAAA;QACtB,YAAY;QACZ,YAAY;IACd,CAAC;IACH,oBAAC;AAAD,CAAC,AAXD,IAWC"}
+{"version":3,"file":"HistoryWindow.js","sourceRoot":"","sources":["../../src/model/HistoryWindow.ts"],"names":[],"mappings":";;AAAA;IAGE,uBAAY,EAA2B;YAA1B,oBAAO;QAClB,IAAI,CAAC,OAAO,GAAG,OAAO,CAAA;IACxB,CAAC;IACH,oBAAC;AAAD,CAAC,AAND,IAMC"}

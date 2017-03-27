@@ -94,7 +94,7 @@ export default class Windows extends Component {
   render() {
     return (
       <div className="windows">
-        <h2>Windows example</h2>
+        <h2>Window example</h2>
         <div className="description">
           <p>Each window has its own individual history.</p>
           <p>Clicking on a window brings it to the front.</p>

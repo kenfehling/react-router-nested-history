@@ -9,25 +9,35 @@
 
 .state-tree .current-page {
   padding: 0 8px;
-  border: thin solid #a1ff9d;
   border-radius: 4px;
 }
 
 .state-tree .current-page.container {
-  background-color: #e2ffe8;
+  background-color: #DFD;
+  border: thin solid #AFA;
+  color: #060;
 }
 
 .state-tree .current-page.group {
-  background-color: #a1ff9d;
+  background-color: #AFA;
+  border: thin solid #7F7;
+  color: #060;
 }
 
 .state-tree .current-page.disabled {
-  color: #777;
-  background-color: #DDD;
-  border: thin solid #BBB;
+  opacity: 0.333;
 }
 
 .state-tree .current-page.active.group {
   background-color: #9CF;
-  border: thin solid #69F;
+  border: thin solid #7AF;
+  color: #006;
+}
+
+.group-label {
+  font-weight: 600;
+}
+
+.container-label {
+  font-weight: 600;
 }
