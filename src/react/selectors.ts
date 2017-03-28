@@ -1,5 +1,7 @@
-import {createSelector, createSelectorCreator, defaultMemoize} from 'reselect'
-import createReselector from 're-reselect'
+import {
+  createSelectorCreator, defaultMemoize, createReselector,
+  createSelector
+} from '../reselect'
 import {Map} from 'immutable'
 import * as R from 'ramda'
 import ComputedState, {
@@ -31,7 +33,7 @@ export const getGroupsAndContainers =
 const getIsInitialized = state => state.isInitialized
 const getLoadedFromRefresh = state => state.loadedFromRefresh
 
-export const getIsInitializedAndLoadedFromRefresh = createCachingSelector(
+export const getIsInitializedAndLoadedFromRefresh = createDeepEqualSelector(
   getIsInitialized, getLoadedFromRefresh,
   (isInitialized, loadedFromRefresh) => ({isInitialized, loadedFromRefresh})
 )

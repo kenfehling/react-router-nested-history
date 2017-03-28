@@ -50,10 +50,6 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
 
 class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> {
 
-  componentWillReceiveProps(newProps) {
-    console.log(newProps)
-  }
-
   addTitleForPath(pathname:string) {
     const {addTitle} = this.props
     if (canUseDOM) {
@@ -123,10 +119,11 @@ export default class SmartContainer extends Component<ContainerProps, undefined>
   render() {
     const {rrnhStore, ...context} = this.context
     const {name, ...props} = this.props
-    return <ConnectedSmartContainer store={rrnhStore}
-                                    containerName={name}
+    return <ConnectedSmartContainer containerName={name}
                                     {...context}
                                     {...props}
+                                    store={rrnhStore}
+
     />
   }
 }

@@ -13,6 +13,7 @@ import {
 } from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 import ownKeys = Reflect.ownKeys
+import {createStructuredSelector} from '../../reselect'
 
 type ChildrenFunctionArgs = {
   params: Object
@@ -88,12 +89,9 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:ComputedState, ownProps:BackLinkPropsWithStore) => {
-  const backPage = getBackPageInGroup(state, ownProps)
-  return {
-    backPage
-  }
-}
+const mapStateToProps = createStructuredSelector({
+  backPage: getBackPageInGroup
+})
 
 const makeGetActions = () => createCachingSelector(
   getGroupName, getDispatch,

@@ -64,7 +64,7 @@ const makeGetActions = () => createCachingSelector(
   })
 )
 
-const mapStateToProps = (state:ComputedState, ownProps:GroupPropsWithStore) => {
+const makeMapStateToProps =  (state:ComputedState, ownProps:GroupPropsWithStore) => {
   const group:ComputedGroup = getGroup(state, ownProps)
   return {
     storedCurrentContainerIndex: group.activeContainerIndex,
@@ -80,7 +80,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainerGroup = connect(
-  mapStateToProps,
+  makeMapStateToProps,
   makeGetActions,
   mergeProps
 )(DumbContainerGroup)

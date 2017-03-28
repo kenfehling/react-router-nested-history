@@ -28,7 +28,8 @@ export function createStore<S extends IState, A extends Action,
   let storedRawState: S = initialState
   let storedComputedState:IComputedState = { actions: [] }
   let timeStored: number = 0
-  let listeners: (() => void)[] = []
+  let currentListeners:Function[] = []
+  let nextListeners:Function[] = currentListeners
 
   if (regularReduxStore) {
     regularReduxStore.subscribe(updateListeners)
@@ -60,9 +61,7 @@ export function createStore<S extends IState, A extends Action,
     }
     else {
       recomputeState()
-      if (storedRawState.isInitialized) {
-        updateListeners()
-      }
+      updateListeners()
     }
     if (store.enabled) {  // if can use localStorage
       store.set('actions', actions.map(a => serialize(a)))
@@ -127,14 +126,26 @@ export function createStore<S extends IState, A extends Action,
     }
   }
 
-  function subscribe(listener:()=>void):()=>void {
-    listeners.push(listener)
-    const index = listeners.indexOf(listener)
-    return () => {  // unsubscribe
-      listeners = [
-        ...listeners.slice(0, index),
-        ...listeners.slice(index + 1)
-      ]
+  function subscribe(listener) {
+    if (typeof listener !== 'function') {
+      throw new Error('Expected listener to be a function.')
+    }
+
+    let isSubscribed = true
+
+    ensureCanMutateNextListeners()
+    nextListeners.push(listener)
+
+    return function unsubscribe() {
+      if (!isSubscribed) {
+        return
+      }
+
+      isSubscribed = false
+
+      ensureCanMutateNextListeners()
+      const index = nextListeners.indexOf(listener)
+      nextListeners.splice(index, 1)
     }
   }
 
@@ -145,7 +156,17 @@ export function createStore<S extends IState, A extends Action,
   }
 
   function updateListeners():void {
-    listeners.forEach(fn => fn())
+    const listeners = currentListeners = nextListeners
+    for (let i = 0; i < listeners.length; i++) {
+      const listener = listeners[i]
+      listener()
+    }
+  }
+
+  function ensureCanMutateNextListeners() {
+    if (nextListeners === currentListeners) {
+      nextListeners = currentListeners.slice()
+    }
   }
 
   init()
