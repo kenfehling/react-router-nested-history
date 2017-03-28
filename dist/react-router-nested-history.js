@@ -17627,11 +17627,11 @@ var State = (function () {
         else {
             var foundGroup_1 = undefined;
             this.groups.forEach(function (group) {
-                var g = group.getNestedGroupByName(name);
-                if (g) {
-                    foundGroup_1 = g;
+                try {
+                    foundGroup_1 = group.getNestedGroupByName(name);
                     return;
                 }
+                catch (e) { }
             });
             if (foundGroup_1) {
                 return foundGroup_1;
@@ -26573,9 +26573,9 @@ var InnerHistoryRouter = (function (_super) {
          */
     };
     InnerHistoryRouter.prototype.componentDidMount = function () {
-        var _a = this.props, loadFromUrl = _a.loadFromUrl, isInitialized = _a.isInitialized;
+        var _a = this.props, load = _a.load, isInitialized = _a.isInitialized;
         if (!isInitialized) {
-            loadFromUrl(this.getLocation());
+            load(this.getLocation());
         }
     };
     InnerHistoryRouter.prototype.getChildContext = function () {
@@ -26614,7 +26614,7 @@ var mapStateToProps = function (state) { return ({
     loadedFromRefresh: browserFunctions_1.wasLoadedFromRefresh
 }); };
 var makeGetActions = function () { return selectors_1.createCachingSelector(selectors_1.getDispatch, function (dispatch) { return ({
-    loadFromUrl: function (url) { return dispatch(new Load_1.default({ url: url })); },
+    load: function (url) { return dispatch(new Load_1.default({ url: url })); },
     refresh: function () { return dispatch(new Refresh_1.default()); },
     setZeroPage: function (url) { return dispatch(new SetZeroPage_1.default({ url: url })); }
 }); }); };
