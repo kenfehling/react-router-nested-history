@@ -13,7 +13,7 @@ import {
 } from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 import ownKeys = Reflect.ownKeys
-import {createStructuredSelector} from '../../reselect'
+import {createStructuredSelector} from 'reselect'
 
 type ChildrenFunctionArgs = {
   params: Object

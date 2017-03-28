@@ -1,7 +1,7 @@
 import {
-  createSelectorCreator, defaultMemoize, createReselector,
-  createSelector
-} from '../reselect'
+  createSelectorCreator, defaultMemoize, createSelector
+} from 'reselect'
+import createReselector from 're-reselect'
 import {Map} from 'immutable'
 import * as R from 'ramda'
 import ComputedState, {
