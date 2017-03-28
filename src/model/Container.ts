@@ -95,11 +95,12 @@ export default class Container implements IContainer {
     return this.pages.toHistoryStack()
   }
 
-  push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Container {
-    return this.setEnabled(true).replacePages(this.pages.push(page, time, type))
+  push({page, time, type}:{page: Page, time:number, type?:VisitType}):Container {
+    return this.setEnabled(true).replacePages(this.pages.push({page, time, type}))
   }
 
-  pushUrl(url:string, time:number, type:VisitType=VisitType.MANUAL):Container {
+  pushUrl({url, time, type=VisitType.MANUAL}:
+          {url:string, time:number, type?:VisitType}):Container {
     if (this.activePage.url === url) {
       return this.activate({time, type})
     }
@@ -109,15 +110,15 @@ export default class Container implements IContainer {
         params: parseParamsFromPatterns(this.patterns, url),
         containerName: this.name,
       })
-      return this.push(page, time, type)
+      return this.push({page, time, type})
     }
   }
 
-  loadFromUrl(url:string, time:number):IContainer {
+  load({url, time}:{url: string, time: number}):IContainer {
     if (this.patternsMatch(url)) {
       const container:Container = this.isAtTopPage ?
           this.activate({time: time - 1, type: VisitType.MANUAL}) : this
-      return container.pushUrl(url, time, VisitType.MANUAL)
+      return container.pushUrl({url, time, type: VisitType.MANUAL})
     }
     else {
       return this
@@ -128,20 +129,20 @@ export default class Container implements IContainer {
     return this.setEnabled(true).replacePages(this.pages.activate(visit))
   }
 
-  top(time:number, reset:boolean=false):Container {
-    return this.replacePages(this.pages.top(time, reset))
+  top({time, reset=false}:{time: number, reset?:boolean}):Container {
+    return this.replacePages(this.pages.top({time, reset}))
   }
 
-  go(n:number, time:number):Container {
-    return this.replacePages(this.pages.go(n, time))
+  go({n, time}:{n:number, time:number}):Container {
+    return this.replacePages(this.pages.go({n, time}))
   }
 
-  forward(n:number=1, time:number):Container {
-    return this.replacePages(this.pages.forward(n, time))
+  forward({n=1, time}:{n:number, time:number}):Container {
+    return this.replacePages(this.pages.forward({n, time}))
   }
 
-  back(n:number=1, time:number):Container {
-    return this.replacePages(this.pages.back(n, time))
+  back({n=1, time}:{n:number, time:number}):Container {
+    return this.replacePages(this.pages.back({n, time}))
   }
 
   canGoForward(n:number=1):boolean {
@@ -156,8 +157,8 @@ export default class Container implements IContainer {
     return this.pages.getShiftAmount(page)
   }
 
-  shiftTo(page:Page, time):Container {
-    return this.replacePages(this.pages.shiftTo(page, time))
+  shiftTo({page, time}:{page:Page, time}):Container {
+    return this.replacePages(this.pages.shiftTo({page, time}))
   }
 
   containsPage(page:Page):boolean {
@@ -196,7 +197,7 @@ export default class Container implements IContainer {
     return this.pages.forwardLength
   }
 
-  get firstManualVisit():PageVisit|null {
+  get firstManualVisit():PageVisit|undefined {
     return this.pages.firstManualVisit
   }
 

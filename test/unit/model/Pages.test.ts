@@ -74,10 +74,9 @@ describe('Pages', () => {
       const page = new Page({
         url: '/d',
         params: {},
-        groupName: 'Group 1',
         containerName: 'Container 1A'
       })
-      const p:Pages = pages.push(page, 10000)
+      const p:Pages = pages.push({page, time: 10000})
       const h:HistoryStack = p.toHistoryStack()
       expect(h.back.length).to.equal(2)
       expect(h.current.url).to.equal('/d')
@@ -85,14 +84,15 @@ describe('Pages', () => {
     })
 
     it('works after pushing multiple pages', () => {
-      const push = (p:Pages, url:string, time:number) => p.push(new Page({
-        url,
-        params: {},
-        groupName: 'Group 1',
-        containerName: 'Container 1A'
-      }), time)
-      const p:Pages =
-          push(push(push(pages, '/d', 10000), '/d/1', 10001), '/d/1/1', 10002)
+      const push = (p:Pages, url:string, time:number) => p.push({
+        page: new Page({
+          url,
+          params: {},
+          containerName: 'Container 1A'
+        }),
+        time
+      })
+      const p = push(push(push(pages, '/d', 10000), '/d/1', 10001), '/d/1/1', 10002)
       const h:HistoryStack = p.toHistoryStack()
       expect(h.back.length).to.equal(4)
       expect(h.back[0].url).to.equal('/a')
@@ -115,7 +115,6 @@ describe('Pages', () => {
       const page = new Page({
         url: '/d',
         params: {},
-        groupName: 'Group 1',
         containerName: 'Container 1A'
       })
       expect(pages.containsPage(page)).to.equal(false)
@@ -136,7 +135,7 @@ describe('Pages', () => {
 
   describe('top', () => {
     it('goes back to the beginning of the stack', () => {
-      const p:Pages = pages.top(6000)
+      const p:Pages = pages.top({time: 6000})
       const h:HistoryStack = p.toHistoryStack()
       expect(h.back.length).to.equal(0)
       expect(h.current.url).to.equal('/a')
@@ -148,7 +147,7 @@ describe('Pages', () => {
 
   describe('back', () => {
     it('updates the time of the back page', () => {
-      const p:Pages = pages.back(1, 10000)
+      const p:Pages = pages.back({n: 1, time: 10000})
       expect(p.length).to.equal(3)
       expect(p.activePage.url).to.equal('/a')
       expect(p.activePage.lastVisit.time).to.equal(10000)

@@ -20,9 +20,9 @@ export type ChildrenType =
 export interface DumbContainerGroupProps {
   groupName: string
   children?: ChildrenType
-  currentContainerIndex?: number           // from user
-  currentContainerName?: string            // from user
-  onContainerActivate?: OnContainerSwitch  // from user
+  currentContainerIndex?: number|undefined      // from user
+  currentContainerName?: string|undefined       // from user
+  onContainerActivate?: OnContainerSwitch       // from user
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
   storedCurrentContainerIndex: number
@@ -51,7 +51,7 @@ export default class DumbContainerGroup extends
   }
 
   update({currentContainerIndex, currentContainerName}:
-         {currentContainerIndex:number|null, currentContainerName:string|null}) {
+         {currentContainerIndex:number|undefined, currentContainerName:string|undefined}) {
     if (this.props.onContainerActivate &&
         currentContainerIndex != null && currentContainerName) {
       this.props.onContainerActivate({
@@ -80,23 +80,29 @@ export default class DumbContainerGroup extends
    */
   componentWillReceiveProps(nextProps) {
     const oldII:number|undefined = this.props.currentContainerIndex
-    const oldSI:number|null = this.props.storedCurrentContainerIndex
+    const oldSI:number|undefined = this.props.storedCurrentContainerIndex
     const newII:number|undefined = nextProps.currentContainerIndex
-    const newSI:number|null = nextProps.storedCurrentContainerIndex
+    const newSI:number|undefined = nextProps.storedCurrentContainerIndex
     const oldIN:string|undefined = this.props.currentContainerName
-    const oldSN:string|null = this.props.storedCurrentContainerName
+    const oldSN:string|undefined = this.props.storedCurrentContainerName
     const newIN:string|undefined = nextProps.currentContainerName
-    const newSN:string|null = nextProps.storedCurrentContainerName
+    const newSN:string|undefined = nextProps.storedCurrentContainerName
     if (newSI !== oldSI || newSN !== oldSN) {
       this.update({
         currentContainerIndex:newSI,
         currentContainerName: newSN
       })
     }
-    else if (newII != null && newII !== oldII) {
+    else if (newII != null) {
+
+      console.log(oldII, newII)
+
       this.props.switchToContainerIndex(newII)
     }
-    else if (newIN && newIN !== oldIN) {
+    else if (newIN) {
+
+      console.log(oldIN, newIN)
+
       this.props.switchToContainerName(newIN)
     }
   }

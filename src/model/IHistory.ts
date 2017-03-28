@@ -7,7 +7,7 @@ abstract class IHistory {
   abstract forwardPage: Page|undefined
   abstract canGoBack(n: number): boolean
   abstract canGoForward(n: number): boolean
-  abstract get firstManualVisit(): PageVisit|null
+  abstract get firstManualVisit(): PageVisit|undefined
   abstract get lastVisit(): PageVisit
   abstract get activePage(): VisitedPage
   abstract get activeUrl(): string
@@ -20,12 +20,12 @@ abstract class IHistory {
   abstract get forwardLength():number
 
   abstract activate(pageVisit: PageVisit): IHistory
-  abstract push(page: Page, time:number, type?:VisitType): IHistory
-  abstract top(time: number, reset: boolean): IHistory
-  abstract back(n: number, time: number): IHistory
-  abstract forward(n: number, time: number): IHistory
-  abstract go(n: number, time: number): IHistory
-  abstract shiftTo(page: Page, time): IHistory
+  abstract push({page, time, type}:{page: Page, time:number, type?:VisitType}): IHistory
+  abstract top({time, reset}:{time: number, reset?: boolean}): IHistory
+  abstract back({n, time}:{n:number, time}): IHistory
+  abstract forward({n, time}:{n:number, time}): IHistory
+  abstract go({n, time}:{n:number, time}): IHistory
+  abstract shiftTo({page, time}:{page: Page, time}): IHistory
 }
 
 export default IHistory

@@ -20,8 +20,8 @@ export default class InitializedState extends State {
     return true
   }
 
-  switchToGroup({groupName, time}:{groupName:string, time:number}):State {
-    const group:Group = this.getGroupByName(groupName)
+  switchToGroup({name, time}:{name:string, time:number}):State {
+    const group:Group = this.getGroupByName(name)
     return this
       .replaceGroup(group.activate({time, type: VisitType.MANUAL}))
   }
@@ -29,7 +29,7 @@ export default class InitializedState extends State {
   switchToContainer({name, time}:{name:string, time:number}):State {
     const container:IContainer = this.getContainerByName(name)
     const group:Group = this.getGroupByName(container.groupName)
-    const c = group.activateContainer(name, time)
+    const c = group.activateContainer({name, time})
     return this
       .replaceGroup(c)
       .openWindow(name)
@@ -45,7 +45,7 @@ export default class InitializedState extends State {
     const state:State = this.setWindowVisibility({forName, visible: false})
     const group:Group = state.getGroupByName(groupName)
     if (group.hasEnabledContainers) {
-      return state.switchToGroup({groupName, time})
+      return state.switchToGroup({name: groupName, time})
     }
     else {
       return state.back({n: 1, time})
@@ -66,7 +66,7 @@ export default class InitializedState extends State {
       const state:State = this.assign({isOnZeroPage: false})
       return state.go({n: n - 1, time})
     }
-    const f = (x:number):State => this.replaceGroup(this.activeGroup.go(x, time))
+    const f = (x):State => this.replaceGroup(this.activeGroup.go({n: x, time}))
     if (n < 0 && !this.canGoBack(0 - n)) {  // if going back to zero page
       return (n < -1 ? f(n + 1) : this).assign({isOnZeroPage: true})
     }
@@ -101,7 +101,7 @@ export default class InitializedState extends State {
     const container:IContainer = this.getContainerByName(containerName)
     const group:Group = this.getGroupByName(container.groupName)
     return this.replaceGroup(group.replaceContainer(
-        container.top(time, reset) as IContainer))
+        container.top({time, reset}) as IContainer))
   }
 
   getShiftAmount(page:Page):number {
@@ -126,10 +126,10 @@ export default class InitializedState extends State {
     return this.getRootGroupOfGroupByName(group.name)
   }
 
-  push(page:Page, time:number):State {
+  push({page, time}:{page:Page, time:number}):State {
     const container:IContainer = this.getContainerByName(page.containerName)
     const group:Group = this.getGroupByName(container.groupName)
-    return this.replaceGroup(group.push(page, time, VisitType.MANUAL))
+    return this.replaceGroup(group.push({page, time, type: VisitType.MANUAL}))
   }
 
   protected getHistory(maintainFwd:boolean=false):HistoryStack {
@@ -185,7 +185,8 @@ export default class InitializedState extends State {
   isContainerActiveAndEnabled(containerName:string):boolean {
     const container:IContainer = this.getContainerByName(containerName)
     const group:Group = this.getGroupByName(container.groupName)
-    return group.isContainerActiveAndEnabled(containerName)
+    return this.activeGroupName === group.name && group.enabled &&
+           group.isContainerActiveAndEnabled(containerName)
   }
 
   get activeUrl():string {

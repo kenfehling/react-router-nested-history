@@ -3227,8 +3227,8 @@ var Pages = (function () {
     Pages.prototype.activate = function (pageVisit) {
         return this.touchPageAtIndex(this.activeIndex, pageVisit);
     };
-    Pages.prototype.push = function (page, time, type) {
-        if (type === void 0) { type = PageVisit_1.VisitType.MANUAL; }
+    Pages.prototype.push = function (_a) {
+        var page = _a.page, time = _a.time, type = _a.type;
         var index = this.activeIndex + 1;
         var newPage = new VistedPage_1.default(__assign({}, Object(page), { visits: [{ time: time, type: type }] }));
         return new Pages(this.pages.slice(0, index).concat([newPage]));
@@ -3238,8 +3238,8 @@ var Pages = (function () {
      * @param time - The time this action was originally run
      * @param reset - Should it remove the forward pages from history?
      */
-    Pages.prototype.top = function (time, reset) {
-        if (reset === void 0) { reset = false; }
+    Pages.prototype.top = function (_a) {
+        var time = _a.time, _b = _a.reset, reset = _b === void 0 ? false : _b;
         var visit = { time: time, type: PageVisit_1.VisitType.MANUAL };
         var page = this.pages[0].touch(visit);
         return new Pages(reset ? [page] : [page].concat(this.slice(1).pages));
@@ -3259,7 +3259,8 @@ var Pages = (function () {
             return index - this.activeIndex;
         }
     };
-    Pages.prototype.go = function (n, time) {
+    Pages.prototype.go = function (_a) {
+        var n = _a.n, time = _a.time;
         var oldIndex = this.activeIndex;
         var newIndex = oldIndex + n;
         if (newIndex < 0 || newIndex >= this.pages.length) {
@@ -3269,13 +3270,13 @@ var Pages = (function () {
             return this.touchPageAtIndex(newIndex, { time: time, type: PageVisit_1.VisitType.MANUAL });
         }
     };
-    Pages.prototype.back = function (n, time) {
-        if (n === void 0) { n = 1; }
-        return this.go(0 - n, time);
+    Pages.prototype.back = function (_a) {
+        var _b = _a.n, n = _b === void 0 ? 1 : _b, time = _a.time;
+        return this.go({ n: 0 - n, time: time });
     };
-    Pages.prototype.forward = function (n, time) {
-        if (n === void 0) { n = 1; }
-        return this.go(n, time);
+    Pages.prototype.forward = function (_a) {
+        var _b = _a.n, n = _b === void 0 ? 1 : _b, time = _a.time;
+        return this.go({ n: n, time: time });
     };
     Pages.prototype.canGoBack = function (n) {
         if (n === void 0) { n = 1; }
@@ -3327,8 +3328,9 @@ var Pages = (function () {
         enumerable: true,
         configurable: true
     });
-    Pages.prototype.shiftTo = function (page, time) {
-        return this.go(this.getShiftAmount(page), time);
+    Pages.prototype.shiftTo = function (_a) {
+        var page = _a.page, time = _a.time;
+        return this.go({ n: this.getShiftAmount(page), time: time });
     };
     Object.defineProperty(Pages.prototype, "activePage", {
         get: function () {
@@ -3355,7 +3357,7 @@ var Pages = (function () {
     Object.defineProperty(Pages.prototype, "firstManualVisit", {
         get: function () {
             var page = this.pages.filter(function (p) { return p.wasManuallyVisited; })[0];
-            return page ? page.firstManualVisit : null;
+            return page ? page.firstManualVisit : undefined;
         },
         enumerable: true,
         configurable: true
@@ -17234,12 +17236,12 @@ var Container = (function () {
         enumerable: true,
         configurable: true
     });
-    Container.prototype.push = function (page, time, type) {
-        if (type === void 0) { type = PageVisit_1.VisitType.MANUAL; }
-        return this.setEnabled(true).replacePages(this.pages.push(page, time, type));
+    Container.prototype.push = function (_a) {
+        var page = _a.page, time = _a.time, type = _a.type;
+        return this.setEnabled(true).replacePages(this.pages.push({ page: page, time: time, type: type }));
     };
-    Container.prototype.pushUrl = function (url, time, type) {
-        if (type === void 0) { type = PageVisit_1.VisitType.MANUAL; }
+    Container.prototype.pushUrl = function (_a) {
+        var url = _a.url, time = _a.time, _b = _a.type, type = _b === void 0 ? PageVisit_1.VisitType.MANUAL : _b;
         if (this.activePage.url === url) {
             return this.activate({ time: time, type: type });
         }
@@ -17249,14 +17251,15 @@ var Container = (function () {
                 params: url_1.parseParamsFromPatterns(this.patterns, url),
                 containerName: this.name,
             });
-            return this.push(page, time, type);
+            return this.push({ page: page, time: time, type: type });
         }
     };
-    Container.prototype.loadFromUrl = function (url, time) {
+    Container.prototype.load = function (_a) {
+        var url = _a.url, time = _a.time;
         if (this.patternsMatch(url)) {
             var container = this.isAtTopPage ?
                 this.activate({ time: time - 1, type: PageVisit_1.VisitType.MANUAL }) : this;
-            return container.pushUrl(url, time, PageVisit_1.VisitType.MANUAL);
+            return container.pushUrl({ url: url, time: time, type: PageVisit_1.VisitType.MANUAL });
         }
         else {
             return this;
@@ -17265,20 +17268,21 @@ var Container = (function () {
     Container.prototype.activate = function (visit) {
         return this.setEnabled(true).replacePages(this.pages.activate(visit));
     };
-    Container.prototype.top = function (time, reset) {
-        if (reset === void 0) { reset = false; }
-        return this.replacePages(this.pages.top(time, reset));
+    Container.prototype.top = function (_a) {
+        var time = _a.time, _b = _a.reset, reset = _b === void 0 ? false : _b;
+        return this.replacePages(this.pages.top({ time: time, reset: reset }));
     };
-    Container.prototype.go = function (n, time) {
-        return this.replacePages(this.pages.go(n, time));
+    Container.prototype.go = function (_a) {
+        var n = _a.n, time = _a.time;
+        return this.replacePages(this.pages.go({ n: n, time: time }));
     };
-    Container.prototype.forward = function (n, time) {
-        if (n === void 0) { n = 1; }
-        return this.replacePages(this.pages.forward(n, time));
+    Container.prototype.forward = function (_a) {
+        var _b = _a.n, n = _b === void 0 ? 1 : _b, time = _a.time;
+        return this.replacePages(this.pages.forward({ n: n, time: time }));
     };
-    Container.prototype.back = function (n, time) {
-        if (n === void 0) { n = 1; }
-        return this.replacePages(this.pages.back(n, time));
+    Container.prototype.back = function (_a) {
+        var _b = _a.n, n = _b === void 0 ? 1 : _b, time = _a.time;
+        return this.replacePages(this.pages.back({ n: n, time: time }));
     };
     Container.prototype.canGoForward = function (n) {
         if (n === void 0) { n = 1; }
@@ -17291,8 +17295,9 @@ var Container = (function () {
     Container.prototype.getShiftAmount = function (page) {
         return this.pages.getShiftAmount(page);
     };
-    Container.prototype.shiftTo = function (page, time) {
-        return this.replacePages(this.pages.shiftTo(page, time));
+    Container.prototype.shiftTo = function (_a) {
+        var page = _a.page, time = _a.time;
+        return this.replacePages(this.pages.shiftTo({ page: page, time: time }));
     };
     Container.prototype.containsPage = function (page) {
         return this.pages.containsPage(page);
@@ -17620,7 +17625,7 @@ var State = (function () {
             return g;
         }
         else {
-            var foundGroup_1 = null;
+            var foundGroup_1 = undefined;
             this.groups.forEach(function (group) {
                 var g = group.getNestedGroupByName(name);
                 if (g) {
@@ -17637,18 +17642,18 @@ var State = (function () {
         }
     };
     State.prototype.getContainerByName = function (name) {
-        var foundContainer = null;
+        var foundContainer = undefined;
         this.groups.forEach(function (group) {
             if (group.name === name) {
                 foundContainer = group;
                 return;
             }
             else {
-                var c = group.getNestedContainerByName(name);
-                if (c) {
-                    foundContainer = c;
+                try {
+                    foundContainer = group.getNestedContainerByName(name);
                     return;
                 }
+                catch (e) { }
             }
         });
         if (foundContainer) {
@@ -17701,7 +17706,7 @@ var State = (function () {
     };
     State.prototype.getTitleForPath = function (pathname) {
         var found = R.find(function (t) { return t.pathname === pathname; }, this.titles);
-        return found ? found.title : null;
+        return found ? found.title : undefined;
     };
     State.prototype.hasTitleForPath = function (pathname) {
         return !!this.getTitleForPath(pathname);
@@ -17786,7 +17791,7 @@ var UninitializedState = (function (_super) {
         configurable: true
     });
     UninitializedState.prototype.switchToGroup = function (_a) {
-        var groupName = _a.groupName, time = _a.time;
+        var name = _a.name, time = _a.time;
         throw new Error(UNINITIALIZED_MESSAGE);
     };
     UninitializedState.prototype.switchToContainer = function (_a) {
@@ -17838,7 +17843,8 @@ var UninitializedState = (function (_super) {
     UninitializedState.prototype.getRootGroupOfGroup = function (group) {
         throw new Error(UNINITIALIZED_MESSAGE);
     };
-    UninitializedState.prototype.push = function (page, time) {
+    UninitializedState.prototype.push = function (_a) {
+        var page = _a.page, time = _a.time;
         throw new Error(UNINITIALIZED_MESSAGE);
     };
     UninitializedState.prototype.getHistory = function (maintainFwd) {
@@ -18065,35 +18071,38 @@ var InitializedState_1 = __webpack_require__(296);
 var Serializable_1 = __webpack_require__(13);
 var load = function (state, url, time) {
     return new InitializedState_1.default(state.groups.reduce(function (s, group) {
-        return s.replaceGroup(group.loadFromUrl(url, time));
+        return s.replaceGroup(group.load({ url: url, time: time }));
     }, state));
 };
-var LoadFromUrl = LoadFromUrl_1 = (function (_super) {
-    __extends(LoadFromUrl, _super);
-    function LoadFromUrl(_a) {
+/**
+ * Action to load the site from any given URL (bookmark, etc.)
+ */
+var Load = Load_1 = (function (_super) {
+    __extends(Load, _super);
+    function Load(_a) {
         var time = _a.time, url = _a.url, _b = _a.fromRefresh, fromRefresh = _b === void 0 ? false : _b;
         var _this = _super.call(this, { time: time, origin: BaseAction_1.USER }) || this;
-        _this.type = LoadFromUrl_1.type;
+        _this.type = Load_1.type;
         _this.url = url;
         _this.fromRefresh = fromRefresh;
         return _this;
     }
-    LoadFromUrl.prototype.reduce = function (state) {
+    Load.prototype.reduce = function (state) {
         return this.fromRefresh ? new InitializedState_1.default(state) :
             load(state, this.url, this.time);
     };
-    LoadFromUrl.prototype.addSteps = function (steps, state) {
+    Load.prototype.addSteps = function (steps, state) {
         return this.fromRefresh ? [] : _super.prototype.addSteps.call(this, steps, state);
     };
-    return LoadFromUrl;
+    return Load;
 }(BaseAction_1.default));
-LoadFromUrl.type = 'LoadFromUrl';
-LoadFromUrl = LoadFromUrl_1 = __decorate([
+Load.type = 'Load';
+Load = Load_1 = __decorate([
     Serializable_1.default,
     __metadata("design:paramtypes", [Object])
-], LoadFromUrl);
-exports.default = LoadFromUrl;
-var LoadFromUrl_1;
+], Load);
+exports.default = Load;
+var Load_1;
 
 
 /***/ }),
@@ -18211,12 +18220,14 @@ var Push = Push_1 = (function (_super) {
     Push.prototype.reduce = function (state) {
         var container = state.getContainerByName(this.containerName);
         var params = url_1.parseParamsFromPatterns(container.patterns, this.url);
-        var page = new Page_1.default({
-            params: params,
-            url: this.url,
-            containerName: this.containerName
+        return state.push({
+            page: new Page_1.default({
+                params: params,
+                url: this.url,
+                containerName: this.containerName
+            }),
+            time: this.time
         });
-        return state.push(page, this.time);
     };
     Push.prototype.filter = function (state) {
         if (state.activeUrl === this.url) {
@@ -18483,10 +18494,12 @@ var DumbContainerGroup = (function (_super) {
                 currentContainerName: newSN
             });
         }
-        else if (newII != null && newII !== oldII) {
+        else if (newII != null) {
+            console.log(oldII, newII);
             this.props.switchToContainerIndex(newII);
         }
-        else if (newIN && newIN !== oldIN) {
+        else if (newIN) {
+            console.log(oldIN, newIN);
             this.props.switchToContainerName(newIN);
         }
     };
@@ -26494,7 +26507,7 @@ var store_1 = __webpack_require__(168);
 var DumbHistoryRouter_1 = __webpack_require__(309);
 var ExecutionEnvironment_1 = __webpack_require__(8);
 var browserFunctions_1 = __webpack_require__(31);
-var LoadFromUrl_1 = __webpack_require__(159);
+var Load_1 = __webpack_require__(159);
 var SetZeroPage_1 = __webpack_require__(303);
 var StepRunner_1 = __webpack_require__(313);
 var TitleSetter_1 = __webpack_require__(314);
@@ -26601,7 +26614,7 @@ var mapStateToProps = function (state) { return ({
     loadedFromRefresh: browserFunctions_1.wasLoadedFromRefresh
 }); };
 var makeGetActions = function () { return selectors_1.createCachingSelector(selectors_1.getDispatch, function (dispatch) { return ({
-    loadFromUrl: function (url) { return dispatch(new LoadFromUrl_1.default({ url: url })); },
+    loadFromUrl: function (url) { return dispatch(new Load_1.default({ url: url })); },
     refresh: function () { return dispatch(new Refresh_1.default()); },
     setZeroPage: function (url) { return dispatch(new SetZeroPage_1.default({ url: url })); }
 }); }); };
@@ -27040,16 +27053,17 @@ var Group = (function () {
             }
         }
     };
-    Group.prototype.activateContainer = function (containerName, time) {
+    Group.prototype.activateContainer = function (_a) {
+        var name = _a.name, time = _a.time;
         var visit = { time: time, type: PageVisit_1.VisitType.MANUAL };
         var from = this.activeContainer;
-        var to = this.getContainerByName(containerName);
+        var to = this.getContainerByName(name);
         if (from === to) {
             return this.replaceContainer(to.activate(visit));
         }
         else {
             var group = from.resetOnLeave && from.name !== to.name ?
-                this.replaceContainer(from.top(time, true)) : this;
+                this.replaceContainer(from.top({ time: time, reset: true })) : this;
             return group.replaceContainer(to.activate(__assign({}, visit, { time: visit.time + 1 })));
         }
     };
@@ -27074,8 +27088,9 @@ var Group = (function () {
         enumerable: true,
         configurable: true
     });
-    Group.prototype.loadFromUrl = function (url, time) {
-        return this.patternsMatch(url) ? new Group(__assign({}, Object(this), { containers: this.containers.map(function (c) { return c.loadFromUrl(url, time); }) })).setEnabled(true) : this;
+    Group.prototype.load = function (_a) {
+        var url = _a.url, time = _a.time;
+        return this.patternsMatch(url) ? new Group(__assign({}, Object(this), { containers: this.containers.map(function (c) { return c.load({ url: url, time: time }); }) })).setEnabled(true) : this;
     };
     Group.prototype.patternsMatch = function (url) {
         return R.any(function (c) { return c.patternsMatch(url); }, this.containers.toArray());
@@ -27170,17 +27185,17 @@ var Group = (function () {
     Group.prototype.getActiveUrlInContainer = function (containerName) {
         return this.getActivePageInContainer(containerName).url;
     };
-    Group.prototype.top = function (time, reset) {
-        if (reset === void 0) { reset = false; }
-        var container = this.activeContainer.top(time, reset);
+    Group.prototype.top = function (_a) {
+        var time = _a.time, _b = _a.reset, reset = _b === void 0 ? false : _b;
+        var container = this.activeContainer.top({ time: time, reset: reset });
         return this.replaceContainer(container);
     };
-    Group.prototype.push = function (page, time, type) {
-        if (type === void 0) { type = PageVisit_1.VisitType.MANUAL; }
-        var container = this.getContainerByName(page.containerName);
+    Group.prototype.push = function (_a) {
+        var page = _a.page, time = _a.time, _b = _a.type, type = _b === void 0 ? PageVisit_1.VisitType.MANUAL : _b;
+        var container = this.getNestedContainerByName(page.containerName);
         var groupName = container.groupName;
         if (groupName === this.name) {
-            var newContainer = container.push(page, time, type);
+            var newContainer = container.push({ page: page, time: time, type: type });
             return this.replaceContainer(newContainer);
         }
         else {
@@ -27188,7 +27203,7 @@ var Group = (function () {
             if (!group) {
                 throw new Error('Group \'' + groupName + '\' not found in ' + this.name);
             }
-            var newContainer = group.push(page, time, type);
+            var newContainer = group.push({ page: page, time: time, type: type });
             return this.setEnabled(true).replaceContainer(newContainer);
         }
     };
@@ -27236,13 +27251,19 @@ var Group = (function () {
         var remainder = n - amount;
         if (remainder > 0) {
             if (lengthFn(group) >= remainder) {
-                var nextContainer = nextPageFn(group).containerName;
-                var newGroup = group.activateContainer(nextContainer, time + 1);
-                if (remainder > 1) {
-                    return this._go(goFn, lengthFn, nextPageFn, remainder - 1, time + 2);
+                var nextPage = nextPageFn(group);
+                if (!nextPage) {
+                    throw new Error('Couldn\'t get next page');
                 }
                 else {
-                    return newGroup;
+                    var nextContainer = nextPage.containerName;
+                    var newGroup = group.activateContainer({ name: nextContainer, time: time + 1 });
+                    if (remainder > 1) {
+                        return this._go(goFn, lengthFn, nextPageFn, remainder - 1, time + 2);
+                    }
+                    else {
+                        return newGroup;
+                    }
                 }
             }
             else {
@@ -27253,16 +27274,17 @@ var Group = (function () {
             return group;
         }
     };
-    Group.prototype.forward = function (n, time) {
-        if (n === void 0) { n = 1; }
-        return this._go(function (c, n, t) { return c.forward(n, t); }, function (c) { return c.forwardLength; }, function (c) { return c.forwardPage; }, n, time);
+    Group.prototype.forward = function (_a) {
+        var _b = _a.n, n = _b === void 0 ? 1 : _b, time = _a.time;
+        return this._go(function (c, n, t) { return c.forward({ n: n, time: t }); }, function (c) { return c.forwardLength; }, function (c) { return c.forwardPage; }, n, time);
     };
-    Group.prototype.back = function (n, time) {
-        if (n === void 0) { n = 1; }
-        return this._go(function (c, n, t) { return c.back(n, t); }, function (c) { return c.backLength; }, function (c) { return c.backPage; }, n, time);
+    Group.prototype.back = function (_a) {
+        var _b = _a.n, n = _b === void 0 ? 1 : _b, time = _a.time;
+        return this._go(function (c, n, t) { return c.back({ n: n, time: t }); }, function (c) { return c.backLength; }, function (c) { return c.backPage; }, n, time);
     };
-    Group.prototype.go = function (n, time) {
-        return n > 0 ? this.forward(n, time) : this.back(0 - n, time);
+    Group.prototype.go = function (_a) {
+        var n = _a.n, time = _a.time;
+        return n > 0 ? this.forward({ n: n, time: time }) : this.back({ n: 0 - n, time: time });
     };
     Object.defineProperty(Group.prototype, "backPage", {
         get: function () {
@@ -27286,8 +27308,9 @@ var Group = (function () {
         if (n === void 0) { n = 1; }
         return this.pages.canGoForward(n);
     };
-    Group.prototype.shiftTo = function (page, time) {
-        return this.go(this.getShiftAmount(page), time);
+    Group.prototype.shiftTo = function (_a) {
+        var page = _a.page, time = _a.time;
+        return this.go({ n: this.getShiftAmount(page), time: time });
     };
     Object.defineProperty(Group.prototype, "subGroups", {
         get: function () {
@@ -27305,21 +27328,26 @@ var Group = (function () {
         configurable: true
     });
     Group.prototype.getNestedContainerByName = function (name) {
-        var foundContainer = null;
+        var foundContainer = undefined;
         this.containers.forEach(function (container) {
             if (container.name === name) {
                 foundContainer = container;
                 return;
             }
             else if (container instanceof Group) {
-                var c = container.getNestedContainerByName(name);
-                if (c) {
-                    foundContainer = c;
+                try {
+                    foundContainer = container.getNestedContainerByName(name);
                     return;
                 }
+                catch (e) { }
             }
         });
-        return foundContainer;
+        if (foundContainer) {
+            return foundContainer;
+        }
+        else {
+            throw new Error("Container " + name + " not found under group " + this.name);
+        }
     };
     Group.prototype.getNestedGroupByName = function (name) {
         var container = this.getNestedContainerByName(name);
@@ -27347,7 +27375,13 @@ var Group = (function () {
         return this.containers.has(name);
     };
     Group.prototype.hasNestedContainerWithName = function (name) {
-        return !!this.getNestedContainerByName(name);
+        try {
+            this.getNestedContainerByName(name);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
     };
     Group.prototype.hasNestedContainer = function (container) {
         return this.hasNestedContainerWithName(container.name);
@@ -27617,8 +27651,8 @@ var InitializedState = (function (_super) {
         configurable: true
     });
     InitializedState.prototype.switchToGroup = function (_a) {
-        var groupName = _a.groupName, time = _a.time;
-        var group = this.getGroupByName(groupName);
+        var name = _a.name, time = _a.time;
+        var group = this.getGroupByName(name);
         return this
             .replaceGroup(group.activate({ time: time, type: PageVisit_1.VisitType.MANUAL }));
     };
@@ -27626,7 +27660,7 @@ var InitializedState = (function (_super) {
         var name = _a.name, time = _a.time;
         var container = this.getContainerByName(name);
         var group = this.getGroupByName(container.groupName);
-        var c = group.activateContainer(name, time);
+        var c = group.activateContainer({ name: name, time: time });
         return this
             .replaceGroup(c)
             .openWindow(name);
@@ -27640,7 +27674,7 @@ var InitializedState = (function (_super) {
         var state = this.setWindowVisibility({ forName: forName, visible: false });
         var group = state.getGroupByName(groupName);
         if (group.hasEnabledContainers) {
-            return state.switchToGroup({ groupName: groupName, time: time });
+            return state.switchToGroup({ name: groupName, time: time });
         }
         else {
             return state.back({ n: 1, time: time });
@@ -27661,7 +27695,7 @@ var InitializedState = (function (_super) {
             var state = this.assign({ isOnZeroPage: false });
             return state.go({ n: n - 1, time: time });
         }
-        var f = function (x) { return _this.replaceGroup(_this.activeGroup.go(x, time)); };
+        var f = function (x) { return _this.replaceGroup(_this.activeGroup.go({ n: x, time: time })); };
         if (n < 0 && !this.canGoBack(0 - n)) {
             return (n < -1 ? f(n + 1) : this).assign({ isOnZeroPage: true });
         }
@@ -27693,7 +27727,7 @@ var InitializedState = (function (_super) {
         var containerName = _a.containerName, time = _a.time, _b = _a.reset, reset = _b === void 0 ? false : _b;
         var container = this.getContainerByName(containerName);
         var group = this.getGroupByName(container.groupName);
-        return this.replaceGroup(group.replaceContainer(container.top(time, reset)));
+        return this.replaceGroup(group.replaceContainer(container.top({ time: time, reset: reset })));
     };
     InitializedState.prototype.getShiftAmount = function (page) {
         return this.pages.getShiftAmount(page);
@@ -27713,10 +27747,11 @@ var InitializedState = (function (_super) {
     InitializedState.prototype.getRootGroupOfGroup = function (group) {
         return this.getRootGroupOfGroupByName(group.name);
     };
-    InitializedState.prototype.push = function (page, time) {
+    InitializedState.prototype.push = function (_a) {
+        var page = _a.page, time = _a.time;
         var container = this.getContainerByName(page.containerName);
         var group = this.getGroupByName(container.groupName);
-        return this.replaceGroup(group.push(page, time, PageVisit_1.VisitType.MANUAL));
+        return this.replaceGroup(group.push({ page: page, time: time, type: PageVisit_1.VisitType.MANUAL }));
     };
     InitializedState.prototype.getHistory = function (maintainFwd) {
         if (maintainFwd === void 0) { maintainFwd = false; }
@@ -27768,7 +27803,8 @@ var InitializedState = (function (_super) {
     InitializedState.prototype.isContainerActiveAndEnabled = function (containerName) {
         var container = this.getContainerByName(containerName);
         var group = this.getGroupByName(container.groupName);
-        return group.isContainerActiveAndEnabled(containerName);
+        return this.activeGroupName === group.name && group.enabled &&
+            group.isContainerActiveAndEnabled(containerName);
     };
     Object.defineProperty(InitializedState.prototype, "activeUrl", {
         get: function () {
@@ -28174,7 +28210,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var BaseAction_1 = __webpack_require__(15);
 var NonStepAction_1 = __webpack_require__(69);
 var Serializable_1 = __webpack_require__(13);
-var LoadFromUrl_1 = __webpack_require__(159);
+var Load_1 = __webpack_require__(159);
 var Refresh = Refresh_1 = (function (_super) {
     __extends(Refresh, _super);
     function Refresh(_a) {
@@ -28191,8 +28227,8 @@ var Refresh = Refresh_1 = (function (_super) {
     };
     Refresh.prototype.store = function (actions) {
         var updatedActions = actions.map(function (action) {
-            if (action instanceof LoadFromUrl_1.default) {
-                return new LoadFromUrl_1.default(__assign({}, action, { fromRefresh: true }));
+            if (action instanceof Load_1.default) {
+                return new Load_1.default(__assign({}, action, { fromRefresh: true }));
             }
             else {
                 return action;
@@ -28623,15 +28659,6 @@ var DumbHistoryWindow = (function (_super) {
         };
         return _this;
     }
-    DumbHistoryWindow.prototype.onMouseDown = function (event) {
-        var open = this.props.open;
-        open();
-        //event.stopPropagation()
-    };
-    DumbHistoryWindow.prototype.getClassName = function () {
-        var _a = this.props, className = _a.className, topClassName = _a.topClassName, isOnTop = _a.isOnTop;
-        return isOnTop && topClassName ? topClassName : className || '';
-    };
     DumbHistoryWindow.prototype.componentWillMount = function () {
         var _a = this.props, top = _a.top, middle = _a.middle, bottom = _a.bottom, left = _a.left, center = _a.center, right = _a.right;
         if (countNonNulls(top, middle, bottom) > 1) {
@@ -28690,6 +28717,15 @@ var DumbHistoryWindow = (function (_super) {
             }
         }
         return 0;
+    };
+    DumbHistoryWindow.prototype.getClassName = function () {
+        var _a = this.props, className = _a.className, topClassName = _a.topClassName, isOnTop = _a.isOnTop;
+        return isOnTop && topClassName ? topClassName : className || '';
+    };
+    DumbHistoryWindow.prototype.onMouseDown = function (event) {
+        var open = this.props.open;
+        open();
+        //event.stopPropagation()
     };
     DumbHistoryWindow.prototype.onDrag = function (event, data) {
         this.props.move({ x: data.x, y: data.y });

@@ -24,7 +24,7 @@ import HistoryWindow from './HistoryWindow'
 // Param types for _go method
 type GoFn = <H extends IHistory> (h:H, n:number, time:number) => H
 type LengthFn = <H extends IHistory> (h:H) => number
-type NextPageFn = <H extends IHistory> (h:H) => Page
+type NextPageFn = <H extends IHistory> (h:H) => Page|undefined
 
 export default class Group implements IContainer {
   readonly name: string
@@ -64,7 +64,7 @@ export default class Group implements IContainer {
       })
     }
     else {
-      const group:ISubGroup|null = this.getNestedGroupByName(groupName)
+      const group:ISubGroup|undefined = this.getNestedGroupByName(groupName)
       if (!group) {
         throw new Error('Group \'' + groupName + '\' not found in ' + this.name)
       }
@@ -181,16 +181,16 @@ export default class Group implements IContainer {
     }
   }
 
-  activateContainer(containerName:string, time:number):Group {
+  activateContainer({name, time}:{name:string, time:number}):Group {
     const visit:PageVisit = {time, type: VisitType.MANUAL}
     const from:IContainer = this.activeContainer
-    const to:IContainer = this.getContainerByName(containerName)
+    const to:IContainer = this.getContainerByName(name)
     if (from === to) {
       return this.replaceContainer(to.activate(visit) as IContainer)
     }
     else {
       const group:Group = from.resetOnLeave && from.name !== to.name ?
-        this.replaceContainer(from.top(time, true) as IContainer) : this
+        this.replaceContainer(from.top({time, reset: true}) as IContainer) : this
       return group.replaceContainer(
         to.activate({...visit, time: visit.time + 1}) as IContainer)
     }
@@ -208,10 +208,10 @@ export default class Group implements IContainer {
     return this.getHistory(true)
   }
 
-  loadFromUrl(url:string, time:number):Group {
+  load({url, time}:{url: string, time: number}):Group {
     return this.patternsMatch(url) ? new Group({
       ...Object(this),
-      containers: this.containers.map((c:IContainer) => c.loadFromUrl(url, time))
+      containers: this.containers.map((c:IContainer) => c.load({url, time}))
     }).setEnabled(true) : this
   }
 
@@ -297,24 +297,25 @@ export default class Group implements IContainer {
     return this.getActivePageInContainer(containerName).url
   }
 
-  top(time:number, reset:boolean=false):Group {
-    const container = this.activeContainer.top(time, reset) as IContainer
+  top({time, reset=false}:{time:number, reset?:boolean}):Group {
+    const container = this.activeContainer.top({time, reset}) as IContainer
     return this.replaceContainer(container)
   }
 
-  push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Group {
-    const container:IContainer = this.getContainerByName(page.containerName)
+  push({page, time, type=VisitType.MANUAL}:
+       {page: Page, time:number, type?:VisitType}):Group {
+    const container:IContainer = this.getNestedContainerByName(page.containerName)
     const groupName:string = container.groupName
     if (groupName === this.name) {
-      const newContainer = container.push(page, time, type) as IContainer
+      const newContainer = container.push({page, time, type}) as IContainer
       return this.replaceContainer(newContainer)
     }
     else {
-      const group:ISubGroup|null = this.getNestedGroupByName(groupName)
+      const group:ISubGroup|undefined = this.getNestedGroupByName(groupName)
       if (!group) {
         throw new Error('Group \'' + groupName + '\' not found in ' + this.name)
       }
-      const newContainer = group.push(page, time, type) as IContainer
+      const newContainer = group.push({page, time, type}) as IContainer
       return this.setEnabled(true).replaceContainer(newContainer)
     }
   }
@@ -364,13 +365,20 @@ export default class Group implements IContainer {
     const remainder = n - amount
     if (remainder > 0) {
       if (lengthFn(group) >= remainder) {
-        const nextContainer:string = nextPageFn(group).containerName
-        const newGroup:Group = group.activateContainer(nextContainer, time + 1)
-        if (remainder > 1) {
-          return this._go(goFn, lengthFn, nextPageFn, remainder - 1, time + 2)
+        const nextPage:Page|undefined = nextPageFn(group)
+        if (!nextPage) {
+          throw new Error('Couldn\'t get next page')
         }
         else {
-          return newGroup
+          const nextContainer:string = nextPage.containerName
+          const newGroup:Group =
+            group.activateContainer({name: nextContainer, time: time + 1})
+          if (remainder > 1) {
+            return this._go(goFn, lengthFn, nextPageFn, remainder - 1, time + 2)
+          }
+          else {
+            return newGroup
+          }
         }
       }
       else {
@@ -382,24 +390,24 @@ export default class Group implements IContainer {
     }
   }
 
-  forward(n:number=1, time):Group {
+  forward({n=1, time}:{n:number, time}):Group {
     return this._go(
-      (c, n, t) => c.forward(n, t),
-      c => c.forwardLength,
-      c => c.forwardPage,
+      (c:IContainer, n:number, t:number) => c.forward({n, time: t}),
+      (c:IContainer) => c.forwardLength,
+      (c:IContainer) => c.forwardPage,
       n, time)
   }
 
-  back(n:number=1, time):Group {
+  back({n=1, time}:{n:number, time}):Group {
     return this._go(
-      (c, n, t) => c.back(n, t),
-      c => c.backLength,
-      c => c.backPage,
+      (c:IContainer, n:number, t:number) => c.back({n, time: t}),
+      (c:IContainer) => c.backLength,
+      (c:IContainer) => c.backPage,
       n, time)
   }
 
-  go(n:number, time):Group {
-    return n > 0 ? this.forward(n, time) : this.back(0 - n, time)
+  go({n, time}:{n:number, time}):Group {
+    return n > 0 ? this.forward({n, time}) : this.back({n: 0 - n, time})
   }
 
   get backPage():Page|undefined {
@@ -418,8 +426,8 @@ export default class Group implements IContainer {
     return this.pages.canGoForward(n)
   }
 
-  shiftTo(page:Page, time):Group {
-    return this.go(this.getShiftAmount(page), time)
+  shiftTo({page, time}:{page:Page, time}):Group {
+    return this.go({n: this.getShiftAmount(page), time})
   }
 
   get subGroups():Map<string, Group> {
@@ -431,26 +439,31 @@ export default class Group implements IContainer {
     return c ? c.wasManuallyVisited : false
   }
 
-  getNestedContainerByName(name:string):IContainer|null {
-    let foundContainer:IContainer|null = null
+  getNestedContainerByName(name:string):IContainer {
+    let foundContainer:IContainer|undefined = undefined
     this.containers.forEach((container:IContainer) => {
       if (container.name === name) {
         foundContainer = container
         return
       }
       else if (container instanceof Group) {
-        const c = container.getNestedContainerByName(name)
-        if (c) {
-          foundContainer = c
+        try {
+          foundContainer = container.getNestedContainerByName(name)
           return
         }
+        catch (e) {}
       }
     })
-    return foundContainer
+    if (foundContainer) {
+      return foundContainer
+    }
+    else {
+      throw new Error(`Container ${name} not found under group ${this.name}`)
+    }
   }
 
-  getNestedGroupByName(name:string):ISubGroup|null {
-    const container:IContainer|null = this.getNestedContainerByName(name)
+  getNestedGroupByName(name:string):ISubGroup {
+    const container:IContainer = this.getNestedContainerByName(name)
     if (container && !(container instanceof Group)) {
       throw new Error(`Found ${name} but it's not a Group`)
     }
@@ -480,7 +493,13 @@ export default class Group implements IContainer {
   }
 
   hasNestedContainerWithName(name:string):boolean {
-    return !!this.getNestedContainerByName(name)
+    try {
+      this.getNestedContainerByName(name)
+      return true
+    }
+    catch (e) {
+      return false
+    }
   }
 
   hasNestedContainer(container:IContainer):boolean {
@@ -545,7 +564,7 @@ export default class Group implements IContainer {
     return new Pages(this.history.flatten(), false)
   }
 
-  get firstManualVisit():PageVisit|null {
+  get firstManualVisit():PageVisit|undefined {
     return this.pages.firstManualVisit
   }
 

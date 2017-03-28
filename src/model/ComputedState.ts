@@ -49,7 +49,7 @@ export interface PartialComputedState {
   activeGroupName: string
   lastUpdate: number
   pages: Pages
-  activeTitle: string|null
+  activeTitle: string|undefined
 }
 
 type ComputedState = IComputedState & PartialComputedState & ReduxState

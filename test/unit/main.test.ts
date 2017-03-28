@@ -5,7 +5,7 @@ import {
   createGroup3, createGroup2, createContainers2
 } from './fixtures'
 import {createStore, Store} from '../../src/store/store'
-import LoadFromUrl from '../../src/model/actions/LoadFromUrl'
+import Load from '../../src/model/actions/Load'
 import Push from '../../src/model/actions/Push'
 import State from '../../src/model/State'
 import Step from '../../src/model/Step'
@@ -56,17 +56,15 @@ describe('main', () => {
       dispatchAll([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a'
         }),
         new Push({
           url: '/a/1',
-          groupName: 'Group 1',
           containerName: 'Container 1A'
         }),
         new Push({
           url: '/a/2',
-          groupName: 'Group 1',
           containerName: 'Container 1A'
         })
       ])
@@ -78,7 +76,7 @@ describe('main', () => {
       dispatchAll([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a/1',
           time: 2000
         })
@@ -106,12 +104,11 @@ describe('main', () => {
       dispatchAll([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a/1',
           time: 2000
         }),
         new SwitchToContainer({
-          groupName: 'Group 1',
           name: 'Container 2A',
           time: 3000
         })
@@ -147,24 +144,21 @@ describe('main', () => {
       dispatchAll([
         createGroup3,
         ...createContainers3,
-        new LoadFromUrl({
+        new Load({
           url: '/g',
           time: 2000
         }),
         new Push({
           url: '/g/1',
-          groupName: 'Group 3',
           containerName: 'Container 1C',
           time: 3000
         }),
         new Push({
           url: '/g/2',
-          groupName: 'Group 3',
           containerName: 'Container 1C',
           time: 4000
         }),
         new SwitchToContainer({
-          groupName: 'Group 3',
           name: 'Container 2C',
           time: 5000
         })
@@ -197,34 +191,36 @@ describe('main', () => {
         createGroup2,
         ...createContainers1,
         ...createContainers2,
-        new LoadFromUrl({
+        new Load({
           url: '/a',
           time: 2000
         })
       ])
       store.dispatch(new Push({
-        groupName: 'Group 2',
         containerName: 'Container 1B',
-        url: '/e/1',
-        time: 3000
+        url: '/e/1',  // TODO: Is this realistic?
+        time: 3000    // TODO: Wouldn't there be a SWITCH first?
       }))
 
       const state:State = store.getRawState()
       const groups = state.groups
 
-      expect(groups.toArray()[0].containers.toArray()[0].history.back.length).to.equal(0);
-      expect(groups.toArray()[0].containers.toArray()[0].history.current.url).to.equal('/a');
-      expect(groups.toArray()[0].containers.toArray()[0].history.forward.length).to.equal(0)
+      const g00 = groups.toArray()[0].containers.toArray()[0].history
+      expect(g00.back.length).to.equal(0);
+      expect(g00.current.url).to.equal('/a');
+      expect(g00.forward.length).to.equal(0)
 
-      expect(groups.toArray()[1].containers.toArray()[0].history.back.length).to.equal(1);
-      expect(groups.toArray()[1].containers.toArray()[0].history.back[0].url).to.equal('/e');
-      expect(groups.toArray()[1].containers.toArray()[0].history.current.url).to.equal('/e/1');
-      expect(groups.toArray()[1].containers.toArray()[0].history.forward.length).to.equal(0)
+      const g10 = groups.toArray()[1].containers.toArray()[0].history
+      expect(g10.back.length).to.equal(1);
+      expect(g10.back[0].url).to.equal('/e');
+      expect(g10.current.url).to.equal('/e/1');
+      expect(g10.forward.length).to.equal(0)
 
-      expect(groups.toArray()[1].history.back.length).to.equal(1);
-      expect(groups.toArray()[1].history.back[0].url).to.equal('/e');
-      expect(groups.toArray()[1].history.current.url).to.equal('/e/1');
-      expect(groups.toArray()[1].history.forward.length).to.equal(0)
+      const g1 = groups.toArray()[1].history
+      expect(g1.back.length).to.equal(1);
+      expect(g1.back[0].url).to.equal('/e');
+      expect(g1.current.url).to.equal('/e/1');
+      expect(g1.forward.length).to.equal(0)
 
       expect(state.history.back.length).to.equal(2);
       expect(state.history.current.url).to.equal('/e/1');
@@ -235,12 +231,11 @@ describe('main', () => {
       dispatchAll([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a/1',
           time: 2000
         }),
         new SwitchToContainer({
-          groupName: 'Group 1',
           name: 'Container 2A',
           time: 3000
         }),
@@ -311,7 +306,7 @@ describe('main', () => {
       await run([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a',
         })
       ]).then(({entries, index}) => {
@@ -327,11 +322,11 @@ describe('main', () => {
       await run([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a',
           time: 1000
         }),
-        new LoadFromUrl({
+        new Load({
           url: '/a',
           time: 2000
         })
@@ -347,11 +342,11 @@ describe('main', () => {
       await run([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a',
           time: 2000
         }),
-        new LoadFromUrl({
+        new Load({
           url: '/a',
           time: 2000
         }),
@@ -365,7 +360,7 @@ describe('main', () => {
       await run([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a',
           time: 2000
         }),
@@ -374,7 +369,6 @@ describe('main', () => {
         }),
         new Push({
           url: '/a/1',
-          groupName: 'Group 1',
           containerName: 'Container 1A',
           time: 3000
         })
@@ -394,18 +388,16 @@ describe('main', () => {
      await run([
         createGroup,
         ...createContainers,
-        new LoadFromUrl({
+        new Load({
           url: '/a/1',
           time: 2000
         }),
         new SwitchToContainer({
-          groupName: 'Group 1',
           containerName: 'Container 2A',
           time: 3000
         }),
         new PopState({
           url: '/a/1',
-          groupName: 'Group 1',
           containerName: 'Container 1A',
           time: 4000
         })
@@ -423,7 +415,7 @@ describe('main', () => {
       await run([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a',
           time: 2000
         }),
@@ -431,7 +423,6 @@ describe('main', () => {
           time: 2100
         }),
         new SwitchToContainer({
-          groupName: 'Group 1',
           name: 'Container 2A',
           time: 3000
         }),
@@ -440,7 +431,6 @@ describe('main', () => {
         }),
         new Push({
           url: '/b/1',
-          groupName: 'Group 1',
           containerName: 'Container 2A',
           time: 4000
         })
@@ -460,15 +450,15 @@ describe('main', () => {
         createGroup2,
         ...createContainers1,
         ...createContainers2,
-        new LoadFromUrl({
+        new Load({
           url: '/a',
           time: 2000
         }),
         new UpdateBrowser({
           time: 2100
         }),
-        new SwitchToGroup({
-          groupName: 'Group 2',
+        new SwitchToContainer({
+          name: 'Container 1B',
           time: 3000
         }),
         new UpdateBrowser({
@@ -476,7 +466,6 @@ describe('main', () => {
         }),
         new Push({
           url: '/e/1',
-          groupName: 'Group 2',
           containerName: 'Container 1B',
           time: 4000
         })
@@ -493,7 +482,7 @@ describe('main', () => {
       await run([
         createGroup1,
         ...createContainers1,
-        new LoadFromUrl({
+        new Load({
           url: '/a',
           time: 2000
         }),
@@ -502,7 +491,6 @@ describe('main', () => {
         }),
         new Push({
           url: '/a/1',
-          groupName: 'Group 1',
           containerName: 'Container 1A',
           time: 3000
         }),
@@ -511,7 +499,6 @@ describe('main', () => {
         }),
         new Push({
           url: '/a/2',
-          groupName: 'Group 1',
           containerName: 'Container 1A',
           time: 4000
         }),
@@ -535,7 +522,7 @@ describe('main', () => {
       await run([
         createGroup3,
         ...createContainers3,
-        new LoadFromUrl({
+        new Load({
           url: '/g',
           time: 2000
         }),
@@ -544,7 +531,6 @@ describe('main', () => {
         }),
         new Push({
           url: '/g/1/cat',
-          groupName: 'Group 3',
           containerName: 'Container 1C',
           time: 3000
         }),
@@ -553,7 +539,6 @@ describe('main', () => {
         }),
         new Push({
           url: '/g/2/dog',
-          groupName: 'Group 3',
           containerName: 'Container 1C',
           time: 4000
         }),
@@ -561,7 +546,6 @@ describe('main', () => {
           time: 4100
         }),
         new Top({
-          groupName: 'Group 3',
           containerName: 'Container 1C',
           time: 5000,
           origin: USER
@@ -570,7 +554,6 @@ describe('main', () => {
           time: 5100
         }),
         new SwitchToContainer({
-          groupName: 'Group 3',
           name: 'Container 2C',
           time: 6000
         })
@@ -589,7 +572,7 @@ describe('main', () => {
         await run([
           createGroup1,
           ...createContainers1,
-          new LoadFromUrl({
+          new Load({
             url: '/a',
             time: 2000
           }),
@@ -598,7 +581,6 @@ describe('main', () => {
           }),
           new Push({
             url: '/a/1',
-            groupName: 'Group 1',
             containerName: 'Container 1A',
             time: 3000
           }),
@@ -613,7 +595,6 @@ describe('main', () => {
           }),
           new Push({
             url: '/a/2',
-            groupName: 'Group 1',
             containerName: 'Container 1A',
             time: 4000
           })
@@ -631,7 +612,7 @@ describe('main', () => {
         await run([
           createGroup1,
           ...createContainers1,
-          new LoadFromUrl({
+          new Load({
             url: '/a',
             time: 2000
           }),
@@ -647,7 +628,6 @@ describe('main', () => {
           }),
           new Push({
             url: '/a/1',
-            groupName: 'Group 1',
             containerName: 'Container 1A',
             time: 4000
           })
@@ -664,7 +644,7 @@ describe('main', () => {
         await run([
           createGroup1,
           ...createContainers1,
-          new LoadFromUrl({
+          new Load({
             url: '/a',
             time: 2000
           }),
@@ -679,7 +659,6 @@ describe('main', () => {
             time: 3100
           }),
           new SwitchToContainer({
-            groupName: 'Group 1',
             name: 'Container 2A',
             time: 4000
           })

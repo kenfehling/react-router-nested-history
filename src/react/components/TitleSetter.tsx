@@ -14,7 +14,7 @@ type TitleSetterProps = {
 }
 
 type ConnectedTitleSetterProps = TitleSetterProps & {
-  activeTitle?: string|null
+  activeTitle?: string|undefined
 }
 
 class InnerTitleSetter extends Component<ConnectedTitleSetterProps, undefined> {

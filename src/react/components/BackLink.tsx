@@ -32,7 +32,7 @@ type BackLinkPropsWithStore = BackLinkProps & {
 }
 
 type ConnectedBackLinkProps = BackLinkPropsWithStore & {
-  backPage: Page|null
+  backPage: Page|undefined
   back: () => void
 
 }

@@ -22,7 +22,7 @@ abstract class IContainer extends IHistory {
   abstract get enabled(): boolean
   abstract setEnabled(enabled:boolean): IContainer
   abstract get resetOnLeave(): boolean
-  abstract loadFromUrl(url: string, time: number): IContainer
+  abstract load({url, time}:{url: string, time: number}): IContainer
   abstract patternsMatch(url: string): boolean
   abstract get isAtTopPage(): boolean
   abstract get isGroup(): boolean

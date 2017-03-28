@@ -8,7 +8,7 @@ import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import {
   wasLoadedFromRefresh, canUseWindowLocation
 } from '../../util/browserFunctions'
-import LoadFromUrl from '../../model/actions/LoadFromUrl'
+import Load from '../../model/actions/Load'
 import SetZeroPage from '../../model/actions/SetZeroPage'
 import StepRunner from './StepRunner'
 import TitleSetter from './TitleSetter'
@@ -48,7 +48,7 @@ type ConnectedRouterProps = RouterPropsWithStore & {
   isInitialized: boolean
   loadedFromRefresh: boolean
   refresh: () => void
-  loadFromUrl: (url:string) => void
+  load: (url:string) => void
   setZeroPage: (url:string) => void
 }
 
@@ -112,9 +112,9 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
   }
 
   componentDidMount() {
-    const {loadFromUrl, isInitialized} = this.props
+    const {load, isInitialized} = this.props
     if (!isInitialized) {
-      loadFromUrl(this.getLocation())
+      load(this.getLocation())
     }
   }
 
@@ -159,7 +159,7 @@ const mapStateToProps = (state:ComputedState) => ({
 const makeGetActions = () => createCachingSelector(
   getDispatch,
   (dispatch) => ({
-    loadFromUrl: (url:string) => dispatch(new LoadFromUrl({url})),
+    load: (url:string) => dispatch(new Load({url})),
     refresh: () => dispatch(new Refresh()),
     setZeroPage: (url:string) => dispatch(new SetZeroPage({url}))
   })

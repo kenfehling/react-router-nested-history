@@ -62,7 +62,7 @@ describe('Container', () => {
   })
 
   describe('pushUrl', () => {
-    const newContainer = container.pushUrl('/a/3', 8000)
+    const newContainer = container.pushUrl({url: '/a/3', time: 8000})
 
     it('pushes to the container history', () => {
       expect(newContainer.history.current.url).to.equal('/a/3')
@@ -77,8 +77,9 @@ describe('Container', () => {
     })
 
     it('works after pushing multiple pages', () => {
-      const c:Container =
-          newContainer.pushUrl('/a/3', 7500).pushUrl('/a/4', 8500)
+      const c:Container = newContainer
+                            .pushUrl({url: '/a/3', time: 7500})
+                            .pushUrl({url: '/a/4', time: 8500})
       expect(c.history.current.url).to.equal('/a/4')
       expect(c.history.back.length).to.equal(3)
       expect(c.history.back[0].url).to.equal('/a')
@@ -90,15 +91,18 @@ describe('Container', () => {
 
   describe('loadFromUrl', () => {
     it('pushes if container patterns match', () => {
-      expect(container.loadFromUrl('/a/3', 7500).history.back.length).to.equal(2)
+      const c = container.load({url: '/a/3', time: 7500})
+      expect(c.history.back.length).to.equal(2)
     })
 
     it('does nothing if patterns do not match', () => {
-      expect(container.loadFromUrl('/c/1', 7500).history.back.length).to.equal(1)
+      const c = container.load({url: '/c/1', time: 7500})
+      expect(c.history.back.length).to.equal(1)
     })
 
     it('does nothing if already on this page', () => {
-      expect(container.loadFromUrl('/a/1', 7500).history.back.length).to.equal(1)
+      const c = container.load({url: '/a/1', time: 7500})
+      expect(c.history.back.length).to.equal(1)
     })
 
     it('loads initialUrl into history when a page below it is loaded', () => {
@@ -120,7 +124,7 @@ describe('Container', () => {
         pages: new Pages([b]),
         time: 2000
       })
-      const loadedContainer = c2.loadFromUrl('/b/1', 5000)
+      const loadedContainer = c2.load({url: '/b/1', time: 5000})
       const history:HistoryStack = loadedContainer.history
       expect(history.back.length).to.equal(1)
       expect(history.back[0].url).to.equal('/b')
@@ -132,12 +136,12 @@ describe('Container', () => {
 
     it('enables a container when loading into it', () => {
       const c:Container = container.setEnabled(false)
-      expect(c.loadFromUrl('/a/3', 7500).enabled).to.be.true
+      expect(c.load({url: '/a/3', time: 7500}).enabled).to.be.true
     })
   })
 
   describe('top', () => {
-    const newContainer:Container = container.top(10000)
+    const newContainer:Container = container.top({time: 10000})
 
     it('updates the lastVisit of the initial page', () => {
       expect(newContainer.history.current.url).to.equal('/a')

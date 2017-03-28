@@ -59,17 +59,6 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
     }
   }
 
-  onMouseDown(event) {
-    const {open} = this.props
-    open()
-    //event.stopPropagation()
-  }
-
-  getClassName() {
-    const {className, topClassName, isOnTop} = this.props
-    return isOnTop && topClassName ? topClassName : className || ''
-  }
-
   componentWillMount() {
     const {
       top,
@@ -139,6 +128,17 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       }
     }
     return 0
+  }
+
+  getClassName() {
+    const {className, topClassName, isOnTop} = this.props
+    return isOnTop && topClassName ? topClassName : className || ''
+  }
+
+  onMouseDown(event) {
+    const {open} = this.props
+    open()
+    //event.stopPropagation()
   }
 
   onDrag(event:MouseEvent, data:any) {

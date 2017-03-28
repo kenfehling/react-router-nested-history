@@ -2,7 +2,7 @@ import Action, {USER} from '../BaseAction'
 import State from '../State'
 import NonStepAction from './NonStepAction'
 import Serializable from '../../store/decorators/Serializable'
-import LoadFromUrl from './LoadFromUrl'
+import Load from './Load'
 
 @Serializable
 export default class Refresh extends NonStepAction {
@@ -22,8 +22,8 @@ export default class Refresh extends NonStepAction {
 
   store(actions:Action[]):Action[] {
     const updatedActions:Action[] = actions.map(action => {
-      if (action instanceof LoadFromUrl) {
-        return new LoadFromUrl({...action, fromRefresh: true})
+      if (action instanceof Load) {
+        return new Load({...action, fromRefresh: true})
       }
       else {
         return action

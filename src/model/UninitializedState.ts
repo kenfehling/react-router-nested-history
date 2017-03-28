@@ -20,7 +20,7 @@ export default class UninitializedState extends State {
     return false
   }
 
-  switchToGroup({groupName, time}:{groupName:string, time:number}):State {
+  switchToGroup({name, time}:{name:string, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -81,7 +81,7 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  push(page:Page, time:number):State {
+  push({page, time}:{page:Page, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

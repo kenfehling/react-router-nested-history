@@ -56,7 +56,7 @@ export default class Pages implements IHistory {
     return this.touchPageAtIndex(this.activeIndex, pageVisit)
   }
 
-  push(page:Page, time:number, type:VisitType=VisitType.MANUAL):Pages {
+  push({page, time, type}:{page: Page, time:number, type?:VisitType}):Pages {
     const index:number = this.activeIndex + 1
     const newPage:VisitedPage = new VisitedPage({
       ...Object(page),
@@ -70,7 +70,7 @@ export default class Pages implements IHistory {
    * @param time - The time this action was originally run
    * @param reset - Should it remove the forward pages from history?
    */
-  top(time:number, reset:boolean=false):Pages {
+  top({time, reset=false}:{time:number, reset?:boolean}):Pages {
     const visit:PageVisit = {time, type: VisitType.MANUAL}
     const page:VisitedPage = this.pages[0].touch(visit)
     return new Pages(reset ? [page] : [page, ...this.slice(1).pages])
@@ -92,7 +92,7 @@ export default class Pages implements IHistory {
     }
   }
 
-  go(n:number, time:number):Pages {
+  go({n, time}:{n:number, time}):Pages {
     const oldIndex:number = this.activeIndex
     const newIndex:number = oldIndex + n
     if (newIndex < 0 || newIndex >= this.pages.length) {
@@ -104,12 +104,12 @@ export default class Pages implements IHistory {
     }
   }
 
-  back(n:number=1, time:number):Pages {
-    return this.go(0 - n, time)
+  back({n=1, time}:{n:number, time}):Pages {
+    return this.go({n: 0 - n, time})
   }
 
-  forward(n:number=1, time:number):Pages {
-    return this.go(n, time)
+  forward({n=1, time}:{n:number, time}):Pages {
+    return this.go({n, time})
   }
 
   canGoBack(n:number=1):boolean {
@@ -144,8 +144,8 @@ export default class Pages implements IHistory {
     return this.pages[this.activeIndex + 1]
   }
 
-  shiftTo(page:Page, time:number):Pages {
-    return this.go(this.getShiftAmount(page), time)
+  shiftTo({page, time}:{page:Page, time:number}):Pages {
+    return this.go({n: this.getShiftAmount(page), time})
   }
 
   get activePage():VisitedPage {
@@ -161,9 +161,9 @@ export default class Pages implements IHistory {
     return this.findIndex(p => p === current)
   }
 
-  get firstManualVisit():PageVisit|null {
+  get firstManualVisit():PageVisit|undefined {
     const page:VisitedPage = this.pages.filter(p => p.wasManuallyVisited)[0]
-    return page ? page.firstManualVisit : null
+    return page ? page.firstManualVisit : undefined
   }
 
   get lastVisit():PageVisit {

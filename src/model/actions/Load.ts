@@ -8,12 +8,15 @@ import Serializable from '../../store/decorators/Serializable'
 
 const load = (state:UninitializedState, url:string, time:number):InitializedState =>
     new InitializedState(state.groups.reduce((s:State, group:Group):State =>
-        s.replaceGroup(group.loadFromUrl(url, time)), state))
+        s.replaceGroup(group.load({url, time})), state))
 
+/**
+ * Action to load the site from any given URL (bookmark, etc.)
+ */
 @Serializable
-export default class LoadFromUrl extends Action {
-  static readonly type: string = 'LoadFromUrl'
-  readonly type: string = LoadFromUrl.type
+export default class Load extends Action {
+  static readonly type: string = 'Load'
+  readonly type: string = Load.type
   readonly url: string
   readonly fromRefresh: boolean
 

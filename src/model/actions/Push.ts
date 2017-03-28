@@ -22,12 +22,14 @@ export default class Push extends Action {
   reduce(state:State):State {
     const container =  state.getContainerByName(this.containerName)
     const params:Object = parseParamsFromPatterns(container.patterns, this.url)
-    const page:Page = new Page({
-      params,
-      url: this.url,
-      containerName: this.containerName
+    return state.push({
+      page: new Page({
+        params,
+        url: this.url,
+        containerName: this.containerName
+      }),
+      time: this.time
     })
-    return state.push(page, this.time)
   }
 
   filter(state:State):Action[] {

@@ -40,14 +40,14 @@ abstract class State implements IState {
   abstract assign(obj:Object):State
   abstract get isInitialized():boolean
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
-  abstract switchToGroup({groupName, time}:{groupName:string, time:number}):State
+  abstract switchToGroup({name, time}:{name:string, time:number}):State
   abstract openWindow(forName:string):State
   abstract closeWindow(forName:string, time:number):State
   abstract get activeGroupName():string
   abstract switchToContainer({name, time}:{name:string, time:number}):State
   abstract getRootGroupOfGroupByName(name:string):Group
   abstract getRootGroupOfGroup(group:Group):Group
-  abstract push(page:Page, time:number):State
+  abstract push({page, time}:{page:Page, time:number}):State
   abstract go({n, time, container}:{n:number, time:number, container?:string}):State
   abstract back({n, time, container}:{n:number, time:number, container?:string}):State
   abstract forward({n, time, container}:{n:number, time:number, container?:string}):State
@@ -244,13 +244,13 @@ abstract class State implements IState {
       return g
     }
     else {
-      let foundGroup:ISubGroup|null = null
+      let foundGroup:ISubGroup|undefined = undefined
       this.groups.forEach((group:Group) => {
-        const g = group.getNestedGroupByName(name)
-        if (g) {
-          foundGroup = g
+        try {
+          foundGroup = group.getNestedGroupByName(name)
           return
         }
+        catch (e) { }
       })
       if (foundGroup) {
         return foundGroup
@@ -262,18 +262,18 @@ abstract class State implements IState {
   }
 
   getContainerByName(name:string):IContainer {
-    let foundContainer:IContainer|null = null
+    let foundContainer:IContainer|undefined = undefined
     this.groups.forEach((group:Group) => {
       if (group.name === name) {
-        foundContainer = group
+        foundContainer = group as IContainer
         return
       }
       else {
-        const c:IContainer|null = group.getNestedContainerByName(name)
-        if (c) {
-          foundContainer = c
+        try {
+          foundContainer = group.getNestedContainerByName(name)
           return
         }
+        catch (e) { }
       }
     })
     if (foundContainer) {
@@ -322,9 +322,9 @@ abstract class State implements IState {
       this.assign({titles: [...this.titles, {pathname, title}]})
   }
 
-  getTitleForPath(pathname:string):string|null {
+  getTitleForPath(pathname:string):string|undefined {
     const found = R.find(t => t.pathname === pathname, this.titles)
-    return found ? found.title : null
+    return found ? found.title : undefined
   }
 
   hasTitleForPath(pathname:string):boolean {
