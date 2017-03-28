@@ -64,7 +64,7 @@ const makeGetActions = () => createCachingSelector(
   })
 )
 
-const makeMapStateToProps =  (state:ComputedState, ownProps:GroupPropsWithStore) => {
+const makeMapStateToProps = (state:ComputedState, ownProps:GroupPropsWithStore) => {
   const group:ComputedGroup = getGroup(state, ownProps)
   return {
     storedCurrentContainerIndex: group.activeContainerIndex,

@@ -33,7 +33,7 @@ export const getGroupsAndContainers =
 const getIsInitialized = state => state.isInitialized
 const getLoadedFromRefresh = state => state.loadedFromRefresh
 
-export const getIsInitializedAndLoadedFromRefresh = createDeepEqualSelector(
+export const getIsInitializedAndLoadedFromRefresh = createCachingSelector(
   getIsInitialized, getLoadedFromRefresh,
   (isInitialized, loadedFromRefresh) => ({isInitialized, loadedFromRefresh})
 )
@@ -109,7 +109,5 @@ export const getMatchesCurrentUrl = createReselector(
 
 export const getContainerActiveUrl = createReselector(
   getGroupOrContainerFromContainerName,
-  (container:ComputedGroupOrContainer) => {
-    return container.activeUrl
-  }
+  (container:ComputedGroupOrContainer) => container.activeUrl
 )((state, props) => props.containerName)
