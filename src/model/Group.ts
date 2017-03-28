@@ -596,10 +596,16 @@ export default class Group implements IContainer {
   computeContainers(currentUrl:string, activeParentUrl?:string):
                     Map<string, ComputedContainer> {
     const activeUrl:string = this.activeUrl
-    return this.containers.reduce(
+    const thisOne:ComputedContainer|undefined = activeParentUrl ? {
+      name: this.name,
+      isActiveInGroup: activeParentUrl === this.activeUrl,
+      matchesCurrentUrl: this.patternsMatch(currentUrl)
+    } : undefined
+    const children:Map<string, ComputedContainer> = this.containers.reduce(
       (map:Map<string, ComputedContainer>, c:IContainer) =>
         map.merge(c.computeContainers(currentUrl, activeUrl)),
       fromJS({}))
+    return fromJS({}).set(this.name, thisOne).merge(children)
   }
 
   computeGroups():Map<string, ComputedGroup> {
