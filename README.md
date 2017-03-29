@@ -31,7 +31,7 @@ Right now this library only works with browserHistory (HTML5 History API, not wi
 - [x] End to end tests using [Nightwatch.js](http://nightwatchjs.org)
 - [x] Support for title libraries like [react-helmet](https://github.com/nfl/react-helmet)
 - [x] Transition animations (slide-in, slide-out)
-- [x] Support for server rendering
+- [x] Support for SSR (server-side rendering)
 - [x] Support for components that lazy render (many existing React tab libraries)
 
 ## API
@@ -209,20 +209,6 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>The name of this group (must be unique)</td>
         </tr>
         <tr>
-          <td>currentContainerIndex</td>
-          <td>number</td>
-          <td></td>
-          <td align="center"></td>
-          <td>Allows you to set the index of the active container</td>
-        </tr>
-        <tr>
-          <td>onContainerActivate</td>
-          <td>Function</td>
-          <td></td>
-          <td></td>
-          <td>Runs when a new container is activated</td>
-        </tr>
-        <tr>
           <td>isDefault</td>
           <td>boolean</td>
           <td>false</td>
@@ -265,34 +251,6 @@ Wraps one or more `Container` components that act as a group (a group of tabs, e
           <td>The children of this ContainerGroup</td>
         </tr>
     </tbody>   
-</table>
-
-#### `onContainerActivate` params
-<table class="table table-bordered table-striped">
-    <thead>
-    <tr>
-        <th>name</th>
-        <th>type</th>
-        <th>description</th>
-    </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>currentContainerIndex</td>
-          <td>number</td>
-          <td>The index of the current container</td>
-        </tr>
-        <tr>
-          <td>currentContainerName</td>
-          <td>string</td>
-          <td>The name of the current container</td>
-        </tr>
-        <tr>
-          <td>stackOrder</td>
-          <td>Container[]</td>
-          <td>The containers ordered by how recently they were activated</td>
-        </tr>
-    </tbody>
 </table>
 
 #### `children` function params
@@ -373,6 +331,11 @@ Same as `ContainerGroup` except with these additions:
     </tr>
     </thead>
     <tbody>
+       <tr>
+          <td>openWindow</td>
+          <td>({name:string}|{index:number}) => void</td>
+          <td>Open a window in this group</td>
+        </tr>
         <tr>
           <td>resetWindowPositions</td>
           <td>() => void</td>
@@ -480,6 +443,11 @@ A single window inside a `WindowGroup`
           <td>close</td>
           <td>() => void</td>
           <td>Make this window invisible</td>
+        </tr>
+        <tr>
+          <td>switchTo</td>
+          <td>() => void</td>
+          <td>Switch to this window</td>
         </tr>
     </tbody>
 </table>
