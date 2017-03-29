@@ -5,7 +5,7 @@ import createReselector from 're-reselect'
 import {Map} from 'immutable'
 import * as R from 'ramda'
 import ComputedState, {
-  ComputedGroup, ComputedContainer, ComputedGroupOrContainer
+  ComputedGroup, ComputedContainer, ComputedGroupOrContainer, ComputedWindow
 } from '../model/ComputedState'
 
 export const createDeepEqualSelector = createSelectorCreator(
@@ -111,3 +111,17 @@ export const getContainerActiveUrl = createReselector(
   getGroupOrContainerFromContainerName,
   (container:ComputedGroupOrContainer) => container.activeUrl
 )((state, props) => props.containerName)
+
+export const getForName = (state, props):string => props.forName
+const getWindows = (state):Map<string, ComputedWindow> => state.windows
+const getPositions = (state):Map<string, Object> => state.windowPositions
+
+export const getWindow = createReselector(
+  getForName, getWindows, getPositions,
+  (forName, ws, ps) => ({...ws.get(forName), position: ps[forName]})
+)((state, props) => props.forName)
+
+export const hasAssociatedWindow = createReselector(
+  getForName, getWindows,
+  (forName, ws) => ws.has(forName)
+)

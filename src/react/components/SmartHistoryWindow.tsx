@@ -3,13 +3,14 @@ import {Component, PropTypes, ReactNode} from 'react'
 import {connect} from 'react-redux'
 import {Store} from '../../store'
 import ComputedState from '../../model/ComputedState'
-import {createSelector} from 'reselect'
 import {ComputedWindow} from '../../model/ComputedState'
 import CloseWindow from '../../model/actions/CloseWindow'
 import DumbHistoryWindow, {WindowPosition} from './DumbHistoryWindow'
 import {moveWindow} from '../../actions/WindowActions'
-import {Map} from 'immutable'
-import {createCachingSelector, getDispatch} from '../selectors'
+import {
+  createCachingSelector, getDispatch, getForName,
+  getWindow
+} from '../selectors'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 
 export interface WindowProps {
@@ -42,16 +43,6 @@ type ConnectedWindowProps = WindowPropsWithStore & {
   move: (position:WindowPosition) => void
 }
 
-const getForName = (state, props):string => props.forName
-const getWindows = (state):Map<string, ComputedWindow> => state.windows
-const getPositions = (state):Map<string, Object> => state.windowPositions
-
-const makeGetWindow = () => createSelector(
-  getForName, getWindows, getPositions,
-  (forName, ws, ps) => {
-    return {...ws.get(forName), position: ps[forName]}
-  }
-)
 
 const makeGetActions = () => createCachingSelector(
   getForName, getDispatch,
@@ -63,16 +54,13 @@ const makeGetActions = () => createCachingSelector(
   })
 )
 
-const makeMapStateToProps = () => {
-  const getWindow = makeGetWindow()
-  return (state:ComputedState, ownProps:WindowPropsWithStore) => {
-    const w:ComputedWindow & {position:Object} = getWindow(state, ownProps)
-    return {
-      storedVisible: w.visible,
-      storedPosition: w.position,
-      zIndex: w.zIndex,
-      isOnTop: w.isOnTop
-    }
+const makeMapStateToProps = (state:ComputedState, ownProps:WindowPropsWithStore) => {
+  const w:ComputedWindow & {position:Object} = getWindow(state, ownProps)
+  return {
+    storedVisible: w.visible,
+    storedPosition: w.position,
+    zIndex: w.zIndex,
+    isOnTop: w.isOnTop
   }
 }
 

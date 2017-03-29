@@ -7,9 +7,10 @@ import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
 import {
   getDispatch, createCachingSelector, getContainerName, getContainerActiveUrl,
-  getIsActiveInGroup,
+  getIsActiveInGroup, hasAssociatedWindow,
 } from '../selectors'
 import waitForInitialization from '../waitForInitialization'
+import OpenWindow from '../../model/actions/OpenWindow'
 
 interface BaseHeaderLinkProps {
   children: ReactNode
@@ -88,9 +89,11 @@ const mapStateToProps = (state:ComputedState, ownProps) => ({
 })
 
 const makeGetActions = () => createCachingSelector(
-  getContainerName, getDispatch,
-  (containerName, dispatch) => ({
-    onClick: () => dispatch(new SwitchToContainer({name: containerName}))
+  getContainerName, hasAssociatedWindow, getDispatch,
+  (containerName, hasWindow, dispatch) => ({
+    onClick: hasWindow ?
+      () => dispatch(new OpenWindow({name: containerName})) :
+      () => dispatch(new SwitchToContainer({name: containerName}))
   })
 )
 

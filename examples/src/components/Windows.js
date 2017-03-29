@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {
-  Container, WindowGroup, HistoryWindow, HistoryRoute, HistoryLink
+  Container, WindowGroup, HistoryWindow, HistoryRoute, HistoryLink, HeaderLink
 } from 'react-router-nested-history'
 import Helmet from 'react-helmet'
 import './Windows.css'
@@ -96,10 +96,8 @@ export default () => (
             />
           </div>
           <div className='window-menu'>
-            <button onClick={() => openWindow({name: windowName(0)})}>{windowName(0)}</button>
-            <button onClick={() => openWindow({name: windowName(1)})}>{windowName(1)}</button>
-            <button onClick={() => openWindow({index: 0})}>0</button>
-            <button onClick={() => openWindow({index: 1})}>1</button>
+            <HeaderLink toContainer={windowName(0)}><button>{windowName(0)}</button></HeaderLink>
+            <HeaderLink toContainer={windowName(1)}><button>{windowName(1)}</button></HeaderLink>
             <button onClick={resetWindowPositions}>Reset positions</button>
           </div>
         </div>
