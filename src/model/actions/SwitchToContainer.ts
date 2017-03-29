@@ -16,19 +16,16 @@ export default class SwitchToContainer extends Action {
   readonly name: string|undefined
   readonly groupName:string|undefined
   readonly index: number|undefined
-  readonly open: boolean
 
-  constructor({time, origin, name=undefined, groupName=undefined,
-                index=undefined, open=true}:
+  constructor({time, origin, name=undefined, groupName=undefined, index=undefined}:
       {time?:number, origin?:Origin, name:string, groupName?:undefined,
-        index?:undefined, open?:boolean}|
+        index?:undefined}|
       {time?:number, origin?:Origin, name?:undefined, groupName:string,
-        index:number, open?:boolean}) {
+        index:number}) {
     super({time, origin})
     this.name = name
     this.groupName = groupName
     this.index = index
-    this.open = open
   }
 
   private getContainerName(state:State):string {
@@ -47,7 +44,6 @@ export default class SwitchToContainer extends Action {
     return state.switchToContainer({
       name: this.getContainerName(state),
       time: this.time,
-      open: this.open
     })
   }
 

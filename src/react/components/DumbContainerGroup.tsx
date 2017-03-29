@@ -2,14 +2,9 @@ import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
 
-export type OnContainerSwitchArgs = {
+export type GroupChildrenFunctionArgs = {
   currentContainerIndex: number
   currentContainerName: string
-}
-
-export type OnContainerSwitch = (args:OnContainerSwitchArgs) => void
-
-export type GroupChildrenFunctionArgs = OnContainerSwitchArgs & {
   setCurrentContainerIndex: (index:number) => void
   setCurrentContainerName: (name:string) => void
 }
@@ -20,9 +15,6 @@ export type ChildrenType =
 export interface DumbContainerGroupProps {
   groupName: string
   children?: ChildrenType
-  currentContainerIndex?: number|undefined      // from user
-  currentContainerName?: string|undefined       // from user
-  onContainerActivate?: OnContainerSwitch       // from user
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
   storedCurrentContainerIndex: number
@@ -50,63 +42,6 @@ export default class DumbContainerGroup extends
     }
   }
 
-  update({currentContainerIndex, currentContainerName}:
-         {currentContainerIndex:number|undefined, currentContainerName:string|undefined}) {
-    if (this.props.onContainerActivate &&
-        currentContainerIndex != null && currentContainerName) {
-      this.props.onContainerActivate({
-        currentContainerIndex,
-        currentContainerName
-      })
-    }
-  }
-
-  componentDidMount() {
-    const {
-      storedCurrentContainerIndex,
-      storedCurrentContainerName
-    } = this.props
-    this.update({
-      currentContainerIndex: storedCurrentContainerIndex,
-      currentContainerName: storedCurrentContainerName
-    })
-  }
-
-  /**
-   * II = Input Index
-   * SI = Stored Index
-   * IN = Input Name
-   * SN = Stored Name
-   */
-  componentWillReceiveProps(nextProps) {
-    const oldII:number|undefined = this.props.currentContainerIndex
-    const oldSI:number|undefined = this.props.storedCurrentContainerIndex
-    const newII:number|undefined = nextProps.currentContainerIndex
-    const newSI:number|undefined = nextProps.storedCurrentContainerIndex
-    const oldIN:string|undefined = this.props.currentContainerName
-    const oldSN:string|undefined = this.props.storedCurrentContainerName
-    const newIN:string|undefined = nextProps.currentContainerName
-    const newSN:string|undefined = nextProps.storedCurrentContainerName
-    if (newSI !== oldSI || newSN !== oldSN) {
-      this.update({
-        currentContainerIndex:newSI,
-        currentContainerName: newSN
-      })
-    }
-    else if (newII != null) {
-
-      console.log(oldII, newII)
-
-      this.props.switchToContainerIndex(newII)
-    }
-    else if (newIN) {
-
-      console.log(oldIN, newIN)
-
-      this.props.switchToContainerName(newIN)
-    }
-  }
-
   renderDiv(divChildren) {
     const {style={}, ...divProps} = R.omit([
       'groupName',
@@ -117,9 +52,6 @@ export default class DumbContainerGroup extends
       'isOnTop',
       'dispatch',
       'storedCurrentContainerName',
-      'currentContainerIndex',
-      'currentContainerName',
-      'onContainerActivate',
       'gotoTopOnSelectActive',
       'createGroup',
       'switchToContainerIndex',

@@ -56,7 +56,7 @@ const makeGetWindow = () => createSelector(
 const makeGetActions = () => createCachingSelector(
   getForName, getDispatch,
   (forName, dispatch) => ({
-    switchTo: () => dispatch(new SwitchToContainer({name: forName, open:false})),
+    switchTo: () => dispatch(new SwitchToContainer({name: forName})),
     open: () => dispatch(new SwitchToContainer({name: forName})),
     close: () => dispatch(new CloseWindow({forName})),
     move: ({x, y}:WindowPosition) => dispatch(moveWindow(forName, x, y))

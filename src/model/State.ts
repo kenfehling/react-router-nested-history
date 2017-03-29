@@ -39,10 +39,11 @@ abstract class State implements IState {
   abstract get isInitialized():boolean
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({name, time}:{name:string, time:number}):State
-  abstract openWindow(forName:string):State
+  abstract openWindowAtIndex({groupName, index, time}:{groupName:string, index:number, time:number}):State
+  abstract openWindowForName({name, time}:{name:string, time:number}):State
   abstract closeWindow({forName, time}:{forName:string, time:number}):State
   abstract get activeGroupName():string
-  abstract switchToContainer({name, time, open}:{name:string, time:number, open?:boolean}):State
+  abstract switchToContainer({name, time}: { name: string, time: number}):State
   abstract getRootGroupOfGroupByName(name:string):Group
   abstract getRootGroupOfGroup(group:Group):Group
   abstract push({page, time}:{page:Page, time:number}):State
