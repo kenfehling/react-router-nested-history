@@ -87,8 +87,6 @@ export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
            {...divProps}
            style={{
              ...style,
-             width: '100%',
-             height: '100%',
              overflowX: horizontal ? 'scroll' : 'auto',
              overflowY: vertical ? 'scroll' : 'auto',
              WebkitOverflowScrolling: 'touch'
