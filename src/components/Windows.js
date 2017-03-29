@@ -74,59 +74,36 @@ const ExampleWindow = ({index, masterComponent, name=windowName(index),
   </HistoryWindow>
 )
 
-export default class Windows extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      currentWindow: null,
-      currentIndex: null
-    }
-  }
-
-  onNameClick(index) {
-    this.setState({currentName: windowName(index)})
-  }
-
-  onIndexClick(index) {
-    this.setState({currentIndex: index})
-  }
-
-  render() {
-    return (
-      <div className="windows">
-        <h2>Window example</h2>
-        <div className="description">
-          <p>Each window has its own individual history.</p>
-          <p>Clicking on a window brings it to the front.</p>
+export default () => (
+  <div className="windows">
+    <h2>Window example</h2>
+    <div className="description">
+      <p>Each window has its own individual history.</p>
+      <p>Clicking on a window brings it to the front.</p>
+    </div>
+    <WindowGroup name='windows'>
+      {({resetWindowPositions, openWindow}) => (
+        <div>
+          <div className='window-group'>
+            <ExampleWindow index={0}
+                           masterComponent={WindowMaster1}
+            />
+            <ExampleWindow index={1}
+                           masterComponent={WindowMaster2}
+                           middle={0}
+                           center={0}
+                           visible={false}
+            />
+          </div>
+          <div className='window-menu'>
+            <button onClick={() => openWindow({name: windowName(0)})}>{windowName(0)}</button>
+            <button onClick={() => openWindow({name: windowName(1)})}>{windowName(1)}</button>
+            <button onClick={() => openWindow({index: 0})}>0</button>
+            <button onClick={() => openWindow({index: 1})}>1</button>
+            <button onClick={resetWindowPositions}>Reset positions</button>
+          </div>
         </div>
-        <WindowGroup name='windows'
-                     currentContainerName={this.state.currentName}
-                     currentContainerIndex={this.state.currentIndex}
-        >
-          {({resetWindowPositions}) => (
-            <div>
-              <div className='window-group'>
-                <ExampleWindow index={0}
-                               masterComponent={WindowMaster1}
-                />
-                <ExampleWindow index={1}
-                               masterComponent={WindowMaster2}
-                               middle={0}
-                               center={0}
-                               visible={false}
-                />
-              </div>
-              <div className='window-menu'>
-                <button onClick={() => this.onNameClick(0)}>{windowName(0)}</button>
-                <button onClick={() => this.onNameClick(1)}>{windowName(1)}</button>
-                <button onClick={() => this.onIndexClick(0)}>0</button>
-                <button onClick={() => this.onIndexClick(1)}>1</button>
-                <button onClick={resetWindowPositions}>Reset positions</button>
-              </div>
-            </div>
-          )}
-        </WindowGroup>
-      </div>
-    )
-  }
-}
+      )}
+    </WindowGroup>
+  </div>
+)
