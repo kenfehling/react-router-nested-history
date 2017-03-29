@@ -5,13 +5,10 @@ import {connect} from 'react-redux'
 import DumbContainer from './DumbContainer'
 import CreateContainer from '../../model/actions/CreateContainer'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
-import {Store} from '../../store/store'
+import {Store} from '../../store'
 import AddTitle from '../../model/actions/AddTitle'
 import PathTitle from '../../model/PathTitle'
-import State from '../../model/State'
-import Action from '../../model/BaseAction'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import ComputedState from '../../model/ComputedState'
 import {
   getDispatch, createCachingSelector,
   getContainerName, getContainerActiveUrl, getIsActiveInGroup, getMatchesCurrentUrl
@@ -33,7 +30,7 @@ export type ContainerProps = BaseContainerProps & {
 }
 
 type ContainerPropsWithStore = BaseContainerProps & {
-  store: Store<State, Action, ComputedState>
+  store: Store
   groupName: string
   containerName: string
   initializing: boolean

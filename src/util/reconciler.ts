@@ -5,8 +5,6 @@ import * as R from 'ramda'
 import PushStep from '../model/steps/PushStep'
 import ReplaceStep from '../model/steps/ReplaceStep'
 import Pages from '../model/Pages'
-import UninitializedState from '../model/UninitializedState'
-import {deriveState} from '../store/store'
 import State from '../model/State'
 import Action from '../model/BaseAction'
 import VisitedPage from '../model/VistedPage'
@@ -21,10 +19,7 @@ function actionSteps({steps, state}:StepState, action:Action):StepState {
   }
 }
 
-export function createStepsSince(actions:Action[], time:number):Step[] {
-  const oldActions:Action[] = actions.filter(a => a.time <= time)
-  const newActions:Action[] = actions.filter(a => a.time > time)
-  const oldState:State = deriveState(oldActions, new UninitializedState())
+export function createSteps(oldState:State, newActions:Action[]):Step[] {
   const initial:StepState = {steps: [], state: oldState}
   return newActions.reduce(actionSteps, initial).steps
 }

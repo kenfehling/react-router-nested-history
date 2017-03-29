@@ -8,11 +8,10 @@ import ISerialized from './ISerialized'
 import IComputedState from './IComputedState'
 import {Store as ReduxStore} from 'redux'
 
-export interface Store<S extends IState, A extends Action, C extends IComputedState> {
+export interface Store<S extends IState, A extends Action, C extends IComputedState<A>> {
   dispatch: (action:Action) => void
   subscribe: (listener:()=>void) => () => void
   getState: () => C
-
   getRawState: () => S  // For unit tests
 }
 
@@ -21,12 +20,12 @@ export function deriveState<S extends IState>(actions:Action[], state:S):S {
 }
 
 export function createStore<S extends IState, A extends Action,
-                            C extends IComputedState>(
+                            C extends IComputedState<A>>(
     {loadFromPersist=false, initialState, regularReduxStore}:
       {loadFromPersist?:boolean, initialState:S, regularReduxStore?:ReduxStore<any>}) {
   let actions: A[] = []
   let storedRawState: S = initialState
-  let storedComputedState:IComputedState = { actions: [] }
+  let storedComputedState:IComputedState<A> = { actions: [] }
   let timeStored: number = 0
   let currentListeners:Function[] = []
   let nextListeners:Function[] = currentListeners
@@ -96,9 +95,9 @@ export function createStore<S extends IState, A extends Action,
     else {
       const lastTime:number = R.last(actions).time
       const prevTime:number = actions.length > 1 ?
-        R.takeLast(2, actions)[0].time : lastTime
+          R.takeLast(2, actions)[0].time : lastTime
       if (lastTime === prevTime && prevTime === timeStored) { // Rare case
-        storedRawState = deriveState(actions, initialState)      // Just derive all
+        storedRawState = deriveState(actions, initialState)   // Just derive all
       }
       else {
         const newActions:Action[] = actions.filter(a => a.time > timeStored)

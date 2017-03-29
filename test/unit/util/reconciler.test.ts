@@ -19,7 +19,9 @@ import {expect} from 'chai'
 import VisitedPage from '../../../src/model/VistedPage'
 import State from '../../../src/model/State'
 import Page from '../../../src/model/Page'
-import {createStepsSince} from '../../../src/util/reconciler'
+import {createSteps} from '../../../src/util/reconciler'
+import {deriveState} from '../../../src/store/store'
+import UninitializedState from '../../../src/model/UninitializedState'
 declare const describe:any
 declare const it:any
 
@@ -101,6 +103,13 @@ describe('reconciler', () => {
   ]
 
   describe('createStepsSinceUpdate', () => {
+    const createStepsSince = (actions, time) => {
+      const oldActions:Action[] = actions.filter(a => a.time <= time)
+      const newActions:Action[] = actions.filter(a => a.time > time)
+      const oldState:State = deriveState(oldActions, new UninitializedState())
+      return createSteps(oldState, newActions)
+    }
+
     describe('simple group', () => {
       describe('load', () => {
         it('default', () => {

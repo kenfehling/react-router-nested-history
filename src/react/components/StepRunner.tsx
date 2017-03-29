@@ -2,13 +2,13 @@ import * as React from 'react'
 import {Component} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import {Location} from 'history'
-import {Store} from '../../store/store'
+import {Store} from '../../store'
 import Page from '../../model/Page'
 import PopState from '../../model/actions/PopState'
 import * as browser from '../../util/browserFunctions'
 import Action from '../../model/BaseAction'
 import Step from '../../model/Step'
-import {createStepsSince} from '../../util/reconciler'
+import {createSteps} from '../../util/reconciler'
 import UpdateBrowser from '../../model/actions/UpdateBrowser'
 import {runSteps} from '../../util/stepRunner'
 import State from '../../model/State'
@@ -17,13 +17,13 @@ import waitForInitialization from '../waitForInitialization'
 import {getDispatch, createCachingSelector} from '../selectors'
 
 export interface StepRunnerProps {
-  store: Store<State, Action, ComputedState>
+  store: Store
 }
 
 type ConnectedStepRunnerProps = StepRunnerProps & {
   popstate: (page:Page) => void
-  actions: Action[],
-  lastUpdate: number,
+  oldState: State,
+  newActions: Action[],
   recordBrowserUpdate: () => void
 }
 
@@ -32,8 +32,8 @@ class InnerStepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   private isListening: boolean = true
 
   update(props) {
-    const {actions, lastUpdate, recordBrowserUpdate} = props
-    const steps: Step[] = createStepsSince(actions, lastUpdate)
+    const {oldState, newActions, recordBrowserUpdate} = props
+    const steps: Step[] = createSteps(oldState, newActions)
     if (steps.length > 0) {
       recordBrowserUpdate()
       const before = () => this.isListening = false
@@ -70,8 +70,8 @@ class InnerStepRunner extends Component<ConnectedStepRunnerProps, undefined> {
 }
 
 const mapStateToProps = (state:ComputedState) => ({
-  actions: state.actions,
-  lastUpdate: state.lastUpdate,
+  oldState: state.oldState,
+  newActions: state.newActions,
   pages: state.pages
 })
 

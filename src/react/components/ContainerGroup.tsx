@@ -3,10 +3,7 @@ import {Component, PropTypes, ReactNode} from 'react'
 import {connect, Dispatch} from 'react-redux'
 import SmartContainerGroup, {ContainerGroupProps} from './SmartContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
-import ComputedState from '../../model/ComputedState'
-import {Store} from '../../store/store'
-import Action from '../../store/Action'
-import State from '../../model/State'
+import {Store} from '../../store'
 import {renderToStaticMarkup} from 'react-dom/server'
 import WindowGroup from './WindowGroup'
 import DumbContainerGroup from './DumbContainerGroup'
@@ -22,7 +19,7 @@ import {
 } from '../selectors'
 
 type GroupPropsWithStore = ContainerGroupProps & {
-  store: Store<State, Action, ComputedState>
+  store: Store
   parentGroupName: string
   initializing: boolean
 }

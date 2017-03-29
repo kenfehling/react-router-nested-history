@@ -126,7 +126,7 @@ export default class Container implements IContainer {
   }
 
   activate(visit:PageVisit):Container {
-    return this.setEnabled(true).replacePages(this.pages.activate(visit))
+    return this.replacePages(this.pages.activate(visit))
   }
 
   top({time, reset=false}:{time: number, reset?:boolean}):Container {

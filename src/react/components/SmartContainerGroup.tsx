@@ -5,7 +5,7 @@ import DumbContainerGroup, {
   OnContainerSwitch, ChildrenType
 } from './DumbContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
-import {Store} from '../../store/store'
+import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import Action from '../../model/BaseAction'
 import State from '../../model/State'
@@ -36,7 +36,7 @@ export type ContainerGroupProps = BaseGroupPropsWithoutChildren & {
 }
 
 type GroupPropsWithStore = BaseGroupPropsWithoutChildren & {
-  store: Store<State, Action, ComputedState>
+  store: Store
   parentGroupName: string
 
   children?: ChildrenType

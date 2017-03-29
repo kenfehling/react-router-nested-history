@@ -1,10 +1,8 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {Dispatch, connect} from 'react-redux'
-import {Store} from '../../store/store'
+import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import Action from '../../model/BaseAction'
-import State from '../../model/State'
 import * as R from 'ramda'
 import ComputedState from '../../model/ComputedState'
 import {
@@ -24,7 +22,7 @@ export type HeaderLinkProps = BaseHeaderLinkProps& {
 }
 
 type HeaderLinkPropsWithStore = BaseHeaderLinkProps & {
-  store: Store<State, Action, ComputedState>
+  store: Store
   groupName: string
   containerName: string
 }

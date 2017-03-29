@@ -4,11 +4,8 @@ import {LinkProps} from 'react-router'
 import {createPath} from 'history/PathUtils'
 import {connect, Dispatch} from 'react-redux'
 import Push from '../../model/actions/Push'
-import {Store} from '../../store/store'
-import Action from '../../model/BaseAction'
-import State from '../../model/State'
+import {Store} from '../../store'
 import * as R from 'ramda'
-import ComputedState from '../../model/ComputedState'
 import {
   EMPTY_OBJ, createCachingSelector, getGroupName,
   getDispatch, getContainerName
@@ -16,7 +13,7 @@ import {
 import waitForInitialization from '../waitForInitialization'
 
 type HistoryLinkPropsWithStore = LinkProps & {
-  store: Store<State, Action, ComputedState>
+  store: Store
   groupName: string
 }
 

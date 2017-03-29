@@ -5,7 +5,13 @@ import * as Draggable from 'react-draggable'
 
 const noop = () => {}
 
+export interface WindowPosition {
+  x: number
+  y: number
+}
+
 interface ChildrenFunctionArgs {
+  switchTo: () => void
   open: () => void
   close: () => void
 }
@@ -13,7 +19,7 @@ interface ChildrenFunctionArgs {
 type ChildrenType = ReactNode & {props?:any} |
                     ((args:ChildrenFunctionArgs) => ReactElement<any>)
 
-export interface DumbWindowProps {
+export type DumbWindowProps = ChildrenFunctionArgs & {
   forName: string
   top?: number
   middle?: number
@@ -36,8 +42,6 @@ export interface DumbWindowProps {
   isOnTop: boolean
   storedVisible: boolean
   storedPosition: {x:number, y:number}|undefined
-  open: () => void
-  close: () => void
   move: (data: {x:number, y:number}) => void
 }
 
@@ -136,8 +140,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
   }
 
   onMouseDown(event) {
-    const {open} = this.props
-    open()
+    const {switchTo} = this.props
+    switchTo()
     //event.stopPropagation()
   }
 
@@ -151,6 +155,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       style={},
       zIndex,
       storedVisible,
+      switchTo,
       open,
       close,
       draggable,
@@ -193,7 +198,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
                 display: storedVisible ? 'block' : 'none'
              }}
       >
-        {children instanceof Function ? children({open, close}) : children}
+        {children instanceof Function ? children({switchTo, open, close}) : children}
       </div>
     )
     if (drag) {
