@@ -66,3 +66,6 @@ fabric.properties
 
 # ALM
 .alm/
+
+# Nightwatch
+test/e2e/reports
