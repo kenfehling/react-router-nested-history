@@ -221,7 +221,7 @@ export default class Group implements IContainer {
 
   activate(visit:PageVisit):Group {
     const container = this.activeContainer.activate(visit) as IContainer
-    return this.setEnabled(true).replaceContainer(container)
+    return this.replaceContainer(container)
   }
 
   getContainerIndex(container:IContainer):number {

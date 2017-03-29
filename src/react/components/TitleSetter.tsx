@@ -1,15 +1,13 @@
 import * as React from 'react'
 import {Component, ReactNode} from 'react'
 import {connect} from 'react-redux'
-import {Store} from '../../store/store'
+import {Store} from '../../store'
 import {canUseWindowLocation} from '../../util/browserFunctions'
-import State from '../../model/State'
-import Action from '../../model/BaseAction'
 import ComputedState from '../../model/ComputedState'
 import waitForInitialization from '../waitForInitialization'
 
 type TitleSetterProps = {
-  store: Store<State, Action, ComputedState>,
+  store: Store
   children?: ReactNode
 }
 

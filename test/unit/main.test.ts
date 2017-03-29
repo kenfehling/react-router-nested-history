@@ -4,7 +4,7 @@ import {
   createContainers1, createContainers3, createGroup1,
   createGroup3, createGroup2, createContainers2
 } from './fixtures'
-import {createStore, Store} from '../../src/store/store'
+import {createStore, Store} from '../../src/store'
 import Load from '../../src/model/actions/Load'
 import Push from '../../src/model/actions/Push'
 import State from '../../src/model/State'
@@ -17,27 +17,23 @@ import Top from '../../src/model/actions/Top'
 import PopState from '../../src/model/actions/PopState'
 import UpdateBrowser from '../../src/model/actions/UpdateBrowser'
 import ClearActions from '../../src/store/actions/ClearActions'
-import SwitchToGroup from '../../src/model/actions/SwitchToGroup'
 import {runSteps} from '../../src/util/stepRunner'
 import InitializedState from '../../src/model/InitializedState'
 import {expect} from 'chai'
 import UninitializedState from '../../src/model/UninitializedState'
-import BaseAction from '../../src/model/BaseAction'
-import {createStepsSince} from '../../src/util/reconciler'
+import {createSteps} from '../../src/util/reconciler'
 import {USER} from '../../src/model/BaseAction'
-import ComputedState from '../../src/model/ComputedState'
 declare const describe:any
 declare const it:any
 declare const beforeEach:any
 declare const afterEach:any
 
-const makeNewStore = () => createStore<State, BaseAction, ComputedState>({
-  loadFromPersist: false,
-  initialState: new UninitializedState()
+const makeNewStore = () => createStore({
+  loadFromPersist: false
 })
 
 describe('main', () => {
-  let store:Store<State, BaseAction, ComputedState>
+  let store:Store
 
   beforeEach(() => {
     store = makeNewStore()
@@ -280,13 +276,11 @@ describe('main', () => {
       const ps:Promise<any> = actions.reduce((p:Promise<any>, action:Action) =>
         new Promise(resolve => {
           store.dispatch(action)
-          const state:State = store.getRawState()
-          const actions:Action[] = store.getState().actions as Action[]
-          if (state instanceof InitializedState) {
-            const steps:Step[] = createStepsSince(actions, state.lastUpdate)
-            if (steps.length > 0) {
-              return runSteps(steps).then(resolve)
-            }
+          const oldState:State = store.getState().oldState
+          const newActions:Action[] = store.getState().newActions as Action[]
+          const steps:Step[] = createSteps(oldState, newActions)
+          if (steps.length > 0) {
+            return runSteps(steps).then(resolve)
           }
           return resolve()
         }),

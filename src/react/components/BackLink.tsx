@@ -1,13 +1,10 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import {connect, Dispatch} from 'react-redux'
-import {Store} from '../../store/store'
+import {Store} from '../../store'
 import Page from '../../model/Page'
 import Back from '../../model/actions/Back'
-import Action from '../../model/BaseAction'
-import State from '../../model/State'
 import * as R from 'ramda'
-import ComputedState from '../../model/ComputedState'
 import {
   createCachingSelector, getDispatch, getGroupName, getBackPageInGroup
 } from '../selectors'
@@ -27,7 +24,7 @@ interface BackLinkProps {
 }
 
 type BackLinkPropsWithStore = BackLinkProps & {
-  store: Store<State, Action, ComputedState>
+  store: Store
   groupName: string
 }
 

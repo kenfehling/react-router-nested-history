@@ -4,6 +4,8 @@ import IComputedState from '../store/IComputedState'
 import Pages from './Pages'
 import {HistoryStack} from './Pages'
 import {ReduxState} from '../reducers/index'
+import BaseAction from './BaseAction'
+import State from './State'
 
 export interface ComputedGroupOrContainer {
   name: string
@@ -47,11 +49,13 @@ export interface PartialComputedState {
   windows: OrderedMap<string, ComputedWindow>
   activeUrl: string
   activeGroupName: string
-  lastUpdate: number
   pages: Pages
   activeTitle: string|undefined
 }
 
-type ComputedState = IComputedState & PartialComputedState & ReduxState
+type ComputedState = IComputedState<BaseAction> &
+                     PartialComputedState &
+                     ReduxState &
+                     {oldState: State, newActions: BaseAction[]}
 
 export default ComputedState

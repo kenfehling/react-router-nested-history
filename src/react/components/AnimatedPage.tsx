@@ -9,8 +9,7 @@ import Top from '../../model/actions/Top'
 import Action from '../../model/BaseAction'
 import PopState from '../../model/actions/PopState'
 import {connect} from 'react-redux'
-import {Store} from '../../store/store'
-import State from '../../model/State'
+import {Store} from '../../store'
 import ComputedState from '../../model/ComputedState'
 import UpdateBrowser from '../../model/actions/UpdateBrowser'
 import * as R from 'ramda'
@@ -22,7 +21,7 @@ interface AnimatedPageProps {
 }
 
 type ConnectedProps = AnimatedPageProps & {
-  store: Store<State, Action, ComputedState>
+  store: Store
 }
 
 type InnerProps = ConnectedProps & {

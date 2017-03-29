@@ -20,17 +20,15 @@ abstract class State implements IState {
   readonly groups: Map<string, Group>
   readonly titles: PathTitle[]
   readonly zeroPage?: string
-  readonly lastUpdate: number
   readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
-  constructor({groups=fromJS({}), zeroPage, lastUpdate=0,
-    loadedFromRefresh=false, isOnZeroPage=false, titles=[]}:
-    {groups?:Map<string, Group>, zeroPage?:string, lastUpdate?:number,
-      loadedFromRefresh?:boolean, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
+  constructor({groups=fromJS({}), zeroPage, loadedFromRefresh=false,
+                isOnZeroPage=false, titles=[]}:
+    {groups?:Map<string, Group>, zeroPage?:string, loadedFromRefresh?:boolean,
+      isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
     this.groups = groups
     this.zeroPage = zeroPage
-    this.lastUpdate = lastUpdate
     this.loadedFromRefresh = loadedFromRefresh
     this.isOnZeroPage = isOnZeroPage
     this.titles = titles
@@ -41,10 +39,11 @@ abstract class State implements IState {
   abstract get isInitialized():boolean
   abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
   abstract switchToGroup({name, time}:{name:string, time:number}):State
-  abstract openWindow(forName:string):State
-  abstract closeWindow(forName:string, time:number):State
+  abstract openWindowAtIndex({groupName, index, time}:{groupName:string, index:number, time:number}):State
+  abstract openWindowForName({name, time}:{name:string, time:number}):State
+  abstract closeWindow({forName, time}:{forName:string, time:number}):State
   abstract get activeGroupName():string
-  abstract switchToContainer({name, time}:{name:string, time:number}):State
+  abstract switchToContainer({name, time}: { name: string, time: number}):State
   abstract getRootGroupOfGroupByName(name:string):Group
   abstract getRootGroupOfGroup(group:Group):Group
   abstract push({page, time}:{page:Page, time:number}):State
@@ -130,7 +129,6 @@ abstract class State implements IState {
       containers: this.computedContainers,
       windows: this.computedWindows,
       activeGroupName: this.activeGroupName,
-      lastUpdate: this.lastUpdate,
       pages: this.pages,
       activeTitle: this.activeTitle
     }

@@ -2,7 +2,7 @@ import * as React from 'react'
 import {Component, ReactNode, PropTypes} from 'react'
 import {Route} from 'react-router'
 import {connect, Dispatch} from 'react-redux'
-import {createStore, Store} from '../../store/store'
+import {createStore, Store} from '../../store'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import {
@@ -12,9 +12,6 @@ import Load from '../../model/actions/Load'
 import SetZeroPage from '../../model/actions/SetZeroPage'
 import StepRunner from './StepRunner'
 import TitleSetter from './TitleSetter'
-import Action from '../../model/BaseAction'
-import State from '../../model/State'
-import UninitializedState from '../../model/UninitializedState'
 import Refresh from '../../model/actions/Refresh'
 import ComputedState from '../../model/ComputedState'
 import reducer, {initialState, ReduxState} from '../../reducers'
@@ -41,7 +38,7 @@ export interface HistoryRouterProps {
 }
 
 type RouterPropsWithStore = HistoryRouterProps & {
-  store: Store<State, Action, ComputedState>
+  store: Store
 }
 
 type ConnectedRouterProps = RouterPropsWithStore & {
@@ -179,16 +176,15 @@ const ConnectedHistoryRouter = connect(
 )(InnerHistoryRouter)
 
 class HistoryRouter extends Component<HistoryRouterProps, HistoryRouterState> {
-  private store:Store<State, Action, ComputedState>
+  private store:Store
 
   constructor(props) {
     super(props)
     this.state = {
       loaded: false
     }
-    this.store = createStore<State, Action, ComputedState>({
+    this.store = createStore({
       loadFromPersist: wasLoadedFromRefresh,
-      initialState: new UninitializedState(),
       regularReduxStore: this.makeReduxStore()
     })
   }

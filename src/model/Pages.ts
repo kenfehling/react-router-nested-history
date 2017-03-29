@@ -234,10 +234,6 @@ export default class Pages implements IHistory {
   static compareByLastVisited(p1:VisitedPage, p2:VisitedPage):number {
     return p2.lastVisit.time - p1.lastVisit.time
   }
-
-  private get byLastVisited():Pages {
-    return this.sort(Pages.compareByLastVisited)
-  }
 }
 
 /**

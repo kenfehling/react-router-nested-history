@@ -26,20 +26,26 @@ export default class InitializedState extends State {
       .replaceGroup(group.activate({time, type: VisitType.MANUAL}))
   }
 
-  switchToContainer({name, time}:{name:string, time:number}):State {
+  switchToContainer({name, time}:{name: string, time: number}):State {
     const container:IContainer = this.getContainerByName(name)
     const group:Group = this.getGroupByName(container.groupName)
-    const c = group.activateContainer({name, time})
-    return this
-      .replaceGroup(c)
-      .openWindow(name)
+    return this.replaceGroup(group.activateContainer({name, time}))
   }
 
-  openWindow(forName:string):State {
-    return this.setWindowVisibility({forName, visible: true})
+  openWindowForName({name, time}:{name:string, time:number}):State {
+    return this.switchToContainer({name, time})
+               .setWindowVisibility({forName: name, visible: true})
   }
 
-  closeWindow(forName:string, time:number):State {
+  openWindowAtIndex({groupName, index, time}:
+                    {groupName:string, index:number, time:number}):State {
+    return this.openWindowForName({
+      name: this.getContainerNameByIndex(groupName, index),
+      time
+    })
+  }
+
+  closeWindow({forName, time}:{forName:string, time:number}):State {
     const container:IContainer = this.getContainerByName(forName)
     const groupName:string = container.groupName
     const state:State = this.setWindowVisibility({forName, visible: false})

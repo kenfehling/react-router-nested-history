@@ -18,8 +18,10 @@ export default class SwitchToContainer extends Action {
   readonly index: number|undefined
 
   constructor({time, origin, name=undefined, groupName=undefined, index=undefined}:
-      {time?:number, origin?:Origin, name:string, groupName?:undefined, index?:undefined}|
-      {time?:number, origin?:Origin, name?:undefined, groupName:string, index:number}) {
+      {time?:number, origin?:Origin, name:string, groupName?:undefined,
+        index?:undefined}|
+      {time?:number, origin?:Origin, name?:undefined, groupName:string,
+        index:number}) {
     super({time, origin})
     this.name = name
     this.groupName = groupName
@@ -41,7 +43,7 @@ export default class SwitchToContainer extends Action {
   reduce(state:State):State {
     return state.switchToContainer({
       name: this.getContainerName(state),
-      time: this.time
+      time: this.time,
     })
   }
 

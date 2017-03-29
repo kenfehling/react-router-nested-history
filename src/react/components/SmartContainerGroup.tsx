@@ -1,33 +1,22 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
-import DumbContainerGroup, {
-  OnContainerSwitch, ChildrenType
-} from './DumbContainerGroup'
+import DumbContainerGroup, {ChildrenType} from './DumbContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
-import {Store} from '../../store/store'
+import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import Action from '../../model/BaseAction'
-import State from '../../model/State'
 import ComputedState from '../../model/ComputedState'
 import {ComputedGroup} from '../../model/ComputedState'
 import {
   createCachingSelector, getDispatch, getGroupName, getGroup
 } from '../selectors'
 
-interface BaseGroupPropsWithoutChildren {
-  currentContainerIndex?: number
-  currentContainerName?: string
-  onContainerActivate?: OnContainerSwitch
+export interface BaseGroupPropsWithoutChildren {
   resetOnLeave?: boolean
   allowInterContainerHistory?: boolean
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
   isDefault: boolean
-}
-
-export type ContainerGroupPropsWithoutChildren = BaseGroupPropsWithoutChildren & {
-  name: string
 }
 
 export type ContainerGroupProps = BaseGroupPropsWithoutChildren & {
@@ -36,7 +25,7 @@ export type ContainerGroupProps = BaseGroupPropsWithoutChildren & {
 }
 
 type GroupPropsWithStore = BaseGroupPropsWithoutChildren & {
-  store: Store<State, Action, ComputedState>
+  store: Store
   parentGroupName: string
 
   children?: ChildrenType

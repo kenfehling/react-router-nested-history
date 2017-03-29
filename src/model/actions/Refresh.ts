@@ -15,8 +15,7 @@ export default class Refresh extends NonStepAction {
 
   reduce(state:State):State {
     return state.assign({
-      loadedFromRefresh: true,
-      lastUpdate: this.time
+      loadedFromRefresh: true
     })
   }
 

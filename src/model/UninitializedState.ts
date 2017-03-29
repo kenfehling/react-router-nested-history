@@ -24,15 +24,19 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  switchToContainer({name, time}:{name:string, time:number}):State {
+  switchToContainer({name, time}: { name: string, time: number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  openWindow(forName: string):State {
+  openWindowAtIndex({groupName, index, time}:{groupName:string, index:number, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  closeWindow(forName: string, time:number):State {
+  openWindowForName({name, time}:{name:string, time:number}):State {
+    throw new Error(UNINITIALIZED_MESSAGE)
+  }
+
+  closeWindow({forName, time}:{forName:string, time:number}):State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 

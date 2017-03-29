@@ -1,17 +1,16 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {connect} from 'react-redux'
-import {Store} from '../../store/store'
+import {Store} from '../../store'
 import ComputedState from '../../model/ComputedState'
-import Action from '../../store/Action'
-import State from '../../model/State'
 import {createSelector} from 'reselect'
 import {ComputedWindow} from '../../model/ComputedState'
 import CloseWindow from '../../model/actions/CloseWindow'
-import DumbHistoryWindow from './DumbHistoryWindow'
+import DumbHistoryWindow, {WindowPosition} from './DumbHistoryWindow'
 import {moveWindow} from '../../actions/WindowActions'
 import {Map} from 'immutable'
 import {createCachingSelector, getDispatch} from '../selectors'
+import SwitchToContainer from '../../model/actions/SwitchToContainer'
 
 export interface WindowProps {
   forName: string
@@ -32,19 +31,20 @@ export interface WindowProps {
 }
 
 type WindowPropsWithStore = WindowProps & {
-  store: Store<State, Action, ComputedState>
-  setCurrentContainerName: (name:string) => void
+  store: Store
 }
 
 type ConnectedWindowProps = WindowPropsWithStore & {
   storedVisibile: boolean
+  switchTo: () => void
+  open: () => void
   close: () => void
+  move: (position:WindowPosition) => void
 }
 
 const getForName = (state, props):string => props.forName
 const getWindows = (state):Map<string, ComputedWindow> => state.windows
 const getPositions = (state):Map<string, Object> => state.windowPositions
-const getSetCurrentContainerName = (state, props) => props.setCurrentContainerName
 
 const makeGetWindow = () => createSelector(
   getForName, getWindows, getPositions,
@@ -54,11 +54,12 @@ const makeGetWindow = () => createSelector(
 )
 
 const makeGetActions = () => createCachingSelector(
-  getForName, getSetCurrentContainerName, getDispatch,
-  (forName, setCurrentContainerName, dispatch) => ({
-    open: () => setCurrentContainerName(forName),
+  getForName, getDispatch,
+  (forName, dispatch) => ({
+    switchTo: () => dispatch(new SwitchToContainer({name: forName})),
+    open: () => dispatch(new SwitchToContainer({name: forName})),
     close: () => dispatch(new CloseWindow({forName})),
-    move: ({x, y}:{x:number, y:number}) => dispatch(moveWindow(forName, x, y))
+    move: ({x, y}:WindowPosition) => dispatch(moveWindow(forName, x, y))
   })
 )
 
@@ -91,7 +92,6 @@ const ConnectedSmartHistoryWindow = connect(
 class SmartHistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
-    setCurrentContainerName: PropTypes.func.isRequired,
     windowGroupWidth: PropTypes.number.isRequired,
     windowGroupHeight: PropTypes.number.isRequired
   }
