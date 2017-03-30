@@ -3,7 +3,7 @@ const path = require('path')
 const app = express()
 
 
-const root = path.resolve(__dirname, '..', 'build')
+const root = path.resolve(__dirname, 'build')
 
 // Serve static assets
 app.use(express.static(root))
