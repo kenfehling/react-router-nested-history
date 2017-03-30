@@ -23,8 +23,8 @@ type ConnectedWindowProps = WindowPropsWithStore & {
 class InnerHistoryWindow extends Component<ConnectedWindowProps, undefined> {
 
   componentWillMount() {
-    const {initializing, loadedFromRefresh, forName, visible} = this.props
-    if (initializing && !loadedFromRefresh) {
+    const {loadedFromRefresh, forName, visible} = this.props
+    if (!loadedFromRefresh) {
       this.props.createWindow(new CreateWindow({forName, visible}))
     }
   }
