@@ -33,7 +33,7 @@ export const getGroupsAndContainers =
 const getIsInitialized = state => state.isInitialized
 const getLoadedFromRefresh = state => state.loadedFromRefresh
 
-export const getIsInitializedAndLoadedFromRefresh = createCachingSelector(
+export const getIsInitializedAndLoadedFromRefresh = createSelector(
   getIsInitialized, getLoadedFromRefresh,
   (isInitialized, loadedFromRefresh) => ({isInitialized, loadedFromRefresh})
 )

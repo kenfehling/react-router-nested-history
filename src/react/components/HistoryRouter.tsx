@@ -58,7 +58,8 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
     rrnhStore: PropTypes.object.isRequired
   }
 
-  componentWillMount() {
+  constructor(props) {
+    super(props)
     const {loadedFromRefresh, refresh} = this.props
     if (loadedFromRefresh) {
       refresh()

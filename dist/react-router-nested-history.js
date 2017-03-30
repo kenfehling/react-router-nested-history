@@ -1674,7 +1674,7 @@ exports.getGroupsAndContainers = function (state) {
 };
 var getIsInitialized = function (state) { return state.isInitialized; };
 var getLoadedFromRefresh = function (state) { return state.loadedFromRefresh; };
-exports.getIsInitializedAndLoadedFromRefresh = exports.createCachingSelector(getIsInitialized, getLoadedFromRefresh, function (isInitialized, loadedFromRefresh) { return ({ isInitialized: isInitialized, loadedFromRefresh: loadedFromRefresh }); });
+exports.getIsInitializedAndLoadedFromRefresh = reselect_1.createSelector(getIsInitialized, getLoadedFromRefresh, function (isInitialized, loadedFromRefresh) { return ({ isInitialized: isInitialized, loadedFromRefresh: loadedFromRefresh }); });
 exports.getGroup = re_reselect_1.default(exports.getGroupName, exports.getGroups, function (name, groups) {
     var group = groups.get(name);
     if (!group) {
@@ -26183,18 +26183,17 @@ if (ExecutionEnvironment_1.canUseDOM && !window.Promise) {
 }
 var InnerHistoryRouter = (function (_super) {
     __extends(InnerHistoryRouter, _super);
-    function InnerHistoryRouter() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    InnerHistoryRouter.prototype.componentWillMount = function () {
-        var _a = this.props, loadedFromRefresh = _a.loadedFromRefresh, refresh = _a.refresh;
+    function InnerHistoryRouter(props) {
+        var _this = _super.call(this, props) || this;
+        var _a = _this.props, loadedFromRefresh = _a.loadedFromRefresh, refresh = _a.refresh;
         if (loadedFromRefresh) {
             refresh();
         }
         else {
-            this.initialize();
+            _this.initialize();
         }
-    };
+        return _this;
+    }
     InnerHistoryRouter.prototype.initialize = function () {
         var _a = this.props, zeroPage = _a.zeroPage, setZeroPage = _a.setZeroPage;
         if (zeroPage) {

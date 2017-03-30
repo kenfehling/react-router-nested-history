@@ -5,7 +5,7 @@ export default {
   context: path.resolve('./'),
   devtool: 'source-map',
   output: {
-    path: './build/',
+    path: path.resolve('build')
   },
   module: {
     loaders: [
