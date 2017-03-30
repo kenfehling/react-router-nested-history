@@ -8,9 +8,9 @@ import {HistoryStack, default as Pages} from './Pages'
 import VisitedPage from './VistedPage'
 import {VisitType} from './PageVisit'
 import IContainer from './IContainer'
-import {Map, OrderedMap, Set, fromJS} from 'immutable'
+import {Map, OrderedMap, fromJS} from 'immutable'
 import {
-  PartialComputedState, ComputedGroup, ComputedWindow, ComputingWindow,
+  PartialComputedState, ComputedGroup, ComputedWindow,
   ComputedContainer, ComputedGroupOrContainer
 } from './ComputedState'
 import IState from '../store/IState'
@@ -18,18 +18,19 @@ import HistoryWindow from './HistoryWindow'
 
 abstract class State implements IState {
   readonly groups: Map<string, Group>
+  readonly windows: Map<string, HistoryWindow>
   readonly titles: PathTitle[]
   readonly zeroPage?: string
-  readonly loadedFromRefresh: boolean
   readonly isOnZeroPage: boolean
 
-  constructor({groups=fromJS({}), zeroPage, loadedFromRefresh=false,
+  constructor({groups=fromJS({}), windows=fromJS({}), zeroPage,
                 isOnZeroPage=false, titles=[]}:
-    {groups?:Map<string, Group>, zeroPage?:string, loadedFromRefresh?:boolean,
-      isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
+    {groups?:Map<string, Group>, windows?:Map<string, HistoryWindow>,
+      zeroPage?:string, isOnZeroPage?:boolean,
+      titles?:PathTitle[]}={}) {
     this.groups = groups
+    this.windows = windows
     this.zeroPage = zeroPage
-    this.loadedFromRefresh = loadedFromRefresh
     this.isOnZeroPage = isOnZeroPage
     this.titles = titles
   }
@@ -98,23 +99,21 @@ abstract class State implements IState {
       fromJS({}))
   }
 
-  private get computingWindows():OrderedMap<string, ComputingWindow> {
-    return this.groups.reduce(
-      (map:Map<string, ComputingWindow>, g:Group) =>
-        map.merge(g.computeWindows()), OrderedMap<string, ComputingWindow>())
-  }
-
   get computedWindows():OrderedMap<string, ComputedWindow> {
-    const ws = this.computingWindows
-    let i:number = ws.size
-    let seenGroups:Set<string> = Set<string>()
-    return ws.map((w:ComputingWindow):ComputedWindow => {
-      const sawGroup:boolean = seenGroups.has(w.groupName)
-      seenGroups = seenGroups.add(w.groupName)
+    let stackOrders:Map<string, IContainer[]> = fromJS({})
+    return this.windows.map((w:HistoryWindow):ComputedWindow => {
+      const container:IContainer = this.getContainerByName(w.forName)
+      const groupName:string = container.groupName
+      if (!stackOrders.has(groupName)) {
+        const group:Group = this.groups.get(groupName)
+        stackOrders = stackOrders.set(groupName, group.containerStackOrder)
+      }
+      const stackOrder:IContainer[] = stackOrders.get(groupName)
+      const index = R.findIndex(c => c.name === w.forName, stackOrder)
       return {
         ...w,
-        zIndex: i--,
-        isOnTop: !sawGroup
+        zIndex: stackOrder.length + 1 - index,
+        isOnTop: index === 0
       }
     }) as OrderedMap<string, ComputedWindow>
   }
@@ -122,7 +121,6 @@ abstract class State implements IState {
   computeState():PartialComputedState {
     return {
       isInitialized: this.isInitialized,
-      loadedFromRefresh: this.loadedFromRefresh,
       activeUrl: this.activeUrl,
       groupsAndContainers: this.computedGroupsAndContainers,
       groups: this.computedGroups,
@@ -154,12 +152,6 @@ abstract class State implements IState {
       const group:Group = this.getGroupByName(container.groupName)
       return this.replaceGroup(group.replaceContainer(container))
     }
-  }
-
-  replaceWindow(w:HistoryWindow, c:IContainer):State {
-    const newContainer:IContainer = c.replaceWindow(w)
-    const group:Group = this.getGroupByName(c.groupName)
-    return this.replaceGroup(group.replaceContainer(newContainer))
   }
 
   disallowDuplicateContainerOrGroup(name) {
@@ -220,17 +212,18 @@ abstract class State implements IState {
     return this.replaceGroup(group.replaceContainer(container))
   }
 
+  replaceWindow(w:HistoryWindow):State {
+    return this.assign({windows: this.windows.set(w.forName, w)})
+  }
+
   setWindowVisibility({forName, visible}:
                       {forName:string, visible:boolean}):State {
-    const c:IContainer = this.getContainerByName(forName)
-    const group:Group = this.getGroupByName(c.groupName)
-    return this.replaceGroup(group.replaceContainer(c.setEnabled(visible)))
+    return this.replaceWindow(this.windows.get(forName).setVisible(visible))
   }
 
   addWindow({forName, visible=true}:{forName:string, visible?:boolean}):State {
-    const w:HistoryWindow = new HistoryWindow({forName})
-    const c:IContainer = this.getContainerByName(forName)
-    return this.replaceWindow(w, c.setEnabled(visible))
+    const w:HistoryWindow = new HistoryWindow({forName, visible})
+    return this.replaceWindow(w)
   }
 
   /**

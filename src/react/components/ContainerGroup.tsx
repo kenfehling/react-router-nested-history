@@ -4,37 +4,27 @@ import {connect, Dispatch} from 'react-redux'
 import SmartContainerGroup, {ContainerGroupProps} from './SmartContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
 import {Store} from '../../store'
-import {renderToStaticMarkup} from 'react-dom/server'
-import WindowGroup from './WindowGroup'
-import DumbContainerGroup from './DumbContainerGroup'
-import DumbContainer from './DumbContainer'
-import Container from './Container'
-import {getChildren} from '../../util/children'
-import waitForInitialization from '../waitForInitialization'
-import HistoryWindow from './HistoryWindow'
-import SmartContainer from './SmartContainer'
 import {
-  getDispatch, createCachingSelector,
-  getIsInitializedAndLoadedFromRefresh
+  getDispatch, createCachingSelector, getIsInitialized, getLoadedFromPersist
 } from '../selectors'
+import {createStructuredSelector} from 'reselect'
 
 type GroupPropsWithStore = ContainerGroupProps & {
   store: Store
   parentGroupName: string
-  initializing: boolean
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
   createGroup: (action:CreateGroup) => void
-  loadedFromRefresh: boolean
+  loadedFromPersist: boolean
   isInitialized: boolean
 }
 
 class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
   componentWillMount() {
-    const {parentGroupName, initializing, loadedFromRefresh} = this.props
-    if ((!parentGroupName || initializing) && !loadedFromRefresh) {
+    const { /*parentGroupName, */ loadedFromPersist, isInitialized} = this.props
+    if ( /* !parentGroupName && */ !loadedFromPersist && !isInitialized) {
       this.initialize()
     }
   }
@@ -63,15 +53,13 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
      class G extends Component<{children: ReactNode}, undefined> {
        static childContextTypes = {
          rrnhStore: PropTypes.object.isRequired,
-         groupName: PropTypes.string.isRequired,
-         initializing: PropTypes.bool
+         groupName: PropTypes.string.isRequired
        }
 
        getChildContext() {
          return {
            rrnhStore: store,
-           groupName: name,
-           initializing: true
+           groupName: name
          }
        }
 
@@ -80,22 +68,10 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
          return <div>{children}</div>
        }
      }
-
-     // Initialize the Containers in this group
-     // (since most tab libraries lazy load tabs)
-     const cs = [
-       ...getChildren(this, [Container, SmartContainer, DumbContainer],
-       [ContainerGroup, SmartContainerGroup, DumbContainerGroup, WindowGroup]),
-      ]
-
-      console.log(cs)
-
-     cs.forEach(c => renderToStaticMarkup(<G children={c} />))
   }
 
   render() {
-    return this.props.isInitialized ?
-        <SmartContainerGroup {...this.props} /> : <div></div>
+    return <SmartContainerGroup {...this.props} />
   }
 }
 
@@ -106,6 +82,11 @@ const makeGetActions = () => createCachingSelector(
   })
 )
 
+const mapStateToProps = createStructuredSelector({
+  isInitialized: getIsInitialized,
+  loadedFromPersist: getLoadedFromPersist
+})
+
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:GroupPropsWithStore):ConnectedGroupProps => ({
   ...stateProps,
@@ -114,7 +95,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainerGroup = connect(
-  getIsInitializedAndLoadedFromRefresh,
+  mapStateToProps,
   makeGetActions,
   mergeProps
 )(InnerContainerGroup)
@@ -122,16 +103,14 @@ const ConnectedContainerGroup = connect(
 export default class ContainerGroup extends Component<ContainerGroupProps, undefined> {
   static contextTypes = {
     groupName: PropTypes.string,  // Parent group name (if any)
-    initializing: PropTypes.bool,  // Only if is a subgroup
     rrnhStore: PropTypes.object.isRequired
   }
 
   render() {
-    const {groupName, rrnhStore, initializing} = this.context
+    const {groupName, rrnhStore} = this.context
     return (
       <ConnectedContainerGroup parentGroupName={groupName}
                                store={rrnhStore}
-                               initializing={initializing}
                                {...this.props}
       />
     )

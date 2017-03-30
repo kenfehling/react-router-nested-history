@@ -6,13 +6,13 @@ import {createStore, Store} from '../../store'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import {
-  wasLoadedFromRefresh, canUseWindowLocation
+  canUseWindowLocation,
+  wasLoadedFromRefresh
 } from '../../util/browserFunctions'
 import Load from '../../model/actions/Load'
 import SetZeroPage from '../../model/actions/SetZeroPage'
 import StepRunner from './StepRunner'
 import TitleSetter from './TitleSetter'
-import Refresh from '../../model/actions/Refresh'
 import ComputedState from '../../model/ComputedState'
 import reducer, {initialState, ReduxState} from '../../reducers'
 import {createStore as createRegularReduxStore} from 'redux'
@@ -44,7 +44,6 @@ type RouterPropsWithStore = HistoryRouterProps & {
 type ConnectedRouterProps = RouterPropsWithStore & {
   isInitialized: boolean
   loadedFromRefresh: boolean
-  refresh: () => void
   load: (url:string) => void
   setZeroPage: (url:string) => void
 }
@@ -60,11 +59,8 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
 
   constructor(props) {
     super(props)
-    const {loadedFromRefresh, refresh} = this.props
-    if (loadedFromRefresh) {
-      refresh()
-    }
-    else {
+    const {loadedFromRefresh} = this.props
+    if (!loadedFromRefresh) {
       this.initialize()
     }
   }
@@ -74,38 +70,6 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
     if (zeroPage) {
       setZeroPage(zeroPage)
     }
-
-    /*
-     class R extends Component<{children: ReactNode}, undefined> {
-       static childContextTypes = {
-         rrnhStore: PropTypes.object.isRequired,
-         initializing: PropTypes.bool,
-         router: PropTypes.object,
-       }
-
-       getChildContext() {
-         return {
-           rrnhStore: store,
-           initializing: true,
-           router: {
-           location: {pathname: '/'},
-           listen: () => {},
-           push: () => {},
-           replace: () => {}
-           }
-         }
-       }
-
-       render() {
-         return <div>{this.props.children}</div>
-       }
-     }
-
-     // Initialize the ContainerGroups
-     // (since most tab libraries lazy load tabs)
-     const cs = getChildren(this, [ContainerGroup, DumbContainerGroup, WindowGroup])
-     cs.forEach(c => renderToStaticMarkup(<R children={c} />))
-     */
   }
 
   componentDidMount() {
@@ -149,15 +113,13 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
 }
 
 const mapStateToProps = (state:ComputedState) => ({
-  isInitialized: state.isInitialized,
-  loadedFromRefresh: wasLoadedFromRefresh
+  isInitialized: state.isInitialized
 })
 
 const makeGetActions = () => createCachingSelector(
   getDispatch,
   (dispatch) => ({
     load: (url:string) => dispatch(new Load({url})),
-    refresh: () => dispatch(new Refresh()),
     setZeroPage: (url:string) => dispatch(new SetZeroPage({url}))
   })
 )

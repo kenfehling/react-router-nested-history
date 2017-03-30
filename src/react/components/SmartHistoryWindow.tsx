@@ -2,19 +2,17 @@ import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {connect} from 'react-redux'
 import {Store} from '../../store'
-import ComputedState from '../../model/ComputedState'
-import {ComputedWindow} from '../../model/ComputedState'
 import CloseWindow from '../../model/actions/CloseWindow'
 import DumbHistoryWindow, {WindowPosition} from './DumbHistoryWindow'
 import {moveWindow} from '../../actions/WindowActions'
 import {
-  createCachingSelector, getDispatch, getForName,
-  getWindow
+  createCachingSelector, getContainerName, getDispatch, getWindowIsOnTop,
+  getWindowPosition, getWindowVisible, getWindowZIndex
 } from '../selectors'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
+import {createStructuredSelector} from 'reselect'
 
-export interface WindowProps {
-  forName: string
+interface BaseWindowProps {
   top?: number
   middle?: number
   bottom?:number
@@ -31,8 +29,13 @@ export interface WindowProps {
   isOnTop: boolean
 }
 
+export type WindowProps = BaseWindowProps & {
+  forName: string
+}
+
 type WindowPropsWithStore = WindowProps & {
   store: Store
+  containerName: string
 }
 
 type ConnectedWindowProps = WindowPropsWithStore & {
@@ -45,24 +48,21 @@ type ConnectedWindowProps = WindowPropsWithStore & {
 
 
 const makeGetActions = () => createCachingSelector(
-  getForName, getDispatch,
-  (forName, dispatch) => ({
-    switchTo: () => dispatch(new SwitchToContainer({name: forName})),
-    open: () => dispatch(new SwitchToContainer({name: forName})),
-    close: () => dispatch(new CloseWindow({forName})),
-    move: ({x, y}:WindowPosition) => dispatch(moveWindow(forName, x, y))
+  getContainerName, getDispatch,
+  (name, dispatch) => ({
+    switchTo: () => dispatch(new SwitchToContainer({name})),
+    open: () => dispatch(new SwitchToContainer({name})),
+    close: () => dispatch(new CloseWindow({forName: name})),
+    move: ({x, y}:WindowPosition) => dispatch(moveWindow(name, x, y))
   })
 )
 
-const makeMapStateToProps = (state:ComputedState, ownProps:WindowPropsWithStore) => {
-  const w:ComputedWindow & {position:Object} = getWindow(state, ownProps)
-  return {
-    storedVisible: w.visible,
-    storedPosition: w.position,
-    zIndex: w.zIndex,
-    isOnTop: w.isOnTop
-  }
-}
+const mapStateToProps = createStructuredSelector({
+  storedVisible: getWindowVisible,
+  storedPosition: getWindowPosition,
+  zIndex: getWindowZIndex,
+  isOnTop: getWindowIsOnTop
+})
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:WindowPropsWithStore):ConnectedWindowProps => ({
@@ -72,7 +72,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedSmartHistoryWindow = connect(
-  makeMapStateToProps,
+  mapStateToProps,
   makeGetActions,
   mergeProps
 )(DumbHistoryWindow)
@@ -86,10 +86,12 @@ class SmartHistoryWindow extends Component<WindowProps, undefined> {
 
   render() {
     const {rrnhStore, ...context} = this.context
+    const {forName, ...props} = this.props
     return (
       <ConnectedSmartHistoryWindow store={rrnhStore}
+                                   containerName={forName}
                                    {...context}
-                                   {...this.props}
+                                   {...props}
       />
     )
   }

@@ -38,7 +38,9 @@ export default class CreateContainer extends Action {
     })
   }
 
+  /*
   filter(state:State):Action[] {
     return state.loadedFromRefresh ? [] : [this]
   }
+  */
 }

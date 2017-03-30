@@ -1,17 +1,13 @@
 import Pages, {HistoryStack} from './Pages'
 import IHistory from './IHistory'
 import {
-  ComputedContainer, ComputedGroup, ComputingWindow,
-  ComputedGroupOrContainer
+  ComputedContainer, ComputedGroupOrContainer
 } from './ComputedState'
-import HistoryWindow from './HistoryWindow'
-import {Map, OrderedMap} from 'immutable'
+import {Map} from 'immutable'
 
 abstract class IContainer extends IHistory {
   abstract get wasManuallyVisited(): boolean
   abstract get pages(): Pages
-  abstract get associatedWindow(): HistoryWindow|undefined
-  abstract replaceWindow(w:HistoryWindow):IContainer
   abstract updatePages(pages:Pages): IContainer
   abstract get name(): string
   abstract get patterns(): string[]
@@ -30,7 +26,6 @@ abstract class IContainer extends IHistory {
   abstract computeContainersAndGroups():Map<string, ComputedGroupOrContainer>
   abstract computeContainers(currentUrl:string, activeParentUrl?:string):
                              Map<string, ComputedContainer>
-  abstract computeWindows(parentVisible:boolean):OrderedMap<string, ComputingWindow>
 }
 
 export default IContainer

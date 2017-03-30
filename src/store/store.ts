@@ -50,6 +50,7 @@ export function createStore<S extends IState, A extends Action,
     else {
       clearActions()
     }
+
   }
 
   function _dispatch(action:A):void {
@@ -120,6 +121,7 @@ export function createStore<S extends IState, A extends Action,
     return {
       ...Object(storedComputedState),
       isInitialized: storedRawState.isInitialized,
+      loadedFromPersist: loadFromPersist,
       actions,
       ...(regularReduxStore ? regularReduxStore.getState() : {})
     }

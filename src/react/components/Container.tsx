@@ -9,30 +9,29 @@ import {Store} from '../../store'
 import AddTitle from '../../model/actions/AddTitle'
 import PathTitle from '../../model/PathTitle'
 import SmartContainer, {ContainerProps} from './SmartContainer'
-import waitForInitialization from '../waitForInitialization'
 import {
   getDispatch, createCachingSelector,
-  getContainerName, getIsInitializedAndLoadedFromRefresh
+  getContainerName, getIsInitialized, getLoadedFromPersist,
 } from '../selectors'
+import {createStructuredSelector} from 'reselect'
 
 type ContainerPropsWithStore = ContainerProps & {
   store: Store
   groupName: string
-  initializing: boolean
 }
 
 type ConnectedContainerProps = ContainerPropsWithStore & {
   createContainer: (action:CreateContainer) => void
   addTitle: (title:PathTitle) => any
   isInitialized: boolean
-  loadedFromRefresh: boolean
+  loadedFromPersist: boolean
 }
 
 class InnerContainer extends Component<ConnectedContainerProps, undefined> {
 
   componentWillMount() {
-    const {initializing, loadedFromRefresh} = this.props
-    if (initializing && !loadedFromRefresh) {
+    const {loadedFromPersist, isInitialized} = this.props
+    if (!loadedFromPersist && !isInitialized) {
       this.initialize()
     }
   }
@@ -48,7 +47,6 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
       resetOnLeave=false,
       createContainer,
       groupName,
-      initializing=false,
       isDefault=false
     } = this.props
 
@@ -61,32 +59,30 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
       isDefault
     }))
 
-    if (initializing) {
-      class T extends Component<undefined, undefined> {
-        static childContextTypes = {
-          ...DumbContainer.childContextTypes,
-          rrnhStore: PropTypes.object.isRequired
-        }
+    class T extends Component<undefined, undefined> {
+      static childContextTypes = {
+        ...DumbContainer.childContextTypes,
+        rrnhStore: PropTypes.object.isRequired
+      }
 
-        getChildContext() {
-          return {
-            rrnhStore: store,
-            groupName,
-            animate,
-            containerName: name,
-            pathname: initialUrl,
-            patterns: patterns
-          }
-        }
-
-        render() {
-          return <div>{children}</div>
+      getChildContext() {
+        return {
+          rrnhStore: store,
+          groupName,
+          animate,
+          containerName: name,
+          pathname: initialUrl,
+          patterns: patterns
         }
       }
 
-      renderToStaticMarkup(<T />)
-      this.addTitleForPath(initialUrl)
+      render() {
+        return <div>{children}</div>
+      }
     }
+
+    renderToStaticMarkup(<T />)
+    this.addTitleForPath(initialUrl)
   }
 
   addTitleForPath(pathname:string) {
@@ -100,8 +96,7 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
   }
 
   render() {
-    return this.props.isInitialized ?
-        <SmartContainer {...this.props} /> : <div></div>
+    return <SmartContainer {...this.props} />
   }
 }
 
@@ -113,6 +108,11 @@ const makeGetActions = () => createCachingSelector(
   })
 )
 
+const mapStateToProps = createStructuredSelector({
+  isInitialized: getIsInitialized,
+  loadedFromPersist: getLoadedFromPersist
+})
+
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:ContainerPropsWithStore):ConnectedContainerProps => ({
   ...stateProps,
@@ -121,7 +121,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainer = connect(
-  getIsInitializedAndLoadedFromRefresh,
+  mapStateToProps,
   makeGetActions,
   mergeProps
 )(InnerContainer)
@@ -130,7 +130,6 @@ export default class Container extends Component<ContainerProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
-    initializing: PropTypes.bool,
     hideInactiveContainers: PropTypes.bool
   }
 

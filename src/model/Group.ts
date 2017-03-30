@@ -15,11 +15,10 @@ import VisitedPage from './VistedPage'
 import {
   sortContainersByLastVisited, sortContainersByFirstVisited
 } from '../util/sorter'
-import {Map, fromJS, OrderedMap} from 'immutable'
+import {Map, fromJS} from 'immutable'
 import {
-  ComputedGroup, ComputingWindow, ComputedContainer, ComputedGroupOrContainer
+  ComputedGroup, ComputedContainer, ComputedGroupOrContainer
 } from './ComputedState'
-import HistoryWindow from './HistoryWindow'
 
 // Param types for _go method
 type GoFn = <H extends IHistory> (h:H, n:number, time:number) => H
@@ -29,7 +28,6 @@ type NextPageFn = <H extends IHistory> (h:H) => Page|undefined
 export default class Group implements IContainer {
   readonly name: string
   readonly enabled: boolean
-  readonly associatedWindow: HistoryWindow|undefined
   readonly containers: Map<string, IContainer>
   readonly allowInterContainerHistory: boolean
   readonly resetOnLeave: boolean
@@ -37,16 +35,15 @@ export default class Group implements IContainer {
   readonly parentGroupName: string
   readonly isDefault: boolean  // Only applies if this has a parent group
 
-  constructor({name, enabled=true, associatedWindow, containers=fromJS({}),
+  constructor({name, enabled=true, containers=fromJS({}),
     allowInterContainerHistory=false, resetOnLeave=false,
     gotoTopOnSelectActive=false, parentGroupName='', isDefault=false}:
-      {name:string, enabled?:boolean, associatedWindow?: HistoryWindow,
-        containers?:Map<string, IContainer>, allowInterContainerHistory?:boolean,
-        resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean,
-        parentGroupName?:string, isDefault?:boolean}) {
+      {name:string, enabled?:boolean, containers?:Map<string, IContainer>,
+        allowInterContainerHistory?:boolean, resetOnLeave?:boolean,
+        gotoTopOnSelectActive?:boolean, parentGroupName?:string,
+        isDefault?:boolean}) {
     this.name = name
     this.enabled = enabled
-    this.associatedWindow = associatedWindow
     this.containers = containers
     this.allowInterContainerHistory = allowInterContainerHistory
     this.resetOnLeave = resetOnLeave
@@ -77,13 +74,6 @@ export default class Group implements IContainer {
     return new Group({
       ...Object(this),
       containers: this.containers.map((c:IContainer) => c.updatePages(pages))
-    })
-  }
-
-  replaceWindow(w:HistoryWindow):Group {
-    return new Group({
-      ...Object(this),
-      associatedWindow: w
     })
   }
 
@@ -637,39 +627,6 @@ export default class Group implements IContainer {
     return fromJS({}).merge(
       fromJS({}).set(this.name, thisOne),
       ...this.subGroups.toArray().map((g:Group) => g.computeGroups())
-    )
-  }
-
-  private computeWindow(parentVisible:boolean):ComputingWindow {
-    if (this.associatedWindow) {
-      return {
-        forName: this.name,
-        visible: parentVisible && this.enabled,
-        groupName: this.groupName
-      }
-    }
-    else {
-      throw new Error('No associated window')
-    }
-  }
-
-  private _computeWindows(parentVisible:boolean):OrderedMap<string, ComputingWindow> {
-    const map = OrderedMap<string, ComputingWindow>()
-    if (this.associatedWindow) {
-      return map.set(this.name, this.computeWindow(parentVisible))
-    }
-    else {
-      return map
-    }
-  }
-
-  computeWindows(parentVisible:boolean=true):OrderedMap<string, ComputingWindow> {
-    const cs:IContainer[] = this.containerStackOrder
-    return this._computeWindows(parentVisible).merge(cs.reduce(
-        (map:OrderedMap<string, ComputingWindow>, c:IContainer) =>
-          map.merge(c.computeWindows(parentVisible && this.enabled)),
-      OrderedMap<string, ComputingWindow>()
-      )
     )
   }
 }

@@ -17,25 +17,9 @@ export default () => (
     <div className="app-container">
       <div className='left-container'>
         <div className='top-container'>
-          {/*
-          <div className="example-container tabs-container"><Tabs /></div>
-          */}
           <div className="example-container windows-container">
             <Windows />
           </div>
-          <div className='example-container mobile-container'>
-            <MobileExample />
-          </div>
-        </div>
-        <div className='bottom-container'>
-          <div className='example-container nested-group-container'>
-            <NestedGroup />
-          </div>
-          {/*
-          <div className='example-container scroll-area-container'>
-            <ScrollAreaExample />
-          </div>
-          */}
         </div>
       </div>
       {/*

@@ -59,11 +59,10 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'containerName',
       'isOnTop',
       'store',
-      'initializing',
       'isDefault',
       'isInitialized',
       'createContainer',
-      'loadedFromRefresh',
+      'loadedFromPersist',
       'activeUrl',
       'matchesCurrentUrl',
       'storeSubscription'

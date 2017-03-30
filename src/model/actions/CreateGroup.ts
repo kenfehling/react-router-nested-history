@@ -53,7 +53,9 @@ export default class CreateGroup extends NonStepAction {
     }
   }
 
+  /*
   filter(state:State):Action[] {
     return state.loadedFromRefresh ? [] : [this]
   }
+  */
 }

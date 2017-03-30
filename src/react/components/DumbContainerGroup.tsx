@@ -3,8 +3,8 @@ import {Component, PropTypes, ReactNode, ReactElement} from 'react'
 import * as R from 'ramda'
 
 export type GroupChildrenFunctionArgs = {
-  currentContainerIndex: number
-  currentContainerName: string
+  currentContainerIndex?: number
+  currentContainerName?: string
   setCurrentContainerIndex: (index:number) => void
   setCurrentContainerName: (name:string) => void
 }
@@ -17,8 +17,8 @@ export interface DumbContainerGroupProps {
   children?: ChildrenType
   hideInactiveContainers?: boolean
   gotoTopOnSelectActive?: boolean
-  storedCurrentContainerIndex: number
-  storedCurrentContainerName: string
+  storedCurrentContainerIndex?: number
+  storedCurrentContainerName?: string
   style?: any
 
   switchToContainerIndex: (index:number) => void
@@ -30,8 +30,7 @@ export default class DumbContainerGroup extends
 
   static childContextTypes = {
     groupName: PropTypes.string.isRequired,
-    hideInactiveContainers: PropTypes.bool,
-    initializing: PropTypes.bool
+    hideInactiveContainers: PropTypes.bool
   }
 
   getChildContext() {
@@ -59,9 +58,8 @@ export default class DumbContainerGroup extends
       'isDefault',
       'parentGroupName',
       'allowInterContainerHistory',
-      'loadedFromRefresh',
+      'loadedFromPersist',
       'isInitialized',
-      'initializing',
       'storeSubscription'
   ], this.props)
     const divStyle={

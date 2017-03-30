@@ -33,7 +33,6 @@ type ContainerPropsWithStore = BaseContainerProps & {
   store: Store
   groupName: string
   containerName: string
-  initializing: boolean
   hideInactiveContainers: boolean
 }
 
@@ -59,21 +58,15 @@ class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> 
 
   componentDidUpdate() {
     const {activeUrl, matchesCurrentUrl} = this.props
-      if (matchesCurrentUrl) {
-        this.addTitleForPath(activeUrl)
+    if (matchesCurrentUrl) {
+      this.addTitleForPath(activeUrl)
     }
   }
 
   render() {
-    const {initializing} = this.props
-    if (initializing) {
-      return <div></div>
-    }
-    else {
-      const {animate=true} = this.props
-      const props = {...this.props, animate}
-      return <DumbContainer {...props} />
-    }
+    const {animate=true} = this.props
+    const props = {...this.props, animate}
+    return <DumbContainer {...props} />
   }
 }
 
@@ -109,7 +102,6 @@ export default class SmartContainer extends Component<ContainerProps, undefined>
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
-    initializing: PropTypes.bool,
     hideInactiveContainers: PropTypes.bool
   }
 

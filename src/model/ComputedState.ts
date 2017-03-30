@@ -28,21 +28,15 @@ export interface ComputedGroup {
   activeContainerName: string
 }
 
-export interface ComputingWindow {
+export interface ComputedWindow {
   forName: string
   visible: boolean
-  groupName: string
-}
-
-export type ComputedWindow = ComputingWindow & {
   zIndex: number
   isOnTop: boolean
-  groupName: string
 }
 
 export interface PartialComputedState {
   isInitialized: boolean
-  loadedFromRefresh: boolean
   groupsAndContainers: Map<string, ComputedGroupOrContainer>
   groups: Map<string, ComputedGroup>
   containers: Map<string, ComputedContainer>

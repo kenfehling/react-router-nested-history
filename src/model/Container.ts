@@ -5,15 +5,13 @@ import Pages, {HistoryStack} from './Pages'
 import PageVisit, {VisitType} from './PageVisit'
 import VisitedPage from './VistedPage'
 import {
-  ComputedContainer, ComputingWindow, ComputedGroupOrContainer
+  ComputedContainer, ComputedGroupOrContainer
 } from './ComputedState'
-import HistoryWindow from './HistoryWindow'
 import {Map, OrderedMap, fromJS} from 'immutable'
 
 export default class Container implements IContainer {
   readonly name: string
   readonly enabled: boolean
-  readonly associatedWindow: HistoryWindow|undefined
   readonly initialUrl: string
   readonly patterns: string[]
   readonly isDefault: boolean
@@ -26,7 +24,6 @@ export default class Container implements IContainer {
    * @param time - The time this container was created
    * @param name - The container's name
    * @param enabled - Is this container enabled/visible?
-   * @param associatedWindow - The HistoryWindow associated with this container
    * @param initialUrl - The starting URL of this container
    * @param patterns - Patterns of URLs that this container handles
    * @param isDefault - Is this the default container?
@@ -34,14 +31,13 @@ export default class Container implements IContainer {
    * @param groupName - The name of this container's group
    * @param pages - The pages visited in this container
    */
-  constructor({time, name, enabled=true, associatedWindow, initialUrl, patterns,
+  constructor({time, name, enabled=true, initialUrl, patterns,
                isDefault=false, resetOnLeave=false, groupName, pages}:
       {time:number, name:string, enabled?:boolean,
-        associatedWindow?: HistoryWindow, initialUrl:string, patterns:string[],
-        isDefault?:boolean, resetOnLeave?:boolean, groupName:string, pages?:Pages}) {
+         initialUrl:string, patterns:string[], isDefault?:boolean,
+        resetOnLeave?:boolean, groupName:string, pages?:Pages}) {
     this.name = name
     this.enabled = enabled
-    this.associatedWindow = associatedWindow
     this.initialUrl = initialUrl
     this.patterns = patterns
     this.isDefault = isDefault
@@ -69,13 +65,6 @@ export default class Container implements IContainer {
     return new Container({
       ...Object(this),
       pages: this.pages.update(pages)
-    })
-  }
-
-  replaceWindow(w:HistoryWindow):Container {
-    return new Container({
-      ...Object(this),
-      associatedWindow: w
     })
   }
 
@@ -238,31 +227,5 @@ export default class Container implements IContainer {
       matchesCurrentUrl: patternsMatch(this.patterns, currentUrl)
     }
     return fromJS({}).set(this.name, thisOne)
-  }
-
-  private computeWindow(parentVisible:boolean):ComputingWindow {
-    if (this.associatedWindow) {
-      return {
-        forName: this.name,
-        visible: parentVisible && this.enabled,
-        groupName: this.groupName
-      }
-    }
-    else {
-      throw new Error('No associated window')
-    }
-  }
-
-  /**
-   * Returns a map with 0 or 1 items
-   */
-  computeWindows(parentVisible:boolean):Map<string, ComputingWindow> {
-    const map = OrderedMap<string, ComputingWindow>()
-    if (this.associatedWindow) {
-      return map.set(this.name, this.computeWindow(parentVisible))
-    }
-    else {
-      return map
-    }
   }
 }
