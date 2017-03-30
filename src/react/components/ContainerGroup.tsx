@@ -90,6 +90,9 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
        ...getChildren(this, [HistoryWindow],
          [ContainerGroup, SmartContainerGroup, DumbContainerGroup, WindowGroup])
       ]
+
+      console.log(cs)
+
      cs.forEach(c => renderToStaticMarkup(<G children={c} />))
   }
 
