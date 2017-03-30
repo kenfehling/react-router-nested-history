@@ -17,11 +17,11 @@ import ComputedState from '../../model/ComputedState'
 import reducer, {initialState, ReduxState} from '../../reducers'
 import {createStore as createRegularReduxStore} from 'redux'
 import {autoRehydrate, persistStore} from 'redux-persist'
+import {getDispatch, createCachingSelector} from '../selectors'
 declare const window:any
 
 // For IE
 import * as Promise from 'promise-polyfill'
-import {getDispatch, createCachingSelector} from '../selectors'
 
 if (canUseDOM && !window.Promise) {
   window.Promise = Promise
@@ -58,8 +58,7 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
     rrnhStore: PropTypes.object.isRequired
   }
 
-  constructor(props) {
-    super(props)
+  componentWillMount() {
     const {loadedFromRefresh, refresh} = this.props
     if (loadedFromRefresh) {
       refresh()

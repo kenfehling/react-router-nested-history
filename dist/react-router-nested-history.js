@@ -26175,25 +26175,26 @@ var Refresh_1 = __webpack_require__(302);
 var reducers_1 = __webpack_require__(315);
 var redux_1 = __webpack_require__(277);
 var redux_persist_1 = __webpack_require__(660);
+var selectors_1 = __webpack_require__(21);
 // For IE
 var Promise = __webpack_require__(351);
-var selectors_1 = __webpack_require__(21);
 if (ExecutionEnvironment_1.canUseDOM && !window.Promise) {
     window.Promise = Promise;
 }
 var InnerHistoryRouter = (function (_super) {
     __extends(InnerHistoryRouter, _super);
-    function InnerHistoryRouter(props) {
-        var _this = _super.call(this, props) || this;
-        var _a = _this.props, loadedFromRefresh = _a.loadedFromRefresh, refresh = _a.refresh;
+    function InnerHistoryRouter() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InnerHistoryRouter.prototype.componentWillMount = function () {
+        var _a = this.props, loadedFromRefresh = _a.loadedFromRefresh, refresh = _a.refresh;
         if (loadedFromRefresh) {
             refresh();
         }
         else {
-            _this.initialize();
+            this.initialize();
         }
-        return _this;
-    }
+    };
     InnerHistoryRouter.prototype.initialize = function () {
         var _a = this.props, zeroPage = _a.zeroPage, setZeroPage = _a.setZeroPage;
         if (zeroPage) {
