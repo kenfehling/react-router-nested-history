@@ -2,7 +2,6 @@ const express = require('express')
 const path = require('path')
 const app = express()
 
-
 const root = path.resolve(__dirname, 'build')
 
 // Serve static assets
