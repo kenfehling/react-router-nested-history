@@ -1,49 +1,55 @@
 import Page from './Page'
 import Container from './Container'
 import * as R from 'ramda'
-import ISubGroup from './ISubGroup'
 import Group from './Group'
 import PathTitle from './PathTitle'
-import {HistoryStack, default as Pages} from './Pages'
 import VisitedPage from './VistedPage'
 import {VisitType} from './PageVisit'
 import IContainer from './IContainer'
-import {Map, OrderedMap, fromJS} from 'immutable'
-import {
-  PartialComputedState, ComputedGroup, ComputedWindow,
-  ComputedContainer, ComputedGroupOrContainer
-} from './ComputedState'
+import {Map, List, fromJS} from 'immutable'
+import {PartialComputedState} from './ComputedState'
 import IState from '../store/IState'
 import HistoryWindow from './HistoryWindow'
+import HistoryStack from './HistoryStack'
 
 abstract class State implements IState {
-  readonly groups: Map<string, Group>
+  readonly containers: Map<string, IContainer>
   readonly windows: Map<string, HistoryWindow>
+  readonly pages: List<VisitedPage>
   readonly titles: PathTitle[]
   readonly zeroPage?: string
   readonly isOnZeroPage: boolean
 
-  constructor({groups=fromJS({}), windows=fromJS({}), zeroPage,
-                isOnZeroPage=false, titles=[]}:
-    {groups?:Map<string, Group>, windows?:Map<string, HistoryWindow>,
-      zeroPage?:string, isOnZeroPage?:boolean,
-      titles?:PathTitle[]}={}) {
-    this.groups = groups
+  constructor({windows=fromJS({}), containers=fromJS({}),
+                zeroPage, isOnZeroPage=false, titles=[]}:
+    {containers?: Map<string, IContainer>, windows?:Map<string, HistoryWindow>,
+      zeroPage?:string, isOnZeroPage?:boolean, titles?:PathTitle[]}={}) {
+    this.containers = containers
     this.windows = windows
     this.zeroPage = zeroPage
     this.isOnZeroPage = isOnZeroPage
     this.titles = titles
   }
 
-  abstract get pages():Pages
+  get groups():Map<string, Group> {
+    return this.containers.filter(c => this.isGroup(c.name)).toMap()
+  }
+
+  get leafContainers():Map<string, Container> {
+    return this.containers.filter(c => !this.isGroup(c.name)).toMap()
+  }
+
+  isGroup(name:string):boolean {
+    return this.groups.has(name)
+  }
+
   abstract assign(obj:Object):State
   abstract get isInitialized():boolean
-  abstract getContainerStackOrderForGroup(groupName:string):IContainer[]
+  abstract getContainerStackOrderForGroup(groupName:string):List<IContainer>
   abstract switchToGroup({name, time}:{name:string, time:number}):State
   abstract openWindowAtIndex({groupName, index, time}:{groupName:string, index:number, time:number}):State
   abstract openWindowForName({name, time}:{name:string, time:number}):State
   abstract closeWindow({forName, time}:{forName:string, time:number}):State
-  abstract get activeGroupName():string
   abstract switchToContainer({name, time}: { name: string, time: number}):State
   abstract getRootGroupOfGroupByName(name:string):Group
   abstract getRootGroupOfGroup(group:Group):Group
@@ -51,8 +57,6 @@ abstract class State implements IState {
   abstract go({n, time, container}:{n:number, time:number, container?:string}):State
   abstract back({n, time, container}:{n:number, time:number, container?:string}):State
   abstract forward({n, time, container}:{n:number, time:number, container?:string}):State
-  abstract canGoBack(n:number):boolean
-  abstract canGoForward(n:number):boolean
   abstract isContainerAtTopPage(containerName:string):boolean
   abstract top({containerName, time, reset}:
                {containerName:string, time:number, reset?:boolean}):State
@@ -60,102 +64,32 @@ abstract class State implements IState {
   abstract containsPage(page:Page):boolean
   protected abstract getHistory(maintainFwd:boolean):HistoryStack
   abstract get groupStackOrder():Group[]
-  abstract getBackPageInGroup(groupName:string):Page|undefined
+  abstract getGroupBackPage(groupName:string):Page|undefined
   abstract getActiveContainerNameInGroup(groupName:string)
   abstract getActiveContainerIndexInGroup(groupName:string)
-  abstract getActivePageInGroup(groupName:string):Page
-  abstract getActiveUrlInGroup(groupName:string):string
-  abstract urlMatchesGroup(url:string, groupName:string):boolean
-  abstract get activePage():Page
-  abstract isContainerActiveAndEnabled(containerName:string):boolean
+  abstract get activePage():VisitedPage
+  abstract isContainerActiveAndEnabled(container:string):boolean
   abstract get activeUrl():string
-  abstract getActivePageInContainer(groupName:string, containerName:string):Page
-  abstract getActiveUrlInContainer(groupName:string, containerName:string):string
-  abstract get activeGroup():Group
+  abstract getContainerActivePage(container:string):VisitedPage
+  abstract getContainerActiveUrl(container:string):string
   abstract isGroupActive(groupName:string):boolean
-  abstract get activeContainer():IContainer
-  abstract isActiveContainer(groupName:string, containerName:string):boolean
   abstract getContainerNameByIndex(groupName:string, index:number):string
-
-  get computedGroupsAndContainers():Map<string, ComputedGroupOrContainer> {
-    return this.groups.reduce(
-        (map:Map<string, ComputedGroupOrContainer>, g:Group) =>
-            map.merge(g.computeContainersAndGroups()),
-      fromJS({}))
-  }
-
-  get computedGroups():Map<string, ComputedGroup> {
-    return this.groups.reduce(
-      (map:Map<string, ComputedGroup>, g:Group) =>
-          map.merge(g.computeGroups()),
-      fromJS({}))
-  }
-
-  get computedContainers():Map<string, ComputedContainer> {
-    const currentUrl = this.activeUrl
-    return this.groups.reduce(
-      (map:Map<string, ComputedContainer>, g:Group) =>
-          map.merge(g.computeContainers(currentUrl)),
-      fromJS({}))
-  }
-
-  get computedWindows():OrderedMap<string, ComputedWindow> {
-    let stackOrders:Map<string, IContainer[]> = fromJS({})
-    return this.windows.map((w:HistoryWindow):ComputedWindow => {
-      const container:IContainer = this.getContainerByName(w.forName)
-      const groupName:string = container.groupName
-      if (!stackOrders.has(groupName)) {
-        const group:Group = this.groups.get(groupName)
-        stackOrders = stackOrders.set(groupName, group.containerStackOrder)
-      }
-      const stackOrder:IContainer[] = stackOrders.get(groupName)
-      const index = R.findIndex(c => c.name === w.forName, stackOrder)
-      return {
-        ...w,
-        zIndex: stackOrder.length + 1 - index,
-        isOnTop: index === 0
-      }
-    }) as OrderedMap<string, ComputedWindow>
-  }
-
-  computeState():PartialComputedState {
-    return {
-      isInitialized: this.isInitialized,
-      activeUrl: this.activeUrl,
-      groupsAndContainers: this.computedGroupsAndContainers,
-      groups: this.computedGroups,
-      containers: this.computedContainers,
-      windows: this.computedWindows,
-      activeGroupName: this.activeGroupName,
-      pages: this.pages,
-      activeTitle: this.activeTitle
-    }
-  }
-
-  replaceGroup(group:Group):State {
-    if (group.parentGroupName) {
-      const parentGroup:Group = this.getGroupByName(group.parentGroupName)
-      return this.replaceGroup(parentGroup.replaceContainer(group as ISubGroup))
-    }
-    else {
-      return this.assign({
-        groups: this.groups.set(group.name, group)
-      })
-    }
-  }
+  abstract computeState():PartialComputedState
 
   replaceContainer(container:IContainer):State {
-    if (container instanceof Group) {
-      return this.replaceGroup(container)
-    }
-    else {
-      const group:Group = this.getGroupByName(container.groupName)
-      return this.replaceGroup(group.replaceContainer(container))
-    }
+    return this.assign({
+      containers: this.containers.set(container.name, container)
+    })
   }
 
-  disallowDuplicateContainerOrGroup(name) {
-    if (this.hasGroupOrContainerWithName(name)) {
+  replacePage(page:VisitedPage):State {
+    return this.assign({
+      pages: this.pages.set(this.pages.indexOf(page), page)
+    })
+  }
+
+  disallowDuplicateContainer(name) {
+    if (this.containers.has(name)) {
       throw new Error(`A group or container with name: '${name}' already exists`)
     }
   }
@@ -164,7 +98,7 @@ abstract class State implements IState {
     gotoTopOnSelectActive=false}:
     {name:string, resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
       gotoTopOnSelectActive?:boolean}):State {
-    this.disallowDuplicateContainerOrGroup(name)
+    this.disallowDuplicateContainer(name)
     const group:Group = new Group({
       name,
       resetOnLeave,
@@ -173,7 +107,7 @@ abstract class State implements IState {
       parentGroupName: '',
       isDefault: false
     })
-    return this.replaceGroup(group)
+    return this.replaceContainer(group)
   }
 
   addSubGroup({name, parentGroupName, isDefault=false,
@@ -182,7 +116,7 @@ abstract class State implements IState {
     {name:string, parentGroupName:string, isDefault:boolean,
       allowInterContainerHistory?:boolean,
       resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean}):State {
-    this.disallowDuplicateContainerOrGroup(name)
+    this.disallowDuplicateContainer(name)
     const group:Group = new Group({
       name,
       resetOnLeave,
@@ -191,15 +125,14 @@ abstract class State implements IState {
       parentGroupName,
       isDefault
     })
-    return this.replaceGroup(group)
+    return this.replaceContainer(group)
   }
 
   addContainer({time, name, groupName, initialUrl, isDefault=false,
     resetOnLeave=false, patterns}:
     {time:number, name:string, groupName:string, initialUrl:string,
       patterns:string[], isDefault:boolean, resetOnLeave:boolean}):State {
-    this.disallowDuplicateContainerOrGroup(name)
-    const group:Group = this.getGroupByName(groupName)
+    this.disallowDuplicateContainer(name)
     const container:Container = new Container({
       time,
       initialUrl,
@@ -209,7 +142,7 @@ abstract class State implements IState {
       name,
       isDefault
     })
-    return this.replaceGroup(group.replaceContainer(container))
+    return this.replaceContainer(container)
   }
 
   replaceWindow(w:HistoryWindow):State {
@@ -226,85 +159,12 @@ abstract class State implements IState {
     return this.replaceWindow(w)
   }
 
-  /**
-   * Finds a group (top-level or subgroup) by its name
-   */
-  getGroupByName(name:string):Group {
-    const g:Group = this.groups.get(name)
-    if (g) {
-      return g
-    }
-    else {
-      let foundGroup:ISubGroup|undefined = undefined
-      this.groups.forEach((group:Group) => {
-        try {
-          foundGroup = group.getNestedGroupByName(name)
-          return
-        }
-        catch (e) { }
-      })
-      if (foundGroup) {
-        return foundGroup
-      }
-      else {
-        throw new Error('Group \'' + name + '\' not found')
-      }
-    }
-  }
-
-  getContainerByName(name:string):IContainer {
-    let foundContainer:IContainer|undefined = undefined
-    this.groups.forEach((group:Group) => {
-      if (group.name === name) {
-        foundContainer = group as IContainer
-        return
-      }
-      else {
-        try {
-          foundContainer = group.getNestedContainerByName(name)
-          return
-        }
-        catch (e) { }
-      }
-    })
-    if (foundContainer) {
-      return foundContainer
-    }
-    else {
-      throw new Error('Container \'' + name + '\' not found')
-    }
-  }
-
   get history():HistoryStack {
     return this.getHistory(false)
   }
 
   get historyWithFwdMaintained():HistoryStack {
     return this.getHistory(true)
-  }
-
-  hasGroupWithName(name:string):boolean {
-    try {
-      this.getGroupByName(name)
-      return true
-    }
-    catch (e) {
-      return false
-    }
-  }
-
-  hasContainerWithName(name:string):boolean {
-    try {
-      this.getContainerByName(name)
-      return true
-    }
-    catch (e) {
-      return false
-    }
-  }
-
-  hasGroupOrContainerWithName(name:string):boolean {
-    return this.hasGroupWithName(name) || this.hasContainerWithName(name)
   }
 
   addTitle({pathname, title}:{pathname:string, title:string}):State {

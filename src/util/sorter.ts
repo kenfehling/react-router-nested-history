@@ -1,5 +1,6 @@
 import IContainer from '../model/IContainer'
 import * as R from 'ramda'
+import VisitedPage from '../model/VistedPage'
 
 interface SortFnParams {
   visited: IContainer[]
@@ -7,6 +8,35 @@ interface SortFnParams {
   nonDefaultUnvisited: IContainer[]
 }
 type SortFn = (params:SortFnParams) => IContainer[]
+
+export function compareByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
+  if (p1.isZeroPage) {
+    return -1
+  }
+  if (p2.isZeroPage) {
+    return 1
+  }
+  if (p1.wasManuallyVisited) {
+    if (p2.wasManuallyVisited) {
+      return p1.firstManualVisit.time - p2.firstManualVisit.time
+    }
+    else {
+      return -1 //1
+    }
+  }
+  else {
+    if (p2.wasManuallyVisited) {
+      return 1 //-1
+    }
+    else {
+      return 0
+    }
+  }
+}
+
+export function compareByLastVisited(p1:VisitedPage, p2:VisitedPage):number {
+  return p2.lastVisit.time - p1.lastVisit.time
+}
 
 const simpleSortByLastVisit = (cs:IContainer[]):IContainer[] =>
     R.sort((c1, c2) => c2.lastVisit.time - c1.lastVisit.time, cs)

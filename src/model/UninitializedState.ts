@@ -3,13 +3,24 @@ import IContainer from './IContainer'
 import Page from './Page'
 import Group from './Group'
 import Pages, {HistoryStack} from './Pages'
+import InitializedState from './InitializedState'
+import VisitedPage from './VistedPage'
+import {List} from 'immutable'
+import {PartialComputedState} from './ComputedState'
 
 const UNINITIALIZED_MESSAGE:string = 'State is uninitialized'
 
 export default class UninitializedState extends State {
 
-  get pages():Pages {
-    return new Pages()
+  computeState():PartialComputedState {
+    throw new Error(UNINITIALIZED_MESSAGE)
+  }
+
+  load({url, time}:{url: string, time: number}):InitializedState {
+    return new InitializedState({
+      ...Object(this),
+      containers: this.containers.map(c => c.load({url, time}))
+    })
   }
 
   assign(obj:Object):State {
@@ -52,14 +63,6 @@ export default class UninitializedState extends State {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  canGoBack(n:number=1):boolean {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
-  canGoForward(n:number=1):boolean {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
   isContainerAtTopPage(containerName:string):boolean {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
@@ -97,7 +100,7 @@ export default class UninitializedState extends State {
     return []
   }
 
-  getBackPageInGroup(groupName:string):Page|undefined {
+  getGroupBackPage(groupName:string):Page|undefined {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -109,15 +112,7 @@ export default class UninitializedState extends State {
     return 0
   }
 
-  getActivePageInGroup(groupName:string):Page {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
   getActiveUrlInGroup(groupName:string):string {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
-  urlMatchesGroup(url:string, groupName:string):boolean {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
@@ -125,11 +120,11 @@ export default class UninitializedState extends State {
     return false
   }
 
-  get activePage():Page {
+  get activePage():VisitedPage {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  isContainerActiveAndEnabled(containerName:string):boolean {
+  isContainerActiveAndEnabled(container:string):boolean {
     return false
   }
 
@@ -137,35 +132,19 @@ export default class UninitializedState extends State {
     return ''
   }
 
-  getActivePageInContainer(groupName:string, containerName:string):Page {
+  getContainerActivePage(container:string):VisitedPage {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  getActiveUrlInContainer(groupName:string, containerName:string):string {
+  getContainerActiveUrl(container:string):string {
     return ''
-  }
-
-  get activeGroup():Group {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
-  get activeGroupName():string {
-    throw new Error(UNINITIALIZED_MESSAGE)
-  }
-
-  get activeContainer():IContainer {
-    throw new Error(UNINITIALIZED_MESSAGE)
   }
 
   getContainerNameByIndex(groupName:string, index:number):string {
     throw new Error(UNINITIALIZED_MESSAGE)
   }
 
-  isActiveContainer(groupName:string, containerName:string):boolean {
-    return false
-  }
-
-  getContainerStackOrderForGroup(groupName:string):IContainer[] {
+  getContainerStackOrderForGroup(groupName:string):List<IContainer> {
     return []
   }
 }

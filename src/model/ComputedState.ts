@@ -42,8 +42,7 @@ export interface PartialComputedState {
   containers: Map<string, ComputedContainer>
   windows: OrderedMap<string, ComputedWindow>
   activeUrl: string
-  activeGroupName: string
-  pages: Pages
+  //pages: Pages
   activeTitle: string|undefined
 }
 

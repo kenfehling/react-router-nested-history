@@ -6,10 +6,6 @@ import InitializedState from '../InitializedState'
 import Group from '../Group'
 import Serializable from '../../store/decorators/Serializable'
 
-const load = (state:UninitializedState, url:string, time:number):InitializedState =>
-    new InitializedState(state.groups.reduce((s:State, group:Group):State =>
-        s.replaceGroup(group.load({url, time})), state))
-
 /**
  * Action to load the site from any given URL (bookmark, etc.)
  */
@@ -29,7 +25,7 @@ export default class Load extends Action {
 
   reduce(state:UninitializedState):InitializedState {
     return this.fromRefresh ? new InitializedState(state) :
-        load(state, this.url, this.time)
+        state.load({url: this.url, time: this.time})
   }
 
   addSteps(steps:Step[], state:State):Step[] {

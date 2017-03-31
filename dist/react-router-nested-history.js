@@ -17525,14 +17525,14 @@ var State = (function () {
         var group = this.getGroupByName(c.groupName);
         return this.replaceGroup(group.replaceContainer(newContainer));
     };
-    State.prototype.disallowDuplicateContainerOrGroup = function (name) {
+    State.prototype.disallowDuplicateContainer = function (name) {
         if (this.hasGroupOrContainerWithName(name)) {
             throw new Error("A group or container with name: '" + name + "' already exists");
         }
     };
     State.prototype.addTopLevelGroup = function (_a) {
         var name = _a.name, _b = _a.resetOnLeave, resetOnLeave = _b === void 0 ? false : _b, _c = _a.allowInterContainerHistory, allowInterContainerHistory = _c === void 0 ? false : _c, _d = _a.gotoTopOnSelectActive, gotoTopOnSelectActive = _d === void 0 ? false : _d;
-        this.disallowDuplicateContainerOrGroup(name);
+        this.disallowDuplicateContainer(name);
         var group = new Group_1.default({
             name: name,
             resetOnLeave: resetOnLeave,
@@ -17545,7 +17545,7 @@ var State = (function () {
     };
     State.prototype.addSubGroup = function (_a) {
         var name = _a.name, parentGroupName = _a.parentGroupName, _b = _a.isDefault, isDefault = _b === void 0 ? false : _b, _c = _a.allowInterContainerHistory, allowInterContainerHistory = _c === void 0 ? false : _c, _d = _a.resetOnLeave, resetOnLeave = _d === void 0 ? false : _d, _e = _a.gotoTopOnSelectActive, gotoTopOnSelectActive = _e === void 0 ? false : _e;
-        this.disallowDuplicateContainerOrGroup(name);
+        this.disallowDuplicateContainer(name);
         var group = new Group_1.default({
             name: name,
             resetOnLeave: resetOnLeave,
@@ -17558,7 +17558,7 @@ var State = (function () {
     };
     State.prototype.addContainer = function (_a) {
         var time = _a.time, name = _a.name, groupName = _a.groupName, initialUrl = _a.initialUrl, _b = _a.isDefault, isDefault = _b === void 0 ? false : _b, _c = _a.resetOnLeave, resetOnLeave = _c === void 0 ? false : _c, patterns = _a.patterns;
-        this.disallowDuplicateContainerOrGroup(name);
+        this.disallowDuplicateContainer(name);
         var group = this.getGroupByName(groupName);
         var container = new Container_1.default({
             time: time,

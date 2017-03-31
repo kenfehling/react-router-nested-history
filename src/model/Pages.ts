@@ -15,16 +15,7 @@ export default class Pages implements IHistory {
     this.pages = sort ? R.sort(Pages.compareByFirstVisited, pages) : pages
   }
   
-  toHistoryStack():HistoryStack {
-    const currentIndex = this.activeIndex
-    return new HistoryStack({
-      back: this.slice(0, currentIndex).pages,
-      current: this.activePage,
-      forward: this
-                .slice(currentIndex + 1)
-                .filter((p:VisitedPage) => p.wasManuallyVisited).pages
-    })
-  }
+
 
   /**
    * Updates the times of pages stored in this object
@@ -233,34 +224,5 @@ export default class Pages implements IHistory {
 
   static compareByLastVisited(p1:VisitedPage, p2:VisitedPage):number {
     return p2.lastVisit.time - p1.lastVisit.time
-  }
-}
-
-/**
- * Not really a stack in the strictest definition, rather two arrays and a value,
- * but the name History is already built-in type in TypeScript
- */
-export class HistoryStack {
-  readonly back: VisitedPage[]
-  readonly current: VisitedPage
-  readonly forward: VisitedPage[]
-
-  constructor({back, current, forward}:
-    {back:VisitedPage[], current:VisitedPage, forward:VisitedPage[]}) {
-    this.back = back
-    this.current = current
-    this.forward = forward
-  }
-
-  get lastVisit():PageVisit {
-    return this.current.lastVisit
-  }
-
-  flatten():VisitedPage[] {
-    return [...this.back, this.current, ...this.forward]
-  }
-
-  toPages():Pages {
-    return new Pages(this.flatten(), false)
   }
 }

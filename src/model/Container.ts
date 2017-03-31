@@ -1,22 +1,14 @@
 import Page from './Page'
 import {parseParamsFromPatterns, patternsMatch} from '../util/url'
-import IContainer from './IContainer'
-import Pages, {HistoryStack} from './Pages'
 import PageVisit, {VisitType} from './PageVisit'
-import VisitedPage from './VistedPage'
-import {
-  ComputedContainer, ComputedGroupOrContainer
-} from './ComputedState'
-import {Map, OrderedMap, fromJS} from 'immutable'
 
-export default class Container implements IContainer {
+export default class Container {
   readonly name: string
   readonly enabled: boolean
   readonly initialUrl: string
   readonly patterns: string[]
   readonly isDefault: boolean
   readonly resetOnLeave: boolean
-  readonly pages: Pages
   readonly groupName:string
 
   /**
@@ -29,13 +21,12 @@ export default class Container implements IContainer {
    * @param isDefault - Is this the default container?
    * @param resetOnLeave - Keep container history after navigating away?
    * @param groupName - The name of this container's group
-   * @param pages - The pages visited in this container
    */
   constructor({time, name, enabled=true, initialUrl, patterns,
-               isDefault=false, resetOnLeave=false, groupName, pages}:
+               isDefault=false, resetOnLeave=false, groupName}:
       {time:number, name:string, enabled?:boolean,
          initialUrl:string, patterns:string[], isDefault?:boolean,
-        resetOnLeave?:boolean, groupName:string, pages?:Pages}) {
+        resetOnLeave?:boolean, groupName:string}) {
     this.name = name
     this.enabled = enabled
     this.initialUrl = initialUrl
@@ -43,45 +34,14 @@ export default class Container implements IContainer {
     this.isDefault = isDefault
     this.resetOnLeave = resetOnLeave
     this.groupName = groupName
-    this.pages = pages || new Pages([
-      new VisitedPage({
-        url: initialUrl,
-        params: parseParamsFromPatterns(patterns, initialUrl),
-        containerName: name,
-        groupName,
-        visits: [{time, type: isDefault ? VisitType.MANUAL : VisitType.AUTO}]
-      })
-    ])
-  }
-
-  replacePages(pages:Pages):Container {
-    return new Container({
-      ...Object(this),
-      pages
-    })
-  }
-
-  updatePages(pages:Pages):Container {
-    return new Container({
-      ...Object(this),
-      pages: this.pages.update(pages)
-    })
   }
 
   get wasManuallyVisited():boolean {
     return this.isDefault || this.activePage.wasManuallyVisited
   }
 
-  get isAtTopPage():boolean {
-    return !this.canGoBack()
-  }
-
   patternsMatch(url:string):boolean {
     return patternsMatch(this.patterns, url)
-  }
-
-  get history():HistoryStack {
-    return this.pages.toHistoryStack()
   }
 
   push({page, time, type}:{page: Page, time:number, type?:VisitType}):Container {
@@ -122,26 +82,6 @@ export default class Container implements IContainer {
     return this.replacePages(this.pages.top({time, reset}))
   }
 
-  go({n, time}:{n:number, time:number}):Container {
-    return this.replacePages(this.pages.go({n, time}))
-  }
-
-  forward({n=1, time}:{n:number, time:number}):Container {
-    return this.replacePages(this.pages.forward({n, time}))
-  }
-
-  back({n=1, time}:{n:number, time:number}):Container {
-    return this.replacePages(this.pages.back({n, time}))
-  }
-
-  canGoForward(n:number=1):boolean {
-    return this.pages.canGoForward(n)
-  }
-
-  canGoBack(n:number=1):boolean {
-    return this.pages.canGoBack(n)
-  }
-
   getShiftAmount(page:Page) {
     return this.pages.getShiftAmount(page)
   }
@@ -152,38 +92,6 @@ export default class Container implements IContainer {
 
   containsPage(page:Page):boolean {
     return this.pages.containsPage(page)
-  }
-
-  get activePage():VisitedPage {
-    return this.pages.activePage
-  }
-
-  get activeUrl():string {
-    return this.activePage.url
-  }
-
-  get backPage():Page|undefined {
-    return this.pages.backPage
-  }
-
-  get forwardPage():Page|undefined {
-    return this.pages.forwardPage
-  }
-
-  get backPages():Page[] {
-    return this.pages.backPages
-  }
-
-  get forwardPages():Page[] {
-    return this.pages.forwardPages
-  }
-
-  get backLength():number {
-    return this.pages.backLength
-  }
-
-  get forwardLength():number {
-    return this.pages.forwardLength
   }
 
   get firstManualVisit():PageVisit|undefined {
@@ -200,32 +108,5 @@ export default class Container implements IContainer {
 
   setEnabled(enabled:boolean):Container {
     return new Container({...Object(this), enabled})
-  }
-
-  /**
-   * Returns a map with 1 item
-   */
-  computeContainersAndGroups():Map<string, ComputedGroupOrContainer> {
-    const thisOne:ComputedGroupOrContainer = {
-      name: this.name,
-      enabled: this.enabled,
-      activeUrl: this.activeUrl,
-      backPage: this.backPage,
-      history: this.history,
-    }
-    return fromJS({}).set(this.name, thisOne)
-  }
-
-  /**
-   * Returns a map with 1 item
-   */
-  computeContainers(currentUrl:string, activeParentUrl:string):
-                    Map<string, ComputedContainer> {
-    const thisOne:ComputedContainer = {
-      name: this.name,
-      isActiveInGroup: activeParentUrl === this.activeUrl,
-      matchesCurrentUrl: patternsMatch(this.patterns, currentUrl)
-    }
-    return fromJS({}).set(this.name, thisOne)
   }
 }
