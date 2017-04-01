@@ -1,6 +1,6 @@
 import State from '../../../../src/model/State'
 import * as fixtures from '../../fixtures'
-import PopState from '../../../../src/model/actions/PopState'
+import PopState from '../../../../src/model/actions/OnPopState'
 import {HistoryStack} from '../../../../src/model/Pages'
 import {expect} from 'chai'
 import Page from '../../../../src/model/Page'

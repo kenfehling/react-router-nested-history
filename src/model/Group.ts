@@ -1,32 +1,34 @@
 import Page from './Page'
-import IHistory from './IHistory'
 import Container from './Container'
 import {VisitType} from './PageVisit'
+import IContainer from './IContainer'
 
-
-export default class Group {
+export default class Group implements IContainer {
   readonly name: string
-  readonly enabled: boolean
   readonly allowInterContainerHistory: boolean
   readonly resetOnLeave: boolean
   readonly gotoTopOnSelectActive: boolean
-  readonly parentGroupName: string
+  readonly group: string|undefined  // Parent group (if any)
   readonly isDefault: boolean  // Only applies if this has a parent group
 
-  constructor({name, enabled=true, allowInterContainerHistory=false,resetOnLeave=false,
-    gotoTopOnSelectActive=false, parentGroupName='', isDefault=false}:
-      {name:string, enabled?:boolean, allowInterContainerHistory?:boolean,
+  constructor({name, allowInterContainerHistory=false,resetOnLeave=false,
+    gotoTopOnSelectActive=false, parentGroup, isDefault=false}:
+      {name:string, allowInterContainerHistory?:boolean,
         resetOnLeave?:boolean, gotoTopOnSelectActive?:boolean,
-        parentGroupName?:string, isDefault?:boolean}) {
+        parentGroup?:string, isDefault?:boolean}) {
     this.name = name
-    this.enabled = enabled
     this.allowInterContainerHistory = allowInterContainerHistory
     this.resetOnLeave = resetOnLeave
     this.gotoTopOnSelectActive = gotoTopOnSelectActive
-    this.parentGroupName = parentGroupName
+    this.group = parentGroup
     this.isDefault = isDefault
   }
 
+  get isGroup():boolean {
+    return true
+  }
+
+  /*
   get activeNestedContainer():Container {
     const activeContainer:IContainer = this.activeContainer
     if (activeContainer instanceof Container) {
@@ -62,11 +64,6 @@ export default class Group {
     return this.go({n: this.getShiftAmount(page), time})
   }
 
-  get wasManuallyVisited():boolean {
-    const c = this.activeContainer
-    return c ? c.wasManuallyVisited : false
-  }
-
   get initialUrl():string {
     const defaultContainer = this.defaultContainer
     if (defaultContainer) {
@@ -87,4 +84,5 @@ export default class Group {
       return this.getActiveUrlInContainer(containerName)
     }
   }
+  */
 }

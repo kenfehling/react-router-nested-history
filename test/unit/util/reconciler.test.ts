@@ -21,7 +21,6 @@ import State from '../../../src/model/State'
 import Page from '../../../src/model/Page'
 import {createSteps} from '../../../src/util/reconciler'
 import {deriveState} from '../../../src/store/store'
-import UninitializedState from '../../../src/model/UninitializedState'
 declare const describe:any
 declare const it:any
 

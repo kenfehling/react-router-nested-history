@@ -7,12 +7,12 @@ import {List} from 'immutable'
  * but the name History is already built-in type in TypeScript
  */
 export default class HistoryStack {
-  readonly back: List<VisitedPage>
+  readonly back: VisitedPage[]
   readonly current: VisitedPage
-  readonly forward: List<VisitedPage>
+  readonly forward: VisitedPage[]
 
   constructor({back, current, forward}:
-                {back:List<VisitedPage>, current:VisitedPage, forward:List<VisitedPage>}) {
+                {back:VisitedPage[], current:VisitedPage, forward:VisitedPage[]}) {
     this.back = back
     this.current = current
     this.forward = forward
@@ -22,7 +22,7 @@ export default class HistoryStack {
     return this.current.lastVisit
   }
 
-  flatten():List<VisitedPage> {
-    return this.back.concat([this.current], this.forward).toList()
+  flatten():VisitedPage[] {
+    return [...this.back, this.current, ...this.forward]
   }
 }

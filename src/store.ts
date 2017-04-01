@@ -1,5 +1,4 @@
 import {createStore as origCreateStore} from './store/store'
-import UninitializedState from './model/UninitializedState'
 import {Store as ReduxStore} from 'redux'
 import {Store as OrigStore} from './store/store'
 import State from './model/State'
@@ -11,12 +10,12 @@ export type Store = OrigStore<State, BaseAction, ComputedState>
 
 export function createStore({loadFromPersist=false, regularReduxStore}:
     {loadFromPersist?:boolean, regularReduxStore?:ReduxStore<any>}) {
-  let oldState:State = new UninitializedState()
+  let oldState:State = new State()
   let lastUpdate:number = 0
 
   const store = origCreateStore<State, BaseAction, ComputedState>({
     loadFromPersist,
-    initialState: new UninitializedState(),
+    initialState: new State(),
     regularReduxStore
   })
 

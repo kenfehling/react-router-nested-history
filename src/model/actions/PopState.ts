@@ -3,7 +3,14 @@ import Step from '../Step'
 import {diffPagesToSteps} from '../../util/reconciler'
 import Action from '../BaseAction'
 import Serializable from '../../store/decorators/Serializable'
+import VisitedPage from '../VistedPage'
+import {List} from 'immutable'
 
+/**
+ * The user used the browser's back or forward button to pop to another page
+ * This action can be examined later to determine slide animation direction
+ * (n < 0 = left, n > 0 = right)
+ */
 @Serializable
 export default class PopState extends Action {
   static readonly type: string = 'PopState'
@@ -27,7 +34,9 @@ export default class PopState extends Action {
     }
     else {
       const h2 = newState.history
-      return [...steps, ...diffPagesToSteps(h1.toPages(), h2.toPages())]
+      const ps1 = List<VisitedPage>(h1.flatten())
+      const ps2 = List<VisitedPage>(h2.flatten())
+      return [...steps, ...diffPagesToSteps(ps1, ps2)]
     }
   }
 

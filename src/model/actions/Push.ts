@@ -4,29 +4,31 @@ import Page from '../Page'
 import {parseParamsFromPatterns} from '../../util/url'
 import SwitchToContainer from './SwitchToContainer'
 import Serializable from '../../store/decorators/Serializable'
+import Container from '../Container'
 
 @Serializable
 export default class Push extends Action {
   static readonly type: string = 'Push'
   readonly type: string = Push.type
-  readonly containerName:string
+  readonly container:string
   readonly url:string
 
-  constructor({time, origin, containerName, url}:
-              {time?:number, origin?:Origin, containerName:string, url:string}) {
+  constructor({time, origin, container, url}:
+              {time?:number, origin?:Origin, container:string, url:string}) {
     super({time, origin})
-    this.containerName = containerName
+    this.container = container
     this.url = url
   }
 
   reduce(state:State):State {
-    const container =  state.getContainerByName(this.containerName)
-    const params:Object = parseParamsFromPatterns(container.patterns, this.url)
+    const c:Container = state.containers.get(this.container) as Container
+    const params:Object = parseParamsFromPatterns(c.patterns, this.url)
     return state.push({
       page: new Page({
         params,
         url: this.url,
-        containerName: this.containerName
+        container: this.container,
+        group: c.group
       }),
       time: this.time
     })
@@ -44,7 +46,7 @@ export default class Push extends Action {
         new SwitchToContainer({
           ...data,
           time: this.time - 1,
-          name: this.containerName
+          name: this.container
         }),
         this
       ]

@@ -97,8 +97,10 @@ const mergeProps = (stateProps, dispatchProps,
   ...dispatchProps,
   ...ownProps,
   onClick: () => {
-    const ActionType = stateProps.hasWindow ? OpenWindow : SwitchToContainer
-    return dispatchProps.dispatch(new ActionType({name: ownProps.containerName}))
+    const params = {name: ownProps.containerName}
+    const action = stateProps.hasWindow ? new OpenWindow(params) :
+                                          new SwitchToContainer(params)
+    return dispatchProps.dispatch(action)
   }
 })
 

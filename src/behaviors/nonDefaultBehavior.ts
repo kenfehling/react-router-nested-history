@@ -1,4 +1,4 @@
-import {HistoryStack as H} from '../model/Pages'
+import H from '../model/HistoryStack'
 
 /**
  * Switch tab with no default (all tabs are equal)

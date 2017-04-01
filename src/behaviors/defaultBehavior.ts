@@ -1,4 +1,4 @@
-import {HistoryStack as H} from '../model/Pages'
+import H from '../model/HistoryStack'
 
 /**
  * Switch tab using mobile-app like behavior (with a default tab: A)

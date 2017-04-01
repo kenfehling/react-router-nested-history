@@ -11,7 +11,7 @@ import {createStructuredSelector} from 'reselect'
 
 type GroupPropsWithStore = ContainerGroupProps & {
   store: Store
-  parentGroupName: string
+  parentGroup: string
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
@@ -23,8 +23,8 @@ type ConnectedGroupProps = GroupPropsWithStore & {
 class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
   componentWillMount() {
-    const { /*parentGroupName, */ loadedFromPersist, isInitialized} = this.props
-    if ( /* !parentGroupName && */ !loadedFromPersist && !isInitialized) {
+    const { /*parentGroup, */ loadedFromPersist, isInitialized} = this.props
+    if ( /* !parentGroup && */ !loadedFromPersist && !isInitialized) {
       this.initialize()
     }
   }
@@ -37,13 +37,13 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       resetOnLeave,
       allowInterContainerHistory,
       gotoTopOnSelectActive,
-      parentGroupName,
+      parentGroup,
       isDefault
     } = this.props
 
     createGroup(new CreateGroup({
       name,
-      parentGroupName,
+      parentGroup,
       isDefault,
       resetOnLeave,
       allowInterContainerHistory,
@@ -109,7 +109,7 @@ export default class ContainerGroup extends Component<ContainerGroupProps, undef
   render() {
     const {groupName, rrnhStore} = this.context
     return (
-      <ConnectedContainerGroup parentGroupName={groupName}
+      <ConnectedContainerGroup parentGroup={groupName}
                                store={rrnhStore}
                                {...this.props}
       />

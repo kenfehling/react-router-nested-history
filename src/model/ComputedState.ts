@@ -1,15 +1,13 @@
 import {Map, OrderedMap} from 'immutable'
 import Page from './Page'
 import IComputedState from '../store/IComputedState'
-import Pages from './Pages'
-import {HistoryStack} from './Pages'
+import HistoryStack from './HistoryStack'
 import {ReduxState} from '../reducers/index'
 import BaseAction from './BaseAction'
 import State from './State'
 
 export interface ComputedGroupOrContainer {
   name: string
-  enabled: boolean
   activeUrl: string
   backPage: Page|undefined
   history: HistoryStack
@@ -42,7 +40,6 @@ export interface PartialComputedState {
   containers: Map<string, ComputedContainer>
   windows: OrderedMap<string, ComputedWindow>
   activeUrl: string
-  //pages: Pages
   activeTitle: string|undefined
 }
 

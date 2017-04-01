@@ -46,7 +46,7 @@ const makeGetActions = () => createCachingSelector(
   (groupName, dispatch) => ({
     createGroup: (action:CreateGroup) => dispatch(action),
     switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({
-      groupName,
+      group: groupName,
       index
     })),
     switchToContainerName: (name:string) => dispatch(new SwitchToContainer({

@@ -1,9 +1,6 @@
 import Action, {USER} from '../BaseAction'
 import State from '../State'
 import Step from '../Step'
-import UninitializedState from '../UninitializedState'
-import InitializedState from '../InitializedState'
-import Group from '../Group'
 import Serializable from '../../store/decorators/Serializable'
 
 /**
@@ -23,8 +20,8 @@ export default class Load extends Action {
     this.fromRefresh = fromRefresh
   }
 
-  reduce(state:UninitializedState):InitializedState {
-    return this.fromRefresh ? new InitializedState(state) :
+  reduce(state:State):State {
+    return this.fromRefresh ? state :
         state.load({url: this.url, time: this.time})
   }
 

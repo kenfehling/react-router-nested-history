@@ -5,10 +5,10 @@ import * as R from 'ramda'
 export default class VisitedPage extends Page {
   readonly visits: PageVisit[]
 
-  constructor({url, params, containerName, isZeroPage=false, visits=[]}:
-      {url:string, params:Object, groupName:string, containerName:string,
+  constructor({url, params, container, group, isZeroPage=false, visits=[]}:
+      {url:string, params:Object, container:string, group:string,
         isZeroPage?:boolean, visits:PageVisit[]}) {
-    super({url, params, containerName, isZeroPage})
+    super({url, params, container, group, isZeroPage})
     this.visits = visits
   }
 

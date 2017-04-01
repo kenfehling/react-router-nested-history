@@ -1,14 +1,14 @@
 import Page from '../model/Page'
 import Step from '../model/Step'
 import BackStep from '../model/steps/BackStep'
-import * as R from 'ramda'
 import PushStep from '../model/steps/PushStep'
 import ReplaceStep from '../model/steps/ReplaceStep'
-import Pages from '../model/Pages'
 import State from '../model/State'
 import Action from '../model/BaseAction'
 import VisitedPage from '../model/VistedPage'
 import GoStep from '../model/steps/GoStep'
+import {List, OrderedSet} from 'immutable'
+import * as pageUtils from './pages'
 
 type StepState = {steps:Step[], state:State}
 
@@ -43,36 +43,31 @@ interface PagesDiff {
   start: number  // first difference
 }
 
-const getFirstDifferenceIndex = (ps1:Pages, ps2:Pages):number => {
-  const n:number = Math.min(ps1.length, ps2.length)
+const getFirstDifferenceIndex = (ps1:List<VisitedPage>, ps2:List<VisitedPage>):number => {
+  const n:number = Math.min(ps1.size, ps2.size)
   for (let i = 0; i < n; i++) {
-    if (!ps1.pages[i].equals(ps2.pages[i])) {
+    if (!ps1[i].equals(ps2[i])) {
       return i
     }
   }
   return n
 }
 
-const contains = (pages:Page[], page:Page) => R.any(p => p.equals(page), pages)
-
-const merge = (ps1:VisitedPage[], ps2:VisitedPage[]):Page[] => {
-  const merged = R.union(ps1, ps2)
-  return R.uniqWith((p1, p2) => p1.equals(p2), merged)
-}
-
-const diffPages = (ps1:Pages, ps2:Pages):PagesDiff => {
-  const same = R.intersection(ps1.pages, ps2.pages)
-  const removed = R.difference(ps1.pages, ps2.pages)
-  const added = R.difference(ps2.pages, ps1.pages)
-  const merged = merge(ps1.pages, ps2.pages)
-  const diffedPages = merged.map(page => {
-    if (contains(same, page)) {
+const diffPages = (p1:List<VisitedPage>, p2:List<VisitedPage>):PagesDiff => {
+  const ps1:OrderedSet<VisitedPage> = p1.toOrderedSet()
+  const ps2:OrderedSet<VisitedPage> = p2.toOrderedSet()
+  const same = ps1.intersect(ps2)
+  const removed = ps1.subtract(ps2)
+  const added = ps2.subtract(ps1)
+  const merged = ps1.concat(ps2)
+  const diffedPages = merged.map((page:VisitedPage) => {
+    if (same.contains(page)) {
       return {page, type: DiffType.SAME}
     }
-    else if (contains(removed, page)) {
+    else if (removed.contains(page)) {
       return {page, type: DiffType.REMOVED}
     }
-    else if (contains(added, page)) {
+    else if (added.contains(page)) {
       return {page, type: DiffType.ADDED}
     }
     else {
@@ -80,11 +75,11 @@ const diffPages = (ps1:Pages, ps2:Pages):PagesDiff => {
     }
   })
   return {
-    same,
-    removed,
-    added,
-    diffedPages,
-    start: getFirstDifferenceIndex(ps1, ps2)
+    same: same.toArray(),
+    removed: removed.toArray(),
+    added: added.toArray(),
+    diffedPages: diffedPages.toArray(),
+    start: getFirstDifferenceIndex(p1, p2)
   }
 }
 
@@ -98,35 +93,37 @@ const backSteps = (amount:number):BackStep[] =>
 /**
  * Get the difference between old pages and new pages and return a list of
  * browser steps to transform the browser history
- * @param ps1 {Pages} The original pages
- * @param ps2 {Pages} The new pages
+ * @param ps1 {List<VisitedPage>} The original pages
+ * @param ps2 {List<VisitedPage>} The new pages
  * @returns {Step[]} An array of steps to get from old state to new state
  */
-export const diffPagesToSteps = (ps1:Pages, ps2:Pages):Step[] => {
+export const diffPagesToSteps = (ps1:List<VisitedPage>, ps2:List<VisitedPage>):Step[] => {
   const diff:PagesDiff = diffPages(ps1, ps2)
+  const oldActiveIndex:number = pageUtils.getActiveIndex(ps1)
+  const newActiveIndex:number = pageUtils.getActiveIndex(ps2)
   const simple = ():Step[] => {
     if (diff.added.length > 0) {
-      const pushes = diff.added.map(pushStep)
-      const backs = backSteps(ps2.length - 1 - ps2.activeIndex)
+      const pushes:Step[] = diff.added.map(pushStep)
+      const backs:Step[] = backSteps(ps2.size - 1 - newActiveIndex)
       return [...pushes, ...backs]
     }
     else {
-      const indexDelta = ps2.activeIndex - ps1.activeIndex
+      const indexDelta = newActiveIndex - oldActiveIndex
       return indexDelta !== 0 ? [new GoStep(indexDelta)] : []
     }
   }
   const complex = ():Step[] => {
     const cleanWipe = ():Step[] => {
-      const backs1 = backSteps(ps1.activeIndex - diff.start + 1)
-      const pushes = ps2.pages.slice(diff.start).map(pushStep)
-      const backs2 = backSteps(ps2.length - 1 - ps2.activeIndex)
+      const backs1:Step[] = backSteps(oldActiveIndex - diff.start + 1)
+      const pushes:Step[] = ps2.toArray().slice(diff.start).map(pushStep)
+      const backs2:Step[] = backSteps(ps2.size - 1 - newActiveIndex)
       return [...backs1, ...pushes, ...backs2]
     }
 
     const removeFwdHistory = ():Step[] => {
-      return [...backSteps(1), pushStep(ps2.activePage)]
+      return [...backSteps(1), pushStep(pageUtils.getActivePage(ps2))]
     }
-    return diff.start === ps2.length ? removeFwdHistory() : cleanWipe()
+    return diff.start === ps2.size ? removeFwdHistory() : cleanWipe()
   }
-  return diff.start === ps1.length ? simple() : complex()
+  return diff.start === ps1.size ? simple() : complex()
 }
