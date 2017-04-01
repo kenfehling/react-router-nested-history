@@ -49,7 +49,7 @@ describe('reconciler', () => {
     createSubGroup2,
     createSubGroup3,
     new CreateContainer({
-      groupName: createSubGroup1.name,
+      group: createSubGroup1.name,
       name: 'Container 1A',
       initialUrl: '/a',
       patterns: ['/a', '/a/:id'],
@@ -57,35 +57,35 @@ describe('reconciler', () => {
       time: 1000
     }),
     new CreateContainer({
-      groupName: createSubGroup1.name,
+      group: createSubGroup1.name,
       name: 'Container 2A',
       initialUrl: '/b',
       patterns: ['/b', '/b/:id'],
       time: 1000
     }),
     new CreateContainer({
-      groupName: createSubGroup1.name,
+      group: createSubGroup1.name,
       name: 'Container 3A',
       initialUrl: '/c',
       patterns: ['/c', '/c/:id'],
       time: 1000
     }),
     new CreateContainer({
-      groupName: createSubGroup2.name,
+      group: createSubGroup2.name,
       name: 'Container 1B',
       initialUrl: '/e',
       patterns: ['/e', '/e/:id'],
       time: 1000
     }),
     new CreateContainer({
-      groupName: createSubGroup2.name,
+      group: createSubGroup2.name,
       name: 'Container 2B',
       initialUrl: '/f',
       patterns: ['/f', '/f/:id'],
       time: 1000
     }),
     new CreateContainer({
-      groupName: createSubGroup3.name,
+      group: createSubGroup3.name,
       name: 'Container 1C',
       initialUrl: '/g',
       patterns: ['/g', '/g/:id'],
@@ -93,7 +93,7 @@ describe('reconciler', () => {
       isDefault: true
     }),
     new CreateContainer({
-      groupName: createSubGroup3.name,
+      group: createSubGroup3.name,
       name: 'Container 2C',
       initialUrl: '/h',
       patterns: ['/h', '/h/:id'],
@@ -101,17 +101,17 @@ describe('reconciler', () => {
     })
   ]
 
-  describe('createStepsSinceUpdate', () => {
+  describe('createSteps', () => {
     const createStepsSince = (actions, time) => {
       const oldActions:Action[] = actions.filter(a => a.time <= time)
       const newActions:Action[] = actions.filter(a => a.time > time)
-      const oldState:State = deriveState(oldActions, new UninitializedState())
+      const oldState:State = deriveState(oldActions, new State())
       return createSteps(oldState, newActions)
     }
 
     describe('simple group', () => {
       describe('load', () => {
-        it('default', () => {
+        it.only('default', () => {
           const actions: Action[] = [
             ...originalSimpleActions,
             new Load({
@@ -124,7 +124,8 @@ describe('reconciler', () => {
             new PushStep(new Page({
               url: '/a',
               params: {},
-              containerName: 'Container 1A'
+              group: 'Group 1',
+              container: 'Container 1A'
             }))
           ])
         })
@@ -142,12 +143,14 @@ describe('reconciler', () => {
             new PushStep(new Page({
               url: '/a',
               params: {},
-              containerName: 'Container 1A'
+              group: 'Group 1',
+              container: 'Container 1A'
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
-              containerName: 'Container 2A'
+              group: 'Group 1',
+              container: 'Container 2A'
             }))
           ])
         })
@@ -165,17 +168,20 @@ describe('reconciler', () => {
             new PushStep(new Page({
               url: '/a',
               params: {},
-              containerName: 'Container 1A'
+              group: 'Group 1',
+              container: 'Container 1A'
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
-              containerName: 'Container 2A'
+              group: 'Group 1',
+              container: 'Container 2A'
             })),
             new PushStep(new Page({
               url: '/b/1',
               params: {id: '1'},
-              containerName: 'Container 2A'
+              group: 'Group 1',
+              container: 'Container 2A'
             }))
           ])
         })
@@ -209,7 +215,8 @@ describe('reconciler', () => {
             new PushStep(new Page({
               url: '/b',
               params: {},
-              containerName: 'Container 2A'
+              group: 'Group 1',
+              container: 'Container 2A'
             }))
           ])
         })
@@ -263,7 +270,8 @@ describe('reconciler', () => {
               new PushStep(new Page({
                 url: '/a/1',
                 params: {id: '1'},
-                containerName: 'Container 1A'
+                group: 'Group 1',
+                container: 'Container 1A'
               })),
               new BackStep()
             ])
@@ -273,7 +281,7 @@ describe('reconciler', () => {
             const actions:Action[] = [
               ...backSwitchActions,
               new Push({
-                containerName: 'Container 2A',
+                container: 'Container 2A',
                 url: '/b/1',
                 time: 4200
               }),
@@ -286,7 +294,8 @@ describe('reconciler', () => {
               new PushStep(new Page({
                 url: '/a/1',
                 params: {id: '1'},
-                containerName: 'Container 1A'
+                group: 'Group 1',
+                container: 'Container 1A'
               })),
               new BackStep()
             ])
@@ -315,7 +324,8 @@ describe('reconciler', () => {
               new PushStep(new Page({
                 url: '/a/1',
                 params: {id: '1'},
-                containerName: 'Container 1A'
+                group: 'Group 1',
+                container: 'Container 1A'
               }))
             ])
           })
@@ -344,7 +354,7 @@ describe('reconciler', () => {
                 }),
                 new Push({
                   url: '/f/1',
-                  containerName: 'Container 2B',
+                  container: 'Container 2B',
                   time: 5000
                 }),
                 new Back({
@@ -360,12 +370,14 @@ describe('reconciler', () => {
                 new PushStep(new Page({
                   url: '/e',
                   params: {},
-                  containerName: 'Container 1B'
+                  group: 'Group 2',
+                  container: 'Container 1B'
                 })),
                 new PushStep(new Page({
                   url: '/e/1',
                   params: {id: '1'},
-                  containerName: 'Container 1B'
+                  group: 'Group 2',
+                  container: 'Container 1B'
                 })),
                 new BackStep()
               ])
@@ -390,7 +402,8 @@ describe('reconciler', () => {
             new PushStep(new Page({
               url: '/a',
               params: {},
-              containerName: createContainers1[0].name
+              group: createSubGroup1.name,
+              container: createContainers1[0].name
             })),
           ])
         })
@@ -408,12 +421,14 @@ describe('reconciler', () => {
             new PushStep(new Page({
               url: '/a',
               params: {},
-              containerName: 'Container 1A'
+              group: createSubGroup1.name,
+              container: 'Container 1A'
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
-              containerName: 'Container 2A'
+              group: createSubGroup1.name,
+              container: 'Container 2A'
             }))
           ])
         })
@@ -431,17 +446,20 @@ describe('reconciler', () => {
             new PushStep(new Page({
               url: '/a',
               params: {},
-              containerName: 'Container 1A'
+              group: createSubGroup1.name,
+              container: 'Container 1A'
             })),
             new PushStep(new Page({
               url: '/b',
               params: {},
-              containerName: 'Container 2A'
+              group: createSubGroup1.name,
+              container: 'Container 2A'
             })),
             new PushStep(new Page({
               url: '/b/1',
               params: {id: '1'},
-              containerName: 'Container 2A'
+              group: createSubGroup1.name,
+              container: 'Container 2A'
             }))
           ])
         })
@@ -473,7 +491,8 @@ describe('reconciler', () => {
             new PushStep(new Page({
               url: '/a/1',
               params: {id: '1'},
-              containerName: 'Container 1A'
+              group: createSubGroup1.name,
+              container: 'Container 1A'
             }))
           ])
         })
@@ -502,7 +521,8 @@ describe('reconciler', () => {
             new PushStep(new Page({
               url: '/g',
               params: {},
-              containerName: 'Container 1C'
+              group: createSubGroup3.name,
+              container: 'Container 1C'
             }))
           ])
         })

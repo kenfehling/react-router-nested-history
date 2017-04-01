@@ -26,8 +26,8 @@ abstract class BaseAction extends Action {
     return [
       ...steps,
       ...diffPagesToSteps(
-        state.pages,
-        newState.pages
+        state.getPages(),
+        newState.getPages()
       )
     ]
   }

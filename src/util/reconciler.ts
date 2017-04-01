@@ -46,7 +46,7 @@ interface PagesDiff {
 const getFirstDifferenceIndex = (ps1:List<VisitedPage>, ps2:List<VisitedPage>):number => {
   const n:number = Math.min(ps1.size, ps2.size)
   for (let i = 0; i < n; i++) {
-    if (!ps1[i].equals(ps2[i])) {
+    if (!ps1.get(i).equals(ps2.get(i))) {
       return i
     }
   }
@@ -98,6 +98,9 @@ const backSteps = (amount:number):BackStep[] =>
  * @returns {Step[]} An array of steps to get from old state to new state
  */
 export const diffPagesToSteps = (ps1:List<VisitedPage>, ps2:List<VisitedPage>):Step[] => {
+  if (ps1.size === 0 && ps2.size === 0) {
+    return []
+  }
   const diff:PagesDiff = diffPages(ps1, ps2)
   const oldActiveIndex:number = pageUtils.getActiveIndex(ps1)
   const newActiveIndex:number = pageUtils.getActiveIndex(ps2)

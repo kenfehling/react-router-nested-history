@@ -7,7 +7,7 @@ export default class VisitedPage extends Page {
 
   constructor({url, params, container, group, isZeroPage=false, visits=[]}:
       {url:string, params:Object, container:string, group:string,
-        isZeroPage?:boolean, visits:PageVisit[]}) {
+        isZeroPage?:boolean, visits?:PageVisit[]}) {
     super({url, params, container, group, isZeroPage})
     this.visits = visits
   }

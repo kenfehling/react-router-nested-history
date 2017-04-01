@@ -37,13 +37,13 @@ const indexOfPage = (pages:List<VisitedPage>, page:VisitedPage):number => {
 }
 
 export const getActiveIndex = (pages:List<VisitedPage>):number =>
-    pages.indexOf(getActivePage(pages))
+    pages.isEmpty() ? 0 : pages.indexOf(getActivePage(pages))
 
 export const getBackLength = (pages:List<VisitedPage>):number =>
-    this.getActiveIndex(pages)
+    getActiveIndex(pages)
 
 export const getForwardLength = (pages:List<VisitedPage>):number =>
-    pages.size - 1 - this.getActiveIndex(pages)
+    pages.size - 1 - getActiveIndex(pages)
 
 
 export const getBackPage = (pages:List<VisitedPage>,
@@ -70,11 +70,9 @@ export const canGoForward = (pages:List<VisitedPage>, n:number=1):boolean =>
 
 export const isAtTopPage = (pages:List<VisitedPage>):boolean => !canGoBack(pages)
 
-export const push = (pages:List<VisitedPage>,
-                     {page, time, type=VisitType.MANUAL}:
-                     {page: Page, time:number,
-                       type?:VisitType}):List<VisitedPage> => {
-  const index:number = this.activeIndex + 1
+export const push = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL}:
+                  {page: Page, time:number, type?:VisitType}):List<VisitedPage> => {
+  const index:number = getActiveIndex(pages) + 1
   const newPage:VisitedPage = new VisitedPage({
     ...Object(page),
     visits:[{time, type}]
@@ -107,12 +105,12 @@ export const top = (pages:List<VisitedPage>, {time, reset=false}:
  * @throws Error if page not found
  */
 export const getShiftAmount = (pages:List<VisitedPage>, page:Page):number => {
-  const index = this.findIndex((p:Page) => p.equals(page))
+  const index = pages.findIndex((p:VisitedPage) => p.equals(page))
   if (index === -1) {
     throw new Error('Page not found')
   }
   else {
-    return index - this.activeIndex
+    return index - getActiveIndex(pages)
   }
 }
 
@@ -137,7 +135,7 @@ export const forward = go
 
 export const shiftTo = (pages:List<VisitedPage>, {page, time}:
                           {page:Page, time:number}):List<VisitedPage> =>
-    go(pages, {n: this.getShiftAmount(page), time})
+    go(pages, {n: getShiftAmount(pages, page), time})
 
 /*
 export const touch = (pages:List<VisitedPage>,
