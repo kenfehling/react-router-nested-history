@@ -49,45 +49,6 @@ describe('Container', () => {
     time: 2000
   })
 
-  describe('patternsMatch', () => {
-    it('returns true if one of the patterns match', () => {
-      expect(container.patternsMatch('/a')).to.equal(true)
-      expect(container.patternsMatch('/a/1')).to.equal(true)
-    })
-
-    it('returns false if none of the patterns match', () => {
-      expect(container.patternsMatch('/a/1/1')).to.equal(false)
-      expect(container.patternsMatch('/c')).to.equal(false)
-    })
-  })
-
-  describe('pushUrl', () => {
-    const newContainer = container.pushUrl({url: '/a/3', time: 8000})
-
-    it('pushes to the container history', () => {
-      expect(newContainer.history.current.url).to.equal('/a/3')
-      expect(newContainer.history.back.length).to.equal(2)
-      expect(newContainer.history.back[0].url).to.equal('/a')
-      expect(newContainer.history.back[1].url).to.equal('/a/1')
-      expect(newContainer.history.forward.length).to.equal(0)
-    })
-
-    it('parses params', () => {
-      expect(newContainer.history.current.params).to.deep.equal({id: '3'})
-    })
-
-    it('works after pushing multiple pages', () => {
-      const c:Container = newContainer
-                            .pushUrl({url: '/a/3', time: 7500})
-                            .pushUrl({url: '/a/4', time: 8500})
-      expect(c.history.current.url).to.equal('/a/4')
-      expect(c.history.back.length).to.equal(3)
-      expect(c.history.back[0].url).to.equal('/a')
-      expect(c.history.back[1].url).to.equal('/a/1')
-      expect(c.history.back[2].url).to.equal('/a/3')
-      expect(c.history.forward.length).to.equal(0)
-    })
-  })
 
   describe('loadFromUrl', () => {
     it('pushes if container patterns match', () => {
