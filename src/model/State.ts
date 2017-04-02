@@ -317,12 +317,10 @@ class State implements IState {
       return state.go({n: n - 1, time})
     }
     const f = (x):State => this.goInContainer(this.activeGroupName, {n: x, time})
-    if (n < 0 && !this.canGoBack(0 - n)) {  // if going back to zero page
-      return (n < -1 ? f(n + 1) : this).assign({isOnZeroPage: true})
+    if (n < 0 && this.activeIndex === 1) {  // if going back to zero page
+      return this.assign({isOnZeroPage: true})
     }
-    else {
-      return f(n)
-    }
+    return f(n)
   }
 
   back({n=1, time, container}:{n:number, time:number, container?:string}):State {
@@ -446,7 +444,7 @@ class State implements IState {
   }
 
   get activeIndex():number {
-    return pageUtils.getActiveIndex(this.pages)
+    return pageUtils.getActiveIndex(this.getPages())
   }
 
   hasWindow(forName:string):boolean {

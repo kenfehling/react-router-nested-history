@@ -309,8 +309,8 @@ describe('State', () => {
     })
 
     describe('go', () => {
-      it.only('goes back 1 to zero page', () => {
-        const newState:State = state.go({n: -1, time: 1000})
+      it('goes back 1 to zero page', () => {
+        const newState:State = state.go({n: -1, time: 5000})
         const h:HistoryStack = newState.history
         expect(h.back.length).to.equal(0)
         expect(h.current).to.deep.equal(newState.getZeroPage())
@@ -386,7 +386,7 @@ describe('State', () => {
         const page:Page = new Page({
           url: '/h/1',
           params: {id: '1'},
-          group: 'Group 3',
+          group: 'SubGroup 3',
           container: 'Container 2C'
         })
         const newState:State = switchedState
