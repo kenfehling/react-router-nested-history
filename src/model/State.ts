@@ -22,13 +22,13 @@ import HistoryStack from './HistoryStack'
 import {parseParamsFromPatterns, patternsMatch} from '../util/url'
 import IGroupContainer from './IGroupContainer'
 
-interface SortFnParams {
-  visited: List<IContainer>
-  defaultUnvisited: List<IContainer>
-  nonDefaultUnvisited: List<IContainer>
+interface SortFnParams<T> {
+  visited: List<T>
+  defaultUnvisited: List<T>
+  nonDefaultUnvisited: List<T>
 }
 
-type SortFn = (params:SortFnParams) => List<IContainer>
+type SortFn<T> = (params:SortFnParams<T>) => List<T>
 
 // Param types for _goInGroup method
 type GoFn = (state:State, name:string, n:number, time:number) => State
@@ -36,7 +36,7 @@ type LengthFn = (state:State, name:string) => number
 type NextPageFn = (state:State, name:string, n?:number) => VisitedPage|undefined
 
 class State implements IState {
-  readonly containers: Map<string, IContainer>
+  readonly containers: OrderedMap<string, IContainer>
   readonly windows: Map<string, HistoryWindow>
   readonly titles: List<PathTitle>
   readonly zeroPage?: string
@@ -44,9 +44,11 @@ class State implements IState {
   readonly isInitialized: boolean
   private readonly pages: List<VisitedPage>
 
-  constructor({windows=fromJS({}), containers=fromJS({}), pages=fromJS({}),
-          zeroPage, isOnZeroPage=false, titles=fromJS([]), isInitialized=false}:
-    {windows?:Map<string, HistoryWindow>, containers?: Map<string, IContainer>,
+  constructor({windows=fromJS({}), containers=OrderedMap<string, IContainer>(),
+                pages=fromJS({}), zeroPage, isOnZeroPage=false,
+                titles=fromJS([]), isInitialized=false}:
+    {windows?:Map<string, HistoryWindow>,
+      containers?: OrderedMap<string, IContainer>,
       pages?: Map<string, VisitedPage>, zeroPage?:string, isOnZeroPage?:boolean,
       titles?:List<PathTitle>, isInitialized?:boolean}={}) {
     this.containers = containers
@@ -248,11 +250,11 @@ class State implements IState {
 
   switchToGroup({name, time}:{name:string, time:number}):State {
     const c:IContainer = this.getGroupActiveContainer(name)
-    return this.activateContainer(c.name, {time, type: VisitType.MANUAL})
+    return this.activateContainer(c.name, time)
   }
 
   switchToContainer({name, time}:{name: string, time: number}):State {
-    return this.activateContainer(name, {time, type: VisitType.MANUAL})
+    return this.activateContainer(name, time)
   }
 
   openWindowForName({name, time}:{name:string, time:number}):State {
@@ -303,14 +305,15 @@ class State implements IState {
       .some(this.isContainerEnabled.bind(this))
   }
 
-  activateContainer(container:string, visit:PageVisit):State {
+  activateContainer(container:string,
+                    time:number, type:VisitType=VisitType.MANUAL):State {
+    const visit = {time, type}
     return this.replacePage(this.getContainerActivePage(container).touch(visit))
   }
 
   go({n, time, container}:{n:number, time:number, container?:string}):State {
     if (container) {
-      const visit:PageVisit = {time, type:VisitType.MANUAL}
-      return this.activateContainer(container, visit).go({n, time})
+      return this.activateContainer(container, time).go({n, time})
     }
     if (this.isOnZeroPage && n > 0) {
       const state:State = this.assign({isOnZeroPage: false})
@@ -340,8 +343,8 @@ class State implements IState {
     return pageUtils.getActiveIndex(this.getContainerPages(container)) === 0
   }
 
-  top({container, time, reset=false}:
-      {container:string, time:number, reset?:boolean}):State {
+  top({container=this.activeContainerName, time, reset=false}:
+      {container?:string, time:number, reset?:boolean}):State {
     const ps = pageUtils.top(this.getContainerPages(container), {time, reset})
     return this.replaceContainerPages(container, ps)
   }
@@ -350,20 +353,8 @@ class State implements IState {
     return pageUtils.getShiftAmount(this.getPages(), page)
   }
 
-  /*
-  getRootGroupOfGroup(group:string):Group {-
-    const g:Group = this.containers.get(group)
-    if (g.parentGroup) {
-      return this.getRootGroupOfGroup(g.parentGroup)
-    }
-    else {
-      return g
-    }
-  }
-  */
-
-  sortPages():State {
-    return this.replacePages(pageUtils.sort(this.pages))
+  get withPagesSorted():State {
+    return this.replacePages(this.sortPagesByFirstVisited(this.pages))
   }
 
   push({page, time, type=VisitType.MANUAL}:
@@ -378,8 +369,22 @@ class State implements IState {
     return this.replaceContainerPages(container, newPages)
   }
 
+  getRootGroupOfGroup(group:string):Group {
+    const g:Group = this.containers.get(group) as Group
+    if (g.group) {
+      return this.getRootGroupOfGroup(g.group)
+    }
+    else {
+      return g
+    }
+  }
+
+  get activeGroup():Group {
+    return this.getRootGroupOfGroup(this.activePage.group)
+  }
+
   get activeGroupName():string {
-    return this.activePage.group
+    return this.activeGroup.name
   }
 
   protected getHistory(maintainFwd:boolean=false):HistoryStack {
@@ -477,7 +482,7 @@ class State implements IState {
       (ps:List<VisitedPage>, container:string):List<VisitedPage> =>
           ps.concat(this.getContainerPages(container)).toList(),
       List<VisitedPage>())
-    return pageUtils.sort(pages)
+    return this.sortPagesByFirstVisited(pages)
   }
 
   getContainerPages(name:string):List<VisitedPage> {
@@ -533,7 +538,7 @@ class State implements IState {
   _goInGroup(group:string, goFn:GoFn, lengthFn:LengthFn,
              nextPageFn: NextPageFn, n:number, time:number):State {
     if (n === 0) {
-      return this.activateContainer(group, {time, type: VisitType.MANUAL})
+      return this.activateContainer(group, time)
     }
     const container:string = this.getGroupActiveContainerName(group)
     const containerLength:number = lengthFn(this, container)
@@ -548,8 +553,7 @@ class State implements IState {
         }
         else {
           const nextContainer:string = nextPage.container
-          const visit:PageVisit = {time, type: VisitType.MANUAL}
-          const newState:State = this.activateContainer(nextContainer, visit)
+          const newState:State = this.activateContainer(nextContainer, time)
           if (remainder > 1) {
             return newState._goInGroup(
               group, goFn, lengthFn, nextPageFn, remainder - 1, time + 2)
@@ -674,7 +678,7 @@ class State implements IState {
     const isOutside = (p:VisitedPage):boolean => p.container !== container
     const outsidePages:List<VisitedPage> = this.pages.filter(isOutside).toList()
     const ps:List<VisitedPage> = outsidePages.concat(pages).toList()
-    return this.replacePages(ps).sortPages()
+    return this.replacePages(ps).withPagesSorted
   }
 
   disallowDuplicateContainer(name) {
@@ -736,9 +740,8 @@ class State implements IState {
       container: name,
       group
     })
-    const type = isDefault ? VisitType.MANUAL : VisitType.AUTO
     return this.replaceContainer(container)
-               .pushInContainer(name, {page, time, type})
+               .pushInContainer(name, {page, time, type: VisitType.AUTO})
   }
 
   replaceWindow(w:HistoryWindow):State {
@@ -814,6 +817,11 @@ class State implements IState {
     }
   }
 
+  isDefaultPage(page:Page):boolean {
+    const c:Container = this.leafContainers.get(page.container)
+    return c.isDefault && c.initialUrl === page.url
+  }
+
   getLastContainerVisit(container:string):PageVisit {
     return this.getContainerActivePage(container).lastVisit
   }
@@ -852,35 +860,64 @@ class State implements IState {
     }).toList()
   }
 
-
-  private _sort(cs:List<IContainer>, fn:SortFn):List<IContainer> {
-    const unvst = cs.filterNot(this.wasManuallyVisited.bind(this)).toList()
+  private _sort<T>(items:List<T>, fn:SortFn<T>, wasVisitedFn:(t:T)=>boolean,
+                   isDefaultFn:(t:T)=>boolean):List<T> {
+    const unvisited = items.filterNot(wasVisitedFn).toList()
     return fn({
-      visited: cs.filter(this.wasManuallyVisited.bind(this)).toList(),
-      defaultUnvisited: unvst.filter((c:IContainer) => c.isDefault).toList(),
-      nonDefaultUnvisited: unvst.filter((c:IContainer) => !c.isDefault).toList()
+      visited: items.filter(wasVisitedFn).toList(),
+      defaultUnvisited: unvisited.filter(isDefaultFn).toList(),
+      nonDefaultUnvisited: unvisited.filterNot(isDefaultFn).toList()
     })
   }
 
-  sort(cs:List<IContainer>, fn:SortFn):List<IContainer> {
+  private _sortContainers(cs:List<IContainer>,
+                          fn:SortFn<IContainer>):List<IContainer> {
+    return this._sort<IContainer>(
+      cs, fn,
+      this.wasManuallyVisited.bind(this),
+      (c:IContainer) => c.isDefault
+    )
+  }
+
+  sortContainers(cs:List<IContainer>, fn:SortFn<IContainer>):List<IContainer> {
     const enabled = cs.filter((c:IContainer) =>
         this.isContainerEnabled(c.name)).toList()
     const disabled = cs.filterNot((c:IContainer) =>
         this.isContainerEnabled(c.name)).toList()
-    return this._sort(enabled, fn).concat(this._sort(disabled, fn)).toList()
+    return this._sortContainers(enabled, fn).concat(
+           this._sortContainers(disabled, fn)).toList()
+  }
+
+  sortPages(ps:List<VisitedPage>,
+            fn:SortFn<VisitedPage>):List<VisitedPage> {
+    return this._sort<VisitedPage>(
+      ps, fn,
+      (p:VisitedPage) => p.wasManuallyVisited,
+      this.isDefaultPage.bind(this)
+    )
   }
 
   sortContainersByLastVisited(cs:List<IContainer>):List<IContainer> {
-    return this.sort(cs, ({visited, defaultUnvisited, nonDefaultUnvisited}) =>
-      this.sortByLastVisit(visited).concat(
-        this.sortByLastVisit(defaultUnvisited)).concat(
-          this.sortByLastVisit(nonDefaultUnvisited)).toList())
+    return this.sortContainers(cs,
+      ({visited, defaultUnvisited, nonDefaultUnvisited}) =>
+        this.sortByLastVisit(visited).concat(
+          defaultUnvisited).concat(
+            nonDefaultUnvisited).toList())
   }
 
   sortContainersByFirstVisited(cs:List<IContainer>):List<IContainer> {
-    return this.sort(cs, ({visited, defaultUnvisited, nonDefaultUnvisited}) =>
-      this.sortByFirstManualVisit(visited).concat(
-        this.sortByFirstManualVisit(defaultUnvisited)).toList())
+    return this.sortContainers(cs,
+      ({visited, defaultUnvisited, nonDefaultUnvisited}) =>
+        this.sortByFirstManualVisit(visited).concat(
+          defaultUnvisited).toList())
+  }
+
+  sortPagesByFirstVisited(ps:List<VisitedPage>):List<VisitedPage> {
+    return this.sortPages(ps,
+      ({visited, defaultUnvisited, nonDefaultUnvisited}) =>
+        pageUtils.sort(visited).concat(
+          defaultUnvisited).concat(
+            nonDefaultUnvisited).toList())
   }
 
   static createZeroPage(url:string) {

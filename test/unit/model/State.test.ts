@@ -3,87 +3,21 @@ import Group from '../../../src/model/Group'
 import Page from '../../../src/model/Page'
 import HistoryStack from '../../../src/model/HistoryStack'
 import * as fixtures from '../fixtures'
-import IContainer from '../../../src/model/IContainer'
 import {expect} from 'chai'
 import Load from '../../../src/model/actions/Load'
 import {List} from 'immutable'
 import Container from '../../../src/model/Container'
 import {
-  createContainers1, createContainers2, createContainers3,
-  createCreateContainers, createGroup1,
-  createGroup2,
-  createGroup3, createSubGroup1,
-  createSubGroup2, createSubGroup3
+  nestedState,
+  originalSimpleActionsWithoutLoad
 } from '../fixtures'
-import Action from '../../../src/model/BaseAction'
-import VisitedPage from '../../../src/model/VistedPage'
-import SetZeroPage from '../../../src/model/actions/SetZeroPage'
 import {deriveState} from '../../../src/store/store'
-import {VisitType} from '../../../src/model/PageVisit'
 declare const describe:any
 declare const it:any
 
 describe('State', () => {
-  const zero:VisitedPage = State.createZeroPage('/zero')
-  const baseActions:Action[] = [
-    new SetZeroPage({
-      url: zero.url,
-      time: 1000
-    })
-  ]
-
-  const originalSimpleActionsWithoutLoad:Action[] = [
-    ...baseActions,
-    createGroup1,
-    ...createContainers1,
-    createGroup2,
-    ...createContainers2,
-    createGroup3,
-    ...createContainers3
-  ]
-
-  const originalSimpleActions:Action[] = [
-    ...originalSimpleActionsWithoutLoad,
-    new Load({
-      url: '/a',
-      time: 1250
-    })
-  ]
-
-  const originalNestedActions:Action[] = [
-    ...baseActions,
-    createGroup1,
-    createSubGroup1,
-    createSubGroup2,
-    createSubGroup3,
-    ...createCreateContainers({
-      time: 1000,
-      group: createSubGroup1.name,
-      initialUrls: ['/a', '/b', '/c'],
-      useDefault: true,
-      name_suffix: 'A'
-    }),
-    ...createCreateContainers({
-      time: 1000,
-      group: createSubGroup2.name,
-      initialUrls: ['/e', '/f'],
-      name_suffix: 'B'
-    }),
-    ...createCreateContainers({
-      time: 1000,
-      group: createSubGroup3.name,
-      initialUrls: ['/g', '/h'],
-      useDefault: true,
-      name_suffix: 'C'
-    }),
-    new Load({
-      url: '/a',
-      time: 1250
-    })
-  ]
-
   describe('simple group', () => {
-    const state:State = deriveState(originalSimpleActions, new State())
+    const state:State = fixtures.simpleState
 
     describe('replaceContainer', () => {
       it('creates a new group if needed', () => {
@@ -109,6 +43,96 @@ describe('State', () => {
         expect(newState.activeUrl).to.equal('/a/1')
       })
     })
+
+    describe('activateContainer', () => {
+      it('switches to a container', () => {
+        const s = state.activateContainer('Container 3A', 2000)
+        expect(s.activeContainerName).to.equal('Container 3A')
+        const h:HistoryStack = s.history
+        expect(h.back.length).to.equal(2)
+        expect(h.back[1].url).to.equal('/a')
+        expect(h.current.url).to.equal('/c')
+        expect(h.forward.length).to.equal(0)
+      })
+    })
+
+    describe('getContainerStackOrder', () => {
+      const s = state.activateContainer('Container 3A', 7000)
+
+      it('gets containers in latest active order', () => {
+        const newOrder = s.getContainerStackOrder('Group 1')
+        const c1 = newOrder.first() as Container
+        expect(c1.initialUrl).to.equal('/c')
+        expect(s.getLastContainerVisit(c1.name).time).to.equal(7000)
+      })
+    })
+
+    describe('history', () => {
+      it('returns history based on container history 1', () => {
+        const h:HistoryStack = state.history
+        expect(h.back.length).to.equal(1)
+        expect(h.current.url).to.equal('/a')
+        expect(h.forward.length).to.equal(0)
+      })
+
+      it('returns history based on container history 2', () => {
+        const s = state.activateContainer('Container 3A', 2000)
+        const h:HistoryStack = s.history
+        expect(h.back.length).to.equal(2)
+        expect(h.back[1].url).to.equal('/a')
+        expect(h.current.url).to.equal('/c')
+        expect(h.forward.length).to.equal(0)
+      })
+    })
+
+    describe('history with forward history maintained', () => {
+      it('does not include containers that never were visited', () => {
+        const h:HistoryStack = state.historyWithFwdMaintained
+        expect(h.back.length).to.equal(1)
+        expect(h.back[0].url).to.equal('/zero')
+        expect(h.current.url).to.equal('/a')
+        expect(h.forward.length).to.equal(0)
+      })
+
+      it('includes forward history', () => {
+        const s = state
+          .switchToContainer({name: 'Container 3A', time: 2000})
+          .back({n: 1, time: 3000})
+        const h:HistoryStack = s.historyWithFwdMaintained
+        expect(h.back.length).to.equal(1)
+        expect(h.current.url).to.equal('/a')
+        expect(h.forward.length).to.equal(1)
+        expect(h.forward[0].url).to.equal('/c')
+      })
+
+      it('does not repeat pages', () => {
+        const container1page:Page = new Page({
+          url: '/a/1',
+          params: {id: '1'},
+          group: 'Group 1',
+          container: 'Container 1A'
+        })
+        const container2page:Page = new Page({
+          url: '/b/1',
+          params: {id: '1'},
+          group: 'Group 1',
+          container: 'Container 2A'
+        })
+        const s = state
+          .push({page: container1page, time: 5000})
+          .switchToContainer({name: 'Container 2A', time: 7500})
+          .push({page: container2page, time: 10000})
+          .back({n: 1, time: 15000})
+        const h:HistoryStack = s.historyWithFwdMaintained
+        expect(h.back.length).to.equal(3)
+        expect(h.back[1].url).to.equal('/a')
+        expect(h.back[2].url).to.equal('/a/1')
+        expect(h.current.url).to.equal('/b')
+        expect(h.forward.length).to.equal(1)
+        expect(h.forward[0].url).to.equal('/b/1')
+      })
+    })
+
 
     describe('push', () => {
       it('switches group when pushing in non-active group', () => {
@@ -150,7 +174,6 @@ describe('State', () => {
         const s = push(push(push(state, '/d', 5000), '/d/1', 6000), '/d/1/1', 7000)
         const h:HistoryStack = s.history
         expect(h.back.length).to.equal(4)
-        expect(h.back[0].url).to.equal('/zero')
         expect(h.back[1].url).to.equal('/a')
         expect(h.back[2].url).to.equal('/d')
         expect(h.back[3].url).to.equal('/d/1')
@@ -159,14 +182,32 @@ describe('State', () => {
       })
     })
 
-    describe('go', () => {
-      it('goes back 1 to zero page', () => {
-        const newState:State = state.go({n: -1, time: 1000})
-        const h:HistoryStack = newState.history
-        expect(h.back.length).to.equal(0)
-        expect(h.current).to.deep.equal(newState.getZeroPage())
-        expect(h.forward.length).to.equal(1)
-        expect(h.forward[0].url).to.equal('/a')
+    describe('top', () => {
+      it('goes to top of current container', () => {
+        const page:Page = new Page({
+          url: '/a/1',
+          params: {id: '1'},
+          group: 'Group 1',
+          container: 'Container 1A'
+        })
+        const s = state.push({page, time: 6000}).top({time: 7000})
+        const history:HistoryStack = s.history
+        expect(history.back.length).to.equal(1)
+        expect(history.current.url).to.equal('/a')
+        expect(history.forward.length).to.equal(1)
+        expect(history.forward[0].url).to.equal('/a/1')
+      })
+    })
+
+    describe('loadFromUrl', () => {
+      it('loads initialUrl into history when a page below it is loaded', () => {
+        const s = state.load({url: '/b/1', time: 5000})
+        const history:HistoryStack = s.history
+        expect(history.back.length).to.equal(3)
+        expect(history.back[1].url).to.equal('/a')
+        expect(history.back[2].url).to.equal('/b')
+        expect(history.current.url).to.equal('/b/1')
+        expect(history.forward.length).to.equal(0)
       })
     })
 
@@ -185,11 +226,47 @@ describe('State', () => {
       })
     })
 
+    describe('go', () => {
+      it('causes the current container to go', () => {
+        const page:Page = new Page({
+          url: '/a/1',
+          params: {id: '1'},
+          group: 'Group 1',
+          container: 'Container 1A'
+        })
+        const s = state.push({page, time: 6000}).go({n: -1, time: 7000})
+        const h:HistoryStack = s.history
+        expect(h.back.length).to.equal(1)
+        expect(h.current.url).to.equal('/a')
+        expect(h.forward.length).to.equal(1)
+        expect(h.forward[0].url).to.equal('/a/1')
+      })
+
+      it('switches container when the current one runs out', () => {
+        const s = state
+          .switchToContainer({name: 'Container 3A', time: 2000})
+          .go({n: -1, time: 3000})
+        const h:HistoryStack = s.history
+        expect(h.back.length).to.equal(1)
+        expect(h.current.url).to.equal('/a')
+        expect(h.forward.length).to.equal(0)
+      })
+
+      it('goes back 1 to zero page', () => {
+        const newState:State = state.go({n: -1, time: 1000})
+        const h:HistoryStack = newState.history
+        expect(h.back.length).to.equal(0)
+        expect(h.current).to.deep.equal(newState.getZeroPage())
+        expect(h.forward.length).to.equal(1)
+        expect(h.forward[0].url).to.equal('/a')
+      })
+    })
+
     describe('isContainerAtTopPage', () => {
       const f = (s: State, name: string) => s.isContainerAtTopPage(name)
 
       it('is at first', () => {
-        expect(f(state, 'Container 1A')).to.be.true
+        expect(f(state, 'Container 1A')).to.equal(true)
       })
 
       describe('after push', () => {
@@ -204,7 +281,7 @@ describe('State', () => {
         })
 
         it('is not after a push', () => {
-          expect(f(pushedState, 'Container 1A')).to.be.false
+          expect(f(pushedState, 'Container 1A')).to.equal(false)
         })
 
         describe('after switch', () => {
@@ -214,8 +291,8 @@ describe('State', () => {
           })
 
           it('is not after switch, but new container is', () => {
-            expect(f(switchedState, 'Container 1A')).to.be.false
-            expect(f(switchedState, 'Container 2A')).to.be.true
+            expect(f(switchedState, 'Container 1A')).to.equal(false)
+            expect(f(switchedState, 'Container 2A')).to.equal(true)
           })
         })
       })
@@ -263,7 +340,6 @@ describe('State', () => {
         const s = state.loadInContainer(c2, {url: '/b/1', time: 7500})
         const history:HistoryStack = s.history
         expect(history.back.length).to.equal(3)
-        expect(history.back[0].url).to.equal('/zero')
         expect(history.back[1].url).to.equal('/a')
         expect(history.back[2].url).to.equal('/b')
         expect(history.back[2].visits.length).to.equal(2)
@@ -278,14 +354,14 @@ describe('State', () => {
           visible: false
         })
         const s2 = state.loadInContainer(c1, {url: '/a/3', time: 7500})
-        expect(s1.isContainerEnabled('Container 1A')).to.be.false
-        expect(s2.isContainerEnabled('Container 1A')).to.be.true
+        expect(s1.isContainerEnabled('Container 1A')).to.equal(false)
+        expect(s2.isContainerEnabled('Container 1A')).to.equal(true)
       })
     })
   })
 
   describe('nested group', () => {
-    const state:State = deriveState(originalNestedActions, new State())
+    const state:State = nestedState
     const group:Group = state.groups.get('Group 1')
     const nestedGroup1:Group = state.groups.get('SubGroup 1') as Group
 
@@ -323,6 +399,15 @@ describe('State', () => {
       })
     })
 
+    describe('history', () => {
+      it('returns history based on container history', () => {
+        const h:HistoryStack = state.history
+        expect(h.back.length).to.equal(1)
+        expect(h.current.url).to.equal('/a')
+        expect(h.forward.length).to.equal(0)
+      })
+    })
+
     describe('push', () => {
       it('switches group when pushing in non-active group', () => {
         const page:Page = new Page({
@@ -349,9 +434,45 @@ describe('State', () => {
         expect(h.current.url).to.equal('/d')
         expect(h.forward.length).to.equal(0)
       })
+
+      describe('pushing into a non-active container', () => {
+        const page:Page = new Page({
+          url: '/x',
+          params: {},
+          group: 'SubGroup 2',
+          container: 'Container 2B',
+        })
+        const s:State = state.push({page, time: 5000})
+
+        it('switches container', () => {
+          expect(s.activeGroupName).to.equal('Group 1')
+          expect(s.activeContainerName).to.equal('Container 2B')
+        })
+
+        it('hides first group\'s history', () => {
+          const h:HistoryStack = s.history
+          expect(h.back.length).to.equal(1)
+          expect(h.back[0].isZeroPage).to.equal(true)
+        })
+      })
     })
 
     describe('go', () => {
+      it('causes the current container to go', () => {
+        const page:Page = new Page({
+          url: '/a/1',
+          params: {id: '1'},
+          group: 'Group 1',
+          container: 'Container 1A'
+        })
+        const s = state.push({page, time: 6000}).go({n: -1, time: 7000})
+        const history:HistoryStack = s.history
+        expect(history.back.length).to.equal(1)
+        expect(history.current.url).to.equal('/a')
+        expect(history.forward.length).to.equal(1)
+        expect(history.forward[0].url).to.equal('/a/1')
+      })
+
       it('goes back 1 to zero page', () => {
         const newState:State = state.go({n: -1, time: 5000})
         const h:HistoryStack = newState.history
@@ -360,13 +481,40 @@ describe('State', () => {
         expect(h.forward.length).to.equal(1)
         expect(h.forward[0].url).to.equal('/a')
       })
+
+      it('can\'t go back to Group 2, history doesn\'t cross its boundary', () => {
+        const s = state
+          .switchToContainer({name: 'SubGroup 2', time: 2000})
+          .switchToContainer({name: 'SubGroup 3', time: 3000})
+        const h:HistoryStack = s.history
+        expect(h.back.length).to.equal(1)
+        expect(h.current.url).to.equal('/g')
+        expect(h.forward.length).to.equal(0)
+      })
+    })
+
+    describe('top', () => {
+      it('goes to top of current container', () => {
+        const page:Page = new Page({
+          url: '/a/1',
+          params: {id: '1'},
+          group: 'SubGroup 1',
+          container: 'Container 1A'
+        })
+        const s = state.push({page, time: 6000}).top({time: 7000})
+        const h:HistoryStack = s.history
+        expect(h.back.length).to.equal(1)
+        expect(h.current.url).to.equal('/a')
+        expect(h.forward.length).to.equal(1)
+        expect(h.forward[0].url).to.equal('/a/1')
+      })
     })
 
     describe('isContainerAtTopPage', () => {
       const f = (s: State, name: string) => s.isContainerAtTopPage(name)
 
       it('is at first', () => {
-        expect(f(state, 'Container 1A')).to.be.true
+        expect(f(state, 'Container 1A')).to.equal(true)
       })
 
       describe('after push', () => {
@@ -381,7 +529,7 @@ describe('State', () => {
         })
 
         it('is not after a push', () => {
-          expect(f(pushedState, 'Container 1A')).to.be.false
+          expect(f(pushedState, 'Container 1A')).to.equal(false)
         })
 
         describe('after switch', () => {
@@ -391,8 +539,8 @@ describe('State', () => {
           })
 
           it('is not after switch, but new container is', () => {
-            expect(f(switchedState, 'Container 1A')).to.be.false
-            expect(f(switchedState, 'Container 2A')).to.be.true
+            expect(f(switchedState, 'Container 1A')).to.equal(false)
+            expect(f(switchedState, 'Container 2A')).to.equal(true)
           })
         })
       })
@@ -400,15 +548,15 @@ describe('State', () => {
   })
 
   describe('inter-container history (mobile)', () => {
-    const s1:State = deriveState(originalNestedActions, new State())
-    const group = s1.getGroupContainers('Group 1').get(2) as Group
+    const s1:State = nestedState
+    const group = s1.containers.get('SubGroup 3') as Group
     const state:State = s1.switchToGroup({
       name: group.name,
       time: 1500
     })
 
     it('has allow inter-container history turned on', () => {
-      expect(group.allowInterContainerHistory).to.be.true
+      expect(group.allowInterContainerHistory).to.equal(true)
     })
 
     describe('after switching from default', () => {
@@ -440,6 +588,15 @@ describe('State', () => {
         expect(groupHistory.back.length).to.equal(0)
         expect(groupHistory.current.url).to.equal('/g')
         expect(groupHistory.forward.length).to.equal(0)
+      })
+
+      it('crosses the container boundary', () => {
+        const s = state.switchToContainer({name: 'Container 2C', time: 2000})
+        const history:HistoryStack = s.history
+        expect(history.back.length).to.equal(2)
+        expect(history.back[1].url).to.equal('/g')
+        expect(history.current.url).to.equal('/h')
+        expect(history.forward.length).to.equal(0)
       })
     })
   })

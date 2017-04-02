@@ -1,4 +1,3 @@
-import CreateContainer from '../../../src/model/actions/CreateContainer'
 import Push from '../../../src/model/actions/Push'
 import PopState from '../../../src/model/actions/PopState'
 import Load from '../../../src/model/actions/Load'
@@ -8,16 +7,14 @@ import SwitchToContainer from '../../../src/model/actions/SwitchToContainer'
 import Back from '../../../src/model/actions/Back'
 import BackStep from '../../../src/model/steps/BackStep'
 import Forward from '../../../src/model/actions/Forward'
-import SetZeroPage from '../../../src/model/actions/SetZeroPage'
 import Action from '../../../src/model/BaseAction'
 import GoStep from '../../../src/model/steps/GoStep'
 import {
-  createGroup1, createContainers1, createContainers3, createContainers2,
-  createGroup2, createGroup3, createSubGroup1, createSubGroup2, createSubGroup3,
-  createCreateContainers
+  createContainers1, createSubGroup1, createSubGroup3, originalSimpleActions,
+  zero, originalSimpleActionsWithoutLoad, originalNestedActionsWithoutLoad,
+  originalNestedActions
 } from '../fixtures'
 import {expect} from 'chai'
-import VisitedPage from '../../../src/model/VistedPage'
 import State from '../../../src/model/State'
 import Page from '../../../src/model/Page'
 import {createSteps} from '../../../src/util/reconciler'
@@ -26,51 +23,6 @@ declare const describe:any
 declare const it:any
 
 describe('reconciler', () => {
-  const zero:VisitedPage = State.createZeroPage('/zero')
-  const baseActions:Action[] = [
-    new SetZeroPage({
-      url: zero.url,
-      time: 1000
-    })
-  ]
-  const originalSimpleActions:Action[] = [
-    ...baseActions,
-    createGroup1,
-    ...createContainers1,
-    createGroup2,
-    ...createContainers2,
-    createGroup3,
-    ...createContainers3
-  ]
-
-  const originalNestedActions:Action[] = [
-    ...baseActions,
-    createGroup1,
-    createSubGroup1,
-    createSubGroup2,
-    createSubGroup3,
-    ...createCreateContainers({
-      time: 1000,
-      group: createSubGroup1.name,
-      initialUrls: ['/a', '/b', '/c'],
-      useDefault: true,
-      name_suffix: 'A'
-    }),
-    ...createCreateContainers({
-      time: 1000,
-      group: createSubGroup2.name,
-      initialUrls: ['/e', '/f'],
-      name_suffix: 'B'
-    }),
-    ...createCreateContainers({
-      time: 1000,
-      group: createSubGroup3.name,
-      initialUrls: ['/g', '/h'],
-      useDefault: true,
-      name_suffix: 'C'
-    })
-  ]
-
   describe('createSteps', () => {
     const createStepsSince = (actions, time) => {
       const oldActions:Action[] = actions.filter(a => a.time <= time)
@@ -82,14 +34,7 @@ describe('reconciler', () => {
     describe('simple group', () => {
       describe('load', () => {
         it('default', () => {
-          const actions: Action[] = [
-            ...originalSimpleActions,
-            new Load({
-              url: '/a',
-              time: 1500
-            })
-          ]
-          expect(createStepsSince(actions, 0)).to.deep.equal([
+          expect(createStepsSince(originalSimpleActions, 0)).to.deep.equal([
             new ReplaceStep(new Page(zero)),
             new PushStep(new Page({
               url: '/a',
@@ -102,7 +47,7 @@ describe('reconciler', () => {
 
         it('non-default', () => {
           const actions: Action[] = [
-            ...originalSimpleActions,
+            ...originalSimpleActionsWithoutLoad,
             new Load({
               url: '/b',
               time: 2000
@@ -228,7 +173,7 @@ describe('reconciler', () => {
             })
           ]
 
-          it.only('should remove tab 2 history', () => {
+          it('should remove tab 2 history', () => {
             const actions:Action[] = [
               ...backSwitchActions,
               new PopState({
@@ -360,14 +305,7 @@ describe('reconciler', () => {
     describe('nested group', () => {
       describe('load', () => {
         it('default', () => {
-          const actions: Action[] = [
-            ...originalNestedActions,
-            new Load({
-              url: '/a',
-              time: 2000
-            })
-          ]
-          expect(createStepsSince(actions, 0)).to.deep.equal([
+          expect(createStepsSince(originalNestedActions, 0)).to.deep.equal([
             new ReplaceStep(new Page(zero)),
             new PushStep(new Page({
               url: '/a',
@@ -380,7 +318,7 @@ describe('reconciler', () => {
 
         it('non-default', () => {
           const actions: Action[] = [
-            ...originalNestedActions,
+            ...originalNestedActionsWithoutLoad,
             new Load({
               url: '/b',
               time: 2000
@@ -472,7 +410,7 @@ describe('reconciler', () => {
     describe('inter-container history (mobile)', () => {
       describe('after load into non-default container', () => {
         const switchActions:Action[] = [
-          ...originalNestedActions,
+          ...originalNestedActionsWithoutLoad,
           new Load({
             url: '/h',
             time: 1200

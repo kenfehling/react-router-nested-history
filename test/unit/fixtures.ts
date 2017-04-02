@@ -1,10 +1,12 @@
 import CreateContainer from '../../src/model/actions/CreateContainer'
 import CreateGroup from '../../src/model/actions/CreateGroup'
-import Group from '../../src/model/Group'
 import Container from '../../src/model/Container'
 import Load from '../../src/model/actions/Load'
-import {Map, fromJS} from 'immutable'
 import State from '../../src/model/State'
+import Action from '../../src/model/BaseAction'
+import {deriveState} from '../../src/store/store'
+import VisitedPage from '../../src/model/VistedPage'
+import SetZeroPage from '../../src/model/actions/SetZeroPage'
 
 const createCreateGroup = (name:string):CreateGroup =>
     new CreateGroup({name, time: 500})
@@ -74,102 +76,69 @@ export const createContainers3:CreateContainer[] = createCreateContainers({
   name_suffix: 'C'
 })
 
-const group1:Group = new Group({
-  name: 'Group 1'
-})
-
-const containers1:Map<string, Container> = fromJS({
-  'Container 1A': new Container({
-    name: 'Container 1A',
-    group: 'Group 1',
-    initialUrl: '/a',
-    patterns: ['/a', '/a/:id'],
-    isDefault: true
-  }),
-  'Container 2A': new Container({
-    name: 'Container 2A',
-    group: 'Group 1',
-    initialUrl: '/b',
-    patterns: ['/b', '/b/:id']
-  }),
-  'Container 3A': new Container({
-    name: 'Container 3A',
-    group: 'Group 1',
-    initialUrl: '/c',
-    patterns: ['/c', '/c/:id']
+export const zero:VisitedPage = State.createZeroPage('/zero')
+export const baseActions:Action[] = [
+  new SetZeroPage({
+    url: zero.url,
+    time: 1000
   })
-})
+]
 
-const group2:Group = new Group({
-  name: 'Group 2',
-})
+export const originalSimpleActionsWithoutLoad:Action[] = [
+  ...baseActions,
+  createGroup1,
+  ...createContainers1,
+  createGroup2,
+  ...createContainers2,
+  createGroup3,
+  ...createContainers3
+]
 
-const containers2:Map<string, Container> = fromJS({
-  'Container 1B': new Container({
-    name: 'Container 1B',
-    group: 'Group 2',
-    initialUrl: '/e',
-    patterns: ['/e', '/e/:id'],
-  }),
-  'Container 2B': new Container({
-    name: 'Container 2B',
-    group: 'Group 2',
-    initialUrl: '/f',
-    patterns: ['/f', '/f/:id'],
+export const originalSimpleActions:Action[] = [
+  ...originalSimpleActionsWithoutLoad,
+  new Load({
+    url: '/a',
+    time: 1250
   })
-})
+]
 
-const group3:Group = new Group({
-  name: 'Group 3',
-})
-
-const containers3:Map<string, Container> = fromJS({
-  'Container 1C': new Container({
-    name: 'Container 1C',
-    group: 'Group 3',
-    initialUrl: '/g',
-    patterns: ['/g', '/g/:id'],
-    isDefault: true
+export const originalNestedActionsWithoutLoad:Action[] = [
+  ...baseActions,
+  createGroup1,
+  createGroup2,
+  createGroup3,
+  createSubGroup1,
+  createSubGroup2,
+  createSubGroup3,
+  ...createCreateContainers({
+    time: 1000,
+    group: createSubGroup1.name,
+    initialUrls: ['/a', '/b', '/c'],
+    useDefault: true,
+    name_suffix: 'A'
   }),
-  'Container 2C': new Container({
-    name: 'Container 2C',
-    group: 'Group 3',
-    initialUrl: '/h',
-    patterns: ['/h', '/h/:id'],
+  ...createCreateContainers({
+    time: 1000,
+    group: createSubGroup2.name,
+    initialUrls: ['/e', '/f'],
+    name_suffix: 'B'
+  }),
+  ...createCreateContainers({
+    time: 1000,
+    group: createSubGroup3.name,
+    initialUrls: ['/g', '/h'],
+    useDefault: true,
+    name_suffix: 'C'
   })
-})
+]
 
-export const simpleState = new State({
-  containers: fromJS({
-    'Group 1': group1,
-    'Group 2': group2,
-    'Group 3': group3
-  }).concat(containers1).concat(containers2).concat(containers3)
-})
+export const originalNestedActions:Action[] = [
+  ...originalNestedActionsWithoutLoad,
+  new Load({
+    url: '/a',
+    time: 1250
+  })
+]
 
-const nestedGroup1 = new Group({
-  ...Object(group1),
-  parentGroup: 'Nested Group 1'
-})
-
-const nestedGroup2 = new Group({
-  ...Object(group2),
-  parentGroup: 'Nested Group 1'
-})
-
-const nestedGroup3 = new Group({
-  ...Object(group3),
-  parentGroup: 'Nested Group 1',
-  allowInterContainerHistory: true
-})
-
-export const nestedState = new State({
-  containers: fromJS({
-    'Nested Group 1':  new Group({
-      name: 'Nested Group 1'
-    }),
-    'Group 1': nestedGroup1,
-    'Group 2': nestedGroup2,
-    'Group 3': nestedGroup3
-  }).concat(containers1).concat(containers2).concat(containers3)
-})
+export const simpleState = deriveState(originalSimpleActions, new State())
+export const nestedState = deriveState(originalNestedActions, new State())

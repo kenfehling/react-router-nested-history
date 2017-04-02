@@ -26,5 +26,20 @@ export function comparePagesByFirstVisited(p1:VisitedPage, p2:VisitedPage):numbe
 }
 
 export function comparePagesByLastVisited(p1:VisitedPage, p2:VisitedPage):number {
-  return p2.lastVisit.time - p1.lastVisit.time
+  if (p1.wasManuallyVisited) {
+    if (p2.wasManuallyVisited) {
+      return p2.lastVisit.time - p1.lastVisit.time
+    }
+    else {
+      return -1
+    }
+  }
+  else {
+    if (p2.wasManuallyVisited) {
+      return 1
+    }
+    else {
+      return 0
+    }
+  }
 }
