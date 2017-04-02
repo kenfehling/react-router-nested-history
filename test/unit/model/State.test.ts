@@ -19,6 +19,7 @@ import Action from '../../../src/model/BaseAction'
 import VisitedPage from '../../../src/model/VistedPage'
 import SetZeroPage from '../../../src/model/actions/SetZeroPage'
 import {deriveState} from '../../../src/store/store'
+import {VisitType} from '../../../src/model/PageVisit'
 declare const describe:any
 declare const it:any
 
@@ -237,6 +238,48 @@ describe('State', () => {
         const c = s.getGroupActiveContainer(item1.name) as Container
         expect(c.initialUrl).to.equal('/e')
         expect(s.getLastContainerVisit(item1.name).time).to.equal(1250)
+      })
+    })
+
+    describe('loadInContainer', () => {
+      const c1:Container = state.leafContainers.get('Container 1A')
+      const c2:Container = state.leafContainers.get('Container 2A')
+      it('pushes if container patterns match', () => {
+        const s = state.loadInContainer(c1, {url: '/a/3', time: 7500})
+        expect(s.history.back.length).to.equal(2)
+      })
+
+      it('does nothing if patterns do not match', () => {
+        const s = state.loadInContainer(c1, {url: '/c/1', time: 7500})
+        expect(s.history.back.length).to.equal(1)
+      })
+
+      it('does nothing if already on this page', () => {
+        const s = state.loadInContainer(c1, {url: '/a', time: 7500})
+        expect(s.history.back.length).to.equal(1)
+      })
+
+      it('loads initialUrl into history when a page below it is loaded', () => {
+        const s = state.loadInContainer(c2, {url: '/b/1', time: 7500})
+        const history:HistoryStack = s.history
+        expect(history.back.length).to.equal(3)
+        expect(history.back[0].url).to.equal('/zero')
+        expect(history.back[1].url).to.equal('/a')
+        expect(history.back[2].url).to.equal('/b')
+        expect(history.back[2].visits.length).to.equal(2)
+        expect(history.back[2].visits[1].time).to.equal(7499)
+        expect(history.current.url).to.equal('/b/1')
+        expect(history.forward.length).to.equal(0)
+      })
+
+      it('enables a container when loading into it', () => {
+        const s1 = state.addWindow({
+          forName: 'Container 1A',
+          visible: false
+        })
+        const s2 = state.loadInContainer(c1, {url: '/a/3', time: 7500})
+        expect(s1.isContainerEnabled('Container 1A')).to.be.false
+        expect(s2.isContainerEnabled('Container 1A')).to.be.true
       })
     })
   })
