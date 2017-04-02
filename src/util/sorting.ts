@@ -1,6 +1,6 @@
 import VisitedPage from '../model/VistedPage'
 
-export function compareByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
+export function comparePagesByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
   if (p1.isZeroPage) {
     return -1
   }
@@ -25,6 +25,6 @@ export function compareByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
   }
 }
 
-export function compareByLastVisited(p1:VisitedPage, p2:VisitedPage):number {
+export function comparePagesByLastVisited(p1:VisitedPage, p2:VisitedPage):number {
   return p2.lastVisit.time - p1.lastVisit.time
 }

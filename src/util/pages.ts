@@ -1,6 +1,6 @@
 import VisitedPage from '../model/VistedPage'
 import {List} from 'immutable'
-import {compareByLastVisited} from './sorting'
+import {comparePagesByFirstVisited, comparePagesByLastVisited} from './sorting'
 import PageVisit, {VisitType} from '../model/PageVisit'
 import Page from '../model/Page'
 import HistoryStack from '../model/HistoryStack'
@@ -17,12 +17,15 @@ export const toHistoryStack = (pages:List<VisitedPage>):HistoryStack => {
   })
 }
 
+export const sort = (pages:List<VisitedPage>):List<VisitedPage> =>
+    pages.sort(comparePagesByFirstVisited).toList()
+
 export const getActivePage = (pages:List<VisitedPage>):VisitedPage => {
   if (pages.isEmpty()) {
     throw new Error('pages is empty')
   }
   else {
-    return pages.max(compareByLastVisited)
+    return pages.min(comparePagesByLastVisited)
   }
 }
 
@@ -70,14 +73,23 @@ export const canGoForward = (pages:List<VisitedPage>, n:number=1):boolean =>
 
 export const isAtTopPage = (pages:List<VisitedPage>):boolean => !canGoBack(pages)
 
+const touch = (pages:List<VisitedPage>,
+               pageVisit:PageVisit):List<VisitedPage> =>
+  touchPageAtIndex(pages, getActiveIndex(pages), pageVisit)
+
 export const push = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL}:
                   {page: Page, time:number, type?:VisitType}):List<VisitedPage> => {
-  const index:number = getActiveIndex(pages) + 1
-  const newPage:VisitedPage = new VisitedPage({
-    ...Object(page),
-    visits:[{time, type}]
-  })
-  return pages.slice(0, index).toList().push(newPage)
+  if (!pages.isEmpty() && getActivePage(pages).url === page.url) {
+    return touch(pages, {time, type})
+  }
+  else {
+    const index:number = getActiveIndex(pages) + 1
+    const newPage:VisitedPage = new VisitedPage({
+      ...Object(page),
+      visits:[{time, type}]
+    })
+    return pages.slice(0, index).toList().push(newPage)
+  }
 }
 
 const touchPageAtIndex = (pages:List<VisitedPage>, index:number,
@@ -138,10 +150,6 @@ export const shiftTo = (pages:List<VisitedPage>, {page, time}:
     go(pages, {n: getShiftAmount(pages, page), time})
 
 /*
-export const touch = (pages:List<VisitedPage>,
-                      pageVisit:PageVisit):List<VisitedPage> =>
-    touchPageAtIndex(pages, getActiveIndex(pages), pageVisit)
-
  get firstManualVisit():PageVisit|undefined {
    const page:VisitedPage = this.pages.filter(p => p.wasManuallyVisited)[0]
    return page ? page.firstManualVisit : undefined

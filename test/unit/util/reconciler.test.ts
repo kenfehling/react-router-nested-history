@@ -13,7 +13,8 @@ import Action from '../../../src/model/BaseAction'
 import GoStep from '../../../src/model/steps/GoStep'
 import {
   createGroup1, createContainers1, createContainers3, createContainers2,
-  createGroup2, createGroup3, createSubGroup1, createSubGroup2, createSubGroup3
+  createGroup2, createGroup3, createSubGroup1, createSubGroup2, createSubGroup3,
+  createCreateContainers
 } from '../fixtures'
 import {expect} from 'chai'
 import VisitedPage from '../../../src/model/VistedPage'
@@ -48,56 +49,25 @@ describe('reconciler', () => {
     createSubGroup1,
     createSubGroup2,
     createSubGroup3,
-    new CreateContainer({
-      group: createSubGroup1.name,
-      name: 'Container 1A',
-      initialUrl: '/a',
-      patterns: ['/a', '/a/:id'],
-      isDefault: true,
-      time: 1000
-    }),
-    new CreateContainer({
-      group: createSubGroup1.name,
-      name: 'Container 2A',
-      initialUrl: '/b',
-      patterns: ['/b', '/b/:id'],
-      time: 1000
-    }),
-    new CreateContainer({
-      group: createSubGroup1.name,
-      name: 'Container 3A',
-      initialUrl: '/c',
-      patterns: ['/c', '/c/:id'],
-      time: 1000
-    }),
-    new CreateContainer({
-      group: createSubGroup2.name,
-      name: 'Container 1B',
-      initialUrl: '/e',
-      patterns: ['/e', '/e/:id'],
-      time: 1000
-    }),
-    new CreateContainer({
-      group: createSubGroup2.name,
-      name: 'Container 2B',
-      initialUrl: '/f',
-      patterns: ['/f', '/f/:id'],
-      time: 1000
-    }),
-    new CreateContainer({
-      group: createSubGroup3.name,
-      name: 'Container 1C',
-      initialUrl: '/g',
-      patterns: ['/g', '/g/:id'],
+    ...createCreateContainers({
       time: 1000,
-      isDefault: true
+      group: createSubGroup1.name,
+      initialUrls: ['/a', '/b', '/c'],
+      useDefault: true,
+      name_suffix: 'A'
     }),
-    new CreateContainer({
+    ...createCreateContainers({
+      time: 1000,
+      group: createSubGroup2.name,
+      initialUrls: ['/e', '/f'],
+      name_suffix: 'B'
+    }),
+    ...createCreateContainers({
+      time: 1000,
       group: createSubGroup3.name,
-      name: 'Container 2C',
-      initialUrl: '/h',
-      patterns: ['/h', '/h/:id'],
-      time: 1000
+      initialUrls: ['/g', '/h'],
+      useDefault: true,
+      name_suffix: 'C'
     })
   ]
 
@@ -111,7 +81,7 @@ describe('reconciler', () => {
 
     describe('simple group', () => {
       describe('load', () => {
-        it.only('default', () => {
+        it('default', () => {
           const actions: Action[] = [
             ...originalSimpleActions,
             new Load({
@@ -258,7 +228,7 @@ describe('reconciler', () => {
             })
           ]
 
-          it('should remove tab 2 history', () => {
+          it.only('should remove tab 2 history', () => {
             const actions:Action[] = [
               ...backSwitchActions,
               new PopState({

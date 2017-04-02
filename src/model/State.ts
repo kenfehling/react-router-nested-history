@@ -4,11 +4,9 @@ import PathTitle from './PathTitle'
 import PageVisit, {VisitType} from './PageVisit'
 import IContainer from './IContainer'
 import IState from '../store/IState'
-import {compareByFirstVisited} from '../util/sorting'
 import {fromJS, Map, List, OrderedMap} from 'immutable'
 import {
-  ComputedContainer,
-  ComputedGroup, ComputedGroupOrContainer, ComputedWindow,
+  ComputedContainer, ComputedGroup, ComputedGroupOrContainer, ComputedWindow,
   PartialComputedState
 } from './ComputedState'
 import * as defaultBehavior from '../behaviors/defaultBehavior'
@@ -81,8 +79,8 @@ class State implements IState {
           [g.name]: {
             name: g.name,
             isTopLevel: !g.group,
-            activeContainerIndex: this.getActiveContainerIndexInGroup(g.name),
-            activeContainerName: this.getActiveContainerNameInGroup(g.name)
+            activeContainerIndex: this.getGroupActiveContainerIndex(g.name),
+            activeContainerName: this.getGroupActiveContainerName(g.name)
           }
         }),
       fromJS({}))
@@ -95,7 +93,7 @@ class State implements IState {
         map.merge({
           [c.name]: {
             name: c.name,
-            isActiveInGroup: this.getActiveContainerNameInGroup(c.group) === c.name,
+            isActiveInGroup: this.getGroupActiveContainerName(c.group) === c.name,
             matchesCurrentUrl: currentUrl === this.getContainerActiveUrl(c.name)
           }
         }),
@@ -141,12 +139,12 @@ class State implements IState {
     return pageUtils.toHistoryStack(this.getContainerPages(container))
   }
 
-  getGroupHistory(group:string, keepFwd:boolean):HistoryStack {
+  getGroupHistory(group:string, keepFwd:boolean=false):HistoryStack {
     const cs = this.getContainerStackOrder(group).filter(
                   (c:IGroupContainer) => this.wasManuallyVisited(c))
     switch(cs.size) {
       case 0: {
-        const activeContainer:string = this.getActiveContainerNameInGroup(group)
+        const activeContainer:string = this.getGroupActiveContainerName(group)
         return this.getSingleHistory(activeContainer, keepFwd)
       }
       case 1: {
@@ -160,7 +158,7 @@ class State implements IState {
     }
   }
 
-  getGroupOrContainerHistory(name:string, keepFwd:boolean):HistoryStack {
+  getIContainerHistory(name:string, keepFwd:boolean):HistoryStack {
     if (this.isGroup(name)) {
       return this.getGroupHistory(name, keepFwd)
     }
@@ -172,8 +170,8 @@ class State implements IState {
   private computeDefault(h:HistoryStack, defaulT:IContainer|undefined,
                          from:IContainer, to:IContainer,
                          keepFwd:boolean):HistoryStack {
-    const fromHistory = this.getGroupOrContainerHistory(from.name, keepFwd)
-    const toHistory = this.getGroupOrContainerHistory(to.name, keepFwd)
+    const fromHistory = this.getIContainerHistory(from.name, keepFwd)
+    const toHistory = this.getIContainerHistory(to.name, keepFwd)
     if (defaulT) {
       if (from.isDefault) {
         return defaultBehavior.A_to_B(h, fromHistory, toHistory)
@@ -183,7 +181,7 @@ class State implements IState {
           return defaultBehavior.B_to_A(h, fromHistory, toHistory)
         }
         else {
-          const defaultHistory = this.getGroupOrContainerHistory(defaulT.name, keepFwd)
+          const defaultHistory = this.getIContainerHistory(defaulT.name, keepFwd)
           return defaultBehavior.B_to_C(h, defaultHistory, fromHistory, toHistory)
         }
       }
@@ -195,11 +193,11 @@ class State implements IState {
 
   private computeInterContainer(group:string, from:IContainer, to:IContainer,
                                 keepFwd:boolean):HistoryStack {
-    const toHistory = this.getGroupOrContainerHistory(to.name, keepFwd)
+    const toHistory = this.getIContainerHistory(to.name, keepFwd)
     const g:Group = this.containers.get(group) as Group
     if (!from.isDefault && !to.isDefault && g.allowInterContainerHistory) {
-      const fromHistory = this.getGroupOrContainerHistory(from.name, keepFwd)
-      const sorted = this.sortContainersByFirstVisited(List<IContainer>([from, to]))
+      const fromHistory = this.getIContainerHistory(from.name, keepFwd)
+      const sorted = this.sortContainersByFirstVisited(fromJS([from, to]))
       if (sorted.first() === from) {
         return interContainerHistory.D_to_E(toHistory, fromHistory, toHistory)
       }
@@ -214,10 +212,10 @@ class State implements IState {
 
   private computeFwd(h:HistoryStack, keepFwd:boolean,
                      from:IContainer, to:IContainer):HistoryStack {
-    const fromHistory = this.getGroupOrContainerHistory(from.name, keepFwd)
-    const toHistory = this.getGroupOrContainerHistory(to.name, keepFwd)
+    const fromHistory = this.getIContainerHistory(from.name, keepFwd)
+    const toHistory = this.getIContainerHistory(to.name, keepFwd)
     if (keepFwd && this.wasManuallyVisited(from)) {
-      const sorted = this.sortContainersByFirstVisited(List<IContainer>([from, to]))
+      const sorted = this.sortContainersByFirstVisited(fromJS([from, to]))
       if (sorted.first() === from) {
         return keepFwdTabBehavior.D_to_E(h, fromHistory, toHistory)
       }
@@ -232,7 +230,7 @@ class State implements IState {
 
   computeGroupHistory(group:string, from:IContainer, to:IContainer,
                       keepFwd:boolean):HistoryStack {
-    const defaulT:IContainer|undefined = this.getDefaultContainerInGroup(group)
+    const defaulT:IContainer|undefined = this.getGroupDefaultContainer(group)
     const h1:HistoryStack = this.computeInterContainer(group, from, to, keepFwd)
     const h2:HistoryStack = this.computeDefault(h1, defaulT, from, to, keepFwd)
     return this.computeFwd(h2, keepFwd, from, to)
@@ -244,12 +242,12 @@ class State implements IState {
   }
 
   getContainerStackOrder(group:string):List<IGroupContainer> {
-    const cs = this.containers.filter((c:IContainer) => c.group === group).toList()
+    const cs:List<IGroupContainer> = this.getGroupContainers(group)
     return this.sortContainersByLastVisited(cs) as List<IGroupContainer>
   }
 
   switchToGroup({name, time}:{name:string, time:number}):State {
-    const c:IContainer = this.getActiveContainerInGroup(name)
+    const c:IContainer = this.getGroupActiveContainer(name)
     return this.activateContainer(c.name, {time, type: VisitType.MANUAL})
   }
 
@@ -291,11 +289,13 @@ class State implements IState {
   }
   
   getGroupContainerNames(group:string):List<string> {
-    return this.containers.filter((c:IContainer) => c.group === group).keySeq().toList()
+    const filter = (c:IContainer) => c.group === group
+    return this.containers.filter(filter).keySeq().toList()
   }
 
-  getGroupContainers(group:string):List<IContainer> {
-    return this.containers.filter((c:IContainer) => c.group === group).toList()
+  getGroupContainers(group:string):List<IGroupContainer> {
+    const filter = (c:IContainer) => c.group === group
+    return this.containers.filter(filter).toList() as List<IGroupContainer>
   }
 
   hasEnabledContainers(group:Group):boolean {
@@ -329,7 +329,8 @@ class State implements IState {
     return this.go({n: 0 - n, time, container})
   }
 
-  forward({n=1, time, container}:{n:number, time:number, container?:string}):State {
+  forward({n=1, time, container}:
+          {n:number, time:number, container?:string}):State {
     return this.go({n, time, container})
   }
 
@@ -348,7 +349,7 @@ class State implements IState {
   }
 
   getShiftAmount(page:Page):number {
-    return pageUtils.getShiftAmount(this.pages, page)
+    return pageUtils.getShiftAmount(this.getPages(), page)
   }
 
   /*
@@ -363,9 +364,13 @@ class State implements IState {
   }
   */
 
+  sortPages():State {
+    return this.replacePages(pageUtils.sort(this.pages))
+  }
+
   push({page, time, type=VisitType.MANUAL}:
        {page: Page, time:number, type?:VisitType}):State {
-    return this.replacePages(pageUtils.push(this.pages, {page, time, type}))
+    return this.pushInContainer(this.activeContainerName, {page, time, type})
   }
 
   pushInContainer(container:string, {page, time, type=VisitType.MANUAL}:
@@ -391,22 +396,13 @@ class State implements IState {
     else {
       return new HistoryStack({
         ...groupHistory,
-        back: [...groupHistory.back, this.getZeroPage()]
+        back: [this.getZeroPage(), ...groupHistory.back]
       })
     }
   }
-
-  getActiveContainerInGroup(group:string):IGroupContainer {
-    return this.getContainerStackOrder(group).first()
-  }
-
-  getActiveLeafContainerInGroup(group:string):Container {
-    const c:IContainer = this.getActiveContainerInGroup(group)
-    return c instanceof Container ? c : this.getActiveLeafContainerInGroup(c.name)
-  }
   
   get activeContainer():Container {
-    return this.getActiveLeafContainerInGroup(this.activeGroupName)
+    return this.getGroupActiveLeafContainer(this.activeGroupName)
   }
   
   get activeContainerName():string {
@@ -415,17 +411,34 @@ class State implements IState {
 
   get groupStackOrder():List<Group> {
     return this.groups.sortBy((g:Group) => {
-      const activeContainer:string = this.getActiveContainerNameInGroup(g.name)
-      return this.getLastContainerVisit(activeContainer).time
+      const activeContainer:string = this.getGroupActiveContainerName(g.name)
+      return 0 - this.getLastContainerVisit(activeContainer).time
     }).toList()
   }
 
-  getActiveContainerNameInGroup(group:string):string {
+  getGroupActiveContainer(group:string):IGroupContainer {
+    return this.getContainerStackOrder(group).first()  // TODO: Optimize?
+  }
+
+  getGroupActiveContainerName(group:string):string {
+    return this.getGroupActiveContainer(group).name
+  }
+
+  getGroupActiveContainerIndex(group:string):number {
+    return this.getContainerIndex(this.getGroupActiveContainer(group))
+  }
+
+  getGroupActiveLeafContainer(group:string):Container {
+    const name:string = this.getGroupActiveLeafContainerName(group)
+    return this.containers.get(name) as Container
+  }
+
+  getGroupActiveLeafContainerName(group:string):string {
     return this.getContainerActivePage(group).container
   }
 
-  getActiveContainerIndexInGroup(group:string):number {
-    return this.getContainerIndex(this.getActiveContainerInGroup(group))
+  getGroupActiveLeafContainerIndex(group:string):number {
+    return this.getContainerIndex(this.getGroupActiveLeafContainer(group))
   }
 
   get activePage():VisitedPage {
@@ -461,9 +474,21 @@ class State implements IState {
     return c.isDefault || this.getContainerActivePage(c.name).wasManuallyVisited
   }
 
+  getGroupPages(group:string):List<VisitedPage> {
+    const pages:List<VisitedPage> = this.getGroupContainerNames(group).reduce(
+      (ps:List<VisitedPage>, container:string):List<VisitedPage> =>
+          ps.concat(this.getContainerPages(container)).toList(),
+      List<VisitedPage>())
+    return pageUtils.sort(pages)
+  }
+
   getContainerPages(name:string):List<VisitedPage> {
-    const filter = p => name === (this.isGroup(name) ? p.group : p.container)
-    return this.pages.filter(filter).toList()
+    if (this.isGroup(name)) {
+      return this.getGroupPages(name)
+    }
+    else {
+      return this.pages.filter((p:VisitedPage) => name === p.container).toList()
+    }
   }
 
   getContainerActivePage(container:string):VisitedPage {
@@ -494,11 +519,11 @@ class State implements IState {
     return this.isContainerInGroup(activePage.container, group)
   }
 
-  getDefaultContainerInGroup(group:string):IContainer|undefined {
-    return this.getGroupContainers(group).find((c:IContainer) => c.isDefault)
+  getGroupDefaultContainer(group:string):IContainer|undefined {
+    return this.getGroupContainers(group).find((c:IGroupContainer) => c.isDefault)
   }
 
-  getContainerNameByIndex(group: string, index: number): string {
+  getContainerNameByIndex(group:string, index:number): string {
     return this.getGroupContainerNames(group).get(index)
   }
 
@@ -512,7 +537,7 @@ class State implements IState {
     if (n === 0) {
       return this.activateContainer(group, {time, type: VisitType.MANUAL})
     }
-    const container:string = this.getActiveContainerNameInGroup(group)
+    const container:string = this.getGroupActiveContainerName(group)
     const containerLength:number = lengthFn(this, container)
     const amount:number = Math.min(n, containerLength)
     const state:State = goFn(this, container, amount, time)
@@ -648,10 +673,10 @@ class State implements IState {
   }
 
   replaceContainerPages(container:string, pages:List<VisitedPage>):State {
-    const pagesNotInContainer:List<VisitedPage> =
-        this.pages.filter((p:VisitedPage) => p.container !== container).toList()
-    const ps = pagesNotInContainer.concat(pages).sort(compareByFirstVisited).toList()
-    return this.replacePages(ps)
+    const isOutside = (p:VisitedPage):boolean => p.container !== container
+    const outsidePages:List<VisitedPage> = this.pages.filter(isOutside).toList()
+    const ps:List<VisitedPage> = outsidePages.concat(pages).toList()
+    return this.replacePages(ps).sortPages()
   }
 
   disallowDuplicateContainer(name) {
@@ -802,7 +827,8 @@ class State implements IState {
   }
 
   private sortByLastVisit(cs:List<IContainer>):List<IContainer> {
-    return cs.sortBy((c:IContainer) => this.getLastContainerVisit(c.name)).toList()
+    return cs.sortBy((c:IContainer) =>
+              0 - this.getLastContainerVisit(c.name).time).toList()
   }
 
   private sortByFirstManualVisit(cs:List<IContainer>):List<IContainer> {
@@ -830,27 +856,33 @@ class State implements IState {
 
 
   private _sort(cs:List<IContainer>, fn:SortFn):List<IContainer> {
-    const visited = cs.filter(this.wasManuallyVisited.bind(this)).toList()
-    const unvisited = cs.filterNot(this.wasManuallyVisited.bind(this)).toList()
-    const defaultUnvisited = unvisited.filter((c:IContainer) => c.isDefault).toList()
-    const nonDefaultUnvisited = unvisited.filter((c:IContainer) => !c.isDefault).toList()
-    return fn({visited, defaultUnvisited, nonDefaultUnvisited})
+    const unvst = cs.filterNot(this.wasManuallyVisited.bind(this)).toList()
+    return fn({
+      visited: cs.filter(this.wasManuallyVisited.bind(this)).toList(),
+      defaultUnvisited: unvst.filter((c:IContainer) => c.isDefault).toList(),
+      nonDefaultUnvisited: unvst.filter((c:IContainer) => !c.isDefault).toList()
+    })
   }
 
-  sort = (cs:List<IContainer>, fn:SortFn):List<IContainer> => {
-    const enabled = cs.filter((c:IContainer) => this.isContainerEnabled(c.name)).toList()
-    const disabled = cs.filterNot((c:IContainer) => this.isContainerEnabled(c.name)).toList()
+  sort(cs:List<IContainer>, fn:SortFn):List<IContainer> {
+    const enabled = cs.filter((c:IContainer) =>
+        this.isContainerEnabled(c.name)).toList()
+    const disabled = cs.filterNot((c:IContainer) =>
+        this.isContainerEnabled(c.name)).toList()
     return this._sort(enabled, fn).concat(this._sort(disabled, fn)).toList()
   }
 
   sortContainersByLastVisited(cs:List<IContainer>):List<IContainer> {
     return this.sort(cs, ({visited, defaultUnvisited, nonDefaultUnvisited}) =>
-        visited.concat(defaultUnvisited).concat(nonDefaultUnvisited).toList())
+      this.sortByLastVisit(visited).concat(
+        this.sortByLastVisit(defaultUnvisited)).concat(
+          this.sortByLastVisit(nonDefaultUnvisited)).toList())
   }
 
   sortContainersByFirstVisited(cs:List<IContainer>):List<IContainer> {
     return this.sort(cs, ({visited, defaultUnvisited, nonDefaultUnvisited}) =>
-        this.sortByFirstManualVisit(visited).concat(defaultUnvisited).toList())
+      this.sortByFirstManualVisit(visited).concat(
+        this.sortByFirstManualVisit(defaultUnvisited)).toList())
   }
 
   static createZeroPage(url:string) {

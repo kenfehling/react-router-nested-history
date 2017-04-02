@@ -46,11 +46,11 @@ describe('store', () => {
       actions = [
         new Push({
           url: '/a/2',
-          containerName: 'Container 1A'
+          container: 'Container 1A'
         }),
         new Push({
           url: '/a/3',
-          containerName: 'Container 1A'
+          container: 'Container 1A'
         }),
       ]
       dispatchAll(actions)

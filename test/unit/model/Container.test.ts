@@ -11,8 +11,8 @@ describe('Container', () => {
   const backPage = new VisitedPage({
     url: '/a',
     params: {},
-    groupName: 'Group 1',
-    containerName: 'Container 1',
+    group: 'Group 1',
+    container: 'Container 1',
     visits: [
       {time: 2000, type: VisitType.AUTO},
       {time: 3000, type: VisitType.MANUAL}
@@ -21,8 +21,8 @@ describe('Container', () => {
   const currentPage = new VisitedPage({
     url: '/a/1',
     params: {},
-    groupName: 'Group 1',
-    containerName: 'Container 1',
+    group: 'Group 1',
+    container: 'Container 1',
     visits: [
       {time: 2000, type: VisitType.AUTO},
       {time: 4000, type: VisitType.MANUAL},
@@ -32,8 +32,8 @@ describe('Container', () => {
   const forwardPage = new VisitedPage({
     url: '/a/2',
     params: {},
-    groupName: 'Group 1',
-    containerName: 'Container 1',
+    group: 'Group 1',
+    container: 'Container 1',
     visits: [
       {time: 2000, type: VisitType.AUTO},
       {time: 5000, type: VisitType.MANUAL}
@@ -41,7 +41,7 @@ describe('Container', () => {
   })
   const container:Container = new Container({
     name: 'Container 1',
-    groupName: 'Group 1',
+    group: 'Group 1',
     initialUrl: '/a',
     patterns: ['/a', '/a/:id'],
     isDefault: true,
@@ -109,15 +109,15 @@ describe('Container', () => {
       const b = new VisitedPage({
         url: '/b',
         params: {},
-        groupName: 'Group 1',
-        containerName: 'Container 2',
+        group: 'Group 1',
+        container: 'Container 2',
         visits: [
           {time: 1010, type: VisitType.AUTO}
         ]
       })
       const c2:Container = new Container({
         name: 'Container 2',
-        groupName: 'Group 1',
+        group: 'Group 1',
         initialUrl: '/b',
         patterns: ['/b', '/b/:id'],
         isDefault: true,

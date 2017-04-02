@@ -16,7 +16,7 @@ const createCreateSubGroup =
     new CreateGroup({name, parentGroup, isDefault,
       allowInterContainerHistory, time: 750})
 
-const createCreateContainers =
+export const createCreateContainers =
   ({time, name_suffix, group, initialUrls, useDefault=false, resetOnLeave=false}:
   {time:number, name_suffix:string, group:string, initialUrls:string[],
     useDefault?:boolean, resetOnLeave?:boolean}):CreateContainer[] =>
