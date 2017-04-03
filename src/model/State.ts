@@ -6,8 +6,7 @@ import IContainer from './IContainer'
 import IState from '../store/IState'
 import {fromJS, Map, List, OrderedMap} from 'immutable'
 import {
-  ComputedContainer, ComputedGroup, ComputedGroupOrContainer, ComputedWindow,
-  PartialComputedState
+  ComputedContainer, ComputedGroup, ComputedWindow, PartialComputedState
 } from './ComputedState'
 import * as defaultBehavior from '../behaviors/defaultBehavior'
 import * as nonDefaultBehavior from '../behaviors/nonDefaultBehavior'
@@ -60,18 +59,6 @@ class State implements IState {
     this.isInitialized = isInitialized
   }
 
-  get computedGroupsAndContainers():Map<string, ComputedGroupOrContainer> {
-    return this.containers.reduce(
-      (map:Map<string, ComputedGroupOrContainer>, c:IContainer) =>
-        map.set(c.name, {
-          name: c.name,
-          activeUrl: this.getContainerActiveUrl(c.name),
-          backPage: this.getContainerBackPage(c.name),
-          history: this.getContainerHistory(c.name)
-        }),
-      fromJS({}))
-  }
-
   get computedGroups():Map<string, ComputedGroup> {
     return this.groups.reduce(
       (map:Map<string, ComputedGroup>, g:Group) =>
@@ -86,10 +73,12 @@ class State implements IState {
 
   get computedContainers():Map<string, ComputedContainer> {
     const currentUrl = this.activeUrl
-    return this.leafContainers.reduce(
+    return this.containers.reduce(
       (map:Map<string, ComputedContainer>, c:Container) =>
         map.set(c.name, {
           name: c.name,
+          activeUrl: this.getContainerActiveUrl(c.name),
+          backPage: this.getContainerBackPage(c.name),
           isActiveInGroup: this.getGroupActiveContainerName(c.group) === c.name,
           matchesCurrentUrl: currentUrl === this.getContainerActiveUrl(c.name)
         }),
@@ -119,7 +108,6 @@ class State implements IState {
     return {
       isInitialized: this.isInitialized,
       activeUrl: this.activeUrl,
-      groupsAndContainers: this.computedGroupsAndContainers,
       groups: this.computedGroups,
       containers: this.computedContainers,
       windows: this.computedWindows,

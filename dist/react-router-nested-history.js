@@ -1671,9 +1671,6 @@ exports.getContainers = function (state) { return state.containers; };
 exports.getGroups = function (state) { return state.groups; };
 var getWindows = function (state) { return state.windows; };
 var getPositions = function (state) { return state.windowPositions; };
-exports.getGroupsAndContainers = function (state) {
-    return state.groupsAndContainers;
-};
 exports.getIsInitialized = function (state) { return state.isInitialized; };
 exports.getLoadedFromPersist = function (state) {
     return state.loadedFromPersist;
@@ -1692,7 +1689,7 @@ exports.getGroup = re_reselect_1.default(exports.getGroupName, exports.getGroups
         return undefined;
     }
 })(function (state, props) { return props.groupName; });
-exports.getGroupOrContainerFromGroupName = re_reselect_1.default(exports.getGroupName, exports.getGroupsAndContainers, exports.getIsInitialized, function (name, groupsAndContainers, isInitialized) {
+exports.getContainerFromGroupName = re_reselect_1.default(exports.getGroupName, exports.getContainers, exports.getIsInitialized, function (name, groupsAndContainers, isInitialized) {
     if (isInitialized) {
         var gc = groupsAndContainers.get(name);
         if (!gc) {
@@ -1706,20 +1703,6 @@ exports.getGroupOrContainerFromGroupName = re_reselect_1.default(exports.getGrou
         return undefined;
     }
 })(function (state, props) { return props.groupName; });
-exports.getGroupOrContainerFromContainerName = re_reselect_1.default(exports.getContainerName, exports.getGroupsAndContainers, exports.getIsInitialized, function (name, groupsAndContainers, isInitialized) {
-    if (isInitialized) {
-        var gc = groupsAndContainers.get(name);
-        if (!gc) {
-            throw new Error("Group or container '" + name + "' not found");
-        }
-        else {
-            return gc;
-        }
-    }
-    else {
-        return undefined;
-    }
-})(function (state, props) { return props.containerName; });
 exports.getContainer = re_reselect_1.default(exports.getContainerName, exports.getContainers, exports.getIsInitialized, function (name, containers, isInitialized) {
     if (isInitialized) {
         var container = containers.get(name);
@@ -1736,10 +1719,10 @@ exports.getContainer = re_reselect_1.default(exports.getContainerName, exports.g
 })(function (state, props) { return props.containerName; });
 exports.getCurrentContainerIndex = re_reselect_1.default(exports.getGroup, function (group) { return group ? group.activeContainerIndex : undefined; })(function (state, props) { return props.groupName; });
 exports.getCurrentContainerName = re_reselect_1.default(exports.getGroup, function (group) { return group ? group.activeContainerName : undefined; })(function (state, props) { return props.groupName; });
-exports.getBackPageInGroup = re_reselect_1.default(exports.getGroupOrContainerFromGroupName, function (group) { return group ? group.backPage : undefined; })(function (state, props) { return props.groupName; });
+exports.getBackPageInGroup = re_reselect_1.default(exports.getContainerFromGroupName, function (group) { return group ? group.backPage : undefined; })(function (state, props) { return props.groupName; });
 exports.getIsActiveInGroup = re_reselect_1.default(exports.getContainer, function (container) { return container ? container.isActiveInGroup : false; })(function (state, props) { return props.containerName; });
 exports.getMatchesCurrentUrl = re_reselect_1.default(exports.getContainer, function (container) { return container ? container.matchesCurrentUrl : false; })(function (state, props) { return props.containerName; });
-exports.getContainerActiveUrl = re_reselect_1.default(exports.getGroupOrContainerFromContainerName, function (container) { return container ? container.activeUrl : undefined; })(function (state, props) { return props.containerName; });
+exports.getContainerActiveUrl = re_reselect_1.default(exports.getContainer, function (container) { return container ? container.activeUrl : undefined; })(function (state, props) { return props.containerName; });
 exports.getWindow = re_reselect_1.default(exports.getContainerName, getWindows, getPositions, function (containerName, ws, ps) {
     if (ws) {
         var w = ws.get(containerName);
@@ -25688,21 +25671,6 @@ var State = (function () {
         this.titles = titles;
         this.isInitialized = isInitialized;
     }
-    Object.defineProperty(State.prototype, "computedGroupsAndContainers", {
-        get: function () {
-            var _this = this;
-            return this.containers.reduce(function (map, c) {
-                return map.set(c.name, {
-                    name: c.name,
-                    activeUrl: _this.getContainerActiveUrl(c.name),
-                    backPage: _this.getContainerBackPage(c.name),
-                    history: _this.getContainerHistory(c.name)
-                });
-            }, immutable_1.fromJS({}));
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(State.prototype, "computedGroups", {
         get: function () {
             var _this = this;
@@ -25722,9 +25690,11 @@ var State = (function () {
         get: function () {
             var _this = this;
             var currentUrl = this.activeUrl;
-            return this.leafContainers.reduce(function (map, c) {
+            return this.containers.reduce(function (map, c) {
                 return map.set(c.name, {
                     name: c.name,
+                    activeUrl: _this.getContainerActiveUrl(c.name),
+                    backPage: _this.getContainerBackPage(c.name),
                     isActiveInGroup: _this.getGroupActiveContainerName(c.group) === c.name,
                     matchesCurrentUrl: currentUrl === _this.getContainerActiveUrl(c.name)
                 });
@@ -25756,7 +25726,6 @@ var State = (function () {
         return {
             isInitialized: this.isInitialized,
             activeUrl: this.activeUrl,
-            groupsAndContainers: this.computedGroupsAndContainers,
             groups: this.computedGroups,
             containers: this.computedContainers,
             windows: this.computedWindows,

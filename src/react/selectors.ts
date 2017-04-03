@@ -1,11 +1,9 @@
-import {
-  createSelectorCreator, defaultMemoize, createSelector
-} from 'reselect'
+import {createSelectorCreator, defaultMemoize, createSelector} from 'reselect'
 import createReselector from 're-reselect'
 import {Map} from 'immutable'
 import * as R from 'ramda'
-import ComputedState, {
-  ComputedGroup, ComputedContainer, ComputedGroupOrContainer, ComputedWindow
+import {
+  ComputedGroup, ComputedContainer, ComputedWindow
 } from '../model/ComputedState'
 
 export const createDeepEqualSelector = createSelectorCreator(
@@ -27,10 +25,6 @@ export const getContainers = (state):Map<string, ComputedContainer> => state.con
 export const getGroups = (state):Map<string, ComputedGroup> => state.groups
 const getWindows = (state):Map<string, ComputedWindow> => state.windows
 const getPositions = (state):Map<string, Object> => state.windowPositions
-
-export const getGroupsAndContainers =
-    (state:ComputedState):Map<string, ComputedGroupOrContainer> =>
-        state.groupsAndContainers
 
 export const getIsInitialized = state => state.isInitialized
 export const getLoadedFromPersist = state => {
@@ -56,13 +50,13 @@ export const getGroup = createReselector(
   }
 )((state, props) => props.groupName)
 
-export const getGroupOrContainerFromGroupName = createReselector(
-  getGroupName, getGroupsAndContainers, getIsInitialized,
-  (name:string, groupsAndContainers:Map<string, ComputedGroupOrContainer>,
-   isInitialized:boolean): ComputedGroupOrContainer|undefined => {
+export const getContainerFromGroupName = createReselector(
+  getGroupName, getContainers, getIsInitialized,
+  (name:string, groupsAndContainers:Map<string, ComputedContainer>,
+   isInitialized:boolean): ComputedContainer|undefined => {
     if (isInitialized) {
       const gc:
-        ComputedGroupOrContainer
+        ComputedContainer
         | undefined = groupsAndContainers.get(name)
       if (!gc) {
         throw new Error(`Group or container '${name}' not found`)
@@ -76,27 +70,6 @@ export const getGroupOrContainerFromGroupName = createReselector(
     }
   }
 )((state, props) => props.groupName)
-
-export const getGroupOrContainerFromContainerName = createReselector(
-  getContainerName, getGroupsAndContainers, getIsInitialized,
-  (name:string, groupsAndContainers:Map<string, ComputedGroupOrContainer>,
-   isInitialized:boolean): ComputedGroupOrContainer|undefined => {
-    if (isInitialized) {
-      const gc:
-        ComputedGroupOrContainer
-        | undefined = groupsAndContainers.get(name)
-      if (!gc) {
-        throw new Error(`Group or container '${name}' not found`)
-      }
-      else {
-        return gc
-      }
-    }
-    else {
-      return undefined
-    }
-  }
-)((state, props) => props.containerName)
 
 export const getContainer = createReselector(
   getContainerName, getContainers, getIsInitialized,
@@ -128,8 +101,8 @@ export const getCurrentContainerName = createReselector(
 )((state, props) => props.groupName)
 
 export const getBackPageInGroup = createReselector(
-  getGroupOrContainerFromGroupName,
-  (group:ComputedGroupOrContainer) => group ? group.backPage : undefined
+  getContainerFromGroupName,
+  (group:ComputedContainer) => group ? group.backPage : undefined
 )((state, props) => props.groupName)
 
 export const getIsActiveInGroup = createReselector(
@@ -143,8 +116,8 @@ export const getMatchesCurrentUrl = createReselector(
 )((state, props) => props.containerName)
 
 export const getContainerActiveUrl = createReselector(
-  getGroupOrContainerFromContainerName,
-  (container:ComputedGroupOrContainer) => container ? container.activeUrl : undefined
+  getContainer,
+  (container:ComputedContainer) => container ? container.activeUrl : undefined
 )((state, props) => props.containerName)
 
 export const getWindow = createReselector(
