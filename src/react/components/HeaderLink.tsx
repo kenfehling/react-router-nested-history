@@ -4,7 +4,6 @@ import {Dispatch, connect} from 'react-redux'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import * as R from 'ramda'
-import ComputedState from '../../model/ComputedState'
 import {
   getContainerActiveUrl, getIsActiveInGroup, getHasWindow,
 } from '../selectors'
