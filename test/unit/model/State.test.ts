@@ -133,7 +133,6 @@ describe('State', () => {
       })
     })
 
-
     describe('push', () => {
       it('switches group when pushing in non-active group', () => {
         const page:Page = new Page({
@@ -227,21 +226,6 @@ describe('State', () => {
     })
 
     describe('go', () => {
-      it('causes the current container to go', () => {
-        const page:Page = new Page({
-          url: '/a/1',
-          params: {id: '1'},
-          group: 'Group 1',
-          container: 'Container 1A'
-        })
-        const s = state.push({page, time: 6000}).go({n: -1, time: 7000})
-        const h:HistoryStack = s.history
-        expect(h.back.length).to.equal(1)
-        expect(h.current.url).to.equal('/a')
-        expect(h.forward.length).to.equal(1)
-        expect(h.forward[0].url).to.equal('/a/1')
-      })
-
       it('switches container when the current one runs out', () => {
         const s = state
           .switchToContainer({name: 'Container 3A', time: 2000})
@@ -259,6 +243,37 @@ describe('State', () => {
         expect(h.current).to.deep.equal(newState.getZeroPage())
         expect(h.forward.length).to.equal(1)
         expect(h.forward[0].url).to.equal('/a')
+      })
+
+      describe('push and back', () => {
+        const page:Page = new Page({
+          url: '/a/1',
+          params: {id: '1'},
+          group: 'Group 1',
+          container: 'Container 1A'
+        })
+        const s1 = state.push({page, time: 6000}).go({n: -1, time: 7000})
+
+        it('causes the current container to go', () => {
+          const h:HistoryStack = s1.history
+          expect(h.back.length).to.equal(1)
+          expect(h.current.url).to.equal('/a')
+          expect(h.forward.length).to.equal(1)
+          expect(h.forward[0].url).to.equal('/a/1')
+        })
+
+        describe('and switch', () => {
+          const s2 = s1.switchToContainer({name: 'Container 2A', time: 8000})
+
+          it('goes back to the page it was on, with forward history', () => {
+            const s3 = s2.go({n: -1, time: 9000})
+            const h:HistoryStack = s3.history
+            expect(h.back.length).to.equal(1)
+            expect(h.current.url).to.equal('/a')
+            expect(h.forward.length).to.equal(1)
+            expect(h.forward[0].url).to.equal('/a/1')
+          })
+        })
       })
     })
 

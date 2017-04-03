@@ -26656,7 +26656,7 @@ var Group = (function () {
         var toHistory = Group.getContainerHistory(to, keepFwd);
         if (!from.isDefault && !to.isDefault && this.allowInterContainerHistory) {
             var fromHistory = Group.getContainerHistory(from, keepFwd);
-            var sorted = sorter_1.sortContainersByFirstVisited([from, to]);
+            var sorted = sorter_1.sortContainersByFirstManuallyVisited([from, to]);
             if (sorted[0] === from) {
                 return interContainerHistory.D_to_E(toHistory, fromHistory, toHistory);
             }
@@ -26672,7 +26672,7 @@ var Group = (function () {
         var fromHistory = Group.getContainerHistory(from, keepFwd);
         var toHistory = Group.getContainerHistory(to, keepFwd);
         if (keepFwd && from.wasManuallyVisited) {
-            var sorted = sorter_1.sortContainersByFirstVisited([from, to]);
+            var sorted = sorter_1.sortContainersByFirstManuallyVisited([from, to]);
             if (sorted[0] === from) {
                 return keepFwdTabBehavior.D_to_E(h, fromHistory, toHistory);
             }

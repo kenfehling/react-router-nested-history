@@ -72,7 +72,7 @@ describe('reconciler', () => {
 
         it('non-default 2', () => {
           const actions: Action[] = [
-            ...originalSimpleActions,
+            ...originalSimpleActionsWithoutLoad,
             new Load({
               url: '/b/1',
               time: 2000
@@ -104,7 +104,7 @@ describe('reconciler', () => {
 
       describe('after load', () => {
         const loadActions:Action[] = [
-          ...originalSimpleActions,
+          ...originalSimpleActionsWithoutLoad,
           new Load({
             url: '/a/1',
             time: 1200
@@ -249,7 +249,8 @@ describe('reconciler', () => {
 
       describe('with no default tab', () => {
         describe('after load', () => {
-          const loadActions:Action[] = [...originalSimpleActions,
+          const loadActions:Action[] = [
+            ...originalSimpleActionsWithoutLoad,
             new Load({
               url: '/e/1',
               time: 1500
@@ -343,7 +344,7 @@ describe('reconciler', () => {
 
         it('non-default 2', () => {
           const actions: Action[] = [
-            ...originalNestedActions,
+            ...originalNestedActionsWithoutLoad,
             new Load({
               url: '/b/1',
               time: 1001
@@ -375,7 +376,7 @@ describe('reconciler', () => {
 
       describe('after switch container', () => {
         const switchActions:Action[] = [
-          ...originalNestedActions,
+          ...originalNestedActionsWithoutLoad,
           new Load({
             url: '/a/1',
             time: 1200
@@ -409,7 +410,7 @@ describe('reconciler', () => {
 
     describe('inter-container history (mobile)', () => {
       describe('after load into non-default container', () => {
-        const switchActions:Action[] = [
+        const loadActions:Action[] = [
           ...originalNestedActionsWithoutLoad,
           new Load({
             url: '/h',
@@ -418,7 +419,7 @@ describe('reconciler', () => {
         ]
         it('removes forward history after going back to default screen', () => {
           const actions:Action[] = [
-            ...switchActions,
+            ...loadActions,
             new PopState({
               n: -1,
               time: 4000

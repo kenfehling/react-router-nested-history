@@ -22,7 +22,7 @@ export default class HistoryStack {
     return this.current.lastVisit
   }
 
-  flatten():VisitedPage[] {
-    return [...this.back, this.current, ...this.forward]
+  flatten():List<VisitedPage> {
+    return List<VisitedPage>([...this.back, this.current, ...this.forward])
   }
 }

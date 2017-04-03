@@ -353,7 +353,7 @@ class State implements IState {
     return pageUtils.getShiftAmount(this.getPages(), page)
   }
 
-  get withPagesSorted():State {
+  cloneWithPagesSorted():State {
     return this.replacePages(this.sortPagesByFirstVisited(this.pages))
   }
 
@@ -393,7 +393,7 @@ class State implements IState {
       return new HistoryStack({
         back: [],
         current: this.getZeroPage(),
-        forward: groupHistory.flatten()
+        forward: groupHistory.flatten().toArray()
       })
     }
     else {
@@ -478,11 +478,7 @@ class State implements IState {
   }
 
   getGroupPages(group:string):List<VisitedPage> {
-    const pages:List<VisitedPage> = this.getGroupContainerNames(group).reduce(
-      (ps:List<VisitedPage>, container:string):List<VisitedPage> =>
-          ps.concat(this.getContainerPages(container)).toList(),
-      List<VisitedPage>())
-    return this.sortPagesByFirstVisited(pages)
+    return this.getGroupHistory(group).flatten()
   }
 
   getContainerPages(name:string):List<VisitedPage> {
@@ -678,7 +674,7 @@ class State implements IState {
     const isOutside = (p:VisitedPage):boolean => p.container !== container
     const outsidePages:List<VisitedPage> = this.pages.filter(isOutside).toList()
     const ps:List<VisitedPage> = outsidePages.concat(pages).toList()
-    return this.replacePages(ps).withPagesSorted
+    return this.replacePages(ps).cloneWithPagesSorted()
   }
 
   disallowDuplicateContainer(name) {
@@ -791,18 +787,17 @@ class State implements IState {
   }
 
   load({url, time}:{url: string, time: number}):State {
-    return this.leafContainers.reduce((s:State, c:Container) =>
-      s.loadInContainer(c, {url, time})
-    , this).assign({
-      isInitialized: true
-    })
+    return this.leafContainers.reduce(
+      (s:State, c:Container) => s.loadInContainer(c, {url, time}),
+      this
+    ).assign({isInitialized: true})
   }
 
   loadInContainer(c:Container, {url, time}:{url:string, time:number}):State {
     if (patternsMatch(c.patterns, url)) {
       const pages:List<VisitedPage> = this.getContainerPages(c.name)
       const activePage = pageUtils.getActivePage(pages)
-      const newState = pageUtils.isAtTopPage(pages) ?
+      const newState = pageUtils.isAtTopPage(pages) && c.initialUrl !== url ?
           this.touchPage(activePage, {time: time - 1}) : this
       const page:Page = new Page({
         url,
@@ -824,6 +819,10 @@ class State implements IState {
 
   getLastContainerVisit(container:string):PageVisit {
     return this.getContainerActivePage(container).lastVisit
+  }
+
+  getFirstContainerVisitTime(c:IContainer):number {
+    return this.getContainerPages(c.name).first().visits[0].time
   }
 
   getFirstManualContainerVisit(container:string):PageVisit|undefined {
@@ -906,10 +905,13 @@ class State implements IState {
   }
 
   sortContainersByFirstVisited(cs:List<IContainer>):List<IContainer> {
+    return cs.sortBy(this.getFirstContainerVisitTime.bind(this)).toList()
+  }
+
+  sortContainersByFirstManuallyVisited(cs:List<IContainer>):List<IContainer> {
     return this.sortContainers(cs,
       ({visited, defaultUnvisited, nonDefaultUnvisited}) =>
-        this.sortByFirstManualVisit(visited).concat(
-          defaultUnvisited).toList())
+        defaultUnvisited.concat(this.sortByFirstManualVisit(visited)).toList())
   }
 
   sortPagesByFirstVisited(ps:List<VisitedPage>):List<VisitedPage> {
@@ -940,8 +942,7 @@ class State implements IState {
   }
 
   getPages():List<VisitedPage> {
-    const ps = this.isInitialized ? this.getHistory().flatten() : []
-    return List<VisitedPage>(ps)
+    return this.isInitialized ? this.getHistory().flatten() : List<VisitedPage>()
   }
 }
 

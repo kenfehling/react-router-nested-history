@@ -1,7 +1,7 @@
 import State from '../../../../src/model/State'
 import * as fixtures from '../../fixtures'
-import PopState from '../../../../src/model/actions/OnPopState'
-import {HistoryStack} from '../../../../src/model/Pages'
+import PopState from '../../../../src/model/actions/PopState'
+import HistoryStack from '../../../../src/model/HistoryStack'
 import {expect} from 'chai'
 import Page from '../../../../src/model/Page'
 import PushStep from '../../../../src/model/steps/PushStep'
@@ -10,7 +10,7 @@ declare const describe:any
 declare const it:any
 
 describe('PopState action', () => {
-  const baseState:State = fixtures.loadedSimpleState
+  const baseState:State = fixtures.simpleState
 
   describe('reduce', () => {
     it('shifts the state to reflect the new browser history', () => {
@@ -41,12 +41,14 @@ describe('PopState action', () => {
       const container1page:Page = new Page({
         url: '/a/1',
         params: {id: '1'},
-        containerName: 'Container 1A'
+        group: 'Group 1',
+        container: 'Container 1A'
       })
       const container2page:Page = new Page({
         url: '/b/1',
         params: {id: '1'},
-        containerName: 'Container 2A'
+        group: 'Group 1',
+        container: 'Container 2A'
       })
       const state = baseState
                       .push({page: container1page, time: 5000})
@@ -61,7 +63,8 @@ describe('PopState action', () => {
         new PushStep(new Page({
           url: '/a/1',
           params: {id: '1'},
-          containerName: 'Container 1A'
+          group: 'Group 1',
+          container: 'Container 1A'
         }))
       ])
     })

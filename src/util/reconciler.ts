@@ -125,6 +125,12 @@ export const diffPagesToSteps = (ps1:List<VisitedPage>, ps2:List<VisitedPage>):S
 
     const removeFwdHistory = ():Step[] => {
       return [...backSteps(1), pushStep(pageUtils.getActivePage(ps2))]
+      /*
+      const backs1:Step[] = backSteps(ps1.size - 1 - diff.start)
+      const push:Step = pushStep(pageUtils.getActivePage(ps2))
+      const backs2:Step[] = backSteps(ps2.size - 1 - newActiveIndex)
+      return [...backs1, push, ...backs2]
+      */
     }
     return diff.start === ps2.size ? removeFwdHistory() : cleanWipe()
   }
