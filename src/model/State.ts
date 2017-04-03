@@ -307,8 +307,11 @@ class State implements IState {
 
   activateContainer(container:string,
                     time:number, type:VisitType=VisitType.MANUAL):State {
-    const visit = {time, type}
-    return this.replacePage(this.getContainerActivePage(container).touch(visit))
+    const from = this.activeContainer
+    const state = from.resetOnLeave ?
+        this.top({time: time - 1, reset: true}) : this
+    const newActivePage = this.getContainerActivePage(container)
+    return state.replacePage(newActivePage.touch({time, type}))
   }
 
   go({n, time, container}:{n:number, time:number, container?:string}):State {
@@ -934,11 +937,12 @@ class State implements IState {
   }
 
   /**
-   * Gets the zero page, or if it's not set defaults to using
-   * the initialUrl of the active container
+   * Gets the zero page, or if it's not set
+   * it defaults to using the initialUrl of the first container
    */
   getZeroPage():VisitedPage {
-    return State.createZeroPage(this.zeroPage || this.activeContainer.initialUrl)
+    return State.createZeroPage(
+        this.zeroPage || this.leafContainers.first().initialUrl)
   }
 
   getPages():List<VisitedPage> {

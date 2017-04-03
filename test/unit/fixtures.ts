@@ -80,17 +80,17 @@ export const zero:VisitedPage = State.createZeroPage('/zero')
 export const baseActions:Action[] = [
   new SetZeroPage({
     url: zero.url,
-    time: 1000
+    time: 100
   })
 ]
 
 export const originalSimpleActionsWithoutLoad:Action[] = [
   ...baseActions,
   createGroup1,
-  ...createContainers1,
   createGroup2,
-  ...createContainers2,
   createGroup3,
+  ...createContainers1,
+  ...createContainers2,
   ...createContainers3
 ]
 

@@ -2,7 +2,8 @@ import Action from '../../src/model/BaseAction'
 import {_history, _resetHistory} from '../../src/util/browserFunctions'
 import {
   createContainers1, createContainers3, createGroup1,
-  createGroup3, createGroup2, createContainers2
+  createGroup3, createGroup2, createContainers2,
+  originalSimpleActionsWithoutLoad
 } from './fixtures'
 import {createStore, Store} from '../../src/store'
 import Load from '../../src/model/actions/Load'
@@ -32,9 +33,11 @@ const makeNewStore = () => createStore({
 
 describe('main', () => {
   let store:Store
+  let dispatch
 
   beforeEach(() => {
     store = makeNewStore()
+    dispatch = store.dispatch.bind(store)
   })
 
   afterEach(() => {
@@ -42,34 +45,13 @@ describe('main', () => {
   })
 
   const dispatchAll = (actions: Action[]) =>
-      actions.forEach(store.dispatch.bind(store))
+      actions.forEach(dispatch)
 
   describe('function tests', () => {
 
-    it('cleans history when reloading', () => {
-      dispatchAll([
-        createGroup1,
-        ...createContainers1,
-        new Load({
-          url: '/a'
-        }),
-        new Push({
-          url: '/a/1',
-          container: 'Container 1A'
-        }),
-        new Push({
-          url: '/a/2',
-          container: 'Container 1A'
-        })
-      ])
-      store = makeNewStore()
-      expect(store.getRawState()).to.be.an.instanceof(State)
-    })
-
     it('loads to a non-default page', () => {
       dispatchAll([
-        createGroup1,
-        ...createContainers1,
+        ...originalSimpleActionsWithoutLoad,
         new Load({
           url: '/a/1',
           time: 2000
