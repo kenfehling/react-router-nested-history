@@ -1,4 +1,4 @@
-import {HistoryStack as H} from '../model/Pages'
+import H from '../model/HistoryStack'
 
 /**
  * In this world, forward history is kept even if it's a different tab

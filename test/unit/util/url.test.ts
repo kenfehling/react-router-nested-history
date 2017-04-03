@@ -12,6 +12,20 @@ describe('url utils', () => {
     expect(f('/a/:id', '/a/1')).to.be.true
   })
 
+  describe('patternsMatch', () => {
+    const patterns = ['/a', '/a/:id']
+    const f = url => utils.patternsMatch(patterns, url)
+    it('returns true if one of the patterns match', () => {
+      expect(f('/a')).to.equal(true)
+      expect(f('/a/1')).to.equal(true)
+    })
+
+    it('returns false if none of the patterns match', () => {
+      expect(f('/a/1/1')).to.equal(false)
+      expect(f('/c')).to.equal(false)
+    })
+  })
+
   it('parses params from patterns', () => {
     const f = utils.parseParamsFromPatterns
     const patterns = ['/a', '/a/:id', '/a/:id/:name']

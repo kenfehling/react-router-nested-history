@@ -23,7 +23,9 @@ export default class CreateWindow extends Action {
     })
   }
 
+  /*
   filter(state:State):Action[] {
     return state.loadedFromRefresh ? [] : [this]
   }
+  */
 }

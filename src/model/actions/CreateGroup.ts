@@ -1,6 +1,6 @@
 import State from '../State'
 import NonStepAction from './NonStepAction'
-import Action, {SYSTEM} from '../BaseAction'
+import {SYSTEM} from '../BaseAction'
 import Serializable from '../../store/decorators/Serializable'
 
 @Serializable
@@ -8,24 +8,24 @@ export default class CreateGroup extends NonStepAction {
   static readonly type: string = 'CreateGroup'
   readonly type: string = CreateGroup.type
   readonly name: string
-  readonly parentGroupName: string|undefined
+  readonly parentGroup: string|undefined
   readonly isDefault: boolean|undefined
   readonly resetOnLeave: boolean
   readonly allowInterContainerHistory: boolean
   readonly gotoTopOnSelectActive: boolean
 
   constructor({time, name, allowInterContainerHistory=false,
-    parentGroupName=undefined, isDefault=parentGroupName?false:undefined,
+    parentGroup=undefined, isDefault=parentGroup?false:undefined,
     resetOnLeave=false, gotoTopOnSelectActive=false}:
-    {time?:number, name:string, parentGroupName?:undefined, isDefault?:undefined,
+    {time?:number, name:string, parentGroup?:undefined, isDefault?:undefined,
       resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
       gotoTopOnSelectActive?:boolean}|
-    {time?:number, name:string, parentGroupName:string, isDefault:boolean,
+    {time?:number, name:string, parentGroup:string, isDefault:boolean,
       resetOnLeave?:boolean, allowInterContainerHistory?:boolean,
       gotoTopOnSelectActive?:boolean}) {
     super({time, origin: SYSTEM})
     this.name = name
-    this.parentGroupName = parentGroupName
+    this.parentGroup = parentGroup
     this.isDefault = isDefault
     this.allowInterContainerHistory = allowInterContainerHistory
     this.resetOnLeave = resetOnLeave
@@ -33,10 +33,10 @@ export default class CreateGroup extends NonStepAction {
   }
 
   reduce(state:State):State {
-    if (this.parentGroupName && this.isDefault != null) {
+    if (this.parentGroup && this.isDefault != null) {
       return state.addSubGroup({
         name: this.name,
-        parentGroupName: this.parentGroupName,
+        parentGroup: this.parentGroup,
         isDefault: this.isDefault,
         resetOnLeave: this.resetOnLeave,
         allowInterContainerHistory: this.allowInterContainerHistory,
@@ -53,7 +53,9 @@ export default class CreateGroup extends NonStepAction {
     }
   }
 
+  /*
   filter(state:State):Action[] {
     return state.loadedFromRefresh ? [] : [this]
   }
+  */
 }

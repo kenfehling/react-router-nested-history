@@ -4,7 +4,7 @@ import {connect, Dispatch} from 'react-redux'
 import {Location} from 'history'
 import {Store} from '../../store'
 import Page from '../../model/Page'
-import PopState from '../../model/actions/PopState'
+import OnPopState from '../../model/actions/OnPopState'
 import * as browser from '../../util/browserFunctions'
 import Action from '../../model/BaseAction'
 import Step from '../../model/Step'
@@ -71,33 +71,23 @@ class InnerStepRunner extends Component<ConnectedStepRunnerProps, undefined> {
 
 const mapStateToProps = (state:ComputedState) => ({
   oldState: state.oldState,
-  newActions: state.newActions,
-  pages: state.pages
+  newActions: state.newActions
 })
 
 const makeGetActions = () => createCachingSelector(
   getDispatch,
   (dispatch) => ({
     recordBrowserUpdate: () => dispatch(new UpdateBrowser()),
-    dispatch
+    popstate: (page: Page) => dispatch(new OnPopState({page}))
   })
 )
 
 const mergeProps = (stateProps, dispatchProps,
-                    ownProps:StepRunnerProps):ConnectedStepRunnerProps => {
-
-  const popstate = (page: Page) => {
-    dispatchProps.dispatch(new PopState({
-      n: stateProps.pages.getShiftAmount(page)
-    }))
-  }
-  return {
-    ...stateProps,
-    ...dispatchProps,
-    ...ownProps,
-    popstate
-  }
-}
+                    ownProps:StepRunnerProps):ConnectedStepRunnerProps => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps
+})
 
 const ConnectedStepRunner = connect(
   mapStateToProps,

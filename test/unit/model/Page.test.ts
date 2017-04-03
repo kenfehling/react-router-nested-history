@@ -8,8 +8,8 @@ describe('Page', () => {
   let page:VisitedPage = new VisitedPage({
     url: '/a',
     params: {},
-    groupName: 'Group 1',
-    containerName: 'Container 1A',
+    group: 'Group 1',
+    container: 'Container 1A',
     visits: []
   })
 

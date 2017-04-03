@@ -2,7 +2,8 @@ import Action from '../../src/model/BaseAction'
 import {_history, _resetHistory} from '../../src/util/browserFunctions'
 import {
   createContainers1, createContainers3, createGroup1,
-  createGroup3, createGroup2, createContainers2
+  createGroup3, createGroup2, createContainers2,
+  originalSimpleActionsWithoutLoad
 } from './fixtures'
 import {createStore, Store} from '../../src/store'
 import Load from '../../src/model/actions/Load'
@@ -18,9 +19,7 @@ import PopState from '../../src/model/actions/PopState'
 import UpdateBrowser from '../../src/model/actions/UpdateBrowser'
 import ClearActions from '../../src/store/actions/ClearActions'
 import {runSteps} from '../../src/util/stepRunner'
-import InitializedState from '../../src/model/InitializedState'
 import {expect} from 'chai'
-import UninitializedState from '../../src/model/UninitializedState'
 import {createSteps} from '../../src/util/reconciler'
 import {USER} from '../../src/model/BaseAction'
 declare const describe:any
@@ -34,9 +33,11 @@ const makeNewStore = () => createStore({
 
 describe('main', () => {
   let store:Store
+  let dispatch
 
   beforeEach(() => {
     store = makeNewStore()
+    dispatch = store.dispatch.bind(store)
   })
 
   afterEach(() => {
@@ -44,34 +45,13 @@ describe('main', () => {
   })
 
   const dispatchAll = (actions: Action[]) =>
-      actions.forEach(store.dispatch.bind(store))
+      actions.forEach(dispatch)
 
   describe('function tests', () => {
 
-    it('cleans history when reloading', () => {
-      dispatchAll([
-        createGroup1,
-        ...createContainers1,
-        new Load({
-          url: '/a'
-        }),
-        new Push({
-          url: '/a/1',
-          containerName: 'Container 1A'
-        }),
-        new Push({
-          url: '/a/2',
-          containerName: 'Container 1A'
-        })
-      ])
-      store = makeNewStore()
-      expect(store.getRawState()).to.be.an.instanceof(UninitializedState)
-    })
-
     it('loads to a non-default page', () => {
       dispatchAll([
-        createGroup1,
-        ...createContainers1,
+        ...originalSimpleActionsWithoutLoad,
         new Load({
           url: '/a/1',
           time: 2000
@@ -79,21 +59,23 @@ describe('main', () => {
       ])
 
       const state:State = store.getRawState()
-      const group = state.groups.toArray()[0]
+      const stateHistory = state.history
+      const groupHistory =  state.getGroupHistory('Group 1')
+      const containerHistory = state.getContainerHistory('Container 1A')
 
-      expect(group.containers.toArray()[0].history.back.length).to.equal(1);
-      expect(group.containers.toArray()[0].history.back[0].url).to.equal('/a');
-      expect(group.containers.toArray()[0].history.current.url).to.equal('/a/1');
-      expect(group.containers.toArray()[0].history.forward.length).to.equal(0)
+      expect(containerHistory.back.length).to.equal(1);
+      expect(containerHistory.back[0].url).to.equal('/a');
+      expect(containerHistory.current.url).to.equal('/a/1');
+      expect(containerHistory.forward.length).to.equal(0)
 
-      expect(group.history.back.length).to.equal(1);
-      expect(group.history.back[0].url).to.equal('/a');
-      expect(group.history.current.url).to.equal('/a/1');
-      expect(group.history.forward.length).to.equal(0)
+      expect(groupHistory.back.length).to.equal(1);
+      expect(groupHistory.back[0].url).to.equal('/a');
+      expect(groupHistory.current.url).to.equal('/a/1');
+      expect(groupHistory.forward.length).to.equal(0)
 
-      expect(state.history.back.length).to.equal(2);
-      expect(state.history.current.url).to.equal('/a/1');
-      expect(state.history.forward.length).to.equal(0)
+      expect(stateHistory.back.length).to.equal(2);
+      expect(stateHistory.current.url).to.equal('/a/1');
+      expect(stateHistory.forward.length).to.equal(0)
     })
 
     it('switches to container', () => {
@@ -111,29 +93,32 @@ describe('main', () => {
       ])
 
       const state:State = store.getRawState()
-      const group = state.groups.toArray()[0]
+      const stateHistory = state.history
+      const groupHistory =  state.getGroupHistory('Group 1')
+      const containerHistory1 = state.getContainerHistory('Container 1A')
+      const containerHistory2 = state.getContainerHistory('Container 2A')
 
-      expect(group.containers.toArray()[0].history.back.length).to.equal(1);
-      expect(group.containers.toArray()[0].history.back[0].url).to.equal('/a');
-      expect(group.containers.toArray()[0].history.current.url).to.equal('/a/1');
-      expect(group.containers.toArray()[0].history.forward.length).to.equal(0)
+      expect(containerHistory1.back.length).to.equal(1);
+      expect(containerHistory1.back[0].url).to.equal('/a');
+      expect(containerHistory1.current.url).to.equal('/a/1');
+      expect(containerHistory1.forward.length).to.equal(0)
 
-      expect(group.containers.toArray()[1].history.back.length).to.equal(0);
-      expect(group.containers.toArray()[1].history.current.url).to.equal('/b');
-      expect(group.containers.toArray()[1].history.forward.length).to.equal(0)
+      expect(containerHistory2.back.length).to.equal(0);
+      expect(containerHistory2.current.url).to.equal('/b');
+      expect(containerHistory2.forward.length).to.equal(0)
 
-      expect(group.history.back.length).to.equal(2);
-      expect(group.history.back[0].url).to.equal('/a');
-      expect(group.history.back[1].url).to.equal('/a/1');
-      expect(group.history.current.url).to.equal('/b');
-      expect(group.history.forward.length).to.equal(0)
+      expect(groupHistory.back.length).to.equal(2);
+      expect(groupHistory.back[0].url).to.equal('/a');
+      expect(groupHistory.back[1].url).to.equal('/a/1');
+      expect(groupHistory.current.url).to.equal('/b');
+      expect(groupHistory.forward.length).to.equal(0)
 
-      expect(state.history.back.length).to.equal(3);
-      expect(state.history.back[0].url).to.equal('/a');
-      expect(state.history.back[1].url).to.equal('/a');
-      expect(state.history.back[2].url).to.equal('/a/1');
-      expect(state.history.current.url).to.equal('/b');
-      expect(state.history.forward.length).to.equal(0)
+      expect(stateHistory.back.length).to.equal(3);
+      expect(stateHistory.back[0].url).to.equal('/a');
+      expect(stateHistory.back[1].url).to.equal('/a');
+      expect(stateHistory.back[2].url).to.equal('/a/1');
+      expect(stateHistory.current.url).to.equal('/b');
+      expect(stateHistory.forward.length).to.equal(0)
     })
 
     it('switches to container with resetOnLeave', () => {
@@ -146,12 +131,12 @@ describe('main', () => {
         }),
         new Push({
           url: '/g/1',
-          containerName: 'Container 1C',
+          container: 'Container 1C',
           time: 3000
         }),
         new Push({
           url: '/g/2',
-          containerName: 'Container 1C',
+          container: 'Container 1C',
           time: 4000
         }),
         new SwitchToContainer({
@@ -161,24 +146,27 @@ describe('main', () => {
       ])
 
       const state:State = store.getRawState()
-      const group = state.groups.toArray()[0]
+      const stateHistory = state.history
+      const groupHistory =  state.getGroupHistory('Group 3')
+      const containerHistory1 = state.getContainerHistory('Container 1C')
+      const containerHistory2 = state.getContainerHistory('Container 2C')
 
-      expect(group.containers.toArray()[0].history.back.length).to.equal(0);
-      expect(group.containers.toArray()[0].history.current.url).to.equal('/g');
-      expect(group.containers.toArray()[0].history.forward.length).to.equal(0)
+      expect(containerHistory1.back.length).to.equal(0);
+      expect(containerHistory1.current.url).to.equal('/g');
+      expect(containerHistory1.forward.length).to.equal(0)
 
-      expect(group.containers.toArray()[1].history.back.length).to.equal(0);
-      expect(group.containers.toArray()[1].history.current.url).to.equal('/h');
-      expect(group.containers.toArray()[1].history.forward.length).to.equal(0)
+      expect(containerHistory2.back.length).to.equal(0);
+      expect(containerHistory2.current.url).to.equal('/h');
+      expect(containerHistory2.forward.length).to.equal(0)
 
-      expect(group.history.back.length).to.equal(1);
-      expect(group.history.back[0].url).to.equal('/g');
-      expect(group.history.current.url).to.equal('/h');
-      expect(group.history.forward.length).to.equal(0)
+      expect(groupHistory.back.length).to.equal(1);
+      expect(groupHistory.back[0].url).to.equal('/g');
+      expect(groupHistory.current.url).to.equal('/h');
+      expect(groupHistory.forward.length).to.equal(0)
 
-      expect(state.history.back.length).to.equal(2);
-      expect(state.history.current.url).to.equal('/h');
-      expect(state.history.forward.length).to.equal(0)
+      expect(stateHistory.back.length).to.equal(2);
+      expect(stateHistory.current.url).to.equal('/h');
+      expect(stateHistory.forward.length).to.equal(0)
     })
 
     it('pushes in a different group', () => {
@@ -193,34 +181,34 @@ describe('main', () => {
         })
       ])
       store.dispatch(new Push({
-        containerName: 'Container 1B',
+        container: 'Container 1B',
         url: '/e/1',  // TODO: Is this realistic?
         time: 3000    // TODO: Wouldn't there be a SWITCH first?
       }))
 
       const state:State = store.getRawState()
-      const groups = state.groups
 
-      const g00 = groups.toArray()[0].containers.toArray()[0].history
+      const g00 = state.getContainerHistory('Container 1A')
       expect(g00.back.length).to.equal(0);
       expect(g00.current.url).to.equal('/a');
       expect(g00.forward.length).to.equal(0)
 
-      const g10 = groups.toArray()[1].containers.toArray()[0].history
+      const g10 = state.getContainerHistory('Container 1B')
       expect(g10.back.length).to.equal(1);
       expect(g10.back[0].url).to.equal('/e');
       expect(g10.current.url).to.equal('/e/1');
       expect(g10.forward.length).to.equal(0)
 
-      const g1 = groups.toArray()[1].history
+      const g1 = state.getGroupHistory('Group 2')
       expect(g1.back.length).to.equal(1);
       expect(g1.back[0].url).to.equal('/e');
       expect(g1.current.url).to.equal('/e/1');
       expect(g1.forward.length).to.equal(0)
 
-      expect(state.history.back.length).to.equal(2);
-      expect(state.history.current.url).to.equal('/e/1');
-      expect(state.history.forward.length).to.equal(0)
+      const stateHistory = state.history
+      expect(stateHistory.back.length).to.equal(2);
+      expect(stateHistory.current.url).to.equal('/e/1');
+      expect(stateHistory.forward.length).to.equal(0)
     })
 
     it('handles popstate after container switch', () => {
@@ -242,27 +230,30 @@ describe('main', () => {
       ])
 
       const state:State = store.getRawState()
-      const group = state.groups.toArray()[0]
+      const stateHistory = state.history
+      const groupHistory =  state.getGroupHistory('Group 1')
+      const containerHistory1 = state.getContainerHistory('Container 1A')
+      const containerHistory2 = state.getContainerHistory('Container 2A')
 
-      expect(group.containers.toArray()[0].history.back.length).to.equal(1);
-      expect(group.containers.toArray()[0].history.back[0].url).to.equal('/a');
-      expect(group.containers.toArray()[0].history.current.url).to.equal('/a/1');
-      expect(group.containers.toArray()[0].history.forward.length).to.equal(0)
+      expect(containerHistory1.back.length).to.equal(1);
+      expect(containerHistory1.back[0].url).to.equal('/a');
+      expect(containerHistory1.current.url).to.equal('/a/1');
+      expect(containerHistory1.forward.length).to.equal(0)
 
-      expect(group.containers.toArray()[1].history.back.length).to.equal(0);
-      expect(group.containers.toArray()[1].history.current.url).to.equal('/b');
-      expect(group.containers.toArray()[1].history.forward.length).to.equal(0)
+      expect(containerHistory2.back.length).to.equal(0);
+      expect(containerHistory2.current.url).to.equal('/b');
+      expect(containerHistory2.forward.length).to.equal(0)
 
-      expect(group.history.back.length).to.equal(1);
-      expect(group.history.back[0].url).to.equal('/a');
-      expect(group.history.current.url).to.equal('/a/1');
-      expect(group.history.forward.length).to.equal(0)
+      expect(groupHistory.back.length).to.equal(1);
+      expect(groupHistory.back[0].url).to.equal('/a');
+      expect(groupHistory.current.url).to.equal('/a/1');
+      expect(groupHistory.forward.length).to.equal(0)
 
-      expect(state.history.back.length).to.equal(2);
-      expect(state.history.back[0].url).to.equal('/a');
-      expect(state.history.back[1].url).to.equal('/a');
-      expect(state.history.current.url).to.equal('/a/1');
-      expect(state.history.forward.length).to.equal(0)
+      expect(stateHistory.back.length).to.equal(2);
+      expect(stateHistory.back[0].url).to.equal('/a');
+      expect(stateHistory.back[1].url).to.equal('/a');
+      expect(stateHistory.current.url).to.equal('/a/1');
+      expect(stateHistory.forward.length).to.equal(0)
     })
   })
 
@@ -363,7 +354,7 @@ describe('main', () => {
         }),
         new Push({
           url: '/a/1',
-          containerName: 'Container 1A',
+          container: 'Container 1A',
           time: 3000
         })
       ]).then(({entries, index}) => {
@@ -387,12 +378,12 @@ describe('main', () => {
           time: 2000
         }),
         new SwitchToContainer({
-          containerName: 'Container 2A',
+          container: 'Container 2A',
           time: 3000
         }),
         new PopState({
           url: '/a/1',
-          containerName: 'Container 1A',
+          container: 'Container 1A',
           time: 4000
         })
       ]).then(({entries, index}) => {
@@ -425,7 +416,7 @@ describe('main', () => {
         }),
         new Push({
           url: '/b/1',
-          containerName: 'Container 2A',
+          container: 'Container 2A',
           time: 4000
         })
       ]).then(({entries, index}) => {
@@ -460,7 +451,7 @@ describe('main', () => {
         }),
         new Push({
           url: '/e/1',
-          containerName: 'Container 1B',
+          container: 'Container 1B',
           time: 4000
         })
       ]).then(({entries, index}) => {
@@ -485,7 +476,7 @@ describe('main', () => {
         }),
         new Push({
           url: '/a/1',
-          containerName: 'Container 1A',
+          container: 'Container 1A',
           time: 3000
         }),
         new UpdateBrowser({
@@ -493,7 +484,7 @@ describe('main', () => {
         }),
         new Push({
           url: '/a/2',
-          containerName: 'Container 1A',
+          container: 'Container 1A',
           time: 4000
         }),
         new UpdateBrowser({
@@ -525,7 +516,7 @@ describe('main', () => {
         }),
         new Push({
           url: '/g/1/cat',
-          containerName: 'Container 1C',
+          container: 'Container 1C',
           time: 3000
         }),
         new UpdateBrowser({
@@ -533,14 +524,14 @@ describe('main', () => {
         }),
         new Push({
           url: '/g/2/dog',
-          containerName: 'Container 1C',
+          container: 'Container 1C',
           time: 4000
         }),
         new UpdateBrowser({
           time: 4100
         }),
         new Top({
-          containerName: 'Container 1C',
+          container: 'Container 1C',
           time: 5000,
           origin: USER
         }),
@@ -575,7 +566,7 @@ describe('main', () => {
           }),
           new Push({
             url: '/a/1',
-            containerName: 'Container 1A',
+            container: 'Container 1A',
             time: 3000
           }),
           new UpdateBrowser({
@@ -589,7 +580,7 @@ describe('main', () => {
           }),
           new Push({
             url: '/a/2',
-            containerName: 'Container 1A',
+            container: 'Container 1A',
             time: 4000
           })
         ]).then(({entries, index}) => {
@@ -622,7 +613,7 @@ describe('main', () => {
           }),
           new Push({
             url: '/a/1',
-            containerName: 'Container 1A',
+            container: 'Container 1A',
             time: 4000
           })
         ]).then(({entries, index}) => {

@@ -5,11 +5,11 @@ import DumbContainerGroup, {ChildrenType} from './DumbContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import ComputedState from '../../model/ComputedState'
-import {ComputedGroup} from '../../model/ComputedState'
 import {
-  createCachingSelector, getDispatch, getGroupName, getGroup
+  createCachingSelector, getDispatch, getGroupName,
+  getCurrentContainerIndex, getCurrentContainerName
 } from '../selectors'
+import {createStructuredSelector} from 'reselect'
 
 export interface BaseGroupPropsWithoutChildren {
   resetOnLeave?: boolean
@@ -26,15 +26,15 @@ export type ContainerGroupProps = BaseGroupPropsWithoutChildren & {
 
 type GroupPropsWithStore = BaseGroupPropsWithoutChildren & {
   store: Store
-  parentGroupName: string
+  parentGroup: string
 
   children?: ChildrenType
   groupName: string
 }
 
 type ConnectedGroupProps = GroupPropsWithStore & {
-  storedCurrentContainerIndex: number
-  storedCurrentContainerName: string
+  storedCurrentContainerIndex?: number
+  storedCurrentContainerName?: string
   switchToContainerIndex: (index:number) => void
   switchToContainerName: (name:string) => void
 }
@@ -44,7 +44,7 @@ const makeGetActions = () => createCachingSelector(
   (groupName, dispatch) => ({
     createGroup: (action:CreateGroup) => dispatch(action),
     switchToContainerIndex: (index:number) => dispatch(new SwitchToContainer({
-      groupName,
+      group: groupName,
       index
     })),
     switchToContainerName: (name:string) => dispatch(new SwitchToContainer({
@@ -53,13 +53,10 @@ const makeGetActions = () => createCachingSelector(
   })
 )
 
-const makeMapStateToProps = (state:ComputedState, ownProps:GroupPropsWithStore) => {
-  const group:ComputedGroup = getGroup(state, ownProps)
-  return {
-    storedCurrentContainerIndex: group.activeContainerIndex,
-    storedCurrentContainerName: group.activeContainerName
-  }
-}
+const mapStateToProps = createStructuredSelector({
+  storedCurrentContainerIndex: getCurrentContainerIndex,
+  storedCurrentContainerName: getCurrentContainerName
+})
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:GroupPropsWithStore):ConnectedGroupProps => ({
@@ -69,7 +66,7 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedContainerGroup = connect(
-  makeMapStateToProps,
+  mapStateToProps,
   makeGetActions,
   mergeProps
 )(DumbContainerGroup)
@@ -84,7 +81,7 @@ export default class SmartContainerGroup extends Component<ContainerGroupProps, 
     const {groupName, rrnhStore} = this.context
     const {name, ...props} = this.props
     return (
-      <ConnectedContainerGroup parentGroupName={groupName}
+      <ConnectedContainerGroup parentGroup={groupName}
                                groupName={name}
                                store={rrnhStore}
                                {...props}

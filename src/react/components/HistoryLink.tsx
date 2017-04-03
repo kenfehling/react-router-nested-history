@@ -75,7 +75,7 @@ const makeGetActions = () => createCachingSelector(
   (groupName, containerName, dispatch) => ({
     push: (url:string) => dispatch(new Push({
       url,
-      containerName
+      container: containerName
     }))
   })
 )

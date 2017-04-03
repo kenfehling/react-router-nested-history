@@ -4,13 +4,12 @@ import {Dispatch, connect} from 'react-redux'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import * as R from 'ramda'
-import ComputedState from '../../model/ComputedState'
 import {
-  getDispatch, createCachingSelector, getContainerName, getContainerActiveUrl,
-  getIsActiveInGroup, hasAssociatedWindow,
+  getContainerActiveUrl, getIsActiveInGroup, getHasWindow,
 } from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 import OpenWindow from '../../model/actions/OpenWindow'
+import {createStructuredSelector} from 'reselect'
 
 interface BaseHeaderLinkProps {
   children: ReactNode
@@ -68,6 +67,8 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
       'store',
       'onClick',
       'isActive',
+      'hasWindow',
+      'dispatch',
       'storeSubscription'
     ], this.props)
     return (
@@ -83,30 +84,30 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:ComputedState, ownProps) => ({
-  url: getContainerActiveUrl(state, ownProps),
-  isActive: getIsActiveInGroup(state, ownProps)
+const mapStateToProps = createStructuredSelector({
+  url: getContainerActiveUrl,
+  isActive: getIsActiveInGroup,
+  hasWindow: getHasWindow
 })
 
-const makeGetActions = () => createCachingSelector(
-  getContainerName, hasAssociatedWindow, getDispatch,
-  (containerName, hasWindow, dispatch) => ({
-    onClick: hasWindow ?
-      () => dispatch(new OpenWindow({name: containerName})) :
-      () => dispatch(new SwitchToContainer({name: containerName}))
-  })
-)
+const mapDispatchToProps = (dispatch) => ({dispatch})
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:HeaderLinkPropsWithStore):ConnectedHeaderLinkProps => ({
   ...stateProps,
   ...dispatchProps,
-  ...ownProps
+  ...ownProps,
+  onClick: () => {
+    const params = {name: ownProps.containerName}
+    const action = stateProps.hasWindow ? new OpenWindow(params) :
+                                          new SwitchToContainer(params)
+    return dispatchProps.dispatch(action)
+  }
 })
 
 const ConnectedHeaderLink = connect(
   mapStateToProps,
-  makeGetActions,
+  mapDispatchToProps,
   mergeProps
 )(InnerHeaderLink)
 

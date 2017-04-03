@@ -5,33 +5,31 @@ import {Store} from '../../store'
 import SmartHistoryWindow, {WindowProps} from './SmartHistoryWindow'
 import CreateWindow from '../../model/actions/CreateWindow'
 import {
-  getDispatch, createCachingSelector,
-  getIsInitializedAndLoadedFromRefresh
+  getDispatch, createCachingSelector, getIsInitialized, getLoadedFromPersist
 } from '../selectors'
+import {createStructuredSelector} from 'reselect'
 
 type WindowPropsWithStore = WindowProps & {
   store: Store
-  initializing: boolean
 }
 
 type ConnectedWindowProps = WindowPropsWithStore & {
   createWindow: (action:CreateWindow) => void
   isInitialized: boolean
-  loadedFromRefresh: boolean
+  loadedFromPersist: boolean
 }
 
 class InnerHistoryWindow extends Component<ConnectedWindowProps, undefined> {
 
   componentWillMount() {
-    const {loadedFromRefresh, forName, visible} = this.props
-    if (!loadedFromRefresh) {
+    const {loadedFromPersist, isInitialized, forName, visible} = this.props
+    if (!loadedFromPersist && !isInitialized) {
       this.props.createWindow(new CreateWindow({forName, visible}))
     }
   }
 
   render() {
-    return this.props.isInitialized ?
-      <SmartHistoryWindow {...this.props} /> : <div></div>
+    return <SmartHistoryWindow {...this.props} />
   }
 }
 
@@ -42,6 +40,11 @@ const makeGetActions = () => createCachingSelector(
   })
 )
 
+const mapStateToProps = createStructuredSelector({
+  isInitialized: getIsInitialized,
+  loadedFromPersist: getLoadedFromPersist
+})
+
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:WindowPropsWithStore):ConnectedWindowProps => ({
   ...stateProps,
@@ -50,15 +53,14 @@ const mergeProps = (stateProps, dispatchProps,
 })
 
 const ConnectedHistoryWindow = connect(
-  getIsInitializedAndLoadedFromRefresh,
+  mapStateToProps,
   makeGetActions,
   mergeProps
 )(InnerHistoryWindow)
 
 class HistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {
-    rrnhStore: PropTypes.object.isRequired,
-    initializing: PropTypes.bool
+    rrnhStore: PropTypes.object.isRequired
   }
 
   render() {

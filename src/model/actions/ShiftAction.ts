@@ -1,6 +1,5 @@
 import Action from '../BaseAction'
 import State from '../State'
-import * as R from 'ramda'
 
 interface ShiftFunctionParams {
   n: number;

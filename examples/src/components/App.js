@@ -18,8 +18,8 @@ export default () => (
       <div className='left-container'>
         <div className='top-container'>
           {/*
-          <div className="example-container tabs-container"><Tabs /></div>
-          */}
+           <div className="example-container tabs-container"><Tabs /></div>
+           */}
           <div className="example-container windows-container">
             <Windows />
           </div>
@@ -32,10 +32,10 @@ export default () => (
             <NestedGroup />
           </div>
           {/*
-          <div className='example-container scroll-area-container'>
-            <ScrollAreaExample />
-          </div>
-          */}
+           <div className='example-container scroll-area-container'>
+           <ScrollAreaExample />
+           </div>
+           */}
         </div>
       </div>
       {/*

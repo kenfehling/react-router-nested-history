@@ -1,15 +1,13 @@
 import {Map, OrderedMap} from 'immutable'
 import Page from './Page'
 import IComputedState from '../store/IComputedState'
-import Pages from './Pages'
-import {HistoryStack} from './Pages'
+import HistoryStack from './HistoryStack'
 import {ReduxState} from '../reducers/index'
 import BaseAction from './BaseAction'
 import State from './State'
 
 export interface ComputedGroupOrContainer {
   name: string
-  enabled: boolean
   activeUrl: string
   backPage: Page|undefined
   history: HistoryStack
@@ -28,28 +26,20 @@ export interface ComputedGroup {
   activeContainerName: string
 }
 
-export interface ComputingWindow {
+export interface ComputedWindow {
   forName: string
   visible: boolean
-  groupName: string
-}
-
-export type ComputedWindow = ComputingWindow & {
   zIndex: number
   isOnTop: boolean
-  groupName: string
 }
 
 export interface PartialComputedState {
   isInitialized: boolean
-  loadedFromRefresh: boolean
   groupsAndContainers: Map<string, ComputedGroupOrContainer>
   groups: Map<string, ComputedGroup>
   containers: Map<string, ComputedContainer>
   windows: OrderedMap<string, ComputedWindow>
   activeUrl: string
-  activeGroupName: string
-  pages: Pages
   activeTitle: string|undefined
 }
 

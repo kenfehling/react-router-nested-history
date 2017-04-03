@@ -1,4 +1,4 @@
-import {HistoryStack as H} from '../model/Pages'
+import H from '../model/HistoryStack'
 
 /**
  * Forward history is removed when switching containers
