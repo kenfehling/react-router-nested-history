@@ -272,8 +272,8 @@ class State implements IState {
     }
     const state:State = this.setWindowVisibility({forName, visible: false})
     const group:Group = this.groups.get(groupName)
-    if (this.hasEnabledContainers(group)) {
-      return state.switchToGroup({name: groupName, time})
+    if (state.hasEnabledContainers(group)) {
+      return state
     }
     else {
       return state.back({n: 1, time})
@@ -301,11 +301,16 @@ class State implements IState {
 
   activateContainer(container:string,
                     time:number, type:VisitType=VisitType.MANUAL):State {
-    const from = this.activeContainer
-    const state = from.resetOnLeave ?
+    if (this.isContainerActive(container)) {
+      return this
+    }
+    else {
+      const from = this.activeContainer
+      const state = from.resetOnLeave ?
         this.top({time: time - 1, reset: true}) : this
-    const newActivePage = this.getContainerActivePage(container)
-    return state.replacePage(newActivePage.touch({time, type}))
+      const newActivePage = this.getContainerActivePage(container)
+      return state.replacePage(newActivePage.touch({time, type}))
+    }
   }
 
   go({n, time, container}:{n:number, time:number, container?:string}):State {
@@ -461,9 +466,17 @@ class State implements IState {
     return !this.hasWindow(container) || this.isWindowVisible(container)
   }
 
-  isContainerActiveAndEnabled(container:string):boolean {
-    return this.isContainerEnabled(container) &&
-           this.activeContainerName === container
+  isContainerActive(name:string):boolean {
+    if (this.isGroup(name)) {
+      return this.isContainerActive(this.getGroupActiveContainerName(name))
+    }
+    else {
+      return this.activeContainerName === name
+    }
+  }
+
+  isContainerActiveAndEnabled(name:string):boolean {
+    return this.isContainerActive(name) && this.isContainerEnabled(name)
   }
 
   get activeUrl():string {
@@ -744,6 +757,7 @@ class State implements IState {
   setWindowVisibility({forName, visible}:
                       {forName:string, visible:boolean}):State {
     return this.replaceWindow(this.windows.get(forName).setVisible(visible))
+               .cloneWithPagesSorted()
   }
 
   addWindow({forName, visible=true}:{forName:string, visible?:boolean}):State {
