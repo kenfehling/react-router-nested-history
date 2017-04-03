@@ -17,7 +17,7 @@ import {createStructuredSelector} from 'reselect'
 
 type ContainerPropsWithStore = ContainerProps & {
   store: Store
-  group: string
+  groupName: string
 }
 
 type ConnectedContainerProps = ContainerPropsWithStore & {
@@ -46,13 +46,13 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
       animate=true,
       resetOnLeave=false,
       createContainer,
-      group,
+      groupName,
       isDefault=false
     } = this.props
 
     createContainer(new CreateContainer({
       name,
-      group,
+      group: groupName,
       initialUrl,
       patterns,
       resetOnLeave,
@@ -68,7 +68,7 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
       getChildContext() {
         return {
           rrnhStore: store,
-          group,
+          groupName,
           animate,
           containerName: name,
           pathname: initialUrl,
@@ -129,7 +129,7 @@ const ConnectedContainer = connect(
 export default class Container extends Component<ContainerProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
-    group: PropTypes.string.isRequired,
+    groupName: PropTypes.string.isRequired,
     hideInactiveContainers: PropTypes.bool
   }
 

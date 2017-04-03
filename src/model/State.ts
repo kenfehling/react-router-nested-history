@@ -63,13 +63,11 @@ class State implements IState {
   get computedGroupsAndContainers():Map<string, ComputedGroupOrContainer> {
     return this.containers.reduce(
       (map:Map<string, ComputedGroupOrContainer>, c:IContainer) =>
-        map.merge({
-          [c.name]: {
-            name: c.name,
-            activeUrl: this.getContainerActiveUrl(c.name),
-            backPage: this.getContainerBackPage(c.name),
-            history: this.getContainerHistory(c.name)
-          }
+        map.set(c.name, {
+          name: c.name,
+          activeUrl: this.getContainerActiveUrl(c.name),
+          backPage: this.getContainerBackPage(c.name),
+          history: this.getContainerHistory(c.name)
         }),
       fromJS({}))
   }
@@ -77,13 +75,11 @@ class State implements IState {
   get computedGroups():Map<string, ComputedGroup> {
     return this.groups.reduce(
       (map:Map<string, ComputedGroup>, g:Group) =>
-        map.merge({
-          [g.name]: {
-            name: g.name,
-            isTopLevel: !g.group,
-            activeContainerIndex: this.getGroupActiveContainerIndex(g.name),
-            activeContainerName: this.getGroupActiveContainerName(g.name)
-          }
+        map.set(g.name, {
+          name: g.name,
+          isTopLevel: !g.group,
+          activeContainerIndex: this.getGroupActiveContainerIndex(g.name),
+          activeContainerName: this.getGroupActiveContainerName(g.name)
         }),
       fromJS({}))
   }
@@ -92,12 +88,10 @@ class State implements IState {
     const currentUrl = this.activeUrl
     return this.leafContainers.reduce(
       (map:Map<string, ComputedContainer>, c:Container) =>
-        map.merge({
-          [c.name]: {
-            name: c.name,
-            isActiveInGroup: this.getGroupActiveContainerName(c.group) === c.name,
-            matchesCurrentUrl: currentUrl === this.getContainerActiveUrl(c.name)
-          }
+        map.set(c.name, {
+          name: c.name,
+          isActiveInGroup: this.getGroupActiveContainerName(c.group) === c.name,
+          matchesCurrentUrl: currentUrl === this.getContainerActiveUrl(c.name)
         }),
       fromJS({}))
   }

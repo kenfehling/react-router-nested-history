@@ -144,7 +144,9 @@ export const getMatchesCurrentUrl = createReselector(
 
 export const getContainerActiveUrl = createReselector(
   getGroupOrContainerFromContainerName,
-  (container:ComputedGroupOrContainer) => container ? container.activeUrl : undefined
+  (container:ComputedGroupOrContainer) => {
+    return container ? container.activeUrl : undefined
+  }
 )((state, props) => props.containerName)
 
 export const getWindow = createReselector(

@@ -56,7 +56,7 @@ export default class DumbContainerGroup extends
       'switchToContainerIndex',
       'switchToContainerName',
       'isDefault',
-      'parentGroupName',
+      'parentGroup',
       'allowInterContainerHistory',
       'loadedFromPersist',
       'isInitialized',

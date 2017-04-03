@@ -68,6 +68,8 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
       'store',
       'onClick',
       'isActive',
+      'hasWindow',
+      'dispatch',
       'storeSubscription'
     ], this.props)
     return (

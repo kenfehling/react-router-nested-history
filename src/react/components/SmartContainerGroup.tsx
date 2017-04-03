@@ -5,10 +5,8 @@ import DumbContainerGroup, {ChildrenType} from './DumbContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import ComputedState from '../../model/ComputedState'
-import {ComputedGroup} from '../../model/ComputedState'
 import {
-  createCachingSelector, getDispatch, getGroupName, getGroup,
+  createCachingSelector, getDispatch, getGroupName,
   getCurrentContainerIndex, getCurrentContainerName
 } from '../selectors'
 import {createStructuredSelector} from 'reselect'
@@ -28,7 +26,7 @@ export type ContainerGroupProps = BaseGroupPropsWithoutChildren & {
 
 type GroupPropsWithStore = BaseGroupPropsWithoutChildren & {
   store: Store
-  parentGroupName: string
+  parentGroup: string
 
   children?: ChildrenType
   groupName: string
@@ -83,7 +81,7 @@ export default class SmartContainerGroup extends Component<ContainerGroupProps, 
     const {groupName, rrnhStore} = this.context
     const {name, ...props} = this.props
     return (
-      <ConnectedContainerGroup parentGroupName={groupName}
+      <ConnectedContainerGroup parentGroup={groupName}
                                groupName={name}
                                store={rrnhStore}
                                {...props}
