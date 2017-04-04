@@ -25954,7 +25954,7 @@ var State = (function () {
         var newPages = pageUtils.push(containerPages, { page: page, time: time, type: type });
         var state = this.replaceContainerPages(container, newPages);
         return type === PageVisit_1.VisitType.MANUAL ?
-            state.setWindowVisibility({ forName: container, visible: true }) : state;
+            state.setParentWindowVisibility({ container: container, visible: true }) : state;
     };
     State.prototype.getRootGroupOfGroup = function (group) {
         var g = this.containers.get(group);
@@ -26053,6 +26053,15 @@ var State = (function () {
     });
     State.prototype.hasWindow = function (forName) {
         return this.windows.has(forName);
+    };
+    State.prototype.hasParent = function (container) {
+        if (this.isGroup(container)) {
+            var g = this.containers.get(container);
+            return !!g.group;
+        }
+        else {
+            return false;
+        }
     };
     State.prototype.isWindowVisible = function (forName) {
         return this.windows.get(forName).visible;
@@ -26320,6 +26329,18 @@ var State = (function () {
         if (this.hasWindow(forName)) {
             return this.replaceWindow(this.windows.get(forName).setVisible(visible))
                 .cloneWithPagesSorted();
+        }
+        else {
+            return this;
+        }
+    };
+    State.prototype.setParentWindowVisibility = function (_a) {
+        var container = _a.container, visible = _a.visible;
+        if (this.hasWindow(container)) {
+            return this.setWindowVisibility({ forName: container, visible: visible });
+        }
+        else if (this.hasParent(container)) {
+            return this.setParentWindowVisibility({ container: container, visible: visible });
         }
         else {
             return this;

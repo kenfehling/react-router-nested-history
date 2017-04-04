@@ -358,7 +358,7 @@ class State implements IState {
     const newPages = pageUtils.push(containerPages, {page, time, type})
     const state:State = this.replaceContainerPages(container, newPages)
     return type === VisitType.MANUAL ?
-        state.setWindowVisibility({forName: container, visible: true}) : state
+        state.setParentWindowVisibility({container, visible: true}) : state
   }
 
   getRootGroupOfGroup(group:string):Group {
@@ -446,6 +446,16 @@ class State implements IState {
 
   hasWindow(forName:string):boolean {
     return this.windows.has(forName)
+  }
+
+  hasParent(container:string):boolean {
+    if (this.isGroup(container)) {
+      const g:Group = this.containers.get(container) as Group
+      return !!g.group
+    }
+    else {
+      return false
+    }
   }
 
   isWindowVisible(forName:string):boolean {
@@ -748,7 +758,20 @@ class State implements IState {
                       {forName:string, visible:boolean}):State {
     if (this.hasWindow(forName)) {
       return this.replaceWindow(this.windows.get(forName).setVisible(visible))
-        .cloneWithPagesSorted()
+                 .cloneWithPagesSorted()
+    }
+    else {
+      return this
+    }
+  }
+
+  setParentWindowVisibility({container, visible}:
+                            {container:string, visible:boolean}):State {
+    if (this.hasWindow(container)) {
+      return this.setWindowVisibility({forName: container, visible})
+    }
+    else if (this.hasParent(container)) {
+      return this.setParentWindowVisibility({container, visible})
     }
     else {
       return this
