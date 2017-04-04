@@ -150,7 +150,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
     //event.stopPropagation()
   }
 
-  onDrag(event:MouseEvent, data:any) {
+  onDragEnd(event:MouseEvent, data:any) {
     const {draggable, rememberPosition=draggable} = this.props
     if (rememberPosition) {
       this.props.move({x: data.x, y: data.y})
@@ -218,7 +218,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
     if (drag && hasDefaultPosition) {
       return (
         <Draggable {...draggableProps}
-                   onStop={this.onDrag.bind(this)}
+                   onDrag={(e) => e.preventDefault()}
+                   onStop={this.onDragEnd.bind(this)}
                    onMouseDown={this.onMouseDown.bind(this)}
                    position={rememberPosition ? {x, y} : undefined}
                    defaultPosition={hasDefaultPosition ? {x, y} : undefined}
