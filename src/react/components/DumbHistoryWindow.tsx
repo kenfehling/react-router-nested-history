@@ -167,7 +167,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       close,
       draggable,
       draggableProps={},
-      rememberPosition,
+      rememberPosition=draggable,
       ...divProps
     } = R.omit([
       'store',
@@ -193,30 +193,34 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'storeSubscription'
     ], this.props)
     const drag:boolean = !!draggable && !!storedVisible
+    const x:number|undefined = this.calculateX()
+    const y:number|undefined = this.calculateY()
+
     const w = (
       <div {...divProps}
-          ref={drag ? (el:HTMLElement) => this.calculateDimensions(el) : noop}
+          ref={(el:HTMLElement) => this.calculateDimensions(el)}
           className={this.getClassName()}
           onMouseDown={drag ? noop : this.onMouseDown.bind(this)}
           style={{
                 ...style,
                 zIndex,
                 position: 'absolute',
-                display: storedVisible ? 'block' : 'none'
+                display: storedVisible ? 'block' : 'none',
+                x: !drag ? x : undefined,
+                y: !drag ? y : undefined
              }}
       >
         {children instanceof Function ? children({switchTo, open, close}) : children}
       </div>
     )
-    if (drag) {
-      const x:number|undefined = this.calculateX()
-      const y:number|undefined = this.calculateY()
+    const hasDefaultPosition = rememberPosition || this.state.width !== 0
+    if (drag && hasDefaultPosition) {
       return (
         <Draggable {...draggableProps}
-                    onStop={this.onDrag.bind(this)}
-                    onMouseDown={this.onMouseDown.bind(this)}
-                    position={rememberPosition ? {x, y} : undefined}
-                    defaultPosition={rememberPosition ? undefined : {x, y}}
+                   onStop={this.onDrag.bind(this)}
+                   onMouseDown={this.onMouseDown.bind(this)}
+                   position={rememberPosition ? {x, y} : undefined}
+                   defaultPosition={hasDefaultPosition ? {x, y} : undefined}
         >
           {w}
         </Draggable>
