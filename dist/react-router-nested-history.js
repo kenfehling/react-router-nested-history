@@ -25326,8 +25326,8 @@ var InnerInnerWindowGroup = (function (_super) {
         if (element) {
             var width = element.offsetWidth; // || window.innerWidth
             var height = element.offsetHeight; // || window.innerHeight
-            if (width > this.state.width || height > this.state.height &&
-                width <= window.innerWidth && height <= window.innerHeight) {
+            console.log('window', width, height);
+            if (width > this.state.width || height > this.state.height) {
                 this.setState({ width: width, height: height });
             }
         }
@@ -27436,6 +27436,7 @@ var DumbHistoryWindow = (function (_super) {
         if (element) {
             var width = element.offsetWidth;
             var height = element.offsetHeight;
+            console.log("inside", width, height);
             if (width > this.state.width || height > this.state.height) {
                 this.setState({ width: width, height: height });
             }
