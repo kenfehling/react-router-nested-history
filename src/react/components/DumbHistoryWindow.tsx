@@ -167,6 +167,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       close,
       draggable,
       draggableProps={},
+      rememberPosition,
       ...divProps
     } = R.omit([
       'store',
@@ -188,7 +189,6 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'right',
       'move',
       'isOnTop',
-      'rememberPosition',
       'storedPosition',
       'storeSubscription'
     ], this.props)
@@ -215,7 +215,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
         <Draggable {...draggableProps}
                     onStop={this.onDrag.bind(this)}
                     onMouseDown={this.onMouseDown.bind(this)}
-                    position={{x, y}}
+                    position={rememberPosition ? {x, y} : undefined}
+                    defaultPosition={rememberPosition ? undefined : {x, y}}
         >
           {w}
         </Draggable>
