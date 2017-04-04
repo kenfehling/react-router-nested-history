@@ -19,8 +19,7 @@ interface ChildrenFunctionArgs {
 type ChildrenType = ReactNode & {props?:any} |
                     ((args:ChildrenFunctionArgs) => ReactElement<any>)
 
-export type DumbWindowProps = ChildrenFunctionArgs & {
-  forName: string
+export interface BaseWindowProps {
   top?: number
   middle?: number
   bottom?:number
@@ -29,11 +28,16 @@ export type DumbWindowProps = ChildrenFunctionArgs & {
   right?: number
   draggable?: boolean
   draggableProps?: Object
-  children: ChildrenType
+  rememberPosition?: boolean
+  children?: ChildrenType
   className?: string
   style?: Object
   topClassName?: string
   visible?: boolean
+}
+
+export type DumbWindowProps = BaseWindowProps & ChildrenFunctionArgs & {
+  containerName: string
 
   windowGroupWidth: number
   windowGroupHeight: number
@@ -146,7 +150,10 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
   }
 
   onDrag(event:MouseEvent, data:any) {
-    this.props.move({x: data.x, y: data.y})
+    const {draggable, rememberPosition=draggable} = this.props
+    if (rememberPosition) {
+      this.props.move({x: data.x, y: data.y})
+    }
   }
 
   render() {
@@ -181,6 +188,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'right',
       'move',
       'isOnTop',
+      'rememberPosition',
       'storedPosition',
       'storeSubscription'
     ], this.props)

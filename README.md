@@ -386,6 +386,13 @@ A single window inside a `WindowGroup`
            <td></td>
            <td>Props passed to the Draggable component</td>
          </tr>
+         <tr>
+           <td>rememberPosition</td>
+           <td>boolean</td>
+           <td>true if draggable</td>
+           <td></td>
+           <td>Remember the position this window was dragged to?</td>
+         </tr>
         <tr>
           <td>left/center/right</td>
           <td>number (in pixels)</td>

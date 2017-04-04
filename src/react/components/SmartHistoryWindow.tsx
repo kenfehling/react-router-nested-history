@@ -3,7 +3,9 @@ import {Component, PropTypes, ReactNode} from 'react'
 import {connect} from 'react-redux'
 import {Store} from '../../store'
 import CloseWindow from '../../model/actions/CloseWindow'
-import DumbHistoryWindow, {WindowPosition} from './DumbHistoryWindow'
+import DumbHistoryWindow, {
+  BaseWindowProps, WindowPosition
+} from './DumbHistoryWindow'
 import {moveWindow} from '../../actions/WindowActions'
 import {
   createCachingSelector, getContainerName, getDispatch, getWindowIsOnTop,
@@ -11,23 +13,6 @@ import {
 } from '../selectors'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import {createStructuredSelector} from 'reselect'
-
-interface BaseWindowProps {
-  top?: number
-  middle?: number
-  bottom?:number
-  left?: number
-  center?: number
-  right?: number
-  draggable?: boolean
-  draggableProps?: Object
-  children?: ReactNode
-  className?: string
-  topClassName?: string
-  visible?: boolean
-  zIndex: number
-  isOnTop: boolean
-}
 
 export type WindowProps = BaseWindowProps & {
   forName: string
