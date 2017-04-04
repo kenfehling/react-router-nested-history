@@ -92,11 +92,12 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
   }
 
   calculateDimensions(element:HTMLElement) {
-    if (element && this.state.width === 0) {
-      this.setState({
-        width: element.offsetWidth,
-        height: element.offsetHeight
-      })
+    if (element) {
+      const width = element.offsetWidth
+      const height = element.offsetHeight
+      if (height > this.state.height || width > this.state.width) {
+        this.setState({width, height})
+      }
     }
   }
 

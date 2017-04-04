@@ -25323,11 +25323,12 @@ var InnerInnerWindowGroup = (function (_super) {
         };
     };
     InnerInnerWindowGroup.prototype.calculateDimensions = function (element) {
-        if (element && this.state.width === 0) {
-            this.setState({
-                width: element.offsetWidth || window.innerWidth,
-                height: element.offsetHeight || window.innerHeight
-            });
+        if (element) {
+            var height = element.offsetWidth || window.innerWidth;
+            var width = element.offsetHeight || window.innerHeight;
+            if (height > this.state.height || width > this.state.width) {
+                this.setState({ width: width, height: height });
+            }
         }
     };
     InnerInnerWindowGroup.prototype.render = function () {
@@ -27431,11 +27432,12 @@ var DumbHistoryWindow = (function (_super) {
         }
     };
     DumbHistoryWindow.prototype.calculateDimensions = function (element) {
-        if (element && this.state.width === 0) {
-            this.setState({
-                width: element.offsetWidth,
-                height: element.offsetHeight
-            });
+        if (element) {
+            var width = element.offsetWidth;
+            var height = element.offsetHeight;
+            if (height > this.state.height || width > this.state.width) {
+                this.setState({ width: width, height: height });
+            }
         }
     };
     DumbHistoryWindow.prototype.calculateX = function () {
