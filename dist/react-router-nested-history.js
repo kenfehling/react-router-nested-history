@@ -27522,10 +27522,10 @@ var DumbHistoryWindow = (function (_super) {
         var drag = !!draggable && !!storedVisible;
         var x = this.calculateX();
         var y = this.calculateY();
-        var w = (React.createElement("div", __assign({}, divProps, { ref: function (el) { return _this.calculateDimensions(el); }, className: this.getClassName(), onMouseDown: drag ? noop : this.onMouseDown.bind(this), style: __assign({}, style, { zIndex: zIndex, position: 'absolute', display: storedVisible ? 'block' : 'none', x: !drag ? x : undefined, y: !drag ? y : undefined }) }), children instanceof Function ? children({ switchTo: switchTo, open: open, close: close }) : children));
+        var w = (React.createElement("div", __assign({}, divProps, { ref: function (el) { return _this.calculateDimensions(el); }, className: this.getClassName(), onMouseDown: drag ? noop : this.onMouseDown.bind(this), onTouchMove: function (e) { return e.preventDefault(); }, style: __assign({}, style, { zIndex: zIndex, position: 'absolute', display: storedVisible ? 'block' : 'none', x: !drag ? x : undefined, y: !drag ? y : undefined }) }), children instanceof Function ? children({ switchTo: switchTo, open: open, close: close }) : children));
         var hasDefaultPosition = rememberPosition || this.state.width !== 0;
         if (drag && hasDefaultPosition) {
-            return (React.createElement(Draggable, __assign({}, draggableProps, { onDrag: function (e) { return e.preventDefault(); }, onStop: this.onDragEnd.bind(this), onMouseDown: this.onMouseDown.bind(this), position: rememberPosition ? { x: x, y: y } : undefined, defaultPosition: hasDefaultPosition ? { x: x, y: y } : undefined }), w));
+            return (React.createElement(Draggable, __assign({}, draggableProps, { onStop: this.onDragEnd.bind(this), onMouseDown: this.onMouseDown.bind(this), position: rememberPosition ? { x: x, y: y } : undefined, defaultPosition: hasDefaultPosition ? { x: x, y: y } : undefined }), w));
         }
         else {
             return w;

@@ -202,6 +202,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
           ref={(el:HTMLElement) => this.calculateDimensions(el)}
           className={this.getClassName()}
           onMouseDown={drag ? noop : this.onMouseDown.bind(this)}
+          onTouchMove={e => e.preventDefault()}
           style={{
                 ...style,
                 zIndex,
@@ -218,7 +219,6 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
     if (drag && hasDefaultPosition) {
       return (
         <Draggable {...draggableProps}
-                   onDrag={(e) => e.preventDefault()}
                    onStop={this.onDragEnd.bind(this)}
                    onMouseDown={this.onMouseDown.bind(this)}
                    position={rememberPosition ? {x, y} : undefined}
