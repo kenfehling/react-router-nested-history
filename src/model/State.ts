@@ -447,7 +447,7 @@ class State implements IState {
   hasWindow(forName:string):boolean {
     return this.windows.has(forName)
   }
-  
+
   isWindowVisible(forName:string):boolean {
     return this.windows.get(forName).visible
   }
@@ -757,16 +757,11 @@ class State implements IState {
 
   setParentWindowVisibility({container, visible}:
                             {container:string, visible:boolean}):State {
-    if (this.hasWindow(container)) {
-      return this.setWindowVisibility({forName: container, visible})
-    }
-    else {
-      const parent:string|undefined = this.containers.get(container).group
-      if (parent) {
-        return this.setParentWindowVisibility({container: parent, visible})
-      }
-    }
-    return this
+    const state = this.hasWindow(container) ?
+        this.setWindowVisibility({forName: container, visible}) : this
+    const parent:string|undefined = this.containers.get(container).group
+    return parent?
+        state.setParentWindowVisibility({container: parent, visible}) : state
   }
 
   addWindow({forName, visible=true}:{forName:string, visible?:boolean}):State {
