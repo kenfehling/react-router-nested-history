@@ -25952,7 +25952,9 @@ var State = (function () {
         var page = _a.page, time = _a.time, _b = _a.type, type = _b === void 0 ? PageVisit_1.VisitType.MANUAL : _b;
         var containerPages = this.getContainerPages(container);
         var newPages = pageUtils.push(containerPages, { page: page, time: time, type: type });
-        return this.replaceContainerPages(container, newPages);
+        var state = this.replaceContainerPages(container, newPages);
+        return type === PageVisit_1.VisitType.MANUAL ?
+            state.setWindowVisibility({ forName: container, visible: true }) : state;
     };
     State.prototype.getRootGroupOfGroup = function (group) {
         var g = this.containers.get(group);
@@ -26315,8 +26317,13 @@ var State = (function () {
     };
     State.prototype.setWindowVisibility = function (_a) {
         var forName = _a.forName, visible = _a.visible;
-        return this.replaceWindow(this.windows.get(forName).setVisible(visible))
-            .cloneWithPagesSorted();
+        if (this.hasWindow(forName)) {
+            return this.replaceWindow(this.windows.get(forName).setVisible(visible))
+                .cloneWithPagesSorted();
+        }
+        else {
+            return this;
+        }
     };
     State.prototype.addWindow = function (_a) {
         var forName = _a.forName, _b = _a.visible, visible = _b === void 0 ? true : _b;
