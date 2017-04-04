@@ -454,7 +454,7 @@ class State implements IState {
       return !!g.group
     }
     else {
-      return false
+      return true
     }
   }
 

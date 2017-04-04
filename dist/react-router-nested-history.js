@@ -26060,7 +26060,7 @@ var State = (function () {
             return !!g.group;
         }
         else {
-            return false;
+            return true;
         }
     };
     State.prototype.isWindowVisible = function (forName) {
