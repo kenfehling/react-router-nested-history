@@ -95,7 +95,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
     if (element) {
       const width = element.offsetWidth
       const height = element.offsetHeight
-      if (height > this.state.height || width > this.state.width) {
+      if (width > this.state.width || height > this.state.height) {
         this.setState({width, height})
       }
     }
