@@ -76,7 +76,8 @@ class InnerInnerWindowGroup extends Component<undefined, InnerWindowGroupState> 
     if (element) {
       const width = element.offsetWidth // || window.innerWidth
       const height = element.offsetHeight // || window.innerHeight
-      if (width > this.state.width || height > this.state.height) {
+      if (width > this.state.width || height > this.state.height &&
+          width <= window.innerWidth && height <= window.innerHeight) {
         this.setState({width, height})
       }
     }
