@@ -25031,7 +25031,10 @@ var InnerHistoryRouter = (function (_super) {
         }
     };
     InnerHistoryRouter.prototype.render = function () {
-        return (React.createElement("div", null,
+        return (React.createElement("div", { style: {
+                width: '100%',
+                height: '100%'
+            } },
             React.createElement(DumbHistoryRouter_1.default, __assign({}, this.props)),
             React.createElement(StepRunner_1.default, { store: this.props.store }),
             React.createElement(TitleSetter_1.default, { store: this.props.store })));
@@ -25326,7 +25329,6 @@ var InnerInnerWindowGroup = (function (_super) {
         if (element) {
             var width = element.offsetWidth; // || window.innerWidth
             var height = element.offsetHeight; // || window.innerHeight
-            console.log('window', width, height);
             if (width > this.state.width || height > this.state.height) {
                 this.setState({ width: width, height: height });
             }
@@ -27436,7 +27438,6 @@ var DumbHistoryWindow = (function (_super) {
         if (element) {
             var width = element.offsetWidth;
             var height = element.offsetHeight;
-            console.log("inside", width, height);
             if (width > this.state.width || height > this.state.height) {
                 this.setState({ width: width, height: height });
             }

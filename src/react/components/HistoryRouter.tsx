@@ -103,7 +103,10 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
 
   render() {
     return (
-      <div>
+      <div style={{
+        width: '100%',
+        height: '100%'
+      }}>
         <DumbHistoryRouter{...this.props} />
         <StepRunner store={this.props.store}/>
         <TitleSetter store={this.props.store} />
