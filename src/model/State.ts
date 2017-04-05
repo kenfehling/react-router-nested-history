@@ -66,7 +66,8 @@ class State implements IState {
           name: g.name,
           isTopLevel: !g.group,
           activeContainerIndex: this.getGroupActiveContainerIndex(g.name),
-          activeContainerName: this.getGroupActiveContainerName(g.name)
+          activeContainerName: this.getGroupActiveContainerName(g.name),
+          gotoTopOnSelectActive: g.gotoTopOnSelectActive
         }),
       fromJS({}))
   }
@@ -77,6 +78,8 @@ class State implements IState {
       (map:Map<string, ComputedContainer>, c:Container) =>
         map.set(c.name, {
           name: c.name,
+          initialUrl: c.initialUrl,
+          resetOnLeave: c.resetOnLeave,
           activeUrl: this.getContainerActiveUrl(c.name),
           backPage: this.getContainerBackPage(c.name),
           isActiveInGroup: this.getGroupActiveContainerName(c.group) === c.name,

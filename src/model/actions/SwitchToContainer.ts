@@ -1,10 +1,6 @@
-import Action, {USER, ActionOrigin} from '../BaseAction'
 import State from '../State'
-import Top from './Top'
-import Group from '../Group'
-import {Origin} from '../BaseAction'
+import Action, {Origin} from '../BaseAction'
 import Serializable from '../../store/decorators/Serializable'
-import Container from '../Container'
 
 /**
  * Accepts either a container name or a group + a container index
@@ -49,21 +45,6 @@ export default class SwitchToContainer extends Action {
 
   filter(state:State) {
     const container:string = this.getContainer(state)
-    if (state.isContainerActiveAndEnabled(container)) {
-      if (this.origin === USER) {
-        const c:Container = state.containers.get(container) as Container
-        const group:Group = state.groups.get(c.group)
-        if (group.gotoTopOnSelectActive) {
-          return [new Top({
-            container,
-            origin: new ActionOrigin(this)
-          })]
-        }
-      }
-      return []
-    }
-    else {
-      return [this]
-    }
+    return state.isContainerActiveAndEnabled(container) ? [] : [this]
   }
 }

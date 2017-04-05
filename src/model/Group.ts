@@ -1,6 +1,3 @@
-import Page from './Page'
-import Container from './Container'
-import {VisitType} from './PageVisit'
 import IContainer from './IContainer'
 
 export default class Group implements IContainer {

@@ -17,7 +17,6 @@ export const createCachingSelector = createSelectorCreator(
 )
 
 export const EMPTY_OBJ = {}
-//export const getState = (state) => state
 export const getDispatch = (dispatch) => dispatch
 export const getGroupName = (state, props):string => props.groupName
 export const getContainerName = (state, props):string => props.containerName
@@ -118,6 +117,21 @@ export const getMatchesCurrentUrl = createReselector(
 export const getContainerActiveUrl = createReselector(
   getContainer,
   (container:ComputedContainer) => container ? container.activeUrl : undefined
+)((state, props) => props.containerName)
+
+export const getShouldGoToTop = createReselector(
+  getContainer, getGroup,
+  (container:ComputedContainer, group:ComputedGroup) =>
+      group && group.gotoTopOnSelectActive &&
+      container && container.isActiveInGroup
+)((state, props) => props.containerName)
+
+export const getHeaderLinkUrl = createReselector(
+  getContainer, getGroup, getShouldGoToTop,
+  (container:ComputedContainer, shouldGoToTop:boolean) =>
+    container ?
+      (shouldGoToTop ? container.initialUrl : container.activeUrl) :
+      undefined
 )((state, props) => props.containerName)
 
 export const getWindow = createReselector(

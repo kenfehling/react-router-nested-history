@@ -7,6 +7,8 @@ import State from './State'
 
 export interface ComputedContainer {
   name: string
+  initialUrl: string
+  resetOnLeave: boolean
   activeUrl: string
   backPage: Page|undefined
   isActiveInGroup: boolean
@@ -18,6 +20,7 @@ export interface ComputedGroup {
   isTopLevel: boolean
   activeContainerIndex: number
   activeContainerName: string
+  gotoTopOnSelectActive: boolean
 }
 
 export interface ComputedWindow {

@@ -1663,7 +1663,6 @@ var R = __webpack_require__(16);
 exports.createDeepEqualSelector = reselect_1.createSelectorCreator(reselect_1.defaultMemoize, R.equals);
 exports.createCachingSelector = reselect_1.createSelectorCreator(R.memoize, R.identical);
 exports.EMPTY_OBJ = {};
-//export const getState = (state) => state
 exports.getDispatch = function (dispatch) { return dispatch; };
 exports.getGroupName = function (state, props) { return props.groupName; };
 exports.getContainerName = function (state, props) { return props.containerName; };
@@ -1723,6 +1722,15 @@ exports.getBackPageInGroup = re_reselect_1.default(exports.getContainerFromGroup
 exports.getIsActiveInGroup = re_reselect_1.default(exports.getContainer, function (container) { return container ? container.isActiveInGroup : false; })(function (state, props) { return props.containerName; });
 exports.getMatchesCurrentUrl = re_reselect_1.default(exports.getContainer, function (container) { return container ? container.matchesCurrentUrl : false; })(function (state, props) { return props.containerName; });
 exports.getContainerActiveUrl = re_reselect_1.default(exports.getContainer, function (container) { return container ? container.activeUrl : undefined; })(function (state, props) { return props.containerName; });
+exports.getShouldGoToTop = re_reselect_1.default(exports.getContainer, exports.getGroup, function (container, group) {
+    return group && group.gotoTopOnSelectActive &&
+        container && container.isActiveInGroup;
+})(function (state, props) { return props.containerName; });
+exports.getHeaderLinkUrl = re_reselect_1.default(exports.getContainer, exports.getGroup, exports.getShouldGoToTop, function (container, shouldGoToTop) {
+    return container ?
+        (shouldGoToTop ? container.initialUrl : container.activeUrl) :
+        undefined;
+})(function (state, props) { return props.containerName; });
 exports.getWindow = re_reselect_1.default(exports.getContainerName, getWindows, getPositions, function (containerName, ws, ps) {
     if (ws) {
         var w = ws.get(containerName);
@@ -9500,7 +9508,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var BaseAction_1 = __webpack_require__(13);
-var Top_1 = __webpack_require__(157);
 var Serializable_1 = __webpack_require__(11);
 /**
  * Accepts either a container name or a group + a container index
@@ -9535,22 +9542,7 @@ var SwitchToContainer = SwitchToContainer_1 = (function (_super) {
     };
     SwitchToContainer.prototype.filter = function (state) {
         var container = this.getContainer(state);
-        if (state.isContainerActiveAndEnabled(container)) {
-            if (this.origin === BaseAction_1.USER) {
-                var c = state.containers.get(container);
-                var group = state.groups.get(c.group);
-                if (group.gotoTopOnSelectActive) {
-                    return [new Top_1.default({
-                            container: container,
-                            origin: new BaseAction_1.ActionOrigin(this)
-                        })];
-                }
-            }
-            return [];
-        }
-        else {
-            return [this];
-        }
+        return state.isContainerActiveAndEnabled(container) ? [] : [this];
     };
     return SwitchToContainer;
 }(BaseAction_1.default));
@@ -16951,8 +16943,7 @@ var Top = Top_1 = (function (_super) {
         });
     };
     Top.prototype.filter = function (state) {
-        var alreadyAtTop = state.isContainerAtTopPage(this.container);
-        return alreadyAtTop ? [] : [this];
+        return state.isContainerAtTopPage(this.container) ? [] : [this];
     };
     return Top;
 }(BaseAction_1.default));
@@ -24676,6 +24667,7 @@ var selectors_1 = __webpack_require__(21);
 var waitForInitialization_1 = __webpack_require__(47);
 var OpenWindow_1 = __webpack_require__(153);
 var reselect_1 = __webpack_require__(31);
+var Top_1 = __webpack_require__(157);
 var InnerHeaderLink = (function (_super) {
     __extends(InnerHeaderLink, _super);
     function InnerHeaderLink() {
@@ -24710,6 +24702,7 @@ var InnerHeaderLink = (function (_super) {
             'onClick',
             'isActive',
             'hasWindow',
+            'shouldGoToTop',
             'dispatch',
             'storeSubscription'
         ], this.props), children = _a.children, url = _a.url, aProps = __rest(_a, ["children", "url"]);
@@ -24718,15 +24711,20 @@ var InnerHeaderLink = (function (_super) {
     return InnerHeaderLink;
 }(react_1.Component));
 var mapStateToProps = reselect_1.createStructuredSelector({
-    url: selectors_1.getContainerActiveUrl,
+    url: selectors_1.getHeaderLinkUrl,
     isActive: selectors_1.getIsActiveInGroup,
-    hasWindow: selectors_1.getHasWindow
+    hasWindow: selectors_1.getHasWindow,
+    shouldGoToTop: selectors_1.getShouldGoToTop,
 });
 var mapDispatchToProps = function (dispatch) { return ({ dispatch: dispatch }); };
 var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps, { onClick: function () {
-        var params = { name: ownProps.containerName };
-        var action = stateProps.hasWindow ? new OpenWindow_1.default(params) :
-            new SwitchToContainer_1.default(params);
+        var hasWindow = stateProps.hasWindow, shouldGoToTop = stateProps.shouldGoToTop;
+        var containerName = ownProps.containerName;
+        var action = hasWindow ?
+            new OpenWindow_1.default({ name: containerName }) :
+            (shouldGoToTop ?
+                new Top_1.default({ container: containerName }) :
+                new SwitchToContainer_1.default({ name: containerName }));
         return dispatchProps.dispatch(action);
     } })); };
 var ConnectedHeaderLink = react_redux_1.connect(mapStateToProps, mapDispatchToProps, mergeProps)(InnerHeaderLink);
@@ -25683,7 +25681,8 @@ var State = (function () {
                     name: g.name,
                     isTopLevel: !g.group,
                     activeContainerIndex: _this.getGroupActiveContainerIndex(g.name),
-                    activeContainerName: _this.getGroupActiveContainerName(g.name)
+                    activeContainerName: _this.getGroupActiveContainerName(g.name),
+                    gotoTopOnSelectActive: g.gotoTopOnSelectActive
                 });
             }, immutable_1.fromJS({}));
         },
@@ -25697,6 +25696,8 @@ var State = (function () {
             return this.containers.reduce(function (map, c) {
                 return map.set(c.name, {
                     name: c.name,
+                    initialUrl: c.initialUrl,
+                    resetOnLeave: c.resetOnLeave,
                     activeUrl: _this.getContainerActiveUrl(c.name),
                     backPage: _this.getContainerBackPage(c.name),
                     isActiveInGroup: _this.getGroupActiveContainerName(c.group) === c.name,

@@ -10,7 +10,7 @@ export default class Top extends Action {
   readonly reset: boolean
 
   constructor({time, origin, container, reset=false}:
-              {time?:number, origin:Origin, container:string, reset?:boolean}) {
+              {time?:number, origin?:Origin, container:string, reset?:boolean}) {
     super({time, origin})
     this.container = container
     this.reset = reset
@@ -25,8 +25,6 @@ export default class Top extends Action {
   }
 
   filter(state:State):Action[] {
-    const alreadyAtTop:boolean =
-        state.isContainerAtTopPage(this.container)
-    return alreadyAtTop ? [] : [this]
+    return state.isContainerAtTopPage(this.container) ? [] : [this]
   }
 }

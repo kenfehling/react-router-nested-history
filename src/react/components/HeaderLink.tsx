@@ -5,11 +5,12 @@ import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import * as R from 'ramda'
 import {
-  getContainerActiveUrl, getIsActiveInGroup, getHasWindow,
+  getIsActiveInGroup, getHasWindow, getHeaderLinkUrl, getShouldGoToTop
 } from '../selectors'
 import waitForInitialization from '../waitForInitialization'
 import OpenWindow from '../../model/actions/OpenWindow'
 import {createStructuredSelector} from 'reselect'
+import Top from '../../model/actions/Top'
 
 interface BaseHeaderLinkProps {
   children: ReactNode
@@ -68,6 +69,7 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
       'onClick',
       'isActive',
       'hasWindow',
+      'shouldGoToTop',
       'dispatch',
       'storeSubscription'
     ], this.props)
@@ -85,9 +87,10 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
 }
 
 const mapStateToProps = createStructuredSelector({
-  url: getContainerActiveUrl,
+  url: getHeaderLinkUrl,
   isActive: getIsActiveInGroup,
-  hasWindow: getHasWindow
+  hasWindow: getHasWindow,
+  shouldGoToTop: getShouldGoToTop,
 })
 
 const mapDispatchToProps = (dispatch) => ({dispatch})
@@ -98,9 +101,14 @@ const mergeProps = (stateProps, dispatchProps,
   ...dispatchProps,
   ...ownProps,
   onClick: () => {
-    const params = {name: ownProps.containerName}
-    const action = stateProps.hasWindow ? new OpenWindow(params) :
-                                          new SwitchToContainer(params)
+    const {hasWindow, shouldGoToTop} = stateProps
+    const {containerName} = ownProps
+    const action = hasWindow ?
+      new OpenWindow({name: containerName}) :
+      (shouldGoToTop ?
+        new Top({container: containerName}) :
+        new SwitchToContainer({name: containerName}))
+
     return dispatchProps.dispatch(action)
   }
 })
