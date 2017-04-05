@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
+import {compose, getContext, renameProps} from 'recompose'
 import {RouteTransition} from 'react-router-transition'
 import {spring} from 'react-motion'
 import Push from '../../model/actions/Push'
@@ -22,6 +23,8 @@ interface AnimatedPageProps {
 
 type ConnectedProps = AnimatedPageProps & {
   store: Store
+  animate: boolean
+  pathname: string
 }
 
 type InnerProps = ConnectedProps & {
@@ -49,8 +52,8 @@ class Transition {
   readonly willLeave: Side
 
   constructor({willEnter, didEnter=0, willLeave, didLeave=willLeave}:
-              {willEnter:Side, didEnter?:Side,
-              willLeave:Side, didLeave?:Side}) {
+                {willEnter:Side, didEnter?:Side,
+                  willLeave:Side, didLeave?:Side}) {
     this.willEnter = willEnter
     this.didEnter = didEnter
     this.willLeave = willLeave
@@ -115,22 +118,13 @@ const willLeave = (action:Action) => ({
 })
 
 class InnerAnimatedPage extends Component<InnerProps, undefined> {
-  static contextTypes = {
-    animate: PropTypes.bool.isRequired,
-    pathname: PropTypes.string.isRequired
-  }
 
   shouldComponentUpdate(nextProps) {
-    const {match} = this.props
-    const nextMatch = nextProps.match
-    return !(!match && !nextMatch) &&
-      (!match || !nextMatch || match.url !== nextMatch.url)
+    return this.props.pathname !== nextProps.pathname
   }
 
   render() {
-    const {children, lastAction} = this.props
-    const {animate, pathname} = this.context
-
+    const {children, lastAction, animate, pathname} = this.props
     if (animate !== false) {
       return (
         <RouteTransition
@@ -140,11 +134,11 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
           atLeave={willLeave(lastAction)}
           atActive={{offset: spring(0, config)}}
           mapStyles={styles => ({
-              willChange: 'transform',
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              transform: 'translateX(' + styles.offset + '%)'
+            willChange: 'transform',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            transform: 'translateX(' + styles.offset + '%)'
           })}
         >
           {children}
@@ -161,15 +155,17 @@ const mapStateToProps = (state:ComputedState, ownProps:ConnectedProps) => ({
   lastAction: R.last(state.actions.filter(a => !(a instanceof UpdateBrowser)))
 })
 
-const ConnectedPage = connect(mapStateToProps)(InnerAnimatedPage)
+const AnimatedPage = connect(mapStateToProps)(InnerAnimatedPage)
 
-export default class AnimatedPage extends Component<AnimatedPageProps, undefined> {
-  static contextTypes = {
-    rrnhStore: PropTypes.object.isRequired
-  }
+const enhance = compose(
+  getContext({
+    rrnhStore: PropTypes.object.isRequired,
+    animate: PropTypes.bool.isRequired,
+    pathname: PropTypes.string.isRequired
+  }),
+  renameProps({
+    rrnhStore: 'store'
+  })
+)
 
-  render() {
-    const {rrnhStore} = this.context
-    return <ConnectedPage {...this.props} store={rrnhStore} />
-  }
-}
+export default enhance(AnimatedPage)

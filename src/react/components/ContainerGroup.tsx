@@ -88,7 +88,7 @@ const ContainerGroup = connect(
 const enhance = compose(
   getContext({
     rrnhStore: PropTypes.object.isRequired,
-    groupName: PropTypes.string.isRequired
+    groupName: PropTypes.string
   }),
   renameProps({
     rrnhStore: 'store',
