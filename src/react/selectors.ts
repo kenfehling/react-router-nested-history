@@ -117,6 +117,11 @@ export const getContainerActiveUrl = createReselector(
   (container:ComputedContainer) => container ? container.activeUrl : undefined
 )((state, props) => props.containerName)
 
+export const getLastContainerAction = createReselector(
+  getContainer,
+  (container:ComputedContainer) => container ? container.lastAction : undefined
+)((state, props) => props.containerName)
+
 export const getShouldGoToTop = createReselector(
   getContainer, getGroup,
   (container:ComputedContainer, group:ComputedGroup) =>

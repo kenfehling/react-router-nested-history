@@ -3,6 +3,7 @@ import Page from './Page'
 import IComputedState from '../store/IComputedState'
 import {ReduxState} from '../reducers/index'
 import BaseAction from './BaseAction'
+import Action from '../store/Action'
 import State from './State'
 
 export interface ComputedContainer {
@@ -13,6 +14,7 @@ export interface ComputedContainer {
   backPage: Page|undefined
   isActiveInGroup: boolean
   matchesCurrentUrl: boolean
+  lastAction: Action
 }
 
 export interface ComputedGroup {

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
+import {compose, getContext, renameProps} from 'recompose'
 import {RouteTransition} from 'react-router-transition'
 import {spring} from 'react-motion'
 import Push from '../../model/actions/Push'
@@ -14,6 +15,8 @@ import ComputedState from '../../model/ComputedState'
 import UpdateBrowser from '../../model/actions/UpdateBrowser'
 import * as R from 'ramda'
 import {Map, fromJS} from 'immutable'
+import {createStructuredSelector} from 'reselect'
+import {getLastContainerAction} from '../selectors'
 
 interface AnimatedPageProps {
   children?: ReactNode
@@ -157,19 +160,20 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:ComputedState, ownProps:ConnectedProps) => ({
-  lastAction: R.last(state.actions.filter(a => !(a instanceof UpdateBrowser)))
+const mapStateToProps = createStructuredSelector({
+  lastAction: getLastContainerAction
 })
 
-const ConnectedPage = connect(mapStateToProps)(InnerAnimatedPage)
+const AnimatedPage = connect(mapStateToProps)(InnerAnimatedPage)
 
-export default class AnimatedPage extends Component<AnimatedPageProps, undefined> {
-  static contextTypes = {
-    rrnhStore: PropTypes.object.isRequired
-  }
+const enhance = compose(
+  getContext({
+    rrnhStore: PropTypes.object.isRequired,
+    containerName: PropTypes.object.isRequired
+  }),
+  renameProps({
+    rrnhStore: 'store'
+  })
+)
 
-  render() {
-    const {rrnhStore} = this.context
-    return <ConnectedPage {...this.props} store={rrnhStore} />
-  }
-}
+export default enhance(AnimatedPage)

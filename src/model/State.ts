@@ -20,6 +20,7 @@ import HistoryWindow from './HistoryWindow'
 import HistoryStack from './HistoryStack'
 import {parseParamsFromPatterns, patternsMatch} from '../util/url'
 import IGroupContainer from './IGroupContainer'
+import Action from '../store/Action'
 
 interface SortFnParams<T> {
   visited: List<T>
@@ -38,6 +39,7 @@ class State implements IState {
   readonly containers: OrderedMap<string, IContainer>
   readonly windows: Map<string, HistoryWindow>
   readonly titles: List<PathTitle>
+  readonly lastContainerActions: Map<string, Action>
   readonly zeroPage?: string
   readonly isOnZeroPage: boolean
   readonly isInitialized: boolean
@@ -83,7 +85,8 @@ class State implements IState {
           activeUrl: this.getContainerActiveUrl(c.name),
           backPage: this.getContainerBackPage(c.name),
           isActiveInGroup: this.getGroupActiveContainerName(c.group) === c.name,
-          matchesCurrentUrl: currentUrl === this.getContainerActiveUrl(c.name)
+          matchesCurrentUrl: currentUrl === this.getContainerActiveUrl(c.name),
+          lastAction: this.lastContainerActions.get(c.name)
         }),
       fromJS({}))
   }
