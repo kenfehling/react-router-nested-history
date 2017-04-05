@@ -25694,7 +25694,7 @@ var enhance = recompose_1.compose(recompose_1.getContext({
     containerName: react_1.PropTypes.string.isRequired
 }), recompose_1.renameProps({
     rrnhStore: 'store',
-}));
+}), recompose_1.shouldUpdate(function (props, nextProps) { return false; }));
 exports.default = enhance(HistoryLink);
 
 
@@ -28060,7 +28060,7 @@ var enhance = recompose_1.compose(recompose_1.getContext({
     pathname: react_1.PropTypes.string.isRequired
 }), recompose_1.renameProps({
     rrnhStore: 'store'
-}));
+}), recompose_1.shouldUpdate(function (props, nextProps) { return props.pathname !== nextProps.pathname; }));
 exports.default = enhance(AnimatedPage);
 var _a;
 

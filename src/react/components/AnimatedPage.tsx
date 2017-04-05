@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {compose, getContext, renameProps} from 'recompose'
+import {compose, getContext, renameProps, shouldUpdate} from 'recompose'
 import {RouteTransition} from 'react-router-transition'
 import {spring} from 'react-motion'
 import Push from '../../model/actions/Push'
@@ -165,7 +165,10 @@ const enhance = compose(
   }),
   renameProps({
     rrnhStore: 'store'
-  })
+  }),
+  shouldUpdate(
+    (props, nextProps) => props.pathname !== nextProps.pathname
+  )
 )
 
 export default enhance(AnimatedPage)
