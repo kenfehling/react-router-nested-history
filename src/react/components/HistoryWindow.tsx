@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
-import {connect, Dispatch} from 'react-redux'
+import {connect} from 'react-redux'
 import {Store} from '../../store'
 import SmartHistoryWindow, {WindowProps} from './SmartHistoryWindow'
 import CreateWindow from '../../model/actions/CreateWindow'

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
-import {connect, Dispatch} from 'react-redux'
+import {connect} from 'react-redux'
 import DumbContainer from './DumbContainer'
 import {renderToStaticMarkup} from 'react-dom/server'
 import CreateContainer from '../../model/actions/CreateContainer'

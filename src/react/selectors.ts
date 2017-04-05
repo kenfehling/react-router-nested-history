@@ -26,9 +26,7 @@ const getWindows = (state):Map<string, ComputedWindow> => state.windows
 const getPositions = (state):Map<string, Object> => state.windowPositions
 
 export const getIsInitialized = state => state.isInitialized
-export const getLoadedFromPersist = state => {
-  return state.loadedFromPersist
-}
+export const getLoadedFromPersist = state => state.loadedFromPersist
 
 export const getGroup = createReselector(
   getGroupName, getGroups, getIsInitialized,

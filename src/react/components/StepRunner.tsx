@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component} from 'react'
-import {connect, Dispatch} from 'react-redux'
+import {connect} from 'react-redux'
 import {Location} from 'history'
 import {Store} from '../../store'
 import Page from '../../model/Page'

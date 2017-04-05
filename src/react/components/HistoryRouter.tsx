@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, ReactNode, PropTypes} from 'react'
 import {Route} from 'react-router'
-import {connect, Dispatch} from 'react-redux'
+import {connect} from 'react-redux'
 import {createStore, Store} from '../../store'
 import DumbHistoryRouter from './DumbHistoryRouter'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
@@ -17,11 +17,15 @@ import ComputedState from '../../model/ComputedState'
 import reducer, {initialState, ReduxState} from '../../reducers'
 import {createStore as createRegularReduxStore} from 'redux'
 import {autoRehydrate, persistStore} from 'redux-persist'
-import {getDispatch, createCachingSelector} from '../selectors'
+import {
+  getDispatch, createCachingSelector,
+  getIsInitialized
+} from '../selectors'
 declare const window:any
 
 // For IE
 import * as Promise from 'promise-polyfill'
+import {createStructuredSelector} from 'reselect'
 
 if (canUseDOM && !window.Promise) {
   window.Promise = Promise
@@ -63,6 +67,10 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
     if (!loadedFromRefresh) {
       this.initialize()
     }
+  }
+
+  shouldComponentUpdate() {
+    return false
   }
 
   initialize() {
@@ -115,8 +123,8 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:ComputedState) => ({
-  isInitialized: state.isInitialized
+const mapStateToProps = createStructuredSelector({
+  isInitialized: getIsInitialized
 })
 
 const makeGetActions = () => createCachingSelector(
@@ -166,8 +174,7 @@ class HistoryRouter extends Component<HistoryRouterProps, HistoryRouterState> {
 
   render() {
     return this.state.loaded ?
-      <ConnectedHistoryRouter {...this.props} store={this.store} /> :
-      <div></div>
+      <ConnectedHistoryRouter {...this.props} store={this.store} /> : null
   }
 }
 

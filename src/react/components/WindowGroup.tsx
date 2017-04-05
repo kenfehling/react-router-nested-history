@@ -7,7 +7,7 @@ import {
 import {GroupChildrenFunctionArgs} from './DumbContainerGroup'
 import ReactNode = React.ReactNode
 import ReactElement = React.ReactElement
-import {connect, Dispatch} from 'react-redux'
+import {connect} from 'react-redux'
 import {Store} from '../../store'
 import {resetWindowPositions} from '../../actions/WindowActions'
 import {getDispatch, createCachingSelector, getGroupName} from '../selectors'
