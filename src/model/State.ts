@@ -297,8 +297,9 @@ class State implements IState {
     }
     else {
       const from = this.activeContainer
-      const state = from.resetOnLeave ?
-        this.top({time: time - 1, reset: true}) : this
+      const to = this.containers.get(container)
+      const state = from.resetOnLeave && from.group === to.group ?
+          this.top({time: time - 1, reset: true}) : this
       const newActivePage = this.getContainerActivePage(container)
       return state.replacePage(newActivePage.touch({time, type}))
     }
