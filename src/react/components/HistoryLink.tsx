@@ -1,8 +1,9 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import {LinkProps} from 'react-router'
-import {createPath} from 'history/PathUtils'
 import {connect} from 'react-redux'
+import {compose, getContext, renameProps} from 'recompose'
+import {createPath} from 'history/PathUtils'
 import Push from '../../model/actions/Push'
 import {Store} from '../../store'
 import * as R from 'ramda'
@@ -10,7 +11,6 @@ import {
   EMPTY_OBJ, createCachingSelector, getGroupName,
   getDispatch, getContainerName
 } from '../selectors'
-import waitForInitialization from '../waitForInitialization'
 
 type HistoryLinkPropsWithStore = LinkProps & {
   store: Store
@@ -87,23 +87,21 @@ const mergeProps = (stateProps, dispatchProps,
   ...ownProps
 })
 
-const ConnectedHistoryLink = connect(
+const HistoryLink = connect(
   () => (EMPTY_OBJ),
   makeGetActions,
   mergeProps
 )(InnerHistoryLink)
 
-class HistoryLink extends Component<LinkProps, undefined> {
-  static contextTypes = {
+const enhance = compose(
+  getContext({
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
     containerName: PropTypes.string.isRequired
-  }
+  }),
+  renameProps({
+    rrnhStore: 'store',
+  })
+)
 
-  render() {
-    const {rrnhStore, ...context} = this.context
-    return <ConnectedHistoryLink store={rrnhStore} {...context} {...this.props} />
-  }
-}
-
-export default waitForInitialization(HistoryLink)
+export default enhance(HistoryLink)
