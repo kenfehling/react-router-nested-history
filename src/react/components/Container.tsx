@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
+import {compose, getContext, renameProps, shouldUpdate} from 'recompose'
 import DumbContainer from './DumbContainer'
 import {renderToStaticMarkup} from 'react-dom/server'
 import CreateContainer from '../../model/actions/CreateContainer'
@@ -28,6 +29,10 @@ type ConnectedContainerProps = ContainerPropsWithStore & {
 }
 
 class InnerContainer extends Component<ConnectedContainerProps, undefined> {
+
+  shouldComponentUpdate() {
+    return false
+  }
 
   componentWillMount() {
     const {loadedFromPersist, isInitialized} = this.props
@@ -120,21 +125,24 @@ const mergeProps = (stateProps, dispatchProps,
   ...ownProps
 })
 
-const ConnectedContainer = connect(
+const Container = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
 )(InnerContainer)
 
-export default class Container extends Component<ContainerProps, undefined> {
-  static contextTypes = {
+const enhance = compose(
+  getContext({
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired,
     hideInactiveContainers: PropTypes.bool
-  }
+  }),
+  renameProps({
+    rrnhStore: 'store'
+  }),
+  shouldUpdate(
+    (props, nextProps) => false
+  )
+)
 
-  render() {
-    const {rrnhStore, ...context} = this.context
-    return <ConnectedContainer store={rrnhStore} {...context} {...this.props} />
-  }
-}
+export default enhance(Container)

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {connect} from 'react-redux'
-import {compose, getContext, renameProps} from 'recompose'
+import {compose, getContext, renameProps, shouldUpdate} from 'recompose'
 import SmartContainerGroup, {ContainerGroupProps} from './SmartContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
 import {Store} from '../../store'
@@ -93,7 +93,10 @@ const enhance = compose(
   renameProps({
     rrnhStore: 'store',
     groupName: 'parentGroup'
-  })
+  }),
+  shouldUpdate(
+    (props, nextProps) => false
+  )
 )
 
 export default enhance(ContainerGroup)
