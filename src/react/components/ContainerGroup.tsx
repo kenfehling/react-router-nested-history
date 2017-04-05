@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {connect, Dispatch} from 'react-redux'
+import {connect} from 'react-redux'
+import {compose, getContext, renameProps} from 'recompose'
 import SmartContainerGroup, {ContainerGroupProps} from './SmartContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
 import {Store} from '../../store'
@@ -22,16 +23,19 @@ type ConnectedGroupProps = GroupPropsWithStore & {
 
 class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
 
+  shouldComponentUpdate() {
+    return false
+  }
+
   componentWillMount() {
-    const { /*parentGroup, */ loadedFromPersist, isInitialized} = this.props
-    if ( /* !parentGroup && */ !loadedFromPersist && !isInitialized) {
+    const {loadedFromPersist, isInitialized} = this.props
+    if (!loadedFromPersist && !isInitialized) {
       this.initialize()
     }
   }
 
   initialize() {
     const {
-      store,
       name,
       createGroup,
       resetOnLeave,
@@ -49,25 +53,6 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       allowInterContainerHistory,
       gotoTopOnSelectActive
     }))
-
-     class G extends Component<{children: ReactNode}, undefined> {
-       static childContextTypes = {
-         rrnhStore: PropTypes.object.isRequired,
-         groupName: PropTypes.string.isRequired
-       }
-
-       getChildContext() {
-         return {
-           rrnhStore: store,
-           groupName: name
-         }
-       }
-
-       render() {
-         const {children} = this.props
-         return <div>{children}</div>
-       }
-     }
   }
 
   render() {
@@ -94,25 +79,21 @@ const mergeProps = (stateProps, dispatchProps,
   ...ownProps
 })
 
-const ConnectedContainerGroup = connect(
+const ContainerGroup = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
 )(InnerContainerGroup)
 
-export default class ContainerGroup extends Component<ContainerGroupProps, undefined> {
-  static contextTypes = {
-    groupName: PropTypes.string,  // Parent group name (if any)
-    rrnhStore: PropTypes.object.isRequired
-  }
+const enhance = compose(
+  getContext({
+    rrnhStore: PropTypes.object.isRequired,
+    groupName: PropTypes.string.isRequired
+  }),
+  renameProps({
+    rrnhStore: 'store',
+    groupName: 'parentGroup'
+  })
+)
 
-  render() {
-    const {groupName, rrnhStore} = this.context
-    return (
-      <ConnectedContainerGroup parentGroup={groupName}
-                               store={rrnhStore}
-                               {...this.props}
-      />
-    )
-  }
-}
+export default enhance(ContainerGroup)

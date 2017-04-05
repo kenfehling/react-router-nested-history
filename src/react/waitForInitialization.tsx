@@ -1,8 +1,10 @@
 import * as React from 'react'
-import {Component, ComponentClass, PropTypes, createElement} from 'react'
+import {ComponentClass, PropTypes, createElement} from 'react'
 import {connect} from 'react-redux'
+import {compose, getContext, renameProps, shouldUpdate} from 'recompose'
 import {Store} from '../store'
-import ComputedState from '../model/ComputedState'
+import {createStructuredSelector} from 'reselect'
+import {getIsInitialized} from './selectors'
 
 function waitForInitialization(component:ComponentClass<any>):ComponentClass<any> {
 
@@ -14,37 +16,32 @@ function waitForInitialization(component:ComponentClass<any>):ComponentClass<any
     isInitialized: boolean
   }
 
-  const mapStateToProps = (state:ComputedState) => {
-    return {
-      isInitialized: state.isInitialized
-    }
-  }
-
-  const mergeProps = (stateProps, dispatchProps,
-                      ownProps:PropsWithStore):ConnectedProps => ({
-    ...stateProps,
-    ...dispatchProps,
-    ...ownProps
+  const mapStateToProps = createStructuredSelector({
+    isInitialized: getIsInitialized
   })
 
-  const WrappedComponent = ({isInitialized, ...props}:ConnectedProps) =>
+  const WrappedComponent = shouldUpdate(
+    (props, nextProps) => !props.isInitialized && nextProps.isInitialized
+  )(
+    ({isInitialized, ...props}:ConnectedProps) =>
       isInitialized ? createElement(component, props) : null
+  )
 
-  const ConnectedComponent = connect(
+  const WaitForInitialization = connect(
     mapStateToProps,
-    {},
-    mergeProps
+    {}
   )(WrappedComponent as any)
 
-  return class WaitForInitialization extends Component<any, any> {
-    static contextTypes = {
+  const enhance = compose(
+    getContext({
       rrnhStore: PropTypes.object.isRequired
-    }
-    render() {
-      const {rrnhStore} = this.context
-      return <ConnectedComponent store={rrnhStore} {...this.props} />
-    }
-  }
+    }),
+    renameProps({
+      rrnhStore: 'store'
+    })
+  )
+
+  return enhance(WaitForInitialization)
 }
 
 export default waitForInitialization

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import {Dispatch, connect} from 'react-redux'
+import {connect} from 'react-redux'
+import {compose, getContext, renameProps} from 'recompose'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
 import * as R from 'ramda'
@@ -113,27 +114,22 @@ const mergeProps = (stateProps, dispatchProps,
   }
 })
 
-const ConnectedHeaderLink = connect(
+const HeaderLink = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
 )(InnerHeaderLink)
 
-class HeaderLink extends Component<HeaderLinkProps, undefined> {
-  static contextTypes = {
+const enhance = compose(
+  getContext({
     rrnhStore: PropTypes.object.isRequired,
     groupName: PropTypes.string.isRequired
-  }
+  }),
+  renameProps({
+    rrnhStore: 'store',
+    toContainer: 'containerName'
+  }),
+  waitForInitialization
+)
 
-  render() {
-    const {rrnhStore, ...context} = this.context
-    const {toContainer, ...props} = this.props
-    return <ConnectedHeaderLink store={rrnhStore}
-                                containerName={toContainer}
-                                {...context}
-                                {...props}
-    />
-  }
-}
-
-export default waitForInitialization(HeaderLink)
+export default enhance(HeaderLink)
