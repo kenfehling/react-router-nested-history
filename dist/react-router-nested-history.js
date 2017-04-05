@@ -25642,6 +25642,9 @@ var InnerHistoryLink = (function (_super) {
     function InnerHistoryLink() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    InnerHistoryLink.prototype.shouldComponentUpdate = function () {
+        return false;
+    };
     InnerHistoryLink.prototype.componentDidMount = function () {
         if (this.props.groupName == null) {
             throw new Error('HistoryLink needs to be inside a ContainerGroup');

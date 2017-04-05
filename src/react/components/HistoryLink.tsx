@@ -23,6 +23,10 @@ type ConnectedHistoryLinkProps = HistoryLinkPropsWithStore & {
 
 class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
 
+  shouldComponentUpdate() {
+    return false
+  }
+
   componentDidMount() {
     if (this.props.groupName == null) {
       throw new Error('HistoryLink needs to be inside a ContainerGroup')
