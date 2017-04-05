@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
 import {connect} from 'react-redux'
-import {compose, getContext, renameProps, shouldUpdate} from 'recompose'
+import {compose, getContext, renameProps} from 'recompose'
 import SmartContainerGroup, {ContainerGroupProps} from './SmartContainerGroup'
 import CreateGroup from '../../model/actions/CreateGroup'
 import {Store} from '../../store'
@@ -9,6 +9,7 @@ import {
   getDispatch, createCachingSelector, getIsInitialized, getLoadedFromPersist
 } from '../selectors'
 import {createStructuredSelector} from 'reselect'
+import {neverUpdate} from '../enhancers'
 
 type GroupPropsWithStore = ContainerGroupProps & {
   store: Store
@@ -94,9 +95,7 @@ const enhance = compose(
     rrnhStore: 'store',
     groupName: 'parentGroup'
   }),
-  shouldUpdate(
-    (props, nextProps) => false
-  )
+  neverUpdate
 )
 
 export default enhance(ContainerGroup)

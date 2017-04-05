@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
-import {compose, getContext, renameProps, shouldUpdate} from 'recompose'
+import {compose, getContext, renameProps} from 'recompose'
 import DumbContainer from './DumbContainer'
 import {renderToStaticMarkup} from 'react-dom/server'
 import CreateContainer from '../../model/actions/CreateContainer'
@@ -15,6 +15,7 @@ import {
   getContainerName, getIsInitialized, getLoadedFromPersist,
 } from '../selectors'
 import {createStructuredSelector} from 'reselect'
+import {neverUpdate} from '../enhancers'
 
 type ContainerPropsWithStore = ContainerProps & {
   store: Store
@@ -140,9 +141,7 @@ const enhance = compose(
   renameProps({
     rrnhStore: 'store'
   }),
-  shouldUpdate(
-    (props, nextProps) => false
-  )
+  neverUpdate
 )
 
 export default enhance(Container)

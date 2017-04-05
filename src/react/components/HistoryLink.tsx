@@ -2,7 +2,7 @@ import * as React from 'react'
 import {Component, PropTypes} from 'react'
 import {LinkProps} from 'react-router'
 import {connect} from 'react-redux'
-import {compose, getContext, renameProps, shouldUpdate} from 'recompose'
+import {compose, getContext, renameProps} from 'recompose'
 import {createPath} from 'history/PathUtils'
 import Push from '../../model/actions/Push'
 import {Store} from '../../store'
@@ -11,6 +11,7 @@ import {
   EMPTY_OBJ, createCachingSelector, getGroupName,
   getDispatch, getContainerName
 } from '../selectors'
+import {neverUpdate} from '../enhancers'
 
 type HistoryLinkPropsWithStore = LinkProps & {
   store: Store
@@ -106,9 +107,7 @@ const enhance = compose(
   renameProps({
     rrnhStore: 'store',
   }),
-  shouldUpdate(
-    (props, nextProps) => false
-  )
+  neverUpdate
 )
 
 export default enhance(HistoryLink)
