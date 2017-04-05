@@ -11,10 +11,9 @@ import Action from '../../model/BaseAction'
 import PopState from '../../model/actions/PopState'
 import {connect} from 'react-redux'
 import {Store} from '../../store'
-import ComputedState from '../../model/ComputedState'
-import UpdateBrowser from '../../model/actions/UpdateBrowser'
-import * as R from 'ramda'
 import {Map, fromJS} from 'immutable'
+import {createStructuredSelector} from 'reselect'
+import {getLastAction} from '../selectors'
 
 interface AnimatedPageProps {
   children?: ReactNode
@@ -151,8 +150,8 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
   }
 }
 
-const mapStateToProps = (state:ComputedState, ownProps:ConnectedProps) => ({
-  lastAction: R.last(state.actions.filter(a => !(a instanceof UpdateBrowser)))
+const mapStateToProps = createStructuredSelector({
+  lastAction: getLastAction
 })
 
 const AnimatedPage = connect(mapStateToProps)(InnerAnimatedPage)

@@ -5,6 +5,8 @@ import * as R from 'ramda'
 import {
   ComputedGroup, ComputedContainer, ComputedWindow
 } from '../model/ComputedState'
+import UpdateBrowser from '../model/actions/UpdateBrowser'
+import AddTitle from '../model/actions/AddTitle'
 
 export const createDeepEqualSelector = createSelectorCreator(
   defaultMemoize,
@@ -20,13 +22,14 @@ export const EMPTY_OBJ = {}
 export const getDispatch = (dispatch) => dispatch
 export const getGroupName = (state, props):string => props.groupName
 export const getContainerName = (state, props):string => props.containerName
-export const getContainers = (state):Map<string, ComputedContainer> => state.containers
-export const getGroups = (state):Map<string, ComputedGroup> => state.groups
-const getWindows = (state):Map<string, ComputedWindow> => state.windows
-const getPositions = (state):Map<string, Object> => state.windowPositions
-
+export const getLastAction = (state) => R.last(state.actions.filter(a =>
+    !(a instanceof UpdateBrowser) && !(a instanceof AddTitle)))
 export const getIsInitialized = state => state.isInitialized
 export const getLoadedFromPersist = state => state.loadedFromPersist
+const getContainers = (state):Map<string, ComputedContainer> => state.containers
+const getGroups = (state):Map<string, ComputedGroup> => state.groups
+const getWindows = (state):Map<string, ComputedWindow> => state.windows
+const getPositions = (state):Map<string, Object> => state.windowPositions
 
 export const getGroup = createReselector(
   getGroupName, getGroups, getIsInitialized,
