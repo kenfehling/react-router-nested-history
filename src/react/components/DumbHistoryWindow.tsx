@@ -141,7 +141,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
 
   getClassName() {
     const {className, topClassName, isOnTop} = this.props
-    return isOnTop && topClassName ? topClassName : className || ''
+    return isOnTop ? [ topClassName, className ].join(' ') : className || ''
   }
 
   onMouseDown(event) {

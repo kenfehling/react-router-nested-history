@@ -57,18 +57,17 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
 
   getClassName():string {
     const {className, activeClassName, isActive} = this.props
-    return isActive && activeClassName ? activeClassName : className || ''
+    return isActive ? [ activeClassName, className ].join(' ') : className || ''
   }
 
   render() {
-    const {children, url, ...aProps} = R.omit([
+    const {children, url, isActive, ...aProps} = R.omit([
       'groupName',
       'containerName',
       'activeClassName',
       'className',
       'store',
       'onClick',
-      'isActive',
       'hasWindow',
       'shouldGoToTop',
       'dispatch',
@@ -81,7 +80,7 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
          onClick={this.onClick.bind(this)}
          {...aProps}
       >
-        {children}
+        {children instanceof Function ? children({isActive}) : children}
       </a>
     )
   }

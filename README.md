@@ -91,14 +91,47 @@ Use this for a container's header link (typically a tab-like thing)
         <tr>
           <td>className</td>
           <td>string</td>
-          <td align="center"></td>
+          <td></td>
           <td>The CSS class for styling this element</td>
         </tr>
         <tr>
           <td>activeClassName</td>
           <td>string</td>
-          <td align="center"></td>
+          <td></td>
           <td>An alternate CSS class for styling the active item</td>
+        </tr>
+        <tr>
+          <td>onClick</td>
+          <td>Function</td>
+          <td></td>
+          <td>
+            Do an additional action when this HeaderLink is clicked,
+            in addition to activating its associated Container
+          </td>
+        </tr>
+        <tr>
+          <td>children</td>
+          <td>ReactNode or Function</td>
+          <td align="center"></td>
+          <td>The children of this HeaderLink</td>
+        </tr>
+    </tbody>
+</table>
+
+#### `children` function params
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>isActive</td>
+          <td>boolean</td>
+          <td>Is this HeaderLink's associated Container active?</td>
         </tr>
     </tbody>
 </table>
@@ -363,6 +396,7 @@ A single window inside a `WindowGroup`
           <td>forName</td>
           <td>string</td>
           <td align="center">✓</td>
+          <td></td>
           <td>The name of the `Container` or `Group` this window wraps</td>
         </tr>
         <tr>
