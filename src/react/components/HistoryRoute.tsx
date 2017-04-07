@@ -58,7 +58,7 @@ const HistoryRoute:any = ({component, children, render, ...props}:any, {pathname
 )
 
 HistoryRoute.contextTypes = {
-  pathname: PropTypes.string.isRequired
+  pathname: PropTypes.string
 }
 
 HistoryRoute.propTypes = {

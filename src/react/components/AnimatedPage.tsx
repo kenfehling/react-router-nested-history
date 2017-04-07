@@ -160,7 +160,7 @@ const enhance = compose(
   getContext({
     rrnhStore: PropTypes.object.isRequired,
     animate: PropTypes.bool.isRequired,
-    pathname: PropTypes.string.isRequired
+    pathname: PropTypes.string
   }),
   renameProps({
     rrnhStore: 'store'

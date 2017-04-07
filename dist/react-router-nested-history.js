@@ -17566,7 +17566,7 @@ var DumbContainer = (function (_super) {
 DumbContainer.childContextTypes = {
     groupName: react_1.PropTypes.string.isRequired,
     containerName: react_1.PropTypes.string.isRequired,
-    pathname: react_1.PropTypes.string.isRequired,
+    pathname: react_1.PropTypes.string,
     patterns: react_1.PropTypes.arrayOf(react_1.PropTypes.string).isRequired,
     animate: react_1.PropTypes.bool.isRequired
 };
@@ -25771,7 +25771,7 @@ var HistoryRoute = function (_a, _b) {
     return (React.createElement(InnerHistoryRoute, __assign({}, props, { pathname: pathname, children: function (p) { return (React.createElement(AnimatedPage_1.default, __assign({}, p), p.match && r({ component: component, children: children, render: render, match: p.match, props: p }))); } })));
 };
 HistoryRoute.contextTypes = {
-    pathname: react_1.PropTypes.string.isRequired
+    pathname: react_1.PropTypes.string
 };
 HistoryRoute.propTypes = {
     computedMatch: react_1.PropTypes.object,
@@ -28062,7 +28062,7 @@ var AnimatedPage = react_redux_1.connect(mapStateToProps)(InnerAnimatedPage);
 var enhance = recompose_1.compose(recompose_1.getContext({
     rrnhStore: react_1.PropTypes.object.isRequired,
     animate: react_1.PropTypes.bool.isRequired,
-    pathname: react_1.PropTypes.string.isRequired
+    pathname: react_1.PropTypes.string
 }), recompose_1.renameProps({
     rrnhStore: 'store'
 }), recompose_1.shouldUpdate(function (props, nextProps) { return props.pathname !== nextProps.pathname; }));
