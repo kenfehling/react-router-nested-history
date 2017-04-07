@@ -25577,7 +25577,8 @@ var mapStateToProps = reselect_1.createStructuredSelector({
     shouldGoToTop: selectors_1.getShouldGoToTop,
 });
 var mapDispatchToProps = function (dispatch) { return ({ dispatch: dispatch }); };
-var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps, { onClick: function () {
+var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps, { onClick: function (event) {
+        ownProps.onClick && ownProps.onClick(event);
         var hasWindow = stateProps.hasWindow, shouldGoToTop = stateProps.shouldGoToTop;
         var containerName = ownProps.containerName;
         var action = hasWindow ?

@@ -17,6 +17,7 @@ interface BaseHeaderLinkProps {
   children: ReactNode
   className?: string,
   activeClassName?: string
+  onClick?: (event:MouseEvent) => void
 }
 
 export type HeaderLinkProps = BaseHeaderLinkProps& {
@@ -100,7 +101,8 @@ const mergeProps = (stateProps, dispatchProps,
   ...stateProps,
   ...dispatchProps,
   ...ownProps,
-  onClick: () => {
+  onClick: (event:MouseEvent) => {
+    ownProps.onClick && ownProps.onClick(event)
     const {hasWindow, shouldGoToTop} = stateProps
     const {containerName} = ownProps
     const action = hasWindow ?
