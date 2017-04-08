@@ -397,7 +397,7 @@ A single window inside a `WindowGroup`
           <td>string</td>
           <td align="center">✓</td>
           <td></td>
-          <td>The name of the `Container` or `Group` this window wraps</td>
+          <td>The name of the container or group this window wraps</td>
         </tr>
         <tr>
           <td>visible</td>
