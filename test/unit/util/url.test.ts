@@ -6,10 +6,10 @@ declare const it:any
 describe('url utils', () => {
   it('knows if paths match', () => {
     const f = utils.patternMatches
-    expect(f('/a', '/b')).to.be.false
-    expect(f('/a/1', '/a/2')).to.be.false
-    expect(f('/a/:id', '/a')).to.be.false
-    expect(f('/a/:id', '/a/1')).to.be.true
+    expect(f('/a', '/b')).to.equal(false)
+    expect(f('/a/1', '/a/2')).to.equal(false)
+    expect(f('/a/:id', '/a')).to.equal(false)
+    expect(f('/a/:id', '/a/1')).to.equal(true)
   })
 
   describe('patternsMatch', () => {

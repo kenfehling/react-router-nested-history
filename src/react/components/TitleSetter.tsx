@@ -4,7 +4,6 @@ import {connect} from 'react-redux'
 import {Store} from '../../store'
 import {canUseWindowLocation} from '../../util/browserFunctions'
 import ComputedState from '../../model/ComputedState'
-import waitForInitialization from '../waitForInitialization'
 
 type TitleSetterProps = {
   store: Store
@@ -17,13 +16,17 @@ type ConnectedTitleSetterProps = TitleSetterProps & {
 
 class InnerTitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
 
-  componentWillReceiveProps(newProps) {
-    const {activeTitle} = newProps
+  updateTitle() {
+    const {activeTitle} = this.props
     if (canUseWindowLocation) {
       if (activeTitle) {
         document.title = activeTitle
       }
     }
+  }
+
+  componentDidMount() {
+    setTimeout(this.updateTitle.bind(this), 1)
   }
 
   render() {
@@ -38,10 +41,8 @@ const mapStateToProps = (state:ComputedState,
   activeTitle: state.activeTitle
 })
 
-const ConnectedTitleSetter = connect(mapStateToProps)(InnerTitleSetter)
+const TitleSetter = connect(mapStateToProps)(InnerTitleSetter)
 
-const TitleSetter = ({store}:TitleSetterProps) => (
-  <ConnectedTitleSetter store={store} />
+export default ({store}:TitleSetterProps) => (
+  <TitleSetter store={store} />
 )
-
-export default waitForInitialization(TitleSetter as any)

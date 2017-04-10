@@ -124,7 +124,7 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
 
   render() {
     const {children, lastAction, animate, pathname} = this.props
-    if (animate !== false) {
+    if (pathname && animate !== false) {
       return (
         <RouteTransition
           pathname={pathname}
