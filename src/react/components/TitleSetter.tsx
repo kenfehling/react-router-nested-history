@@ -20,13 +20,15 @@ class InnerTitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
     const {activeTitle} = this.props
     if (canUseWindowLocation) {
       if (activeTitle) {
-        document.title = activeTitle
+        setTimeout(() => {
+          document.title = activeTitle
+        }, 1)
       }
     }
   }
 
   componentDidMount() {
-    setTimeout(this.updateTitle.bind(this), 1)
+    this.updateTitle()
   }
 
   componentDidUpdate() {

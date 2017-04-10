@@ -28760,12 +28760,14 @@ var InnerTitleSetter = (function (_super) {
         var activeTitle = this.props.activeTitle;
         if (browserFunctions_1.canUseWindowLocation) {
             if (activeTitle) {
-                document.title = activeTitle;
+                setTimeout(function () {
+                    document.title = activeTitle;
+                }, 1);
             }
         }
     };
     InnerTitleSetter.prototype.componentDidMount = function () {
-        setTimeout(this.updateTitle.bind(this), 1);
+        this.updateTitle();
     };
     InnerTitleSetter.prototype.componentDidUpdate = function () {
         this.updateTitle();
