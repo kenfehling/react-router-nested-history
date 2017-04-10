@@ -29,6 +29,10 @@ class InnerTitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
     setTimeout(this.updateTitle.bind(this), 1)
   }
 
+  componentDidUpdate() {
+    this.updateTitle()
+  }
+
   render() {
     return null
   }
