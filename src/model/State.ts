@@ -75,14 +75,15 @@ class State implements IState {
   get computedContainers():Map<string, ComputedContainer> {
     const currentUrl = this.activeUrl
     return this.containers.reduce(
-      (map:Map<string, ComputedContainer>, c:Container) =>
+      (map:Map<string, ComputedContainer>, c:IContainer) =>
         map.set(c.name, {
           name: c.name,
-          initialUrl: c.initialUrl,
+          initialUrl: this.getInitialUrl(c),
           resetOnLeave: c.resetOnLeave,
           activeUrl: this.getContainerActiveUrl(c.name),
           backPage: this.getContainerBackPage(c.name),
-          isActiveInGroup: this.getGroupActiveContainerName(c.group) === c.name,
+          isActiveInGroup: c.group ?
+              this.getGroupActiveContainerName(c.group) === c.name : false,
           matchesCurrentUrl: currentUrl === this.getContainerActiveUrl(c.name)
         }),
       fromJS({}))
@@ -231,6 +232,15 @@ class State implements IState {
   getContainerStackOrder(group:string):List<IGroupContainer> {
     const cs:List<IGroupContainer> = this.getGroupContainers(group)
     return this.sortContainersByLastVisited(cs) as List<IGroupContainer>
+  }
+
+  getInitialUrl(c:IContainer):string {
+    if (c.isGroup) {
+      return this.getInitialUrl(this.getGroupActiveContainer(c.name))
+    }
+    else {
+      return (c as Container).initialUrl
+    }
   }
 
   switchToGroup({name, time}:{name:string, time:number}):State {

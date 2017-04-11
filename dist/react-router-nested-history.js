@@ -25570,6 +25570,7 @@ var InnerHeaderLink = (function (_super) {
     };
     return InnerHeaderLink;
 }(react_1.Component));
+2;
 var mapStateToProps = reselect_1.createStructuredSelector({
     url: selectors_1.getHeaderLinkUrl,
     isActive: selectors_1.getIsActiveInGroup,
@@ -26546,11 +26547,12 @@ var State = (function () {
             return this.containers.reduce(function (map, c) {
                 return map.set(c.name, {
                     name: c.name,
-                    initialUrl: c.initialUrl,
+                    initialUrl: _this.getInitialUrl(c),
                     resetOnLeave: c.resetOnLeave,
                     activeUrl: _this.getContainerActiveUrl(c.name),
                     backPage: _this.getContainerBackPage(c.name),
-                    isActiveInGroup: _this.getGroupActiveContainerName(c.group) === c.name,
+                    isActiveInGroup: c.group ?
+                        _this.getGroupActiveContainerName(c.group) === c.name : false,
                     matchesCurrentUrl: currentUrl === _this.getContainerActiveUrl(c.name)
                 });
             }, immutable_1.fromJS({}));
@@ -26687,6 +26689,14 @@ var State = (function () {
     State.prototype.getContainerStackOrder = function (group) {
         var cs = this.getGroupContainers(group);
         return this.sortContainersByLastVisited(cs);
+    };
+    State.prototype.getInitialUrl = function (c) {
+        if (c.isGroup) {
+            return this.getInitialUrl(this.getGroupActiveContainer(c.name));
+        }
+        else {
+            return c.initialUrl;
+        }
     };
     State.prototype.switchToGroup = function (_a) {
         var name = _a.name, time = _a.time;

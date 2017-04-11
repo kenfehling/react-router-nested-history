@@ -85,7 +85,7 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
       </a>
     )
   }
-}
+}2
 
 const mapStateToProps = createStructuredSelector({
   url: getHeaderLinkUrl,
