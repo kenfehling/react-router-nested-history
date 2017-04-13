@@ -1,5 +1,3 @@
-var webpack = require('webpack');
-
 module.exports = {
   entry: "./src/index.ts",
   output: {
@@ -11,7 +9,7 @@ module.exports = {
     loaders: [
       {
         test: /\.(ts|tsx)?$/,
-        loader: "awesome-typescript-loader"
+        loader: 'awesome-typescript-loader'
       }
     ]
   },

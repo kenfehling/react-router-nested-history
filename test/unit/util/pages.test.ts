@@ -2,7 +2,7 @@ import * as utils from '../../../src/util/pages'
 import {expect} from 'chai'
 import HistoryStack from '../../../src/model/HistoryStack'
 import {VisitType} from '../../../src/model/PageVisit'
-import VisitedPage from '../../../src/model/VistedPage'
+import VisitedPage from '../../../src/model/VisitedPage'
 import {List} from 'immutable'
 import Page from '../../../src/model/Page'
 declare const describe:any

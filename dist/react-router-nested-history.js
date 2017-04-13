@@ -17615,7 +17615,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var VistedPage_1 = __webpack_require__(166);
+var VisitedPage_1 = __webpack_require__(166);
 var immutable_1 = __webpack_require__(51);
 var sorting_1 = __webpack_require__(339);
 var PageVisit_1 = __webpack_require__(103);
@@ -17694,7 +17694,7 @@ exports.push = function (pages, _a) {
     }
     else {
         var index = exports.getActiveIndex(pages) + 1;
-        var newPage = new VistedPage_1.default(__assign({}, Object(page), { visits: [{ time: time, type: type }] }));
+        var newPage = new VisitedPage_1.default(__assign({}, Object(page), { visits: [{ time: time, type: type }] }));
         return pages.slice(0, index).toList().push(newPage);
     }
 };
@@ -26507,7 +26507,7 @@ var nonDefaultBehavior = __webpack_require__(307);
 var interContainerHistory = __webpack_require__(305);
 var keepFwdTabBehavior = __webpack_require__(306);
 var removeFwdTabBehavior = __webpack_require__(308);
-var VistedPage_1 = __webpack_require__(166);
+var VisitedPage_1 = __webpack_require__(166);
 var pageUtils = __webpack_require__(175);
 var Container_1 = __webpack_require__(309);
 var HistoryWindow_1 = __webpack_require__(311);
@@ -27165,7 +27165,7 @@ var State = (function () {
             name: name,
             isDefault: isDefault
         });
-        var page = new VistedPage_1.default({
+        var page = new VisitedPage_1.default({
             url: initialUrl,
             params: url_1.parseParamsFromPatterns(patterns, initialUrl),
             container: name,
@@ -27353,7 +27353,7 @@ var State = (function () {
         });
     };
     State.createZeroPage = function (url) {
-        return new VistedPage_1.default({
+        return new VisitedPage_1.default({
             url: url,
             params: {},
             group: '',

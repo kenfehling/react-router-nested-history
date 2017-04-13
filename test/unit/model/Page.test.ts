@@ -1,5 +1,5 @@
 import {expect} from 'chai'
-import VisitedPage from '../../../src/model/VistedPage'
+import VisitedPage from '../../../src/model/VisitedPage'
 import {VisitType} from '../../../src/model/PageVisit'
 declare const describe:any
 declare const it:any

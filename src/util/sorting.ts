@@ -1,4 +1,4 @@
-import VisitedPage from '../model/VistedPage'
+import VisitedPage from '../model/VisitedPage'
 
 export function comparePagesByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
   if (p1.isZeroPage) {

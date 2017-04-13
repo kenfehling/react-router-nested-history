@@ -3,7 +3,7 @@ import Step from '../Step'
 import {diffPagesToSteps} from '../../util/reconciler'
 import Action from '../BaseAction'
 import Serializable from '../../store/decorators/Serializable'
-import VisitedPage from '../VistedPage'
+import VisitedPage from '../VisitedPage'
 import {List} from 'immutable'
 
 /**

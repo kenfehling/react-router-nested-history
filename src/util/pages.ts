@@ -1,4 +1,4 @@
-import VisitedPage from '../model/VistedPage'
+import VisitedPage from '../model/VisitedPage'
 import {List} from 'immutable'
 import {comparePagesByFirstVisited, comparePagesByLastVisited} from './sorting'
 import PageVisit, {VisitType} from '../model/PageVisit'

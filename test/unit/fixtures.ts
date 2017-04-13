@@ -5,7 +5,7 @@ import Load from '../../src/model/actions/Load'
 import State from '../../src/model/State'
 import Action from '../../src/model/BaseAction'
 import {deriveState} from '../../src/store/store'
-import VisitedPage from '../../src/model/VistedPage'
+import VisitedPage from '../../src/model/VisitedPage'
 import SetZeroPage from '../../src/model/actions/SetZeroPage'
 
 const createCreateGroup = (name:string):CreateGroup =>

@@ -1,4 +1,4 @@
-import VisitedPage from './VistedPage'
+import VisitedPage from './VisitedPage'
 import PageVisit from './PageVisit'
 import {List} from 'immutable'
 
