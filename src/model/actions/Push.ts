@@ -1,5 +1,5 @@
 import State from '../State'
-import Action, {Origin, ActionOrigin} from '../BaseAction'
+import Action, {Origin, ActionOrigin} from '../Action'
 import Page from '../Page'
 import {parseParamsFromPatterns} from '../../util/url'
 import SwitchToContainer from './SwitchToContainer'

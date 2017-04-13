@@ -7,7 +7,7 @@ import SwitchToContainer from '../../../src/model/actions/SwitchToContainer'
 import Back from '../../../src/model/actions/Back'
 import BackStep from '../../../src/model/steps/BackStep'
 import Forward from '../../../src/model/actions/Forward'
-import Action from '../../../src/model/BaseAction'
+import Action from '../../../src/model/Action'
 import GoStep from '../../../src/model/steps/GoStep'
 import {
   createContainers1, createSubGroup1, createSubGroup3, originalSimpleActions,

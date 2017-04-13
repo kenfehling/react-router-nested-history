@@ -2,7 +2,7 @@ import {Map, OrderedMap} from 'immutable'
 import Page from './Page'
 import IComputedState from '../store/IComputedState'
 import {ReduxState} from '../reducers/index'
-import BaseAction from './BaseAction'
+import BaseAction from './Action'
 import State from './State'
 
 export interface ComputedContainer {

@@ -1,4 +1,4 @@
-import Action from '../../src/model/BaseAction'
+import Action from '../../src/model/Action'
 import {_history, _resetHistory} from '../../src/util/browserFunctions'
 import {
   createContainers1, createContainers3, createGroup1,
@@ -21,7 +21,7 @@ import ClearActions from '../../src/store/actions/ClearActions'
 import {runSteps} from '../../src/util/stepRunner'
 import {expect} from 'chai'
 import {createSteps} from '../../src/util/reconciler'
-import {USER} from '../../src/model/BaseAction'
+import {USER} from '../../src/model/Action'
 declare const describe:any
 declare const it:any
 declare const beforeEach:any

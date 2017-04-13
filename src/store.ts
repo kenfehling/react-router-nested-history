@@ -2,7 +2,7 @@ import {createStore as origCreateStore} from './store/store'
 import {Store as ReduxStore} from 'redux'
 import {Store as OrigStore} from './store/store'
 import State from './model/State'
-import BaseAction from './model/BaseAction'
+import BaseAction from './model/Action'
 import UpdateBrowser from './model/actions/UpdateBrowser'
 import ComputedState from './model/ComputedState'
 

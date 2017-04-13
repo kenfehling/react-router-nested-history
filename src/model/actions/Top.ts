@@ -1,4 +1,4 @@
-import Action, {Origin} from '../BaseAction'
+import Action, {Origin} from '../Action'
 import State from '../State'
 import Serializable from '../../store/decorators/Serializable'
 

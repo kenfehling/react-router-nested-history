@@ -1,6 +1,6 @@
 import {createStore, Store} from '../../src/store'
 import ClearActions from '../../src/store/actions/ClearActions'
-import BaseAction from '../../src/model/BaseAction'
+import BaseAction from '../../src/model/Action'
 import UpdateBrowser from '../../src/model/actions/UpdateBrowser'
 import {createContainers1, createGroup1} from './fixtures'
 import Load from '../../src/model/actions/Load'

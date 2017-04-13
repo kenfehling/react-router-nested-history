@@ -1,5 +1,5 @@
 import NonStepAction from './NonStepAction'
-import {SYSTEM} from '../BaseAction'
+import {SYSTEM} from '../Action'
 import State from '../State'
 import Serializable from '../../store/decorators/Serializable'
 

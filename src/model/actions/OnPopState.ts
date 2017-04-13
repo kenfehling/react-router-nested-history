@@ -1,5 +1,5 @@
 import State from '../State'
-import Action from '../BaseAction'
+import Action from '../Action'
 import Serializable from '../../store/decorators/Serializable'
 import Page from '../Page'
 import PopState from './PopState'

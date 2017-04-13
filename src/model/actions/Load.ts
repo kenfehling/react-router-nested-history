@@ -1,4 +1,4 @@
-import Action, {USER} from '../BaseAction'
+import Action, {USER} from '../Action'
 import State from '../State'
 import Step from '../Step'
 import Serializable from '../../store/decorators/Serializable'

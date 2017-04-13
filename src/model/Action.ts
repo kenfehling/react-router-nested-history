@@ -1,10 +1,10 @@
 import Step from './Step'
 import {diffPagesToSteps} from '../util/reconciler'
-import Action from '../store/Action'
+import StoreAction from '../store/Action'
 import State from './State'
 import Serializable from '../store/decorators/Serializable'
 
-abstract class BaseAction extends Action {
+abstract class Action extends StoreAction {
   abstract readonly type: string
   readonly time: number
   readonly origin: Origin
@@ -51,8 +51,8 @@ export class UserOrigin implements Origin {
 export class ActionOrigin implements Origin {
   static type:string = 'action'
   type:string = ActionOrigin.type
-  readonly action: BaseAction
-  constructor(action:BaseAction) {
+  readonly action: Action
+  constructor(action:Action) {
     this.action = action
   }
 }
@@ -60,4 +60,4 @@ export class ActionOrigin implements Origin {
 export const SYSTEM = new SystemOrigin()
 export const USER = new UserOrigin()
 
-export default BaseAction
+export default Action
