@@ -9,7 +9,7 @@ export interface ComputedContainer {
   name: string
   initialUrl: string
   resetOnLeave: boolean
-  activeUrl: string
+  activeUrl: string|undefined
   backPage: Page|undefined
   isActiveInGroup: boolean
   matchesCurrentUrl: boolean
@@ -18,8 +18,8 @@ export interface ComputedContainer {
 export interface ComputedGroup {
   name: string
   isTopLevel: boolean
-  activeContainerIndex: number
-  activeContainerName: string
+  activeContainerIndex: number|undefined
+  activeContainerName: string|undefined
   gotoTopOnSelectActive: boolean
 }
 

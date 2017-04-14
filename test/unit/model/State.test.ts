@@ -8,8 +8,9 @@ import Load from '../../../src/model/actions/Load'
 import {List} from 'immutable'
 import Container from '../../../src/model/Container'
 import {
+  blankState, blankStateBeforeLoad,
   nestedState,
-  originalSimpleActionsWithoutLoad
+  originalSimpleActionsWithoutLoad, zero
 } from '../fixtures'
 import {deriveState} from '../../../src/store/store'
 declare const describe:any
@@ -47,6 +48,16 @@ describe('State', () => {
     describe('activateContainer', () => {
       it('switches to a container', () => {
         const s = state.activateContainer('Container 3A', 2000)
+        expect(s.activeContainerName).to.equal('Container 3A')
+        const h:HistoryStack = s.history
+        expect(h.back.length).to.equal(2)
+        expect(h.back[1].url).to.equal('/a')
+        expect(h.current.url).to.equal('/c')
+        expect(h.forward.length).to.equal(0)
+      })
+
+      it('behaves correctly from zero page', () => {
+        const s = state.back({time: 2000}).activateContainer('Container 3A', 3000)
         expect(s.activeContainerName).to.equal('Container 3A')
         const h:HistoryStack = s.history
         expect(h.back.length).to.equal(2)
@@ -198,7 +209,7 @@ describe('State', () => {
       })
     })
 
-    describe('loadFromUrl', () => {
+    describe('load', () => {
       it('loads initialUrl into history when a page below it is loaded', () => {
         const s = state.load({url: '/b/1', time: 5000})
         const history:HistoryStack = s.history
@@ -612,6 +623,37 @@ describe('State', () => {
         expect(history.back[1].url).to.equal('/g')
         expect(history.current.url).to.equal('/h')
         expect(history.forward.length).to.equal(0)
+      })
+    })
+  })
+
+  describe('blank group', () => {
+    describe('before load', () => {
+      const state:State = blankStateBeforeLoad
+
+      it('has all containers disabled', () => {
+        expect(state.hasEnabledContainers('Group 2')).to.equal(false)
+      })
+    })
+
+    describe('after load', () => {
+      const state:State = blankState
+
+      it('resides on the zero page when all containers are disabled', () => {
+        const history:HistoryStack = state.history
+        expect(history.back.length).to.equal(0)
+        expect(history.current).to.deep.equal(zero)
+        expect(history.forward.length).to.equal(0)
+      })
+
+      it('switches to a container', () => {
+        const s = state.activateContainer('Container 2B', 2000)
+        expect(s.activeContainerName).to.equal('Container 2B')
+        const h:HistoryStack = s.history
+        expect(h.back.length).to.equal(1)
+        expect(h.back[0]).to.deep.equal(zero)
+        expect(h.current.url).to.equal('/e')
+        expect(h.forward.length).to.equal(0)
       })
     })
   })
