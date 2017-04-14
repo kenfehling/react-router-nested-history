@@ -39,6 +39,8 @@ export interface HistoryRouterProps {
   children?: ReactNode
   zeroPage?: string
   location?: string
+
+  listener?: (state:ComputedState) => void
 }
 
 type RouterPropsWithStore = HistoryRouterProps & {
@@ -160,6 +162,12 @@ class HistoryRouter extends Component<HistoryRouterProps, HistoryRouterState> {
       loadFromPersist: wasLoadedFromRefresh,
       regularReduxStore: this.makeReduxStore()
     })
+
+    if (this.props.listener) {
+      this.store.subscribe(() => {
+        this.props.listener && this.props.listener(this.store.getState())
+      })
+    }
   }
 
   makeReduxStore() {
