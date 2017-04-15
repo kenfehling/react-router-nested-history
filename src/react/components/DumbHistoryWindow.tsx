@@ -197,12 +197,12 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
     const x:number|undefined = this.calculateX()
     const y:number|undefined = this.calculateY()
 
+    //onTouchMove={e => e.preventDefault()}
     const w = (
       <div {...divProps}
           ref={(el:HTMLElement) => this.calculateDimensions(el)}
           className={this.getClassName()}
           onMouseDown={drag ? noop : this.onMouseDown.bind(this)}
-          onTouchMove={e => e.preventDefault()}
           style={{
                 ...style,
                 zIndex,
