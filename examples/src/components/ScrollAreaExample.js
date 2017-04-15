@@ -66,7 +66,7 @@ const Scroll = ({number, children}) => {
     <Container name={`scroll${number}`} initialUrl={path} patterns={[path]}>
       <HistoryRoute exact path={path}>
         {() => (
-          <ScrollArea>
+          <ScrollArea vertical={true}>
             {children}
           </ScrollArea>
         )}
