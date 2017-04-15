@@ -133,7 +133,7 @@ class InnerAnimatedPage extends Component<InnerProps, undefined> {
           atLeave={willLeave(lastAction)}
           atActive={{offset: spring(0, config)}}
           mapStyles={styles => ({
-            willChange: 'transform',
+            //willChange: 'transform',
             position: 'absolute',
             width: '100%',
             height: '100%',
