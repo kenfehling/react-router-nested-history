@@ -197,7 +197,6 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
     const x:number|undefined = this.calculateX()
     const y:number|undefined = this.calculateY()
 
-
     //onTouchMove={e => e.preventDefault()}
     const w = (
       <div {...divProps}

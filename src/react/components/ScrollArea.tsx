@@ -86,8 +86,6 @@ export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
            onScroll={this.onScroll.bind(this)}
            {...divProps}
            style={{
-             width: '100%',
-             height: '100%',
              ...style,
              overflowX: horizontal ? 'scroll' : 'auto',
              overflowY: vertical ? 'scroll' : 'auto',
