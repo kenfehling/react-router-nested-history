@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React from 'react'
 import {connectToStore, waitForInitialization} from 'react-router-nested-history'
 import './StateTree.css'
 

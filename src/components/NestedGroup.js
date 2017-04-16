@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import {
   Container, ContainerGroup, WindowGroup, HistoryWindow, HistoryRoute,
   HeaderLink, HistoryLink, BackLink
