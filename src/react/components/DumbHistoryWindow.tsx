@@ -218,7 +218,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
     const hasDefaultPosition = rememberPosition || this.state.width !== 0
     if (drag && hasDefaultPosition) {
       return (
-        <Draggable {...draggableProps}
+        <Draggable grid={[1, 1]}
+                   {...draggableProps}
                    onStop={this.onDragEnd.bind(this)}
                    onMouseDown={this.onMouseDown.bind(this)}
                    position={rememberPosition ? {x, y} : undefined}
