@@ -80,8 +80,12 @@ const touch = (pages:List<VisitedPage>,
                pageVisit:PageVisit):List<VisitedPage> =>
   touchPageAtIndex(pages, getActiveIndex(pages), pageVisit)
 
-export const push = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL}:
-                  {page: Page, time:number, type?:VisitType}):List<VisitedPage> => {
+const pushOrReplace = (pages:List<VisitedPage>,
+                       {page, time, type=VisitType.MANUAL, sliceFn}:
+                       {page: Page, time:number, type?:VisitType,
+                         sliceFn:(ps:List<VisitedPage>, index:number,
+                                  newPage:VisitedPage)=>List<VisitedPage>
+                       }):List<VisitedPage> => {
   if (!pages.isEmpty() && getActivePage(pages).url === page.url) {
     return touch(pages, {time, type})
   }
@@ -91,8 +95,20 @@ export const push = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL
       ...Object(page),
       visits:[{time, type}]
     })
-    return pages.slice(0, index).toList().push(newPage)
+    return sliceFn(pages, index, newPage)
   }
+}
+
+export const push = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL}:
+                  {page: Page, time:number, type?:VisitType}):List<VisitedPage> => {
+  const fn = (ps, i, newPage) => pages.slice(0, i).toList().push(newPage)
+  return pushOrReplace(pages, {page, time, type, sliceFn: fn})
+}
+
+export const replace = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL}:
+                    {page: Page, time:number, type?:VisitType}):List<VisitedPage> => {
+  const fn = (ps, i, newPage) => pages.slice(0, i - 1).toList().push(newPage)
+  return pushOrReplace(pages, {page, time, type, sliceFn: fn})
 }
 
 const touchPageAtIndex = (pages:List<VisitedPage>, index:number,

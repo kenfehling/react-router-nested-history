@@ -1,4 +1,4 @@
-import React, {PropTypes, Component } from 'react'
+import React, {Component} from 'react'
 import {Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel} from 'react-tabs'
 import {
   Container, ContainerGroup, HistoryRoute, ScrollArea

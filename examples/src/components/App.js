@@ -1,5 +1,6 @@
 import React from 'react'
-import {Route, Redirect} from 'react-router'
+import {Route} from 'react-router'
+import {HistoryRedirect} from 'react-router-nested-history'
 import Tabs from './Tabs'
 import Windows from './Windows'
 import NestedGroup from './NestedGroup'
@@ -10,10 +11,10 @@ import './App.css'
 
 export default () => (
   <div>
-    <Route path='/' exact render={() => <Redirect to="/windows/1" />} />
-    <Route path='/tabs' exact render={() => <Redirect to="/tabs/1" />} />
-    <Route path='/windows' exact render={() => <Redirect to="/windows/1" />} />
-    <Route path='/foods' exact render={() => <Redirect to="/foods/Fruit" />} />
+    <Route path='/' exact render={() => <HistoryRedirect to="/windows/1" />} />
+    <Route path='/tabs' exact render={() => <HistoryRedirect to="/tabs/1" />} />
+    <Route path='/windows' exact render={() => <HistoryRedirect to="/windows/1" />} />
+    <Route path='/foods' exact render={() => <HistoryRedirect to="/foods/Fruit" />} />
     <div className="app-container">
       <div className='left-container'>
         <div className='top-container'>

@@ -1,4 +1,4 @@
-import React, {PropTypes, Component } from 'react'
+import React from 'react'
 import {
   Container, WindowGroup, HistoryRoute, HistoryLink, HistoryWindow, BackLink,
   HeaderLink

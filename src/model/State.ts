@@ -368,8 +368,8 @@ class State implements IState {
     return this.replacePages(this.sortPagesByFirstVisited(this.pages))
   }
 
-  push({page, time, type=VisitType.MANUAL}:
-       {page: Page, time:number, type?:VisitType}):State {
+  private pushOrReplace({page, time, type=VisitType.MANUAL, fn}:
+                {page: Page, time:number, type?:VisitType, fn:Function}):State {
     const activeContainer:string|undefined = this.activeContainerName
     if (!activeContainer) {
       throw new Error('No active container')
@@ -377,13 +377,36 @@ class State implements IState {
     return this.pushInContainer(activeContainer, {page, time, type})
   }
 
-  pushInContainer(container:string, {page, time, type=VisitType.MANUAL}:
-                    {page: Page, time:number, type?:VisitType}):State {
+  private pushOrReplaceInContainer(container:string,
+                                   {page, time, type=VisitType.MANUAL, fn}:
+                {page: Page, time:number, type?:VisitType, fn:Function}):State {
     const containerPages = this.getContainerPages(container)
-    const newPages = pageUtils.push(containerPages, {page, time, type})
+    const newPages = fn(containerPages, {page, time, type})
     const state:State = this.replaceContainerPages(container, newPages)
     return type === VisitType.MANUAL ?
-        state.setParentWindowVisibility({container, visible: true}) : state
+      state.setParentWindowVisibility({container, visible: true}) : state
+  }
+
+  push({page, time, type=VisitType.MANUAL}:
+       {page: Page, time:number, type?:VisitType}):State {
+    return this.pushOrReplace({page, time, type, fn: this.pushInContainer})
+  }
+
+  replace({page, time, type=VisitType.MANUAL}:
+         {page: Page, time:number, type?:VisitType}):State {
+    return this.pushOrReplace({page, time, type, fn: this.replaceInContainer})
+  }
+
+  pushInContainer(container:string, {page, time, type=VisitType.MANUAL}:
+                    {page: Page, time:number, type?:VisitType}):State {
+    return this.pushOrReplaceInContainer(
+      container, {page, time, type, fn: pageUtils.push})
+  }
+
+  replaceInContainer(container:string, {page, time, type=VisitType.MANUAL}:
+    {page: Page, time:number, type?:VisitType}):State {
+    return this.pushOrReplaceInContainer(
+      container, {page, time, type, fn: pageUtils.replace})
   }
 
   getRootGroupOfGroup(group:string):Group {
