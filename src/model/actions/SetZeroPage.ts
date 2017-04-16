@@ -15,6 +15,8 @@ export default class SetZeroPage extends NonStepAction {
   }
 
   reduce(state:State):State {
-    return state.setZeroPage(this.url)
+    return state.assign({
+      zeroPageUrl: this.url
+    })
   }
 }

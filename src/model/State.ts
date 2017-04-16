@@ -32,23 +32,22 @@ class State implements IState {
   readonly windows: Map<string, HistoryWindow>
   readonly titles: List<PathTitle>
   readonly isInitialized: boolean
+  readonly zeroPageUrl: string
   private readonly pages: List<VisitedPage>
 
   constructor({windows=fromJS({}), containers=OrderedMap<string, IContainer>(),
                pages=List<VisitedPage>(), titles=List<PathTitle>(),
-               isInitialized=false}:
+               isInitialized=false, zeroPageUrl='/'}:
               {windows?:Map<string, HistoryWindow>,
                 containers?: OrderedMap<string, IContainer>,
-                pages?: List<VisitedPage>,
-                titles?:List<PathTitle>, isInitialized?:boolean}={}) {
+                pages?: List<VisitedPage>, titles?:List<PathTitle>,
+                isInitialized?:boolean, zeroPageUrl?:string}={}) {
     this.containers = containers
     this.windows = windows
     this.pages = pages
     this.titles = titles
     this.isInitialized = isInitialized
-    if (!this.hasZeroPage) {
-      this.setZeroPage('/')
-    }
+    this.zeroPageUrl = zeroPageUrl
   }
 
   get computedGroups():Map<string, ComputedGroup> {
@@ -873,9 +872,10 @@ class State implements IState {
   }
 
   load({url, time}:{url: string, time: number}):State {
-    return this.leafContainers.reduce(
+    const state:State = this.setZeroPage(this.zeroPageUrl)
+    return state.leafContainers.reduce(
       (s:State, c:Container) => s.loadInContainer(c, {url, time}),
-      this
+      state
     ).assign({isInitialized: true})
   }
 

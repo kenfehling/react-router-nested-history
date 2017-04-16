@@ -114,7 +114,7 @@ describe('main', () => {
       expect(groupHistory.forward.length).to.equal(0)
 
       expect(stateHistory.back.length).to.equal(3);
-      expect(stateHistory.back[0].url).to.equal('/a');
+      expect(stateHistory.back[0].url).to.equal('/');
       expect(stateHistory.back[1].url).to.equal('/a');
       expect(stateHistory.back[2].url).to.equal('/a/1');
       expect(stateHistory.current.url).to.equal('/b');
@@ -250,7 +250,7 @@ describe('main', () => {
       expect(groupHistory.forward.length).to.equal(0)
 
       expect(stateHistory.back.length).to.equal(2);
-      expect(stateHistory.back[0].url).to.equal('/a');
+      expect(stateHistory.back[0].url).to.equal('/');
       expect(stateHistory.back[1].url).to.equal('/a');
       expect(stateHistory.current.url).to.equal('/a/1');
       expect(stateHistory.forward.length).to.equal(0)
@@ -289,7 +289,6 @@ describe('main', () => {
 
     it('loads the initial page', async () => {
       await run([
-        ...baseActions,
         createGroup1,
         ...createContainers1,
         new Load({
@@ -297,7 +296,7 @@ describe('main', () => {
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(2)
-        expect(entries[0].pathname).to.equal('/zero') 
+        expect(entries[0].pathname).to.equal('/') 
         expect(entries[1].pathname).to.equal('/a')
         expect(index).to.equal(1)
       })
@@ -306,7 +305,6 @@ describe('main', () => {
     /*
     it('reloads the initial page', async () => {
       await run([
-        ...baseActions,
         createGroup1,
         ...createContainers1,
         new Load({
@@ -320,14 +318,13 @@ describe('main', () => {
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(2)
         expect(index).to.equal(1)
-        expect(entries[0].pathname).to.equal('/zero')
+        expect(entries[0].pathname).to.equal('/')
         expect(entries[1].pathname).to.equal('/a')
       })
     })
 
     it('reloads the initial page (from refresh)', async () => {
       await run([
-        ...baseActions,
         createGroup1,
         ...createContainers1,
         new Load({
@@ -346,7 +343,6 @@ describe('main', () => {
 
     it('push', async () => {
       await run([
-        ...baseActions,
         createGroup1,
         ...createContainers1,
         new Load({
@@ -363,7 +359,7 @@ describe('main', () => {
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(3)
-        expect(entries[0].pathname).to.equal('/zero')
+        expect(entries[0].pathname).to.equal('/')
         expect(entries[1].pathname).to.equal('/a')
         expect(entries[2].pathname).to.equal('/a/1')
         expect(index).to.equal(2)
@@ -375,7 +371,6 @@ describe('main', () => {
     /*
     it('handles popstate after container switch', async () => {
      await run([
-        ...baseActions,
         createGroup,
         ...createContainers,
         new Load({
@@ -393,7 +388,7 @@ describe('main', () => {
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(3)
-        expect(entries[0].pathname).to.equal('/zero')
+        expect(entries[0].pathname).to.equal('/')
         expect(entries[1].pathname).to.equal('/a')
         expect(entries[2].pathname).to.equal('/a/1')
         expect(index).to.equal(2)
@@ -403,7 +398,6 @@ describe('main', () => {
 
     it('pushes to different container', async () => {
       await run([
-        ...baseActions,
         createGroup1,
         ...createContainers1,
         new Load({
@@ -427,7 +421,7 @@ describe('main', () => {
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(4)
-        expect(entries[0].pathname).to.equal('/zero')
+        expect(entries[0].pathname).to.equal('/')
         expect(entries[1].pathname).to.equal('/a')
         expect(entries[2].pathname).to.equal('/b')
         expect(entries[3].pathname).to.equal('/b/1')
@@ -437,7 +431,6 @@ describe('main', () => {
 
     it('hides first group history when pushing another group', async () => {
       await run([
-        ...baseActions,
         createGroup1,
         createGroup2,
         ...createContainers1,
@@ -463,7 +456,7 @@ describe('main', () => {
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(3)
-        expect(entries[0].pathname).to.equal('/zero')
+        expect(entries[0].pathname).to.equal('/')
         expect(entries[1].pathname).to.equal('/e')
         expect(entries[2].pathname).to.equal('/e/1')
         expect(index).to.equal(2)
@@ -472,7 +465,6 @@ describe('main', () => {
 
     it('goes back', async () => {
       await run([
-        ...baseActions,
         createGroup1,
         ...createContainers1,
         new Load({
@@ -503,7 +495,7 @@ describe('main', () => {
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(4)
-        expect(entries[0].pathname).to.equal('/zero')
+        expect(entries[0].pathname).to.equal('/')
         expect(entries[1].pathname).to.equal('/a')
         expect(entries[2].pathname).to.equal('/a/1')
         expect(entries[3].pathname).to.equal('/a/2')
@@ -513,7 +505,6 @@ describe('main', () => {
 
     it('switches to container with resetOnLeave', async () => {
       await run([
-        ...baseActions,
         createGroup3,
         ...createContainers3,
         new Load({
@@ -553,7 +544,7 @@ describe('main', () => {
         })
       ]).then(({entries, index}) => {
         expect(entries.length).to.equal(3)
-        expect(entries[0].pathname).to.equal('/zero')
+        expect(entries[0].pathname).to.equal('/')
         expect(entries[1].pathname).to.equal('/g')
         expect(entries[2].pathname).to.equal('/h')
         expect(index).to.equal(2)
@@ -564,7 +555,6 @@ describe('main', () => {
     describe('UpdateBrowser action', () => {
       it('prevents running old actions', async() => {
         await run([
-          ...baseActions,
           createGroup1,
           ...createContainers1,
           new Load({
@@ -605,7 +595,6 @@ describe('main', () => {
     describe('while on zero page', () => {
       it('does a double push', async () => {
         await run([
-          ...baseActions,
           createGroup1,
           ...createContainers1,
           new Load({
@@ -629,7 +618,7 @@ describe('main', () => {
           })
         ]).then(({entries, index}) => {
           expect(entries.length).to.equal(3)
-          expect(entries[0].pathname).to.equal('/zero')
+          expect(entries[0].pathname).to.equal('/')
           expect(entries[1].pathname).to.equal('/a')
           expect(entries[2].pathname).to.equal('/a/1')
           expect(index).to.equal(2)
@@ -638,7 +627,6 @@ describe('main', () => {
 
       it('does a push before a switch', async() => {
         await run([
-          ...baseActions,
           createGroup1,
           ...createContainers1,
           new Load({
@@ -661,7 +649,7 @@ describe('main', () => {
           })
         ]).then(({entries, index}) => {
           expect(entries.length).to.equal(3)
-          expect(entries[0].pathname).to.equal('/zero')
+          expect(entries[0].pathname).to.equal('/')
           expect(entries[1].pathname).to.equal('/a')
           expect(entries[2].pathname).to.equal('/b')
           expect(index).to.equal(2)
