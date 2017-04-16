@@ -8,8 +8,7 @@ import Load from '../../../src/model/actions/Load'
 import {List} from 'immutable'
 import Container from '../../../src/model/Container'
 import {
-  blankState, blankStateBeforeLoad,
-  nestedState,
+  blankState, blankStateBeforeLoad, nestedState,
   originalSimpleActionsWithoutLoad, zero
 } from '../fixtures'
 import {deriveState} from '../../../src/store/store'
@@ -247,11 +246,11 @@ describe('State', () => {
         expect(h.forward.length).to.equal(0)
       })
 
-      it('goes back 1 to zero page', () => {
-        const newState:State = state.go({n: -1, time: 1000})
+      it.only('goes back 1 to zero page', () => {
+        const newState:State = state.go({n: -1, time: 2000})
         const h:HistoryStack = newState.history
         expect(h.back.length).to.equal(0)
-        expect(h.current).to.deep.equal(newState.getZeroPage())
+        expect(h.current).to.deep.equal(newState.zeroPage)
         expect(h.forward.length).to.equal(1)
         expect(h.forward[0].url).to.equal('/a')
       })
@@ -503,7 +502,7 @@ describe('State', () => {
         const newState:State = state.go({n: -1, time: 5000})
         const h:HistoryStack = newState.history
         expect(h.back.length).to.equal(0)
-        expect(h.current).to.deep.equal(newState.getZeroPage())
+        expect(h.current).to.deep.equal(newState.zeroPage)
         expect(h.forward.length).to.equal(1)
         expect(h.forward[0].url).to.equal('/a')
       })
@@ -652,7 +651,7 @@ describe('State', () => {
         const h:HistoryStack = s.history
         expect(h.back.length).to.equal(1)
         expect(h.back[0]).to.deep.equal(zero)
-        expect(h.current.url).to.equal('/e')
+        expect(h.current.url).to.equal('/f')
         expect(h.forward.length).to.equal(0)
       })
     })

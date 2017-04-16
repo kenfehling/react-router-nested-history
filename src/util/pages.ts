@@ -20,6 +20,8 @@ export const toHistoryStack = (pages:List<VisitedPage>):HistoryStack => {
 export const sort = (pages:List<VisitedPage>):List<VisitedPage> =>
     pages.sort(comparePagesByFirstVisited).toList()
 
+export const isOnZeroPage = (pages:List<VisitedPage>):boolean => pages.size === 1
+
 export const getActivePage = (pages:List<VisitedPage>):VisitedPage => {
   if (pages.isEmpty()) {
     throw new Error('pages is empty')
@@ -140,10 +142,12 @@ export const go = (pages:List<VisitedPage>,
 }
 
 export const back = (pages:List<VisitedPage>,
-                     {n=1, time}:{n:number, time}):List<VisitedPage> =>
+                     {n=1, time}:{n?:number, time:number}):List<VisitedPage> =>
     go(pages, {n: 0 - n, time})
 
-export const forward = go
+export const forward = (pages:List<VisitedPage>,
+                        {n=1, time}:{n?:number, time}):List<VisitedPage> =>
+    go(pages, {n, time})
 
 export const shiftTo = (pages:List<VisitedPage>, {page, time}:
                           {page:Page, time:number}):List<VisitedPage> =>
