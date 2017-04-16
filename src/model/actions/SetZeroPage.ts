@@ -7,16 +7,16 @@ import Serializable from '../../store/decorators/Serializable'
 export default class SetZeroPage extends NonStepAction {
   static readonly type: string = 'SetZeroPage'
   readonly type: string = SetZeroPage.type
-  readonly url: string|undefined
+  readonly url: string
 
-  constructor({time, url}:{time?:number, url:string|undefined}) {
+  constructor({time, url}:{time?:number, url:string}) {
     super({time, origin: SYSTEM})
     this.url = url
   }
 
   reduce(state:State):State {
     return state.assign({
-      zeroPage: this.url
+      zeroPageUrl: this.url
     })
   }
 }

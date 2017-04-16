@@ -22,7 +22,9 @@ export default class Page {
   }
 
   get state():Object {
-    return {
+    return this.isZeroPage ? {
+      isZeroPage: this.isZeroPage
+    } : {
       url: this.url,
       container: this.container,
       group: this.group,

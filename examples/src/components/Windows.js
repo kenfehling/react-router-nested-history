@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React from 'react'
 import {
   Container, WindowGroup, HistoryWindow, HistoryRoute, HistoryLink, HeaderLink
 } from 'react-router-nested-history'
@@ -18,7 +18,8 @@ const WindowMaster1 = () => (
 
 const WindowMaster2 = () => (
   <div className='page'>
-    <div>World</div>
+    <p>World</p>
+    <HistoryLink to="/windows/2/natasha">Natasha</HistoryLink>
     <Helmet title='Window 2' />
   </div>
 )

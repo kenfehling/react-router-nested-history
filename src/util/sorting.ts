@@ -1,4 +1,28 @@
 import VisitedPage from '../model/VisitedPage'
+import {List} from 'immutable'
+
+export interface SortFnParams<T> {
+  visited: List<T>
+  defaultUnvisited: List<T>
+  nonDefaultUnvisited: List<T>
+}
+
+export type PageSortFnParams = SortFnParams<VisitedPage> & {
+  zeroPage: VisitedPage
+}
+
+export type SortFn<T> = (params:SortFnParams<T>) => List<T>
+export type PageSortFn = (params: PageSortFnParams) => List<VisitedPage>
+
+export function sort<T>(items:List<T>, fn:SortFn<T>, wasVisitedFn:(t:T)=>boolean,
+                        isDefaultFn:(t:T)=>boolean):List<T> {
+  const unvisited = items.filterNot(wasVisitedFn).toList()
+  return fn({
+    visited: items.filter(wasVisitedFn).toList(),
+    defaultUnvisited: unvisited.filter(isDefaultFn).toList(),
+    nonDefaultUnvisited: unvisited.filterNot(isDefaultFn).toList()
+  })
+}
 
 export function comparePagesByFirstVisited(p1:VisitedPage, p2:VisitedPage):number {
   if (p1.isZeroPage) {

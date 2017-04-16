@@ -7,6 +7,7 @@ import Action from '../../src/model/Action'
 import {deriveState} from '../../src/store/store'
 import VisitedPage from '../../src/model/VisitedPage'
 import SetZeroPage from '../../src/model/actions/SetZeroPage'
+import CreateWindow from '../../src/model/actions/CreateWindow'
 
 const createCreateGroup = (name:string):CreateGroup =>
     new CreateGroup({name, time: 500})
@@ -140,5 +141,24 @@ export const originalNestedActions:Action[] = [
   })
 ]
 
+export const originalBlankActionsWithoutLoad:Action[] = [
+  ...baseActions,
+  createGroup2,
+  ...createContainers2,
+  new CreateWindow({forName: 'Container 1B', visible: false}),
+  new CreateWindow({forName: 'Container 2B', visible: false})
+]
+
+export const originalBlankActions:Action[] = [
+  ...originalBlankActionsWithoutLoad,
+  new Load({
+    url: '/b',
+    time: 1250
+  })
+]
+
 export const simpleState = deriveState(originalSimpleActions, new State())
 export const nestedState = deriveState(originalNestedActions, new State())
+export const blankStateBeforeLoad =
+    deriveState(originalBlankActionsWithoutLoad, new State())
+export const blankState = deriveState(originalBlankActions, new State())

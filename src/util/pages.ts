@@ -18,7 +18,10 @@ export const toHistoryStack = (pages:List<VisitedPage>):HistoryStack => {
 }
 
 export const sort = (pages:List<VisitedPage>):List<VisitedPage> =>
-    pages.sort(comparePagesByFirstVisited).toList()
+  pages.sort(comparePagesByFirstVisited).toList()
+
+export const isOnZeroPage = (pages:List<VisitedPage>):boolean =>
+  getActiveIndex(pages) === 0
 
 export const getActivePage = (pages:List<VisitedPage>):VisitedPage => {
   if (pages.isEmpty()) {
@@ -77,8 +80,12 @@ const touch = (pages:List<VisitedPage>,
                pageVisit:PageVisit):List<VisitedPage> =>
   touchPageAtIndex(pages, getActiveIndex(pages), pageVisit)
 
-export const push = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL}:
-                  {page: Page, time:number, type?:VisitType}):List<VisitedPage> => {
+const pushOrReplace = (pages:List<VisitedPage>,
+                       {page, time, type=VisitType.MANUAL, sliceFn}:
+                       {page: Page, time:number, type?:VisitType,
+                         sliceFn:(ps:List<VisitedPage>, index:number,
+                                  newPage:VisitedPage)=>List<VisitedPage>
+                       }):List<VisitedPage> => {
   if (!pages.isEmpty() && getActivePage(pages).url === page.url) {
     return touch(pages, {time, type})
   }
@@ -88,8 +95,20 @@ export const push = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL
       ...Object(page),
       visits:[{time, type}]
     })
-    return pages.slice(0, index).toList().push(newPage)
+    return sliceFn(pages, index, newPage)
   }
+}
+
+export const push = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL}:
+                  {page: Page, time:number, type?:VisitType}):List<VisitedPage> => {
+  const fn = (ps, i, newPage) => pages.slice(0, i).toList().push(newPage)
+  return pushOrReplace(pages, {page, time, type, sliceFn: fn})
+}
+
+export const replace = (pages:List<VisitedPage>, {page, time, type=VisitType.MANUAL}:
+                    {page: Page, time:number, type?:VisitType}):List<VisitedPage> => {
+  const fn = (ps, i, newPage) => pages.slice(0, i - 1).toList().push(newPage)
+  return pushOrReplace(pages, {page, time, type, sliceFn: fn})
 }
 
 const touchPageAtIndex = (pages:List<VisitedPage>, index:number,
@@ -140,10 +159,12 @@ export const go = (pages:List<VisitedPage>,
 }
 
 export const back = (pages:List<VisitedPage>,
-                     {n=1, time}:{n:number, time}):List<VisitedPage> =>
+                     {n=1, time}:{n?:number, time:number}):List<VisitedPage> =>
     go(pages, {n: 0 - n, time})
 
-export const forward = go
+export const forward = (pages:List<VisitedPage>,
+                        {n=1, time}:{n?:number, time}):List<VisitedPage> =>
+    go(pages, {n, time})
 
 export const shiftTo = (pages:List<VisitedPage>, {page, time}:
                           {page:Page, time:number}):List<VisitedPage> =>

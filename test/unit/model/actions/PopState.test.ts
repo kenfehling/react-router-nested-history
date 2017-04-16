@@ -16,13 +16,12 @@ describe('PopState action', () => {
     it('shifts the state to reflect the new browser history', () => {
       const action:PopState = new PopState({
         n: -1,
-        time: 10
+        time: 2000
       })
       const newState:State = action.reduce(baseState)
       const h:HistoryStack = newState.history
-
       expect(h.back.length).to.equal(0)
-      expect(h.current).to.deep.equal(newState.getZeroPage())
+      expect(h.current).to.deep.equal(newState.zeroPage)
       expect(h.forward.length).to.equal(1)
       expect(h.forward[0].url).to.equal('/a')
     })
