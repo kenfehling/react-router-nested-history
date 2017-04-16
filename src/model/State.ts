@@ -1002,10 +1002,12 @@ class State implements IState {
 
   sortPagesByFirstVisited(ps:List<VisitedPage>):List<VisitedPage> {
     return this.sortPages(ps,
-      ({zeroPage, visited, defaultUnvisited, nonDefaultUnvisited}) =>
-        pageUtils.sort(visited).concat(
-          defaultUnvisited).concat(
-            nonDefaultUnvisited).toList().insert(0, zeroPage))
+      ({zeroPage, visited, defaultUnvisited, nonDefaultUnvisited}) => {
+        const pages = pageUtils.sort(visited).concat(
+                        defaultUnvisited).concat(
+                          nonDefaultUnvisited).toList()
+        return zeroPage ? pages.insert(0, zeroPage) : pages
+    })
   }
 
   static createZeroPage(url:string) {
@@ -1029,7 +1031,7 @@ class State implements IState {
       zeroPage,
       pages: List<VisitedPage>([
         zeroPage,
-        ...(this.pages.slice(this.hasZeroPage ? 1 : 0).toArray())
+        ...(this.hasZeroPage ? this.pages.slice(1) : this.pages).toArray()
       ])
     })
   }
