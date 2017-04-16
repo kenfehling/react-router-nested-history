@@ -45,7 +45,7 @@ Use this in place of react-router's `BrowserRouter` component to enable this lib
     <tr>
         <th>name</th>
         <th>type</th>
-        <th>required</th>
+        <th>default</th>
         <th>description</th>
     </tr>
     </thead>
@@ -53,11 +53,8 @@ Use this in place of react-router's `BrowserRouter` component to enable this lib
         <tr>
           <td>zeroPage</td>
           <td>string</td>
-          <td align="center"></td>
-          <td>
-            Specify the page at the beginning of the history stack.
-            Default: initialPage of the first group's first container
-          </td>
+          <td>/</td>
+          <td>The page at the beginning of the history stack</td>
         </tr>
     </tbody>
 </table>

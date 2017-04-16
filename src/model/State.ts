@@ -31,23 +31,24 @@ class State implements IState {
   readonly containers: OrderedMap<string, IContainer>
   readonly windows: Map<string, HistoryWindow>
   readonly titles: List<PathTitle>
-  readonly zeroPage?: VisitedPage
   readonly isInitialized: boolean
   private readonly pages: List<VisitedPage>
 
   constructor({windows=fromJS({}), containers=OrderedMap<string, IContainer>(),
-               zeroPage, pages=List<VisitedPage>(), titles=List<PathTitle>(),
+               pages=List<VisitedPage>(), titles=List<PathTitle>(),
                isInitialized=false}:
               {windows?:Map<string, HistoryWindow>,
                 containers?: OrderedMap<string, IContainer>,
-                zeroPage?:VisitedPage, pages?: List<VisitedPage>,
+                pages?: List<VisitedPage>,
                 titles?:List<PathTitle>, isInitialized?:boolean}={}) {
     this.containers = containers
     this.windows = windows
     this.pages = pages
-    this.zeroPage = zeroPage || this.defaultZeroPage
     this.titles = titles
     this.isInitialized = isInitialized
+    if (!this.hasZeroPage) {
+      this.setZeroPage('/')
+    }
   }
 
   get computedGroups():Map<string, ComputedGroup> {
@@ -413,9 +414,6 @@ class State implements IState {
   }
 
   protected getHistory(maintainFwd:boolean=false):HistoryStack {
-    if (!this.zeroPage) {
-      throw new Error('No zero page')
-    }
     const activeGroup:string|undefined = this.activeGroupName
     if (activeGroup && this.hasEnabledContainers(activeGroup)) {
       const groupHistory = this.getGroupHistory(activeGroup, maintainFwd)
@@ -508,9 +506,6 @@ class State implements IState {
   }
 
   get activePage():VisitedPage {
-    if (!this.zeroPage) {
-      throw new Error('No zero page')
-    }
     return pageUtils.getActivePage(this.pages) || this.zeroPage
   }
 
@@ -1024,10 +1019,8 @@ class State implements IState {
     })
   }
 
-  private get defaultZeroPage():VisitedPage|undefined {
-    const c:Container|undefined = this.leafContainers.isEmpty() ? undefined :
-                                  this.leafContainers.first()
-    return c ? State.createZeroPage(c.initialUrl) : undefined
+  get hasZeroPage():boolean {
+    return !this.pages.isEmpty() && this.pages.first().isZeroPage
   }
 
   setZeroPage(url:string):State {
@@ -1036,10 +1029,13 @@ class State implements IState {
       zeroPage,
       pages: List<VisitedPage>([
         zeroPage,
-        ...(this.pages.isEmpty() ? [] : this.pages.slice(
-            this.pages.first().isZeroPage ? 1 : 0).toArray())
+        ...(this.pages.slice(this.hasZeroPage ? 1 : 0).toArray())
       ])
     })
+  }
+
+  get zeroPage():VisitedPage {
+    return this.pages.first()
   }
 
   get isOnZeroPage():boolean {

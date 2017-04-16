@@ -246,7 +246,7 @@ describe('State', () => {
         expect(h.forward.length).to.equal(0)
       })
 
-      it.only('goes back 1 to zero page', () => {
+      it('goes back 1 to zero page', () => {
         const newState:State = state.go({n: -1, time: 2000})
         const h:HistoryStack = newState.history
         expect(h.back.length).to.equal(0)

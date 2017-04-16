@@ -18,9 +18,10 @@ export const toHistoryStack = (pages:List<VisitedPage>):HistoryStack => {
 }
 
 export const sort = (pages:List<VisitedPage>):List<VisitedPage> =>
-    pages.sort(comparePagesByFirstVisited).toList()
+  pages.sort(comparePagesByFirstVisited).toList()
 
-export const isOnZeroPage = (pages:List<VisitedPage>):boolean => pages.size === 1
+export const isOnZeroPage = (pages:List<VisitedPage>):boolean =>
+  getActiveIndex(pages) === 0
 
 export const getActivePage = (pages:List<VisitedPage>):VisitedPage => {
   if (pages.isEmpty()) {
