@@ -26102,7 +26102,7 @@ var ScrollArea = (function (_super) {
     ScrollArea.prototype.render = function () {
         var _this = this;
         var _a = R.omit(['resetOnLeave'], this.props), children = _a.children, _b = _a.horizontal, horizontal = _b === void 0 ? false : _b, _c = _a.vertical, vertical = _c === void 0 ? false : _c, _d = _a.style, style = _d === void 0 ? {} : _d, divProps = __rest(_a, ["children", "horizontal", "vertical", "style"]);
-        return (React.createElement("div", __assign({ ref: function (ref) { return _this.scrollArea = ref; }, onScroll: this.onScroll.bind(this) }, divProps, { style: __assign({}, style, { overflowX: horizontal ? 'scroll' : 'auto', overflowY: vertical ? 'scroll' : 'auto', WebkitOverflowScrolling: 'touch' }) }), children));
+        return (React.createElement("div", __assign({ ref: function (ref) { return _this.scrollArea = ref; }, onScroll: this.onScroll.bind(this) }, divProps, { style: __assign({}, style, { overflowX: horizontal ? 'scroll' : 'hidden', overflowY: vertical ? 'scroll' : 'hidden', WebkitOverflowScrolling: 'touch' }) }), children));
     };
     return ScrollArea;
 }(react_1.Component));
@@ -28299,7 +28299,7 @@ var DumbHistoryWindow = (function (_super) {
                 return windowGroupWidth - right - this.state.width;
             }
             else if (center != null) {
-                return (windowGroupWidth - this.state.width) / 2 + center;
+                return windowGroupWidth - Math.round(this.state.width / 2) + center;
             }
         }
         return 0;
@@ -28317,7 +28317,7 @@ var DumbHistoryWindow = (function (_super) {
                 return windowGroupHeight - bottom - this.state.height;
             }
             else if (middle != null) {
-                return Math.round((windowGroupHeight - this.state.height) / 2) + middle;
+                return windowGroupHeight - Math.round(this.state.height / 2) + middle;
             }
         }
         return 0;
@@ -28369,7 +28369,7 @@ var DumbHistoryWindow = (function (_super) {
         var w = (React.createElement("div", __assign({}, divProps, { ref: function (el) { return _this.calculateDimensions(el); }, className: this.getClassName(), onMouseDown: drag ? noop : this.onMouseDown.bind(this), style: __assign({}, style, { zIndex: zIndex, position: 'absolute', display: storedVisible ? 'block' : 'none', x: !drag ? x : undefined, y: !drag ? y : undefined }) }), children instanceof Function ? children({ switchTo: switchTo, open: open, close: close }) : children));
         var hasDefaultPosition = rememberPosition || this.state.width !== 0;
         if (drag && hasDefaultPosition) {
-            return (React.createElement(Draggable, __assign({}, draggableProps, { onStop: this.onDragEnd.bind(this), onMouseDown: this.onMouseDown.bind(this), position: rememberPosition ? { x: x, y: y } : undefined, defaultPosition: hasDefaultPosition ? { x: x, y: y } : undefined }), w));
+            return (React.createElement(Draggable, __assign({ grid: [1, 1] }, draggableProps, { onStop: this.onDragEnd.bind(this), onMouseDown: this.onMouseDown.bind(this), position: rememberPosition ? { x: x, y: y } : undefined, defaultPosition: hasDefaultPosition ? { x: x, y: y } : undefined }), w));
         }
         else {
             return w;

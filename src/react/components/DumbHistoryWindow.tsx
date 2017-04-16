@@ -114,7 +114,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
         return windowGroupWidth - right - this.state.width
       }
       else if (center != null) {
-        return (windowGroupWidth - this.state.width) / 2 + center
+        return windowGroupWidth - Math.round(this.state.width / 2) + center
       }
     }
     return 0
@@ -133,7 +133,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
         return windowGroupHeight - bottom - this.state.height
       }
       else if (middle != null) {
-        return Math.round((windowGroupHeight - this.state.height) / 2) + middle
+        return windowGroupHeight - Math.round(this.state.height / 2) + middle
       }
     }
     return 0
@@ -218,7 +218,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
     const hasDefaultPosition = rememberPosition || this.state.width !== 0
     if (drag && hasDefaultPosition) {
       return (
-        <Draggable {...draggableProps}
+        <Draggable grid={[1, 1]}
+                   {...draggableProps}
                    onStop={this.onDragEnd.bind(this)}
                    onMouseDown={this.onMouseDown.bind(this)}
                    position={rememberPosition ? {x, y} : undefined}
