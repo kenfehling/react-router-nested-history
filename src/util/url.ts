@@ -19,9 +19,7 @@ const parseParams = (pattern:string, url:string):Object => {
   return match ? match.params || {} : {}
 }
 
-const _compareSize = (p1, p2) => values(p1).length - values(p2).length
-
 export const parseParamsFromPatterns = (patterns:string[], url:string):Object => {
   const paramResults:Object[] = patterns.map(p => parseParams(p, url))
-  return last(sortBy(paramResults, _compareSize)) || {}
+  return last(sortBy(paramResults, [(p) => 0 - values(p).length])) || {}
 }
