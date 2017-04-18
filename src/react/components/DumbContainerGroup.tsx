@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
-import * as R from 'ramda'
+import * as _ from 'lodash'
 
 export type GroupChildrenFunctionArgs = {
   currentContainerIndex?: number
@@ -42,7 +42,7 @@ export default class DumbContainerGroup extends
   }
 
   renderDiv(divChildren) {
-    const {style={}, ...divProps} = R.omit([
+    const {style={}, ...divProps} = _.omit(this.props, [
       'groupName',
       'children',
       'storedCurrentContainerIndex',
@@ -61,7 +61,7 @@ export default class DumbContainerGroup extends
       'loadedFromPersist',
       'isInitialized',
       'storeSubscription'
-  ], this.props)
+  ])
     const divStyle={
       ...style,
       width: '100%',

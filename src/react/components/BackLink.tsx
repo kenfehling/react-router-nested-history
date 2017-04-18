@@ -4,7 +4,7 @@ import {connect} from 'react-redux'
 import {Store} from '../../store'
 import Page from '../../model/Page'
 import Back from '../../model/actions/Back'
-import * as R from 'ramda'
+import * as _ from 'lodash'
 import {
   createCachingSelector, getDispatch, getGroupName, getBackPageInGroup
 } from '../selectors'
@@ -59,14 +59,14 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 
   render() {
-    const {children, backPage, ...aProps} = R.omit([
+    const {children, backPage, ...aProps} = _.omit(this.props, [
       'groupName',
       'containerName',
       'store',
       'back',
       'params',
       'storeSubscription'
-    ], this.props)
+    ])
     if (backPage) {
       return (
         <a href={backPage.url}

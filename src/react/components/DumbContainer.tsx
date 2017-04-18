@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import * as R from 'ramda'
+import * as _ from 'lodash'
 
 export interface DumbContainerProps {
   children?: ReactNode
@@ -48,7 +48,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       switchToContainer,
       isActiveInGroup,
       ...divProps
-    } = R.omit([
+    } = _.omit(this.props, [
       'animate',
       'resetOnLeave',
       'initialUrl',
@@ -66,7 +66,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       'activeUrl',
       'matchesCurrentUrl',
       'storeSubscription'
-    ], this.props)
+    ])
     if (!hideInactiveContainers || isActiveInGroup) {
       return (
         <div {...divProps}

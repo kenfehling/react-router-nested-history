@@ -1,6 +1,6 @@
 import * as pathToRegexp from 'path-to-regexp'
 import matchPath from 'react-router/matchPath'
-import * as R from 'ramda'
+import * as _ from 'lodash'
 
 export const patternMatches = (pattern:string, path:string):boolean => {
   const re = pathToRegexp(pattern);
@@ -8,7 +8,7 @@ export const patternMatches = (pattern:string, path:string):boolean => {
 };
 
 export const patternsMatch = (patterns:string[], path:string):boolean => {
-  return R.any(p => patternMatches(p, path), patterns);
+  return _.some(patterns, p => patternMatches(p, path));
 };
 
 const parseParams = (pattern:string, url:string):Object => {
@@ -16,9 +16,9 @@ const parseParams = (pattern:string, url:string):Object => {
   return match ? match.params || {} : {}
 }
 
-const _compareSize = (p1, p2) => R.values(p1).length - R.values(p2).length
+const _compareSize = (p1, p2) => _.values(p1).length - _.values(p2).length
 
 export const parseParamsFromPatterns = (patterns:string[], url:string):Object => {
   const paramResults:Object[] = patterns.map(p => parseParams(p, url))
-  return R.last(R.sort(_compareSize, paramResults)) || {}
+  return _.last(_.sortBy(paramResults, _compareSize)) || {}
 }

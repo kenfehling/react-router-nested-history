@@ -11,7 +11,7 @@ import Push from '../../src/model/actions/Push'
 import State from '../../src/model/State'
 import Step from '../../src/model/Step'
 import {MemoryHistory} from 'history'
-import * as R from 'ramda'
+import * as _ from 'lodash'
 import SwitchToContainer from '../../src/model/actions/SwitchToContainer'
 import Back from '../../src/model/actions/Back'
 import Top from '../../src/model/actions/Top'
@@ -281,7 +281,7 @@ describe('main', () => {
         const h: MemoryHistory = _history as MemoryHistory
         return Promise.resolve(
           h.entries.length === 0 || h.entries[0].state ? h : {
-              entries: R.tail(h.entries),  // remove '/' at beginning
+              entries: _.tail(h.entries),  // remove '/' at beginning
               index: h.index - 1
             })
       })

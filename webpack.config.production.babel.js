@@ -1,4 +1,4 @@
-const webpack = require('webpack')
+import webpack from 'webpack'
 const base = require('./webpack.config.base.babel.js')
 
 module.exports = Object.assign({}, base, {

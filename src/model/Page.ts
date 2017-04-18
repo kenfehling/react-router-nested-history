@@ -1,4 +1,4 @@
-import * as R from 'ramda'
+import * as _ from 'lodash'
 import Serializable from '../store/decorators/Serializable'
 
 @Serializable
@@ -33,6 +33,6 @@ export default class Page {
   }
 
   equals(other:Page):boolean {
-    return R.equals(this.state, other.state)
+    return _.isEqual(this.state, other.state)
   }
 }

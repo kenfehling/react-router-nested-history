@@ -6,7 +6,7 @@ import {compose, getContext, renameProps} from 'recompose'
 import {createPath} from 'history/PathUtils'
 import Push from '../../model/actions/Push'
 import {Store} from '../../store'
-import * as R from 'ramda'
+import * as _ from 'lodash'
 import {
   EMPTY_OBJ, createCachingSelector, getGroupName,
   getDispatch, getContainerName
@@ -55,14 +55,14 @@ class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 
   render() {
-    const {...aProps} = R.omit([
+    const {...aProps} = _.omit(this.props, [
       'to',
       'groupName',
       'containerName',
       'store',
       'push',
       'storeSubscription'
-    ], this.props)
+    ])
     return (
       <a href={this.getUrl()}
          onMouseDown={this.onMouseDown.bind(this)}

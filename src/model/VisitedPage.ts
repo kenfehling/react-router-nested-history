@@ -1,6 +1,6 @@
 import PageVisit, {VisitType} from './PageVisit'
 import Page from './Page'
-import * as R from 'ramda'
+import * as _ from 'lodash'
 
 export default class VisitedPage extends Page {
   readonly visits: PageVisit[]
@@ -20,7 +20,7 @@ export default class VisitedPage extends Page {
   }
 
   get wasManuallyVisited():boolean {
-    return R.any((v:PageVisit) => v.type === VisitType.MANUAL, this.visits)
+    return _.some(this.visits, (v:PageVisit) => v.type === VisitType.MANUAL)
   }
 
   get firstManualVisit():PageVisit {
@@ -28,7 +28,7 @@ export default class VisitedPage extends Page {
   }
 
   get lastVisit():PageVisit {
-    return R.last(this.visits)
+    return _.last(this.visits)
   }
 
   toPage():Page {

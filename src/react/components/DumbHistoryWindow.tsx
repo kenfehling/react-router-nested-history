@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, ReactNode, ReactElement} from 'react'
-import * as R from 'ramda'
+import * as _ from 'lodash'
 import * as Draggable from 'react-draggable'
 
 const noop = () => {}
@@ -170,7 +170,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       draggableProps={},
       rememberPosition=draggable,
       ...divProps
-    } = R.omit([
+    } = _.omit(this.props, [
       'store',
       'setCurrentContainerName',
       'loadedFromPersist',
@@ -192,7 +192,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'isOnTop',
       'storedPosition',
       'storeSubscription'
-    ], this.props)
+    ])
     const drag:boolean = !!draggable && !!storedVisible
     const x:number|undefined = this.calculateX()
     const y:number|undefined = this.calculateY()

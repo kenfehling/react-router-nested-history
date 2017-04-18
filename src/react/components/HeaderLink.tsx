@@ -4,7 +4,7 @@ import {connect} from 'react-redux'
 import {compose, getContext, renameProps} from 'recompose'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import * as R from 'ramda'
+import * as _ from 'lodash'
 import {
   getIsActiveInGroup, getHasWindow, getHeaderLinkUrl, getShouldGoToTop
 } from '../selectors'
@@ -62,7 +62,7 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 
   render() {
-    const {children, url, isActive, ...aProps} = R.omit([
+    const {children, url, isActive, ...aProps} = _.omit(this.props, [
       'groupName',
       'containerName',
       'activeClassName',
@@ -73,7 +73,7 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
       'shouldGoToTop',
       'dispatch',
       'storeSubscription'
-    ], this.props)
+    ])
     return (
       <a href={url}
          className={this.getClassName()}
@@ -110,7 +110,6 @@ const mergeProps = (stateProps, dispatchProps,
       (shouldGoToTop ?
         new Top({container: containerName}) :
         new SwitchToContainer({name: containerName}))
-
     return dispatchProps.dispatch(action)
   }
 })
