@@ -27,7 +27,8 @@
     "build:umd:min": "webpack --config webpack.config.production.babel.js",
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min",
     "build:examples": "cd examples; npm uninstall react-router-nested-history; npm install react-router-nested-history; npm run build",
-    "publish:examples": "git subtree push --prefix examples origin heroku"
+    "publish:examples": "git subtree push --prefix examples origin heroku",
+    "stats": "webpack --config webpack.config.production.babel.js --profile --json > stats.json"
   },
   "keywords": [
     "nested",
@@ -63,9 +64,10 @@
     "@types/react-dom": "^0.14.20",
     "@types/react-redux": "^4.4.36",
     "awesome-typescript-loader": "^3.0.0-beta.18",
-    "babel-cli": "^6.3.17",
+    "babel-cli": "^6.24.1",
     "babel-core": "^6.3.26",
     "babel-eslint": "^7.1.1",
+    "babel-plugin-lodash": "^3.2.11",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-1": "^6.3.13",
@@ -73,6 +75,7 @@
     "eslint": "^3.7.1",
     "eslint-plugin-import": "^2.2.0",
     "expose-loader": "^0.7.3",
+    "lodash-webpack-plugin": "^0.11.2",
     "mocha": "^3.2.0",
     "react": "^15.4.2",
     "react-addons-perf": "^15.4.2",

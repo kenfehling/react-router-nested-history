@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, ReactNode, ReactElement} from 'react'
-import * as _ from 'lodash'
+import omit from 'lodash/omit'
 import * as Draggable from 'react-draggable'
 
 const noop = () => {}
@@ -170,7 +170,7 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       draggableProps={},
       rememberPosition=draggable,
       ...divProps
-    } = _.omit(this.props, [
+    } = omit(this.props, [
       'store',
       'setCurrentContainerName',
       'loadedFromPersist',

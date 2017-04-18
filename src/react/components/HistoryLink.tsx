@@ -6,7 +6,7 @@ import {compose, getContext, renameProps} from 'recompose'
 import {createPath} from 'history/PathUtils'
 import Push from '../../model/actions/Push'
 import {Store} from '../../store'
-import * as _ from 'lodash'
+import omit from 'lodash/omit'
 import {
   EMPTY_OBJ, createCachingSelector, getGroupName,
   getDispatch, getContainerName
@@ -55,7 +55,7 @@ class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 
   render() {
-    const {...aProps} = _.omit(this.props, [
+    const {...aProps} = omit(this.props, [
       'to',
       'groupName',
       'containerName',

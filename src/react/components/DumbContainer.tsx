@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import * as _ from 'lodash'
+import omit from 'lodash/omit'
 
 export interface DumbContainerProps {
   children?: ReactNode
@@ -48,7 +48,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
       switchToContainer,
       isActiveInGroup,
       ...divProps
-    } = _.omit(this.props, [
+    } = omit(this.props, [
       'animate',
       'resetOnLeave',
       'initialUrl',

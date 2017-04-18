@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
-import * as _ from 'lodash'
+import omit from 'lodash/omit'
 
 interface ScrollAreaProps {
   resetOnLeave?: boolean,
@@ -80,7 +80,7 @@ export default class ScrollArea extends Component<ScrollAreaProps, undefined> {
       vertical=false,
       style={},
       ...divProps
-    } = _.omit(this.props, ['resetOnLeave'])
+    } = omit(this.props, ['resetOnLeave'])
     return (
       <div ref={(ref) => this.scrollArea = ref}
            onScroll={this.onScroll.bind(this)}

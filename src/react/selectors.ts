@@ -1,20 +1,23 @@
-import {createSelectorCreator, defaultMemoize, createSelector} from 'reselect'
+import {createSelectorCreator} from 'reselect'
 import createReselector from 're-reselect'
 import {Map} from 'immutable'
-import * as _ from 'lodash'
+import memoize from 'lodash/memoize'
+import last from 'lodash/last'
 import {
   ComputedGroup, ComputedContainer, ComputedWindow
 } from '../model/ComputedState'
 import UpdateBrowser from '../model/actions/UpdateBrowser'
 import AddTitle from '../model/actions/AddTitle'
 
+/*
 export const createDeepEqualSelector = createSelectorCreator(
   defaultMemoize,
-  _.isEqual
+  isEqual
 )
+*/
 
 export const createCachingSelector = createSelectorCreator(
-  _.memoize,
+  memoize,
   (a, b) => a === b
 )
 
@@ -22,7 +25,7 @@ export const EMPTY_OBJ = {}
 export const getDispatch = (dispatch) => dispatch
 export const getGroupName = (state, props):string => props.groupName
 export const getContainerName = (state, props):string => props.containerName
-export const getLastAction = (state) => _.last(state.actions.filter(a =>
+export const getLastAction = (state) => last(state.actions.filter(a =>
     !(a instanceof UpdateBrowser) && !(a instanceof AddTitle)))
 export const getIsInitialized = state => state.isInitialized
 export const getLoadedFromPersist = state => state.loadedFromPersist

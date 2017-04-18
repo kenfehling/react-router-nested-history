@@ -1,6 +1,7 @@
 import {serialize, deserialize} from './serializer'
 import Action from './Action'
-import * as _ from 'lodash'
+import takeRight from 'lodash/takeRight'
+import last from 'lodash/last'
 import * as store from 'store'
 import ClearActions from './actions/ClearActions'
 import IState from './IState'
@@ -94,9 +95,9 @@ export function createStore<S extends IState, A extends Action,
       return initialState
     }
     else {
-      const lastTime:number = _.last(actions).time
+      const lastTime:number = last(actions).time
       const prevTime:number = actions.length > 1 ?
-          _.takeRight(actions, 2)[0].time : lastTime
+          takeRight(actions, 2)[0].time : lastTime
       if (lastTime === prevTime && prevTime === timeStored) { // Rare case
         storedRawState = deriveState(actions, initialState)   // Just derive all
       }

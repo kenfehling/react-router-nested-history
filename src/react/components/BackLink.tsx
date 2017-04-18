@@ -4,7 +4,7 @@ import {connect} from 'react-redux'
 import {Store} from '../../store'
 import Page from '../../model/Page'
 import Back from '../../model/actions/Back'
-import * as _ from 'lodash'
+import omit from 'lodash/omit'
 import {
   createCachingSelector, getDispatch, getGroupName, getBackPageInGroup
 } from '../selectors'
@@ -59,7 +59,7 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
   }
 
   render() {
-    const {children, backPage, ...aProps} = _.omit(this.props, [
+    const {children, backPage, ...aProps} = omit(this.props, [
       'groupName',
       'containerName',
       'store',

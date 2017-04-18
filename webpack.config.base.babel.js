@@ -1,3 +1,5 @@
+import LodashModuleReplacementPlugin from 'lodash-webpack-plugin'
+
 module.exports = {
   entry: "./src/index.ts",
   output: {
@@ -13,6 +15,9 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    new LodashModuleReplacementPlugin
+  ],
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },

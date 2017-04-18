@@ -7,6 +7,7 @@ module.exports = Object.assign({}, base, {
     filename: 'react-router-nested-history.min.js'
   },
   plugins: [
+    ...base.plugins,
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production')
     }),

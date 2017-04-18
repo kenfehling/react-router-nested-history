@@ -69,3 +69,6 @@ test/e2e/reports/
 
 # ALM
 .alm/
+
+# Webpack size stats
+stats.json

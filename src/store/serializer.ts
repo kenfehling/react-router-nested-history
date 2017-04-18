@@ -1,4 +1,4 @@
-import * as _ from 'lodash'
+import omit from 'lodash/omit'
 import ISerializable from './ISerializable'
 import ISerializableClass from './ISerializableClass'
 import ISerialized from './ISerialized'
@@ -35,7 +35,7 @@ export function deserialize(obj:ISerialized):any {
     throw new Error(obj.type + ' not found in serializables')
   }
   const constructor:ObjectConstructor = ser.bind(ser)
-  const data:Object = _.omit(obj, ['type'])
+  const data:Object = omit(obj, ['type'])
   const keys:string[] = Object.keys(data)
   let classObject:Object
   try {

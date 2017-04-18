@@ -4,7 +4,7 @@ import {connect} from 'react-redux'
 import {compose, getContext, renameProps} from 'recompose'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import * as _ from 'lodash'
+import omit from 'lodash/omit'
 import {
   getIsActiveInGroup, getHasWindow, getHeaderLinkUrl, getShouldGoToTop
 } from '../selectors'
@@ -62,7 +62,7 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 
   render() {
-    const {children, url, isActive, ...aProps} = _.omit(this.props, [
+    const {children, url, isActive, ...aProps} = omit(this.props, [
       'groupName',
       'containerName',
       'activeClassName',

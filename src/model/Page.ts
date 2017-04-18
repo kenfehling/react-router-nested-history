@@ -1,4 +1,4 @@
-import * as _ from 'lodash'
+import isEqual from 'lodash/isEqual'
 import Serializable from '../store/decorators/Serializable'
 
 @Serializable
@@ -33,6 +33,6 @@ export default class Page {
   }
 
   equals(other:Page):boolean {
-    return _.isEqual(this.state, other.state)
+    return isEqual(this.state, other.state)
   }
 }

@@ -1,6 +1,7 @@
 import PageVisit, {VisitType} from './PageVisit'
 import Page from './Page'
-import * as _ from 'lodash'
+import some from 'lodash/some'
+import last from 'lodash/last'
 
 export default class VisitedPage extends Page {
   readonly visits: PageVisit[]
@@ -20,7 +21,7 @@ export default class VisitedPage extends Page {
   }
 
   get wasManuallyVisited():boolean {
-    return _.some(this.visits, (v:PageVisit) => v.type === VisitType.MANUAL)
+    return some(this.visits, (v:PageVisit) => v.type === VisitType.MANUAL)
   }
 
   get firstManualVisit():PageVisit {
@@ -28,7 +29,7 @@ export default class VisitedPage extends Page {
   }
 
   get lastVisit():PageVisit {
-    return _.last(this.visits)
+    return last(this.visits)
   }
 
   toPage():Page {
