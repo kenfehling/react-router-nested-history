@@ -1,9 +1,9 @@
 import * as pathToRegexp from 'path-to-regexp'
 import matchPath from 'react-router/matchPath'
-import some from 'lodash/some'
-import last from 'lodash/last'
-import values from 'lodash/values'
-import sortBy from 'lodash/sortBy'
+import * as some from 'lodash/some'
+import * as last from 'lodash/last'
+import * as values from 'lodash/values'
+import * as sortBy from 'lodash/sortBy'
 
 export const patternMatches = (pattern:string, path:string):boolean => {
   const re = pathToRegexp(pattern);

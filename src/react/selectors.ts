@@ -1,8 +1,8 @@
 import {createSelectorCreator} from 'reselect'
 import createReselector from 're-reselect'
 import {Map} from 'immutable'
-import memoize from 'lodash/memoize'
-import last from 'lodash/last'
+import * as memoize from 'lodash/memoize'
+import * as last from 'lodash/last'
 import {
   ComputedGroup, ComputedContainer, ComputedWindow
 } from '../model/ComputedState'

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode} from 'react'
-import omit from 'lodash/omit'
+import * as omit from 'lodash/omit'
 
 export interface DumbContainerProps {
   children?: ReactNode

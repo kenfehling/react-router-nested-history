@@ -6,7 +6,7 @@ import {compose, getContext, renameProps} from 'recompose'
 import {createPath} from 'history/PathUtils'
 import Push from '../../model/actions/Push'
 import {Store} from '../../store'
-import omit from 'lodash/omit'
+import * as omit from 'lodash/omit'
 import {
   EMPTY_OBJ, createCachingSelector, getGroupName,
   getDispatch, getContainerName

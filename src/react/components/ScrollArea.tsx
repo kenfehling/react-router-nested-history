@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes} from 'react'
-import omit from 'lodash/omit'
+import * as omit from 'lodash/omit'
 
 interface ScrollAreaProps {
   resetOnLeave?: boolean,

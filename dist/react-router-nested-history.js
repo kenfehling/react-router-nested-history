@@ -825,8 +825,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var reselect_1 = __webpack_require__(15);
 var re_reselect_1 = __webpack_require__(324);
-var memoize_1 = __webpack_require__(315);
-var last_1 = __webpack_require__(38);
+var memoize = __webpack_require__(315);
+var last = __webpack_require__(38);
 var UpdateBrowser_1 = __webpack_require__(67);
 var AddTitle_1 = __webpack_require__(65);
 /*
@@ -835,12 +835,12 @@ export const createDeepEqualSelector = createSelectorCreator(
   isEqual
 )
 */
-exports.createCachingSelector = reselect_1.createSelectorCreator(memoize_1.default, function (a, b) { return a === b; });
+exports.createCachingSelector = reselect_1.createSelectorCreator(memoize, function (a, b) { return a === b; });
 exports.EMPTY_OBJ = {};
 exports.getDispatch = function (dispatch) { return dispatch; };
 exports.getGroupName = function (state, props) { return props.groupName; };
 exports.getContainerName = function (state, props) { return props.containerName; };
-exports.getLastAction = function (state) { return last_1.default(state.actions.filter(function (a) {
+exports.getLastAction = function (state) { return last(state.actions.filter(function (a) {
     return !(a instanceof UpdateBrowser_1.default) && !(a instanceof AddTitle_1.default);
 })); };
 exports.getIsInitialized = function (state) { return state.isInitialized; };
@@ -9536,7 +9536,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var isEqual_1 = __webpack_require__(310);
+var isEqual = __webpack_require__(310);
 var Serializable_1 = __webpack_require__(8);
 var Page = Page_1 = (function () {
     function Page(_a) {
@@ -9563,7 +9563,7 @@ var Page = Page_1 = (function () {
         configurable: true
     });
     Page.prototype.equals = function (other) {
-        return isEqual_1.default(this.state, other.state);
+        return isEqual(this.state, other.state);
     };
     return Page;
 }());
@@ -15097,8 +15097,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var PageVisit_1 = __webpack_require__(64);
 var Page_1 = __webpack_require__(46);
-var some_1 = __webpack_require__(145);
-var last_1 = __webpack_require__(38);
+var some = __webpack_require__(145);
+var last = __webpack_require__(38);
 var VisitedPage = (function (_super) {
     __extends(VisitedPage, _super);
     function VisitedPage(_a) {
@@ -15112,7 +15112,7 @@ var VisitedPage = (function (_super) {
     };
     Object.defineProperty(VisitedPage.prototype, "wasManuallyVisited", {
         get: function () {
-            return some_1.default(this.visits, function (v) { return v.type === PageVisit_1.VisitType.MANUAL; });
+            return some(this.visits, function (v) { return v.type === PageVisit_1.VisitType.MANUAL; });
         },
         enumerable: true,
         configurable: true
@@ -15126,7 +15126,7 @@ var VisitedPage = (function (_super) {
     });
     Object.defineProperty(VisitedPage.prototype, "lastVisit", {
         get: function () {
-            return last_1.default(this.visits);
+            return last(this.visits);
         },
         enumerable: true,
         configurable: true
@@ -15479,7 +15479,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(0);
 var react_1 = __webpack_require__(0);
-var omit_1 = __webpack_require__(22);
+var omit = __webpack_require__(22);
 var DumbContainer = (function (_super) {
     __extends(DumbContainer, _super);
     function DumbContainer() {
@@ -15496,7 +15496,7 @@ var DumbContainer = (function (_super) {
         };
     };
     DumbContainer.prototype.render = function () {
-        var _a = omit_1.default(this.props, [
+        var _a = omit(this.props, [
             'animate',
             'resetOnLeave',
             'initialUrl',
@@ -15812,25 +15812,25 @@ exports.comparePagesByLastVisited = comparePagesByLastVisited;
 Object.defineProperty(exports, "__esModule", { value: true });
 var pathToRegexp = __webpack_require__(73);
 var matchPath_1 = __webpack_require__(178);
-var some_1 = __webpack_require__(145);
-var last_1 = __webpack_require__(38);
-var values_1 = __webpack_require__(319);
-var sortBy_1 = __webpack_require__(316);
+var some = __webpack_require__(145);
+var last = __webpack_require__(38);
+var values = __webpack_require__(319);
+var sortBy = __webpack_require__(316);
 exports.patternMatches = function (pattern, path) {
     var re = pathToRegexp(pattern);
     return !!re.exec(path);
 };
 exports.patternsMatch = function (patterns, path) {
-    return some_1.default(patterns, function (p) { return exports.patternMatches(p, path); });
+    return some(patterns, function (p) { return exports.patternMatches(p, path); });
 };
 var parseParams = function (pattern, url) {
     var match = matchPath_1.default(url, { path: pattern, exact: true });
     return match ? match.params || {} : {};
 };
-var _compareSize = function (p1, p2) { return values_1.default(p1).length - values_1.default(p2).length; };
+var _compareSize = function (p1, p2) { return values(p1).length - values(p2).length; };
 exports.parseParamsFromPatterns = function (patterns, url) {
     var paramResults = patterns.map(function (p) { return parseParams(p, url); });
-    return last_1.default(sortBy_1.default(paramResults, _compareSize)) || {};
+    return last(sortBy(paramResults, _compareSize)) || {};
 };
 
 
@@ -21574,7 +21574,7 @@ var React = __webpack_require__(0);
 var react_1 = __webpack_require__(0);
 var react_redux_1 = __webpack_require__(9);
 var Back_1 = __webpack_require__(115);
-var omit_1 = __webpack_require__(22);
+var omit = __webpack_require__(22);
 var selectors_1 = __webpack_require__(12);
 var waitForInitialization_1 = __webpack_require__(35);
 var reselect_1 = __webpack_require__(15);
@@ -21603,7 +21603,7 @@ var InnerBackLink = (function (_super) {
         event.preventDefault();
     };
     InnerBackLink.prototype.render = function () {
-        var _a = omit_1.default(this.props, [
+        var _a = omit(this.props, [
             'groupName',
             'containerName',
             'store',
@@ -21807,7 +21807,7 @@ var react_1 = __webpack_require__(0);
 var react_redux_1 = __webpack_require__(9);
 var recompose_1 = __webpack_require__(24);
 var SwitchToContainer_1 = __webpack_require__(37);
-var omit_1 = __webpack_require__(22);
+var omit = __webpack_require__(22);
 var selectors_1 = __webpack_require__(12);
 var waitForInitialization_1 = __webpack_require__(35);
 var OpenWindow_1 = __webpack_require__(116);
@@ -21838,7 +21838,7 @@ var InnerHeaderLink = (function (_super) {
         return isActive ? [activeClassName, className].join(' ') : className || '';
     };
     InnerHeaderLink.prototype.render = function () {
-        var _a = omit_1.default(this.props, [
+        var _a = omit(this.props, [
             'groupName',
             'containerName',
             'activeClassName',
@@ -21924,7 +21924,7 @@ var react_redux_1 = __webpack_require__(9);
 var recompose_1 = __webpack_require__(24);
 var PathUtils_1 = __webpack_require__(49);
 var Push_1 = __webpack_require__(47);
-var omit_1 = __webpack_require__(22);
+var omit = __webpack_require__(22);
 var selectors_1 = __webpack_require__(12);
 var enhancers_1 = __webpack_require__(68);
 var InnerHistoryLink = (function (_super) {
@@ -21958,7 +21958,7 @@ var InnerHistoryLink = (function (_super) {
         event.preventDefault();
     };
     InnerHistoryLink.prototype.render = function () {
-        var aProps = __rest(omit_1.default(this.props, [
+        var aProps = __rest(omit(this.props, [
             'to',
             'groupName',
             'containerName',
@@ -22413,7 +22413,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(0);
 var react_1 = __webpack_require__(0);
-var omit_1 = __webpack_require__(22);
+var omit = __webpack_require__(22);
 var ScrollArea = (function (_super) {
     __extends(ScrollArea, _super);
     function ScrollArea(props) {
@@ -22464,7 +22464,7 @@ var ScrollArea = (function (_super) {
     };
     ScrollArea.prototype.render = function () {
         var _this = this;
-        var _a = omit_1.default(this.props, ['resetOnLeave']), children = _a.children, _b = _a.horizontal, horizontal = _b === void 0 ? false : _b, _c = _a.vertical, vertical = _c === void 0 ? false : _c, _d = _a.style, style = _d === void 0 ? {} : _d, divProps = __rest(_a, ["children", "horizontal", "vertical", "style"]);
+        var _a = omit(this.props, ['resetOnLeave']), children = _a.children, _b = _a.horizontal, horizontal = _b === void 0 ? false : _b, _c = _a.vertical, vertical = _c === void 0 ? false : _c, _d = _a.style, style = _d === void 0 ? {} : _d, divProps = __rest(_a, ["children", "horizontal", "vertical", "style"]);
         return (React.createElement("div", __assign({ ref: function (ref) { return _this.scrollArea = ref; }, onScroll: this.onScroll.bind(this) }, divProps, { style: __assign({}, style, { overflowX: horizontal ? 'scroll' : 'hidden', overflowY: vertical ? 'scroll' : 'hidden', WebkitOverflowScrolling: 'touch' }) }), children));
     };
     return ScrollArea;
@@ -24609,7 +24609,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(0);
 var react_1 = __webpack_require__(0);
-var omit_1 = __webpack_require__(22);
+var omit = __webpack_require__(22);
 var DumbContainerGroup = (function (_super) {
     __extends(DumbContainerGroup, _super);
     function DumbContainerGroup() {
@@ -24623,7 +24623,7 @@ var DumbContainerGroup = (function (_super) {
         };
     };
     DumbContainerGroup.prototype.renderDiv = function (divChildren) {
-        var _a = omit_1.default(this.props, [
+        var _a = omit(this.props, [
             'groupName',
             'children',
             'storedCurrentContainerIndex',
@@ -24735,7 +24735,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(0);
 var react_1 = __webpack_require__(0);
-var omit_1 = __webpack_require__(22);
+var omit = __webpack_require__(22);
 var Draggable = __webpack_require__(395);
 var noop = function () { };
 var countNonNulls = function () {
@@ -24832,7 +24832,7 @@ var DumbHistoryWindow = (function (_super) {
     };
     DumbHistoryWindow.prototype.render = function () {
         var _this = this;
-        var _a = omit_1.default(this.props, [
+        var _a = omit(this.props, [
             'store',
             'setCurrentContainerName',
             'loadedFromPersist',
@@ -25417,7 +25417,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var omit_1 = __webpack_require__(22);
+var omit = __webpack_require__(22);
 var serializables_1 = __webpack_require__(122);
 /**
  * @param classObject - An object of a class with a @Serializable decorator
@@ -25447,7 +25447,7 @@ function deserialize(obj) {
         throw new Error(obj.type + ' not found in serializables');
     }
     var constructor = ser.bind(ser);
-    var data = omit_1.default(obj, ['type']);
+    var data = omit(obj, ['type']);
     var keys = Object.keys(data);
     var classObject;
     try {
@@ -25496,8 +25496,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var serializer_1 = __webpack_require__(241);
 var Action_1 = __webpack_require__(69);
-var takeRight_1 = __webpack_require__(317);
-var last_1 = __webpack_require__(38);
+var takeRight = __webpack_require__(317);
+var last = __webpack_require__(38);
 var store = __webpack_require__(470);
 var ClearActions_1 = __webpack_require__(240);
 function deriveState(actions, state) {
@@ -25569,9 +25569,9 @@ function createStore(_a) {
             return initialState;
         }
         else {
-            var lastTime = last_1.default(actions).time;
+            var lastTime = last(actions).time;
             var prevTime = actions.length > 1 ?
-                takeRight_1.default(actions, 2)[0].time : lastTime;
+                takeRight(actions, 2)[0].time : lastTime;
             if (lastTime === prevTime && prevTime === timeStored) {
                 storedRawState = deriveState(actions, initialState); // Just derive all
             }

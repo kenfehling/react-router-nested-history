@@ -1,7 +1,7 @@
 import PageVisit, {VisitType} from './PageVisit'
 import Page from './Page'
-import some from 'lodash/some'
-import last from 'lodash/last'
+import * as some from 'lodash/some'
+import * as last from 'lodash/last'
 
 export default class VisitedPage extends Page {
   readonly visits: PageVisit[]

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
-import omit from 'lodash/omit'
+import * as omit from 'lodash/omit'
 
 export type GroupChildrenFunctionArgs = {
   currentContainerIndex?: number

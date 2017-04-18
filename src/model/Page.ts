@@ -1,4 +1,4 @@
-import isEqual from 'lodash/isEqual'
+import * as isEqual from 'lodash/isEqual'
 import Serializable from '../store/decorators/Serializable'
 
 @Serializable
