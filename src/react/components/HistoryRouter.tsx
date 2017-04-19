@@ -144,33 +144,21 @@ const ConnectedHistoryRouter = connect(
 class HistoryRouter extends Component<HistoryRouterProps, HistoryRouterState> {
   private store:Store
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      loaded: false
-    }
-  }
-
   componentWillMount() {
-    this.store = createStore({
-      loadFromPersist: wasLoadedFromRefresh,
-      regularReduxStore: this.makeReduxStore()
-    })
-  }
-
-  makeReduxStore() {
-    const store = createRegularReduxStore<ReduxState>(
+    const regularReduxStore = createRegularReduxStore<ReduxState>(
       reducer,
       initialState,
       autoRehydrate<ReduxState>()
     )
-    persistStore(store, {}, () => this.setState({loaded: true}))
-    return store
+    persistStore(regularReduxStore)
+    this.store = createStore({
+      loadFromPersist: wasLoadedFromRefresh,
+      regularReduxStore
+    })
   }
 
   render() {
-    return this.state.loaded ?
-      <ConnectedHistoryRouter {...this.props} store={this.store} /> : null
+    return <ConnectedHistoryRouter {...this.props} store={this.store} />
   }
 }
 
