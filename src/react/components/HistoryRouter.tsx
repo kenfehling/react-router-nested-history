@@ -149,6 +149,9 @@ class HistoryRouter extends Component<HistoryRouterProps, HistoryRouterState> {
     this.state = {
       loaded: false
     }
+  }
+
+  componentWillMount() {
     this.store = createStore({
       loadFromPersist: wasLoadedFromRefresh,
       regularReduxStore: this.makeReduxStore()
