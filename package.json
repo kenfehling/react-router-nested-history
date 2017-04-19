@@ -38,6 +38,7 @@
     "tree"
   ],
   "dependencies": {
+    "babel-runtime": "^6.23.0",
     "bowser": "^1.6.0",
     "history": "4.5.1",
     "immutable": "^3.8.1",
