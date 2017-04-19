@@ -15829,7 +15829,7 @@ var parseParams = function (pattern, url) {
 };
 exports.parseParamsFromPatterns = function (patterns, url) {
     var paramResults = patterns.map(function (p) { return parseParams(p, url); });
-    return last(sortBy(paramResults, [function (p) { return 0 - values(p).length; }])) || {};
+    return last(sortBy(paramResults, [function (p) { return values(p).length; }])) || {};
 };
 
 

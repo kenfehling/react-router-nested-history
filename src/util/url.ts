@@ -21,5 +21,5 @@ const parseParams = (pattern:string, url:string):Object => {
 
 export const parseParamsFromPatterns = (patterns:string[], url:string):Object => {
   const paramResults:Object[] = patterns.map(p => parseParams(p, url))
-  return last(sortBy(paramResults, [(p) => 0 - values(p).length])) || {}
+  return last(sortBy(paramResults, [(p) => values(p).length])) || {}
 }
