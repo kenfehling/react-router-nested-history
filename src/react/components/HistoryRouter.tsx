@@ -13,7 +13,6 @@ import Load from '../../model/actions/Load'
 import SetZeroPage from '../../model/actions/SetZeroPage'
 import StepRunner from './StepRunner'
 import TitleSetter from './TitleSetter'
-import ComputedState from '../../model/ComputedState'
 import reducer, {initialState, ReduxState} from '../../reducers'
 import {createStore as createRegularReduxStore} from 'redux'
 import {autoRehydrate, persistStore} from 'redux-persist'
@@ -23,13 +22,7 @@ import {
 } from '../selectors'
 declare const window:any
 
-// For IE
-import * as Promise from 'promise-polyfill'
 import {createStructuredSelector} from 'reselect'
-
-if (canUseDOM && !window.Promise) {
-  window.Promise = Promise
-}
 
 export interface HistoryRouterProps {
   basename?: string
