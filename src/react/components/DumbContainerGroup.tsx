@@ -64,27 +64,7 @@ export default class DumbContainerGroup extends
     ])
 
     console.log('this.props', this.props)
-    console.log('omit(this.props)', omit(this.props, [
-      'groupName',
-      'children',
-      'storedCurrentContainerIndex',
-      'hideInactiveContainers',
-      'store',
-      'isOnTop',
-      'dispatch',
-      'storedCurrentContainerName',
-      'gotoTopOnSelectActive',
-      'createGroup',
-      'switchToContainerIndex',
-      'switchToContainerName',
-      'isDefault',
-      'parentGroup',
-      'allowInterContainerHistory',
-      'loadedFromPersist',
-      'isInitialized',
-      'storeSubscription'
-    ]))
-
+    console.log('omit', omit)
     console.log('divProps', divProps)
 
     const divStyle={
