@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Component, ReactNode, ReactElement} from 'react'
-import * as omit from 'lodash/omit'
+import * as omit from 'lodash.omit'
 import * as Draggable from 'react-draggable'
 
 const noop = () => {}

@@ -62,9 +62,6 @@ export default class DumbContainerGroup extends
       'isInitialized',
       'storeSubscription'
     ])
-
-    console.log(divProps)
-
     const divStyle={
       ...style,
       width: '100%',

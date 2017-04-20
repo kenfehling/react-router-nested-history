@@ -1,4 +1,4 @@
-import * as omit from 'lodash/omit'
+import * as omit from 'lodash.omit'
 import ISerializable from './ISerializable'
 import ISerializableClass from './ISerializableClass'
 import ISerialized from './ISerialized'

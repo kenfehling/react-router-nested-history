@@ -4,7 +4,7 @@ import {connect} from 'react-redux'
 import {Store} from '../../store'
 import Page from '../../model/Page'
 import Back from '../../model/actions/Back'
-import * as omit from 'lodash/omit'
+import * as omit from 'lodash.omit'
 import {
   createCachingSelector, getDispatch, getGroupName, getBackPageInGroup
 } from '../selectors'

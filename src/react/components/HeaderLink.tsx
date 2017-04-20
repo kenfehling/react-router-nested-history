@@ -4,7 +4,7 @@ import {connect} from 'react-redux'
 import {compose, getContext, renameProps} from 'recompose'
 import {Store} from '../../store'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
-import * as omit from 'lodash/omit'
+import * as omit from 'lodash.omit'
 import {
   getIsActiveInGroup, getHasWindow, getHeaderLinkUrl, getShouldGoToTop
 } from '../selectors'
