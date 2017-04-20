@@ -61,7 +61,32 @@ export default class DumbContainerGroup extends
       'loadedFromPersist',
       'isInitialized',
       'storeSubscription'
-  ])
+    ])
+
+    console.log('this.props', this.props)
+    console.log('omit(this.props)', omit(this.props, [
+      'groupName',
+      'children',
+      'storedCurrentContainerIndex',
+      'hideInactiveContainers',
+      'store',
+      'isOnTop',
+      'dispatch',
+      'storedCurrentContainerName',
+      'gotoTopOnSelectActive',
+      'createGroup',
+      'switchToContainerIndex',
+      'switchToContainerName',
+      'isDefault',
+      'parentGroup',
+      'allowInterContainerHistory',
+      'loadedFromPersist',
+      'isInitialized',
+      'storeSubscription'
+    ]))
+
+    console.log('divProps', divProps)
+
     const divStyle={
       ...style,
       width: '100%',

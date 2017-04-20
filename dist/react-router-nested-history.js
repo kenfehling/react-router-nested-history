@@ -24629,6 +24629,28 @@ var DumbContainerGroup = (function (_super) {
             'isInitialized',
             'storeSubscription'
         ]), _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["style"]);
+        console.log('this.props', this.props);
+        console.log('omit(this.props)', omit(this.props, [
+            'groupName',
+            'children',
+            'storedCurrentContainerIndex',
+            'hideInactiveContainers',
+            'store',
+            'isOnTop',
+            'dispatch',
+            'storedCurrentContainerName',
+            'gotoTopOnSelectActive',
+            'createGroup',
+            'switchToContainerIndex',
+            'switchToContainerName',
+            'isDefault',
+            'parentGroup',
+            'allowInterContainerHistory',
+            'loadedFromPersist',
+            'isInitialized',
+            'storeSubscription'
+        ]));
+        console.log('divProps', divProps);
         var divStyle = __assign({}, style, { width: '100%', height: '100%', position: 'inherit', overflow: 'hidden' });
         return React.createElement("div", __assign({ style: divStyle }, divProps), divChildren);
     };
