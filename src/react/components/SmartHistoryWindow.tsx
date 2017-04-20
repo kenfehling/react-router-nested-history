@@ -8,7 +8,8 @@ import DumbHistoryWindow, {
 } from './DumbHistoryWindow'
 import {moveWindow} from '../../actions/WindowActions'
 import {
-  createCachingSelector, getContainerName, getDispatch, getWindowIsOnTop,
+  createCachingSelector, getContainerName, getDispatch, getIsInitialized,
+  getWindowIsOnTop,
   getWindowPosition, getWindowVisible, getWindowZIndex
 } from '../selectors'
 import SwitchToContainer from '../../model/actions/SwitchToContainer'
@@ -25,6 +26,7 @@ type WindowPropsWithStore = WindowProps & {
 
 type ConnectedWindowProps = WindowPropsWithStore & {
   storedVisibile: boolean
+  isInitialized: boolean
   switchTo: () => void
   open: () => void
   close: () => void
@@ -46,7 +48,8 @@ const mapStateToProps = createStructuredSelector({
   storedVisible: getWindowVisible,
   storedPosition: getWindowPosition,
   zIndex: getWindowZIndex,
-  isOnTop: getWindowIsOnTop
+  isOnTop: getWindowIsOnTop,
+  isInitialized: getIsInitialized
 })
 
 const mergeProps = (stateProps, dispatchProps,

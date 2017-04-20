@@ -45,6 +45,7 @@ export type DumbWindowProps = BaseWindowProps & ChildrenFunctionArgs & {
   zIndex: number
   isOnTop: boolean
   storedVisible: boolean
+  isInitialized: boolean
   storedPosition: {x:number, y:number}|undefined
   move: (data: {x:number, y:number}) => void
 }
@@ -160,21 +161,21 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
   render() {
     const {
       children,
-      style={},
+      style = {},
       zIndex,
       storedVisible,
+      isInitialized,
       switchTo,
       open,
       close,
       draggable,
-      draggableProps={},
-      rememberPosition=draggable,
+      draggableProps = {},
+      rememberPosition = draggable,
       ...divProps
     } = omit(this.props, [
       'store',
       'setCurrentContainerName',
       'loadedFromPersist',
-      'isInitialized',
       'createWindow',
       'topClassName',
       'containerName',
@@ -193,44 +194,58 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
       'storedPosition',
       'storeSubscription'
     ])
-    const drag:boolean = !!draggable && !!storedVisible
-    const x:number|undefined = this.calculateX()
-    const y:number|undefined = this.calculateY()
 
-    //onTouchMove={e => e.preventDefault()}
-    const w = (
-      <div {...divProps}
-          ref={(el:HTMLElement) => this.calculateDimensions(el)}
-          className={this.getClassName()}
-          onMouseDown={drag ? noop : this.onMouseDown.bind(this)}
-          style={{
-                ...style,
-                zIndex,
-                position: 'absolute',
-                display: storedVisible ? 'block' : 'none',
-                x: !drag ? x : undefined,
-                y: !drag ? y : undefined
+    const getChildren = () => children instanceof Function ? children({
+      switchTo,
+      open,
+      close
+    }) : children
+
+    if (storedVisible) {
+      const drag: boolean = !!draggable && !!storedVisible
+      const x: number | undefined = this.calculateX()
+      const y: number | undefined = this.calculateY()
+
+      //onTouchMove={e => e.preventDefault()}
+      const w = (
+        <div {...divProps}
+             ref={(el: HTMLElement) => this.calculateDimensions(el)}
+             className={this.getClassName()}
+             onMouseDown={drag ? noop : this.onMouseDown.bind(this)}
+             style={{
+               ...style,
+               zIndex,
+               position: 'absolute',
+               x: !drag ? x : undefined,
+               y: !drag ? y : undefined
              }}
-      >
-        {children instanceof Function ? children({switchTo, open, close}) : children}
-      </div>
-    )
-    const hasDefaultPosition = rememberPosition || this.state.width !== 0
-    if (drag && hasDefaultPosition) {
-      return (
-        <Draggable grid={[1, 1]}
-                   {...draggableProps}
-                   onStop={this.onDragEnd.bind(this)}
-                   onMouseDown={this.onMouseDown.bind(this)}
-                   position={rememberPosition ? {x, y} : undefined}
-                   defaultPosition={hasDefaultPosition ? {x, y} : undefined}
         >
-          {w}
-        </Draggable>
+          {getChildren()}
+        </div>
       )
+      const hasDefaultPosition = rememberPosition || this.state.width !== 0
+      if (drag && hasDefaultPosition) {
+        return (
+          <Draggable grid={[1, 1]}
+                     {...draggableProps}
+                     onStop={this.onDragEnd.bind(this)}
+                     onMouseDown={this.onMouseDown.bind(this)}
+                     position={rememberPosition ? {x, y} : undefined}
+                     defaultPosition={hasDefaultPosition ? {x, y} : undefined}
+          >
+            {w}
+          </Draggable>
+        )
+      }
+      else {
+        return w
+      }
+    }
+    else if (!isInitialized) {
+      return getChildren()
     }
     else {
-      return w
+      return null
     }
   }
 }

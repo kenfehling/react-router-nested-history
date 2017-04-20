@@ -23558,6 +23558,8 @@ var HistoryRouter = (function (_super) {
     HistoryRouter.prototype.makeReduxStore = function () {
         var _this = this;
         var regularReduxStore = redux_1.createStore(reducers_1.default, reducers_1.initialState, redux_persist_1.autoRehydrate());
+        // Wait for persistStore to finish before rendering
+        // Removing this messes up SSR
         redux_persist_1.persistStore(regularReduxStore, {}, function () { return _this.setState({ loaded: true }); });
         return regularReduxStore;
     };
@@ -26112,7 +26114,6 @@ var DumbHistoryWindow = (function (_super) {
             'store',
             'setCurrentContainerName',
             'loadedFromPersist',
-            'isInitialized',
             'createWindow',
             'topClassName',
             'containerName',
@@ -26130,18 +26131,31 @@ var DumbHistoryWindow = (function (_super) {
             'isOnTop',
             'storedPosition',
             'storeSubscription'
-        ]), children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, zIndex = _a.zIndex, storedVisible = _a.storedVisible, switchTo = _a.switchTo, open = _a.open, close = _a.close, draggable = _a.draggable, _c = _a.draggableProps, draggableProps = _c === void 0 ? {} : _c, _d = _a.rememberPosition, rememberPosition = _d === void 0 ? draggable : _d, divProps = __rest(_a, ["children", "style", "zIndex", "storedVisible", "switchTo", "open", "close", "draggable", "draggableProps", "rememberPosition"]);
-        var drag = !!draggable && !!storedVisible;
-        var x = this.calculateX();
-        var y = this.calculateY();
-        //onTouchMove={e => e.preventDefault()}
-        var w = (React.createElement("div", __assign({}, divProps, { ref: function (el) { return _this.calculateDimensions(el); }, className: this.getClassName(), onMouseDown: drag ? noop : this.onMouseDown.bind(this), style: __assign({}, style, { zIndex: zIndex, position: 'absolute', display: storedVisible ? 'block' : 'none', x: !drag ? x : undefined, y: !drag ? y : undefined }) }), children instanceof Function ? children({ switchTo: switchTo, open: open, close: close }) : children));
-        var hasDefaultPosition = rememberPosition || this.state.width !== 0;
-        if (drag && hasDefaultPosition) {
-            return (React.createElement(Draggable, __assign({ grid: [1, 1] }, draggableProps, { onStop: this.onDragEnd.bind(this), onMouseDown: this.onMouseDown.bind(this), position: rememberPosition ? { x: x, y: y } : undefined, defaultPosition: hasDefaultPosition ? { x: x, y: y } : undefined }), w));
+        ]), children = _a.children, _b = _a.style, style = _b === void 0 ? {} : _b, zIndex = _a.zIndex, storedVisible = _a.storedVisible, isInitialized = _a.isInitialized, switchTo = _a.switchTo, open = _a.open, close = _a.close, draggable = _a.draggable, _c = _a.draggableProps, draggableProps = _c === void 0 ? {} : _c, _d = _a.rememberPosition, rememberPosition = _d === void 0 ? draggable : _d, divProps = __rest(_a, ["children", "style", "zIndex", "storedVisible", "isInitialized", "switchTo", "open", "close", "draggable", "draggableProps", "rememberPosition"]);
+        var getChildren = function () { return children instanceof Function ? children({
+            switchTo: switchTo,
+            open: open,
+            close: close
+        }) : children; };
+        if (storedVisible) {
+            var drag = !!draggable && !!storedVisible;
+            var x = this.calculateX();
+            var y = this.calculateY();
+            //onTouchMove={e => e.preventDefault()}
+            var w = (React.createElement("div", __assign({}, divProps, { ref: function (el) { return _this.calculateDimensions(el); }, className: this.getClassName(), onMouseDown: drag ? noop : this.onMouseDown.bind(this), style: __assign({}, style, { zIndex: zIndex, position: 'absolute', x: !drag ? x : undefined, y: !drag ? y : undefined }) }), getChildren()));
+            var hasDefaultPosition = rememberPosition || this.state.width !== 0;
+            if (drag && hasDefaultPosition) {
+                return (React.createElement(Draggable, __assign({ grid: [1, 1] }, draggableProps, { onStop: this.onDragEnd.bind(this), onMouseDown: this.onMouseDown.bind(this), position: rememberPosition ? { x: x, y: y } : undefined, defaultPosition: hasDefaultPosition ? { x: x, y: y } : undefined }), w));
+            }
+            else {
+                return w;
+            }
+        }
+        else if (!isInitialized) {
+            return getChildren();
         }
         else {
-            return w;
+            return null;
         }
     };
     return DumbHistoryWindow;
@@ -26383,7 +26397,8 @@ var mapStateToProps = reselect_1.createStructuredSelector({
     storedVisible: selectors_1.getWindowVisible,
     storedPosition: selectors_1.getWindowPosition,
     zIndex: selectors_1.getWindowZIndex,
-    isOnTop: selectors_1.getWindowIsOnTop
+    isOnTop: selectors_1.getWindowIsOnTop,
+    isInitialized: selectors_1.getIsInitialized
 });
 var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps)); };
 var ConnectedSmartHistoryWindow = react_redux_1.connect(mapStateToProps, makeGetActions, mergeProps)(DumbHistoryWindow_1.default);
