@@ -1,7 +1,6 @@
 import * as React from 'react'
 import {Component, PropTypes, ReactNode, ReactElement} from 'react'
-//import * as omit from 'lodash/omit'
-import * as _ from 'lodash'
+import * as omit from 'lodash.omit'
 
 export type GroupChildrenFunctionArgs = {
   currentContainerIndex?: number
@@ -43,7 +42,7 @@ export default class DumbContainerGroup extends
   }
 
   renderDiv(divChildren) {
-    const {style={}, ...divProps} = _.omit({...this.props}, [
+    const {style={}, ...divProps} = omit({...this.props}, [
       'groupName',
       'children',
       'storedCurrentContainerIndex',

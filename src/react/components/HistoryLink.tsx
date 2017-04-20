@@ -43,7 +43,8 @@ class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
       'containerName',
       'store',
       'push',
-      'storeSubscription'
+      'storeSubscription',
+      'dispatch'
     ])
     return (
       <a href={url}

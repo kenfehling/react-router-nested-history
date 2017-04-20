@@ -44,6 +44,7 @@
     "immutable": "^3.8.1",
     "invariant": "^2.2.2",
     "lodash": "^4.17.4",
+    "lodash.omit": "^4.5.0",
     "path-to-regexp": "^1.7.0",
     "promise-queue": "^2.2.3",
     "re-reselect": "^0.1.0",
