@@ -21591,32 +21591,21 @@ var InnerBackLink = (function (_super) {
     InnerBackLink.prototype.shouldComponentUpdate = function (newProps) {
         return !this.props.backPage && !!newProps.backPage;
     };
-    InnerBackLink.prototype.onClick = function (event) {
-        var back = this.props.back;
-        back();
-        event.stopPropagation();
-        event.preventDefault();
-    };
-    InnerBackLink.prototype.onMouseDown = function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-    };
     InnerBackLink.prototype.render = function () {
         var _a = omit(this.props, [
             'groupName',
             'containerName',
             'store',
-            'back',
             'params',
             'storeSubscription'
-        ]), children = _a.children, backPage = _a.backPage, aProps = __rest(_a, ["children", "backPage"]);
+        ]), children = _a.children, backPage = _a.backPage, onClick = _a.onClick, onMouseDown = _a.onMouseDown, aProps = __rest(_a, ["children", "backPage", "onClick", "onMouseDown"]);
         if (backPage) {
-            return (React.createElement("a", __assign({ href: backPage.url, onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, aProps), children ?
+            return (React.createElement("a", __assign({ href: backPage.url, onMouseDown: onMouseDown, onClick: onClick }, aProps), children ?
                 (children instanceof Function ? children({ params: backPage.params })
                     : children) : 'Back'));
         }
         else {
-            return React.createElement("span", null, " ");
+            return null;
         }
     };
     return InnerBackLink;
@@ -21625,7 +21614,15 @@ var mapStateToProps = reselect_1.createStructuredSelector({
     backPage: selectors_1.getBackPageInGroup
 });
 var makeGetActions = function () { return selectors_1.createCachingSelector(selectors_1.getGroupName, selectors_1.getDispatch, function (groupName, dispatch) { return ({
-    back: function () { return dispatch(new Back_1.default({ n: 1, container: groupName })); }
+    onClick: function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        dispatch(new Back_1.default({ n: 1, container: groupName }));
+    },
+    onMouseDown: function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
 }); }); };
 var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps)); };
 var ConnectedBackLink = react_redux_1.connect(mapStateToProps, makeGetActions, mergeProps)(InnerBackLink);
@@ -21916,8 +21913,8 @@ var recompose_1 = __webpack_require__(24);
 var PathUtils_1 = __webpack_require__(49);
 var Push_1 = __webpack_require__(47);
 var omit = __webpack_require__(22);
-var selectors_1 = __webpack_require__(12);
 var enhancers_1 = __webpack_require__(68);
+var getUrl = function (to) { return typeof (to) === 'string' ? to : PathUtils_1.createPath(to); };
 var InnerHistoryLink = (function (_super) {
     __extends(InnerHistoryLink, _super);
     function InnerHistoryLink() {
@@ -21934,41 +21931,38 @@ var InnerHistoryLink = (function (_super) {
             throw new Error('HistoryLink needs to be inside a Container');
         }
     };
-    InnerHistoryLink.prototype.getUrl = function () {
-        var to = this.props.to;
-        return typeof (to) === 'string' ? to : PathUtils_1.createPath(to);
-    };
-    InnerHistoryLink.prototype.onClick = function (event) {
-        var push = this.props.push;
-        push(this.getUrl());
-        event.stopPropagation();
-        event.preventDefault();
-    };
-    InnerHistoryLink.prototype.onMouseDown = function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-    };
     InnerHistoryLink.prototype.render = function () {
-        var aProps = __rest(omit(this.props, [
+        var _a = omit(this.props, [
             'to',
             'groupName',
             'containerName',
             'store',
             'push',
             'storeSubscription'
-        ]), []);
-        return (React.createElement("a", __assign({ href: this.getUrl(), onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, aProps), this.props.children));
+        ]), url = _a.url, onClick = _a.onClick, onMouseDown = _a.onMouseDown, aProps = __rest(_a, ["url", "onClick", "onMouseDown"]);
+        return (React.createElement("a", __assign({ href: url, onMouseDown: onMouseDown, onClick: onClick }, aProps), this.props.children));
     };
     return InnerHistoryLink;
 }(react_1.Component));
-var makeGetActions = function () { return selectors_1.createCachingSelector(selectors_1.getGroupName, selectors_1.getContainerName, selectors_1.getDispatch, function (groupName, containerName, dispatch) { return ({
-    push: function (url) { return dispatch(new Push_1.default({
-        url: url,
-        container: containerName
-    })); }
-}); }); };
-var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps)); };
-var HistoryLink = react_redux_1.connect(function () { return (selectors_1.EMPTY_OBJ); }, makeGetActions, mergeProps)(InnerHistoryLink);
+var mapStateToProps = function (state, _a) {
+    var to = _a.to;
+    return ({ url: getUrl(to) });
+};
+var mapDispatchToProps = function (dispatch) { return ({ dispatch: dispatch }); };
+var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps, { onClick: function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var to = ownProps.to;
+        var url = typeof (to) === 'string' ? to : PathUtils_1.createPath(to);
+        dispatchProps.dispatch(new Push_1.default({
+            url: url,
+            container: ownProps.containerName
+        }));
+    }, onMouseDown: function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    } })); };
+var HistoryLink = react_redux_1.connect(mapStateToProps, mapDispatchToProps, mergeProps)(InnerHistoryLink);
 var enhance = recompose_1.compose(recompose_1.getContext({
     rrnhStore: react_1.PropTypes.object.isRequired,
     groupName: react_1.PropTypes.string.isRequired,
@@ -24601,8 +24595,8 @@ var DumbContainerGroup = (function (_super) {
         };
     };
     DumbContainerGroup.prototype.renderDiv = function (divChildren) {
-        var origProps = __assign({}, this.props);
-        var filteredProps = omit(origProps, [
+        console.log(omit(this.props, ['groupName']));
+        var _a = omit(__assign({}, this.props), [
             'groupName',
             'children',
             'storedCurrentContainerIndex',
@@ -24621,10 +24615,7 @@ var DumbContainerGroup = (function (_super) {
             'loadedFromPersist',
             'isInitialized',
             'storeSubscription'
-        ]);
-        console.log(origProps);
-        console.log(filteredProps);
-        var _a = filteredProps.style, style = _a === void 0 ? {} : _a, divProps = __rest(filteredProps, ["style"]);
+        ]), _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["style"]);
         var divStyle = __assign({}, style, { width: '100%', height: '100%', position: 'inherit', overflow: 'hidden' });
         return React.createElement("div", __assign({ style: divStyle }, divProps), divChildren);
     };
