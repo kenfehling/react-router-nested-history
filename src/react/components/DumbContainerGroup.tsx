@@ -63,9 +63,7 @@ export default class DumbContainerGroup extends
       'storeSubscription'
     ])
 
-    console.log('this.props', this.props)
-    console.log('omit', omit)
-    console.log('divProps', divProps)
+    console.log(omit({a: 1, b: 2}, ['a']))
 
     const divStyle={
       ...style,
