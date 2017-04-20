@@ -21822,16 +21822,6 @@ var InnerHeaderLink = (function (_super) {
             throw new Error('HeaderLink needs to be inside a ContainerGroup');
         }
     };
-    InnerHeaderLink.prototype.onClick = function (event) {
-        var onClick = this.props.onClick;
-        onClick();
-        event.stopPropagation();
-        event.preventDefault();
-    };
-    InnerHeaderLink.prototype.onMouseDown = function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-    };
     InnerHeaderLink.prototype.getClassName = function () {
         var _a = this.props, className = _a.className, activeClassName = _a.activeClassName, isActive = _a.isActive;
         return isActive ? [activeClassName, className].join(' ') : className || '';
@@ -21843,17 +21833,15 @@ var InnerHeaderLink = (function (_super) {
             'activeClassName',
             'className',
             'store',
-            'onClick',
             'hasWindow',
             'shouldGoToTop',
             'dispatch',
             'storeSubscription'
-        ]), children = _a.children, url = _a.url, isActive = _a.isActive, aProps = __rest(_a, ["children", "url", "isActive"]);
-        return (React.createElement("a", __assign({ href: url, className: this.getClassName(), onMouseDown: this.onMouseDown.bind(this), onClick: this.onClick.bind(this) }, aProps), children instanceof Function ? children({ isActive: isActive }) : children));
+        ]), children = _a.children, url = _a.url, isActive = _a.isActive, onClick = _a.onClick, onMouseDown = _a.onMouseDown, aProps = __rest(_a, ["children", "url", "isActive", "onClick", "onMouseDown"]);
+        return (React.createElement("a", __assign({ href: url, className: this.getClassName(), onMouseDown: onMouseDown, onClick: onClick }, aProps), children instanceof Function ? children({ isActive: isActive }) : children));
     };
     return InnerHeaderLink;
 }(react_1.Component));
-2;
 var mapStateToProps = reselect_1.createStructuredSelector({
     url: selectors_1.getHeaderLinkUrl,
     isActive: selectors_1.getIsActiveInGroup,
@@ -21862,7 +21850,8 @@ var mapStateToProps = reselect_1.createStructuredSelector({
 });
 var mapDispatchToProps = function (dispatch) { return ({ dispatch: dispatch }); };
 var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps, { onClick: function (event) {
-        ownProps.onClick && ownProps.onClick(event);
+        event.stopPropagation();
+        event.preventDefault();
         var hasWindow = stateProps.hasWindow, shouldGoToTop = stateProps.shouldGoToTop;
         var containerName = ownProps.containerName;
         var action = hasWindow ?
@@ -21871,6 +21860,9 @@ var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assi
                 new Top_1.default({ container: containerName }) :
                 new SwitchToContainer_1.default({ name: containerName }));
         return dispatchProps.dispatch(action);
+    }, onMouseDown: function (event) {
+        event.stopPropagation();
+        event.preventDefault();
     } })); };
 var HeaderLink = react_redux_1.connect(mapStateToProps, mapDispatchToProps, mergeProps)(InnerHeaderLink);
 var enhance = recompose_1.compose(recompose_1.getContext({
@@ -24609,7 +24601,8 @@ var DumbContainerGroup = (function (_super) {
         };
     };
     DumbContainerGroup.prototype.renderDiv = function (divChildren) {
-        var filteredProps = omit(this.props, [
+        var origProps = __assign({}, this.props);
+        var filteredProps = omit(origProps, [
             'groupName',
             'children',
             'storedCurrentContainerIndex',
@@ -24629,6 +24622,7 @@ var DumbContainerGroup = (function (_super) {
             'isInitialized',
             'storeSubscription'
         ]);
+        console.log(origProps);
         console.log(filteredProps);
         var _a = filteredProps.style, style = _a === void 0 ? {} : _a, divProps = __rest(filteredProps, ["style"]);
         var divStyle = __assign({}, style, { width: '100%', height: '100%', position: 'inherit', overflow: 'hidden' });

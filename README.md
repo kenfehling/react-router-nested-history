@@ -98,15 +98,6 @@ Use this for a container's header link (typically a tab-like thing)
           <td>An alternate CSS class for styling the active item</td>
         </tr>
         <tr>
-          <td>onClick</td>
-          <td>Function</td>
-          <td></td>
-          <td>
-            Do an additional action when this HeaderLink is clicked,
-            in addition to activating its associated Container
-          </td>
-        </tr>
-        <tr>
           <td>children</td>
           <td>ReactNode or Function</td>
           <td align="center"></td>

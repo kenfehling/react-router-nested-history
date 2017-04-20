@@ -30,7 +30,8 @@ type BackLinkPropsWithStore = BackLinkProps & {
 
 type ConnectedBackLinkProps = BackLinkPropsWithStore & {
   backPage: Page|undefined
-  back: () => void
+  onClick: (e:MouseEvent) => void
+  onMouseDown: (e:MouseEvent) => void
 
 }
 
@@ -46,32 +47,19 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
     return !this.props.backPage && !!newProps.backPage
   }
 
-  onClick(event) {
-    const {back} = this.props
-    back()
-    event.stopPropagation()
-    event.preventDefault()
-  }
-
-  onMouseDown(event) {
-    event.stopPropagation()
-    event.preventDefault()
-  }
-
   render() {
-    const {children, backPage, ...aProps} = omit(this.props, [
+    const {children, backPage, onClick, onMouseDown, ...aProps} = omit(this.props, [
       'groupName',
       'containerName',
       'store',
-      'back',
       'params',
       'storeSubscription'
     ])
     if (backPage) {
       return (
         <a href={backPage.url}
-           onMouseDown={this.onMouseDown.bind(this)}
-           onClick={this.onClick.bind(this)}
+           onMouseDown={onMouseDown}
+           onClick={onClick}
            {...aProps}
         >
           {children ?
@@ -81,7 +69,7 @@ class InnerBackLink extends Component<ConnectedBackLinkProps, undefined> {
       )
     }
     else {
-      return <span> </span>
+      return null
     }
   }
 }
@@ -93,7 +81,15 @@ const mapStateToProps = createStructuredSelector({
 const makeGetActions = () => createCachingSelector(
   getGroupName, getDispatch,
   (groupName, dispatch) => ({
-    back: () => dispatch(new Back({n: 1, container: groupName}))
+    onClick: (event:MouseEvent) => {
+      event.stopPropagation()
+      event.preventDefault()
+      dispatch(new Back({n: 1, container: groupName}))
+    },
+    onMouseDown: (event:MouseEvent) => {
+      event.stopPropagation()
+      event.preventDefault()
+    }
   })
 )
 

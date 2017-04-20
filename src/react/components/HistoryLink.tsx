@@ -7,10 +7,6 @@ import {createPath} from 'history/PathUtils'
 import Push from '../../model/actions/Push'
 import {Store} from '../../store'
 import * as omit from 'lodash/omit'
-import {
-  EMPTY_OBJ, createCachingSelector, getGroupName,
-  getDispatch, getContainerName
-} from '../selectors'
 import {neverUpdate} from '../enhancers'
 
 type HistoryLinkPropsWithStore = LinkProps & {
@@ -19,8 +15,11 @@ type HistoryLinkPropsWithStore = LinkProps & {
 }
 
 type ConnectedHistoryLinkProps = HistoryLinkPropsWithStore & {
-  push: (url:string) => void
+  onClick: (e:MouseEvent) => void
+  onMouseDown: (e:MouseEvent) => void
 }
+
+const getUrl = (to) => typeof(to) === 'string' ? to : createPath(to)
 
 class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
 
@@ -37,25 +36,8 @@ class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
     }
   }
 
-  getUrl() {
-    const {to} = this.props
-    return typeof(to) === 'string' ? to : createPath(to)
-  }
-
-  onClick(event) {
-    const {push} = this.props
-    push(this.getUrl())
-    event.stopPropagation()
-    event.preventDefault()
-  }
-
-  onMouseDown(event) {
-    event.stopPropagation()
-    event.preventDefault()
-  }
-
   render() {
-    const {...aProps} = omit(this.props, [
+    const {url, onClick, onMouseDown, ...aProps} = omit(this.props, [
       'to',
       'groupName',
       'containerName',
@@ -64,9 +46,9 @@ class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
       'storeSubscription'
     ])
     return (
-      <a href={this.getUrl()}
-         onMouseDown={this.onMouseDown.bind(this)}
-         onClick={this.onClick.bind(this)}
+      <a href={url}
+         onMouseDown={onMouseDown}
+         onClick={onClick}
          {...aProps}
       >
         {this.props.children}
@@ -75,26 +57,34 @@ class InnerHistoryLink extends Component<ConnectedHistoryLinkProps, undefined> {
   }
 }
 
-const makeGetActions = () => createCachingSelector(
-  getGroupName, getContainerName, getDispatch,
-  (groupName, containerName, dispatch) => ({
-    push: (url:string) => dispatch(new Push({
-      url,
-      container: containerName
-    }))
-  })
-)
+const mapStateToProps = (state, {to}) => ({url: getUrl(to)})
+
+const mapDispatchToProps = (dispatch) => ({dispatch})
 
 const mergeProps = (stateProps, dispatchProps,
                     ownProps:HistoryLinkPropsWithStore):ConnectedHistoryLinkProps => ({
   ...stateProps,
   ...dispatchProps,
-  ...ownProps
+  ...ownProps,
+  onClick: (event:MouseEvent) => {
+    event.stopPropagation()
+    event.preventDefault()
+    const {to} = ownProps
+    const url:string = typeof(to) === 'string' ? to : createPath(to)
+    dispatchProps.dispatch(new Push({
+      url,
+      container: ownProps.containerName
+    }))
+  },
+  onMouseDown: (event:MouseEvent) => {
+    event.stopPropagation()
+    event.preventDefault()
+  }
 })
 
 const HistoryLink = connect(
-  () => (EMPTY_OBJ),
-  makeGetActions,
+  mapStateToProps,
+  mapDispatchToProps,
   mergeProps
 )(InnerHistoryLink)
 

@@ -17,7 +17,6 @@ interface BaseHeaderLinkProps {
   children: ReactNode
   className?: string,
   activeClassName?: string
-  onClick?: (event:MouseEvent) => void
 }
 
 export type HeaderLinkProps = BaseHeaderLinkProps& {
@@ -32,7 +31,8 @@ type HeaderLinkPropsWithStore = BaseHeaderLinkProps & {
 
 type ConnectedHeaderLinkProps = HeaderLinkPropsWithStore & {
   url: string
-  onClick: () => void
+  onClick: (e:MouseEvent) => void
+  onMouseDown: (e:MouseEvent) => void
   isActive: boolean
 }
 
@@ -44,31 +44,18 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
     }
   }
 
-  onClick(event):void {
-    const {onClick} = this.props
-    onClick()
-    event.stopPropagation()
-    event.preventDefault()
-  }
-
-  onMouseDown(event) {
-    event.stopPropagation()
-    event.preventDefault()
-  }
-
   getClassName():string {
     const {className, activeClassName, isActive} = this.props
     return isActive ? [ activeClassName, className ].join(' ') : className || ''
   }
 
   render() {
-    const {children, url, isActive, ...aProps} = omit(this.props, [
+    const {children, url, isActive, onClick, onMouseDown, ...aProps} = omit(this.props, [
       'groupName',
       'containerName',
       'activeClassName',
       'className',
       'store',
-      'onClick',
       'hasWindow',
       'shouldGoToTop',
       'dispatch',
@@ -77,15 +64,15 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
     return (
       <a href={url}
          className={this.getClassName()}
-         onMouseDown={this.onMouseDown.bind(this)}
-         onClick={this.onClick.bind(this)}
+         onMouseDown={onMouseDown}
+         onClick={onClick}
          {...aProps}
       >
         {children instanceof Function ? children({isActive}) : children}
       </a>
     )
   }
-}2
+}
 
 const mapStateToProps = createStructuredSelector({
   url: getHeaderLinkUrl,
@@ -102,7 +89,8 @@ const mergeProps = (stateProps, dispatchProps,
   ...dispatchProps,
   ...ownProps,
   onClick: (event:MouseEvent) => {
-    ownProps.onClick && ownProps.onClick(event)
+    event.stopPropagation()
+    event.preventDefault()
     const {hasWindow, shouldGoToTop} = stateProps
     const {containerName} = ownProps
     const action = hasWindow ?
@@ -111,6 +99,10 @@ const mergeProps = (stateProps, dispatchProps,
         new Top({container: containerName}) :
         new SwitchToContainer({name: containerName}))
     return dispatchProps.dispatch(action)
+  },
+  onMouseDown: (event:MouseEvent) => {
+    event.stopPropagation()
+    event.preventDefault()
   }
 })
 

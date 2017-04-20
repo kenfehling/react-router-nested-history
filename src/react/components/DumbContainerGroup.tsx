@@ -42,7 +42,8 @@ export default class DumbContainerGroup extends
   }
 
   renderDiv(divChildren) {
-    const filteredProps = omit(this.props, [
+    const origProps = {...this.props}
+    const filteredProps = omit(origProps, [
       'groupName',
       'children',
       'storedCurrentContainerIndex',
@@ -63,6 +64,7 @@ export default class DumbContainerGroup extends
       'storeSubscription'
     ])
 
+    console.log(origProps)
     console.log(filteredProps)
 
     const {style={}, ...divProps} = filteredProps
