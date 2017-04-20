@@ -24609,7 +24609,7 @@ var DumbContainerGroup = (function (_super) {
         };
     };
     DumbContainerGroup.prototype.renderDiv = function (divChildren) {
-        var _a = omit(this.props, [
+        var filteredProps = omit(this.props, [
             'groupName',
             'children',
             'storedCurrentContainerIndex',
@@ -24628,8 +24628,9 @@ var DumbContainerGroup = (function (_super) {
             'loadedFromPersist',
             'isInitialized',
             'storeSubscription'
-        ]), _b = _a.style, style = _b === void 0 ? {} : _b, divProps = __rest(_a, ["style"]);
-        console.log(omit({ a: 1, b: 2 }, ['a']));
+        ]);
+        console.log(filteredProps);
+        var _a = filteredProps.style, style = _a === void 0 ? {} : _a, divProps = __rest(filteredProps, ["style"]);
         var divStyle = __assign({}, style, { width: '100%', height: '100%', position: 'inherit', overflow: 'hidden' });
         return React.createElement("div", __assign({ style: divStyle }, divProps), divChildren);
     };
