@@ -77,7 +77,10 @@ export default () => (
         windows are 100% width and height therefore hiding each other
       </p>
     </div>
-    <WindowGroup name='mobile' allowInterContainerHistory={true}>
+    <WindowGroup name='mobile'
+                 allowInterContainerHistory={true}
+                 hideInactiveContainers={true}
+    >
       <div className='phone'>
         <MobileWindow isDefault={true}
                       name='Home'

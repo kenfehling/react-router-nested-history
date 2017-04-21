@@ -23546,9 +23546,6 @@ var HistoryRouter = (function (_super) {
     __extends(HistoryRouter, _super);
     function HistoryRouter(props) {
         var _this = _super.call(this, props) || this;
-        _this.state = {
-            loaded: false
-        };
         _this.store = store_1.createStore({
             loadFromPersist: browserFunctions_1.wasLoadedFromRefresh,
             regularReduxStore: _this.makeReduxStore()
@@ -23556,16 +23553,14 @@ var HistoryRouter = (function (_super) {
         return _this;
     }
     HistoryRouter.prototype.makeReduxStore = function () {
-        var _this = this;
         var regularReduxStore = redux_1.createStore(reducers_1.default, reducers_1.initialState, redux_persist_1.autoRehydrate());
         // Wait for persistStore to finish before rendering
         // Removing this messes up SSR
-        redux_persist_1.persistStore(regularReduxStore, {}, function () { return _this.setState({ loaded: true }); });
+        redux_persist_1.persistStore(regularReduxStore);
         return regularReduxStore;
     };
     HistoryRouter.prototype.render = function () {
-        return this.state.loaded ?
-            React.createElement(ConnectedHistoryRouter, __assign({}, this.props, { store: this.store })) : null;
+        return React.createElement(ConnectedHistoryRouter, __assign({}, this.props, { store: this.store }));
     };
     return HistoryRouter;
 }(react_1.Component));
@@ -25969,10 +25964,10 @@ var react_router_1 = __webpack_require__(401);
 var createBrowserHistory_1 = __webpack_require__(128);
 var browserFunctions_1 = __webpack_require__(19);
 var DumbHistoryRouter = function (_a) {
-    var children = _a.children;
+    var children = _a.children, context = _a.context;
     return (browserFunctions_1.canUseWindowLocation ?
         React.createElement(react_router_1.Router, { history: createBrowserHistory_1.default(_this.props), children: children }) :
-        React.createElement(react_router_1.StaticRouter, __assign({}, _this.props, { context: {} })));
+        React.createElement(react_router_1.StaticRouter, __assign({}, _this.props, { children: children, context: context })));
 };
 exports.default = DumbHistoryRouter;
 

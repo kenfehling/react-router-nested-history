@@ -3,7 +3,7 @@ import {Component, ReactNode, PropTypes} from 'react'
 import {Route} from 'react-router'
 import {connect} from 'react-redux'
 import {createStore, Store} from '../../store'
-import DumbHistoryRouter from './DumbHistoryRouter'
+import DumbHistoryRouter, {DumbHistoryRouterProps} from './DumbHistoryRouter'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import {
   canUseWindowLocation,
@@ -24,12 +24,11 @@ declare const window:any
 
 import {createStructuredSelector} from 'reselect'
 
-export interface HistoryRouterProps {
+type HistoryRouterProps = DumbHistoryRouterProps & {
   basename?: string
   forceRefresh?: boolean
   getUserConfirmation?: Function
   keyLength?: number
-  children?: ReactNode
   zeroPage?: string
   location?: string
 }
@@ -146,10 +145,6 @@ class HistoryRouter extends Component<HistoryRouterProps, HistoryRouterState> {
 
   constructor(props) {
     super(props)
-    this.state = {
-      loaded: false
-    }
-
     this.store = createStore({
       loadFromPersist: wasLoadedFromRefresh,
       regularReduxStore: this.makeReduxStore()
@@ -164,13 +159,12 @@ class HistoryRouter extends Component<HistoryRouterProps, HistoryRouterState> {
     )
     // Wait for persistStore to finish before rendering
     // Removing this messes up SSR
-    persistStore(regularReduxStore, {}, () => this.setState({loaded: true}))
+    persistStore(regularReduxStore)
     return regularReduxStore
   }
 
   render() {
-    return this.state.loaded ?
-        <ConnectedHistoryRouter {...this.props} store={this.store} /> : null
+    return <ConnectedHistoryRouter {...this.props} store={this.store} />
   }
 }
 

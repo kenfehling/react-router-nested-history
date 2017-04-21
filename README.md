@@ -336,7 +336,7 @@ Same as `ContainerGroup` but with changes in defaults.
           <td>boolean</td>
           <td>false</td>
           <td></td>
-          <td>Don't show the content of inactive containers</td>
+          <td>Don't render the content of inactive containers</td>
         </tr>
     </tbody>
 </table>
