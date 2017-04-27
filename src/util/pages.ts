@@ -32,6 +32,7 @@ export const getActivePage = (pages:List<VisitedPage>):VisitedPage => {
   }
 }
 
+/*
 const indexOfPage = (pages:List<VisitedPage>, page:VisitedPage):number => {
   const index:number = pages.indexOf(page)
   if (index < 0) {
@@ -41,9 +42,11 @@ const indexOfPage = (pages:List<VisitedPage>, page:VisitedPage):number => {
     return index
   }
 }
+*/
 
-export const getActiveIndex = (pages:List<VisitedPage>):number =>
-    pages.isEmpty() ? 0 : pages.indexOf(getActivePage(pages))
+export const getActiveIndex = (pages:List<VisitedPage>):number => {
+  return pages.isEmpty() ? 0 : pages.indexOf(getActivePage(pages))
+}
 
 export const getBackLength = (pages:List<VisitedPage>):number =>
     getActiveIndex(pages)
@@ -62,17 +65,19 @@ export const getForwardPage = (pages:List<VisitedPage>,
                                n:number=1):VisitedPage|undefined =>
   pages.get(getActiveIndex(pages) + n)
 
+/*
 export const getBackPages = (pages:List<VisitedPage>):List<VisitedPage> =>
     pages.slice(0, getActiveIndex(pages)).toList()
 
 export const getForwardPages = (pages:List<VisitedPage>):List<VisitedPage> =>
     pages.slice(getActiveIndex(pages) + 1).toList()
 
-export const canGoBack = (pages:List<VisitedPage>, n:number=1):boolean =>
-    getActiveIndex(pages) >= n
-
 export const canGoForward = (pages:List<VisitedPage>, n:number=1):boolean =>
     pages.size - getActiveIndex(pages) > n
+*/
+
+export const canGoBack = (pages:List<VisitedPage>, n:number=1):boolean =>
+    getActiveIndex(pages) >= n
 
 export const isAtTopPage = (pages:List<VisitedPage>):boolean => !canGoBack(pages)
 
@@ -166,21 +171,8 @@ export const forward = (pages:List<VisitedPage>,
                         {n=1, time}:{n?:number, time}):List<VisitedPage> =>
     go(pages, {n, time})
 
+/*
 export const shiftTo = (pages:List<VisitedPage>, {page, time}:
                           {page:Page, time:number}):List<VisitedPage> =>
     go(pages, {n: getShiftAmount(pages, page), time})
-
-/*
- get firstManualVisit():PageVisit|undefined {
-   const page:VisitedPage = this.pages.filter(p => p.wasManuallyVisited)[0]
-   return page ? page.firstManualVisit : undefined
- }
-
- get lastVisit():PageVisit {
-  return this.activePage.lastVisit
- }
-
- containsPage(page:Page):boolean {
-  return R.findIndex((p:Page) => p.equals(page), this.pages) !== -1
- }
- */
+*/

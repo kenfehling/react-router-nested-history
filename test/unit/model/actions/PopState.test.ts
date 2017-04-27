@@ -6,6 +6,7 @@ import {expect} from 'chai'
 import Page from '../../../../src/model/Page'
 import PushStep from '../../../../src/model/steps/PushStep'
 import BackStep from '../../../../src/model/steps/BackStep'
+import VisitedPage from '../../../../src/model/VisitedPage'
 declare const describe:any
 declare const it:any
 
@@ -24,6 +25,18 @@ describe('PopState action', () => {
       expect(h.current).to.deep.equal(newState.zeroPage)
       expect(h.forward.length).to.equal(1)
       expect(h.forward[0].url).to.equal('/a')
+    })
+
+    it('records visit to zero page', () => {
+      const action:PopState = new PopState({
+        n: -1,
+        time: 2000
+      })
+      const newState:State = action.reduce(baseState)
+      const zeroPage:VisitedPage = newState.getPages().first()
+      expect(zeroPage.isZeroPage).to.equal(true)
+      expect(zeroPage.visits.length).to.equal(2)
+      expect(zeroPage.visits[1].time).to.equal(2000)
     })
   })
 

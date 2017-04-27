@@ -12,6 +12,7 @@ import {
   originalSimpleActionsWithoutLoad, zero
 } from '../fixtures'
 import {deriveState} from '../../../src/store/store'
+import VisitedPage from '../../../src/model/VisitedPage'
 declare const describe:any
 declare const it:any
 
@@ -253,6 +254,14 @@ describe('State', () => {
         expect(h.current).to.deep.equal(newState.zeroPage)
         expect(h.forward.length).to.equal(1)
         expect(h.forward[0].url).to.equal('/a')
+      })
+
+      it('records visit to zero page', () => {
+        const newState:State = state.go({n: -1, time: 2000})
+        const zeroPage:VisitedPage = newState.getPages().first()
+        expect(zeroPage.isZeroPage).to.equal(true)
+        expect(zeroPage.visits.length).to.equal(2)
+        expect(zeroPage.visits[1].time).to.equal(2000)
       })
 
       describe('push and back', () => {
@@ -505,6 +514,14 @@ describe('State', () => {
         expect(h.current).to.deep.equal(newState.zeroPage)
         expect(h.forward.length).to.equal(1)
         expect(h.forward[0].url).to.equal('/a')
+      })
+
+      it('records visit to zero page', () => {
+        const newState:State = state.go({n: -1, time: 5000})
+        const zeroPage:VisitedPage = newState.getPages().first()
+        expect(zeroPage.isZeroPage).to.equal(true)
+        expect(zeroPage.visits.length).to.equal(2)
+        expect(zeroPage.visits[1].time).to.equal(5000)
       })
 
       it('can\'t go back to Group 2, history doesn\'t cross its boundary', () => {

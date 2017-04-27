@@ -329,7 +329,13 @@ class State implements IState {
     }
     const f = (x):State => this.goInContainer(activeGroup, {n: x, time})
     if (n < 0 && this.activeIndex === 1) {  // if going back to zero page
-      return this.replacePages(pageUtils.back(this.pages, {time}))
+      const backPage = pageUtils.getBackPage(this.getPages())
+      if (backPage) {
+        return this.replacePage(backPage.touch({time, type: VisitType.MANUAL}))
+      }
+      else {
+        throw new Error('No back page')
+      }
     }
     return f(n)
   }
@@ -365,7 +371,7 @@ class State implements IState {
   }
 
   cloneWithPagesSorted():State {
-    return this.replacePages(this.sortPagesByFirstVisited(this.pages))
+    return this.replacePages(this.sortPagesByFirstVisited(this.pages), false)
   }
 
   private pushOrReplace({page, time, type=VisitType.MANUAL, fn}:
@@ -756,18 +762,19 @@ class State implements IState {
   replacePage(page:VisitedPage):State {
     return this.assign({
       pages: this.pages.set(this.pages.indexOf(page), page)
-    })
+    }).cloneWithPagesSorted()
   }
 
-  replacePages(pages:List<VisitedPage>):State {
-    return this.assign({pages})
+  replacePages(pages:List<VisitedPage>, sort:boolean=true):State {
+    const state:State = this.assign({pages})
+    return sort ? state.cloneWithPagesSorted() : state
   }
 
   replaceContainerPages(container:string, pages:List<VisitedPage>):State {
     const isOutside = (p:VisitedPage):boolean => p.container !== container
     const outsidePages:List<VisitedPage> = this.pages.filter(isOutside).toList()
     const ps:List<VisitedPage> = outsidePages.concat(pages).toList()
-    return this.replacePages(ps).cloneWithPagesSorted()
+    return this.replacePages(ps)
   }
 
   disallowDuplicateContainer(name) {
@@ -835,13 +842,13 @@ class State implements IState {
 
   replaceWindow(w:HistoryWindow):State {
     return this.assign({windows: this.windows.set(w.forName, w)})
+               .cloneWithPagesSorted()
   }
 
   setWindowVisibility({forName, visible}:
                       {forName:string, visible:boolean}):State {
     if (this.hasWindow(forName)) {
       return this.replaceWindow(this.windows.get(forName).setVisible(visible))
-                 .cloneWithPagesSorted()
     }
     else {
       return this
