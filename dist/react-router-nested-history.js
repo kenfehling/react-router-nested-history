@@ -16931,15 +16931,17 @@ exports.getActivePage = function (pages) {
         return pages.min(sorting_1.comparePagesByLastVisited);
     }
 };
-var indexOfPage = function (pages, page) {
-    var index = pages.indexOf(page);
-    if (index < 0) {
-        throw new Error('Page not found in group');
-    }
-    else {
-        return index;
-    }
-};
+/*
+const indexOfPage = (pages:List<VisitedPage>, page:VisitedPage):number => {
+  const index:number = pages.indexOf(page)
+  if (index < 0) {
+    throw new Error('Page not found in group')
+  }
+  else {
+    return index
+  }
+}
+*/
 exports.getActiveIndex = function (pages) {
     return pages.isEmpty() ? 0 : pages.indexOf(exports.getActivePage(pages));
 };
@@ -16958,19 +16960,19 @@ exports.getForwardPage = function (pages, n) {
     if (n === void 0) { n = 1; }
     return pages.get(exports.getActiveIndex(pages) + n);
 };
-exports.getBackPages = function (pages) {
-    return pages.slice(0, exports.getActiveIndex(pages)).toList();
-};
-exports.getForwardPages = function (pages) {
-    return pages.slice(exports.getActiveIndex(pages) + 1).toList();
-};
+/*
+export const getBackPages = (pages:List<VisitedPage>):List<VisitedPage> =>
+    pages.slice(0, getActiveIndex(pages)).toList()
+
+export const getForwardPages = (pages:List<VisitedPage>):List<VisitedPage> =>
+    pages.slice(getActiveIndex(pages) + 1).toList()
+
+export const canGoForward = (pages:List<VisitedPage>, n:number=1):boolean =>
+    pages.size - getActiveIndex(pages) > n
+*/
 exports.canGoBack = function (pages, n) {
     if (n === void 0) { n = 1; }
     return exports.getActiveIndex(pages) >= n;
-};
-exports.canGoForward = function (pages, n) {
-    if (n === void 0) { n = 1; }
-    return pages.size - exports.getActiveIndex(pages) > n;
 };
 exports.isAtTopPage = function (pages) { return !exports.canGoBack(pages); };
 var touch = function (pages, pageVisit) {
@@ -17046,24 +17048,11 @@ exports.forward = function (pages, _a) {
     var _b = _a.n, n = _b === void 0 ? 1 : _b, time = _a.time;
     return exports.go(pages, { n: n, time: time });
 };
-exports.shiftTo = function (pages, _a) {
-    var page = _a.page, time = _a.time;
-    return exports.go(pages, { n: exports.getShiftAmount(pages, page), time: time });
-};
 /*
- get firstManualVisit():PageVisit|undefined {
-   const page:VisitedPage = this.pages.filter(p => p.wasManuallyVisited)[0]
-   return page ? page.firstManualVisit : undefined
- }
-
- get lastVisit():PageVisit {
-  return this.activePage.lastVisit
- }
-
- containsPage(page:Page):boolean {
-  return R.findIndex((p:Page) => p.equals(page), this.pages) !== -1
- }
- */ 
+export const shiftTo = (pages:List<VisitedPage>, {page, time}:
+                          {page:Page, time:number}):List<VisitedPage> =>
+    go(pages, {n: getShiftAmount(pages, page), time})
+*/ 
 
 
 /***/ }),
@@ -24425,7 +24414,13 @@ var State = (function () {
         }
         var f = function (x) { return _this.goInContainer(activeGroup, { n: x, time: time }); };
         if (n < 0 && this.activeIndex === 1) {
-            return this.replacePages(pageUtils.back(this.pages, { time: time }));
+            var backPage = pageUtils.getBackPage(this.getPages());
+            if (backPage) {
+                return this.replacePage(backPage.touch({ time: time, type: PageVisit_1.VisitType.MANUAL }));
+            }
+            else {
+                throw new Error('No back page');
+            }
         }
         return f(n);
     };
@@ -24456,7 +24451,7 @@ var State = (function () {
         return pageUtils.getShiftAmount(this.getPages(), page);
     };
     State.prototype.cloneWithPagesSorted = function () {
-        return this.replacePages(this.sortPagesByFirstVisited(this.pages));
+        return this.replacePages(this.sortPagesByFirstVisited(this.pages), false);
     };
     State.prototype.pushOrReplace = function (_a) {
         var page = _a.page, time = _a.time, _b = _a.type, type = _b === void 0 ? PageVisit_1.VisitType.MANUAL : _b, fn = _a.fn;
@@ -24826,16 +24821,18 @@ var State = (function () {
     State.prototype.replacePage = function (page) {
         return this.assign({
             pages: this.pages.set(this.pages.indexOf(page), page)
-        });
+        }).cloneWithPagesSorted();
     };
-    State.prototype.replacePages = function (pages) {
-        return this.assign({ pages: pages });
+    State.prototype.replacePages = function (pages, sort) {
+        if (sort === void 0) { sort = true; }
+        var state = this.assign({ pages: pages });
+        return sort ? state.cloneWithPagesSorted() : state;
     };
     State.prototype.replaceContainerPages = function (container, pages) {
         var isOutside = function (p) { return p.container !== container; };
         var outsidePages = this.pages.filter(isOutside).toList();
         var ps = outsidePages.concat(pages).toList();
-        return this.replacePages(ps).cloneWithPagesSorted();
+        return this.replacePages(ps);
     };
     State.prototype.disallowDuplicateContainer = function (name) {
         if (this.containers.has(name)) {
@@ -24889,13 +24886,13 @@ var State = (function () {
             .pushInContainer(name, { page: page, time: time, type: PageVisit_1.VisitType.AUTO });
     };
     State.prototype.replaceWindow = function (w) {
-        return this.assign({ windows: this.windows.set(w.forName, w) });
+        return this.assign({ windows: this.windows.set(w.forName, w) })
+            .cloneWithPagesSorted();
     };
     State.prototype.setWindowVisibility = function (_a) {
         var forName = _a.forName, visible = _a.visible;
         if (this.hasWindow(forName)) {
-            return this.replaceWindow(this.windows.get(forName).setVisible(visible))
-                .cloneWithPagesSorted();
+            return this.replaceWindow(this.windows.get(forName).setVisible(visible));
         }
         else {
             return this;
@@ -26464,11 +26461,13 @@ var InnerStepRunner = (function (_super) {
         var _this = this;
         var oldState = props.oldState, newActions = props.newActions, recordBrowserUpdate = props.recordBrowserUpdate;
         var steps = reconciler_1.createSteps(oldState, newActions);
-        if (steps.length > 0) {
+        if (newActions.length > 0) {
+            if (steps.length > 0) {
+                var before = function () { return _this.isListening = false; };
+                var after = function () { return _this.isListening = true; };
+                stepRunner_1.runSteps(steps, before, after);
+            }
             recordBrowserUpdate();
-            var before = function () { return _this.isListening = false; };
-            var after = function () { return _this.isListening = true; };
-            stepRunner_1.runSteps(steps, before, after);
         }
     };
     InnerStepRunner.prototype.componentWillReceiveProps = function (newProps) {
