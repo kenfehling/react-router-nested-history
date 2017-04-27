@@ -34,11 +34,13 @@ class InnerStepRunner extends Component<ConnectedStepRunnerProps, undefined> {
   update(props) {
     const {oldState, newActions, recordBrowserUpdate} = props
     const steps: Step[] = createSteps(oldState, newActions)
-    if (steps.length > 0) {
+    if (newActions.length > 0) {
+      if (steps.length > 0) {
+        const before = () => this.isListening = false
+        const after = () => this.isListening = true
+        runSteps(steps, before, after)
+      }
       recordBrowserUpdate()
-      const before = () => this.isListening = false
-      const after = () => this.isListening = true
-      runSteps(steps, before, after)
     }
   }
 
