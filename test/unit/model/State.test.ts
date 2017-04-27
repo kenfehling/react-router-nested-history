@@ -516,7 +516,7 @@ describe('State', () => {
         expect(h.forward[0].url).to.equal('/a')
       })
 
-      it.only('records visit to zero page', () => {
+      it('records visit to zero page', () => {
         const newState:State = state.go({n: -1, time: 5000})
         const zeroPage:VisitedPage = newState.getPages().first()
         expect(zeroPage.isZeroPage).to.equal(true)

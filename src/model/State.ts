@@ -329,7 +329,13 @@ class State implements IState {
     }
     const f = (x):State => this.goInContainer(activeGroup, {n: x, time})
     if (n < 0 && this.activeIndex === 1) {  // if going back to zero page
-      return this.replacePages(pageUtils.back(this.pages, {time}))
+      const backPage = pageUtils.getBackPage(this.getPages())
+      if (backPage) {
+        return this.replacePage(backPage.touch({time, type: VisitType.MANUAL}))
+      }
+      else {
+        throw new Error('No back page')
+      }
     }
     return f(n)
   }
