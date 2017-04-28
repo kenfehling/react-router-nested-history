@@ -1,5 +1,6 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode, ReactElement} from 'react'
+import {Component, ReactNode, ReactElement} from 'react'
+import * as PropTypes from 'prop-types'
 import * as omit from 'lodash.omit'
 
 export type GroupChildrenFunctionArgs = {

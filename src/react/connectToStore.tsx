@@ -1,5 +1,6 @@
 import * as React from 'react'
-import {Component, ComponentClass, PropTypes, createElement} from 'react'
+import {Component, ComponentClass, createElement} from 'react'
+import * as PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {Store} from '../store'
 import ComputedState from '../model/ComputedState'

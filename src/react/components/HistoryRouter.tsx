@@ -1,5 +1,6 @@
 import * as React from 'react'
-import {Component, ReactNode, PropTypes} from 'react'
+import {Component} from 'react'
+import * as PropTypes from 'prop-types'
 import {Route} from 'react-router'
 import {connect} from 'react-redux'
 import {createStore, Store} from '../../store'

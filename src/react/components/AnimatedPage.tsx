@@ -1,5 +1,6 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode} from 'react'
+import {Component, ReactNode} from 'react'
+import * as PropTypes from 'prop-types'
 import {compose, getContext, renameProps, shouldUpdate} from 'recompose'
 import {RouteTransition} from 'react-router-transition'
 import {spring} from 'react-motion'

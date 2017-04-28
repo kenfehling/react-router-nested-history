@@ -1,5 +1,6 @@
 import * as React from 'react'
-import {ComponentClass, PropTypes, createElement} from 'react'
+import {ComponentClass, createElement} from 'react'
+import * as PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {compose, getContext, renameProps, shouldUpdate} from 'recompose'
 import {Store} from '../store'

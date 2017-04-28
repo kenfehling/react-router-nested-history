@@ -1,5 +1,6 @@
 import * as React from 'react'
-import {Component, PropTypes, ReactNode} from 'react'
+import {Component} from 'react'
+import * as PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {Store} from '../../store'
 import CloseWindow from '../../model/actions/CloseWindow'

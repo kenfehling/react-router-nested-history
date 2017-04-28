@@ -1,5 +1,6 @@
 import * as React from 'react'
-import {Component, PropTypes} from 'react'
+import {Component} from 'react'
+import * as PropTypes from 'prop-types'
 import {LinkProps} from 'react-router'
 import {connect} from 'react-redux'
 import {compose, getContext, renameProps} from 'recompose'

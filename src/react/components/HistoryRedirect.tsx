@@ -1,5 +1,6 @@
 import * as React from 'react'
-import {PropTypes, Component} from 'react'
+import {Component} from 'react'
+import * as PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {createCachingSelector, getDispatch} from '../selectors'
 import Push from '../../model/actions/Push'
