@@ -18,6 +18,7 @@ interface BaseHeaderLinkProps {
   children: ReactNode
   className?: string,
   activeClassName?: string
+  onClick?: Function
 }
 
 export type HeaderLinkProps = BaseHeaderLinkProps& {
@@ -32,7 +33,7 @@ type HeaderLinkPropsWithStore = BaseHeaderLinkProps & {
 
 type ConnectedHeaderLinkProps = HeaderLinkPropsWithStore & {
   url: string
-  onClick: (e:MouseEvent) => void
+  onLinkClick: (e:MouseEvent) => void
   onMouseDown: (e:MouseEvent) => void
   isActive: boolean
 }
@@ -51,12 +52,20 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
   }
 
   render() {
-    const {children, url, isActive, onClick, onMouseDown, ...aProps} = omit(this.props, [
+    const {
+      children,
+      url,
+      isActive,
+      onLinkClick,
+      onMouseDown,
+      ...aProps
+    } = omit(this.props, [
       'groupName',
       'containerName',
       'activeClassName',
       'className',
       'store',
+      'onClick',
       'hasWindow',
       'shouldGoToTop',
       'dispatch',
@@ -66,7 +75,7 @@ class InnerHeaderLink extends Component<ConnectedHeaderLinkProps, undefined> {
       <a href={url}
          className={this.getClassName()}
          onMouseDown={onMouseDown}
-         onClick={onClick}
+         onClick={onLinkClick}
          {...aProps}
       >
         {children instanceof Function ? children({isActive}) : children}
@@ -89,9 +98,10 @@ const mergeProps = (stateProps, dispatchProps,
   ...stateProps,
   ...dispatchProps,
   ...ownProps,
-  onClick: (event:MouseEvent) => {
+  onLinkClick: (event:MouseEvent) => {
     event.stopPropagation()
     event.preventDefault()
+    ownProps.onClick && ownProps.onClick()
     const {hasWindow, shouldGoToTop} = stateProps
     const {containerName} = ownProps
     const action = hasWindow ?
