@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {Component, ReactNode, ReactElement} from 'react'
 import * as omit from 'lodash.omit'
+import * as isEqual from 'lodash/isEqual'
 import * as Draggable from 'react-draggable'
 
 const noop = () => {}
@@ -94,10 +95,14 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
 
   calculateDimensions(element:HTMLElement) {
     if (element) {
-      const width = element.offsetWidth
-      const height = element.offsetHeight
-      if (width > this.state.width || height > this.state.height) {
-        this.setState({width, height})
+      const newState = {
+        width: element.offsetWidth,
+        height: element.offsetHeight
+      }
+      const {width, height} = this.state
+      const oldState = {width, height}
+      if (!isEqual(newState, oldState)) {
+        this.setState(newState)
       }
     }
   }

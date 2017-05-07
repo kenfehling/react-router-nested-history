@@ -13,6 +13,7 @@ import {Store} from '../../store'
 import {resetWindowPositions} from '../../actions/WindowActions'
 import {getDispatch, createCachingSelector, getGroupName} from '../selectors'
 import OpenWindow from '../../model/actions/OpenWindow'
+import * as isEqual from 'lodash/isEqual'
 
 const defaultToFalse = (p:boolean|undefined):boolean => p == null ? false : p
 
@@ -75,10 +76,14 @@ class InnerInnerWindowGroup extends Component<undefined, InnerWindowGroupState> 
 
   calculateDimensions(element:HTMLElement) {
     if (element) {
-      const width = element.offsetWidth // || window.innerWidth
-      const height = element.offsetHeight // || window.innerHeight
-      if (width > this.state.width || height > this.state.height) {
-        this.setState({width, height})
+      const newState = {
+        width: element.offsetWidth,
+        height: element.offsetHeight
+      }
+      const {width, height} = this.state
+      const oldState = {width, height}
+      if (!isEqual(newState, oldState)) {
+        this.setState(newState)
       }
     }
   }
