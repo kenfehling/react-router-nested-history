@@ -27,7 +27,7 @@ export default class DumbContainer extends Component<DumbContainerProps, undefin
     containerName: PropTypes.string.isRequired,
     pathname: PropTypes.string,
     patterns: PropTypes.arrayOf(PropTypes.string).isRequired,
-    animate: PropTypes.bool.isRequired
+    animate: PropTypes.bool
   }
 
   getChildContext() {

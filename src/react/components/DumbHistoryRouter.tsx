@@ -2,7 +2,7 @@ import * as React from 'react'
 import {ReactNode} from 'react'
 import {Router, StaticRouter} from 'react-router'
 import createBrowserHistory from 'history/createBrowserHistory'
-import {canUseWindowLocation} from '../../util/browserFunctions'
+import {canUseDOM} from 'history/ExecutionEnvironment'
 declare const window:any
 
 export interface DumbHistoryRouterProps {
@@ -11,7 +11,7 @@ export interface DumbHistoryRouterProps {
 }
 
 const DumbHistoryRouter = ({children, context}:DumbHistoryRouterProps) => (
-  canUseWindowLocation ?
+  canUseDOM ?
     <Router history={createBrowserHistory(this.props) as any}
             children={children}
     /> :

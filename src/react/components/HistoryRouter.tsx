@@ -6,10 +6,7 @@ import {connect} from 'react-redux'
 import {createStore, Store} from '../../store'
 import DumbHistoryRouter, {DumbHistoryRouterProps} from './DumbHistoryRouter'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
-import {
-  canUseWindowLocation,
-  wasLoadedFromRefresh
-} from '../../util/browserFunctions'
+import {wasLoadedFromRefresh} from '../../util/browserFunctions'
 import Load from '../../model/actions/Load'
 import SetZeroPage from '../../model/actions/SetZeroPage'
 import StepRunner from './StepRunner'
@@ -87,7 +84,7 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
   }
 
   getLocation():string {
-    if (canUseWindowLocation) {
+    if (canUseDOM) {
       return window.location.pathname
     }
     else {

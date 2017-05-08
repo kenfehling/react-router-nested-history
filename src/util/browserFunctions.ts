@@ -8,27 +8,23 @@ declare const performance:any
 declare const Promise:any
 declare const window:any
 
-export const canUseWindowLocation =
-  canUseDOM &&
-  typeof window.location === 'object'
-
 export const needsPopstateConfirmation =
-  canUseWindowLocation &&
+  canUseDOM &&
   !bowser.gecko &&
   !bowser.msedge &&
   !bowser.msie
 
 export const wasLoadedFromRefresh =
-  canUseWindowLocation &&
+  canUseDOM &&
   window.performance &&
   window.performance.navigation.type === 1
 
-export let _history:History = canUseWindowLocation ?
+export let _history:History = canUseDOM ?
     createBrowserHistory() :
     createMemoryHistory()
 
 export const _resetHistory = () => {
-  if (canUseWindowLocation) {
+  if (canUseDOM) {
     throw new Error('This is only for tests')
   }
   else {

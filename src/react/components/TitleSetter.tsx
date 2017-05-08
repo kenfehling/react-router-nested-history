@@ -2,8 +2,8 @@ import * as React from 'react'
 import {Component, ReactNode} from 'react'
 import {connect} from 'react-redux'
 import {Store} from '../../store'
-import {canUseWindowLocation} from '../../util/browserFunctions'
 import ComputedState from '../../model/ComputedState'
+import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 
 type TitleSetterProps = {
   store: Store
@@ -18,7 +18,7 @@ class InnerTitleSetter extends Component<ConnectedTitleSetterProps, undefined> {
 
   updateTitle() {
     const {activeTitle} = this.props
-    if (canUseWindowLocation) {
+    if (canUseDOM) {
       if (activeTitle) {
         setTimeout(() => {
           document.title = activeTitle
