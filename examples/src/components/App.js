@@ -1,6 +1,7 @@
 import React from 'react'
 import {Route} from 'react-router'
 import {HistoryRedirect} from 'react-router-nested-history'
+import Helmet from 'react-helmet'
 import Tabs from './Tabs'
 import Windows from './Windows'
 import NestedGroup from './NestedGroup'
@@ -11,7 +12,7 @@ import './App.css'
 
 export default () => (
   <div>
-    <Route path='/' exact render={() => <HistoryRedirect to="/windows/1" />} />
+    <Helmet title='React Router Nested History - Examples' />
     <Route path='/tabs' exact render={() => <HistoryRedirect to="/tabs/1" />} />
     <Route path='/windows' exact render={() => <HistoryRedirect to="/windows/1" />} />
     <Route path='/foods' exact render={() => <HistoryRedirect to="/foods/Fruit" />} />

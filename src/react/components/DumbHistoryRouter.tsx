@@ -2,7 +2,7 @@ import * as React from 'react'
 import {ReactNode} from 'react'
 import {Router, StaticRouter} from 'react-router'
 import createBrowserHistory from 'history/createBrowserHistory'
-import {canUseDOM} from 'history/ExecutionEnvironment'
+import {canUseDOM} from 'exenv'
 declare const window:any
 
 export interface DumbHistoryRouterProps {

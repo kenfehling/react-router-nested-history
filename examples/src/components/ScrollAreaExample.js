@@ -3,8 +3,8 @@ import {Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel} from 'react-tabs'
 import {
   Container, ContainerGroup, HistoryRoute, ScrollArea
 } from 'react-router-nested-history'
-import Helmet from 'react-helmet'
 import './ScrollAreaExample.css'
+import Head from './Head'
 
 const ScrollArea1 = () => (
   <div>
@@ -28,7 +28,7 @@ const ScrollArea1 = () => (
       You could also make it forget the scroll when leaving the container
       by using the `resetOnLeave` boolean prop, but in this case it's not set.
     </p>
-    <Helmet title='Scroll 1' />
+    <Head title='Scroll 1' />
   </div>
 )
 
@@ -42,7 +42,7 @@ const ScrollArea2 = () => (
       When you switch to another tab it will remember
       the position of this tab's scroll.
     </p>
-    <Helmet title='Scroll 2' />
+    <Head title='Scroll 2' />
   </div>
 )
 
@@ -56,7 +56,7 @@ const ScrollArea3 = () => (
       When you switch to another tab it will remember
       the position of this tab's scroll.
     </p>
-    <Helmet title='Scroll 3' />
+    <Head title='Scroll 3' />
   </div>
 )
 
