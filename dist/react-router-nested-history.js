@@ -16932,7 +16932,7 @@ DumbContainer.childContextTypes = {
     containerName: PropTypes.string.isRequired,
     pathname: PropTypes.string,
     patterns: PropTypes.arrayOf(PropTypes.string).isRequired,
-    animate: PropTypes.bool
+    animate: PropTypes.bool.isRequired
 };
 exports.default = DumbContainer;
 
@@ -25963,7 +25963,7 @@ var mapStateToProps = reselect_1.createStructuredSelector({
 var AnimatedPage = react_redux_1.connect(mapStateToProps)(InnerAnimatedPage);
 var enhance = recompose_1.compose(recompose_1.getContext({
     rrnhStore: PropTypes.object.isRequired,
-    animate: PropTypes.bool.isRequired,
+    animate: PropTypes.bool,
     pathname: PropTypes.string
 }), recompose_1.renameProps({
     rrnhStore: 'store'

@@ -160,7 +160,7 @@ const AnimatedPage = connect(mapStateToProps)(InnerAnimatedPage)
 const enhance = compose(
   getContext({
     rrnhStore: PropTypes.object.isRequired,
-    animate: PropTypes.bool.isRequired,
+    animate: PropTypes.bool,
     pathname: PropTypes.string
   }),
   renameProps({
