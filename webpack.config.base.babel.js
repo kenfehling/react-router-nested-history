@@ -1,3 +1,4 @@
+import path from 'path'
 import LodashModuleReplacementPlugin from 'lodash-webpack-plugin'
 
 module.exports = {
@@ -5,7 +6,7 @@ module.exports = {
   output: {
     libraryTarget: 'umd',
     library: 'ReactRouterNestedHistory',
-    path: './dist/'
+    path: path.join(__dirname, 'dist')
   },
   module: {
     loaders: [

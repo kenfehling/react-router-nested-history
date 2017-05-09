@@ -2,7 +2,8 @@ import * as React from 'react'
 import {Component, ReactNode, ReactElement} from 'react'
 import * as omit from 'lodash.omit'
 import * as isEqual from 'lodash/isEqual'
-import * as Draggable from 'react-draggable'
+import * as Draggablee from 'react-draggable'
+const Draggable = Draggablee as any  // Hide TypeScript errors
 
 const noop = () => {}
 
@@ -17,7 +18,7 @@ interface ChildrenFunctionArgs {
   close: () => void
 }
 
-type ChildrenType = ReactNode & {props?:any} |
+type ChildrenType = ReactElement<any> & {props?:any} |
                     ((args:ChildrenFunctionArgs) => ReactElement<any>)
 
 export interface BaseWindowProps {
@@ -30,7 +31,7 @@ export interface BaseWindowProps {
   draggable?: boolean
   draggableProps?: Object
   rememberPosition?: boolean
-  children?: ChildrenType
+  children: ChildrenType
   className?: string
   style?: Object
   topClassName?: string
@@ -235,8 +236,8 @@ class DumbHistoryWindow extends Component<DumbWindowProps, DumbWindowState> {
                      {...draggableProps}
                      onStop={this.onDragEnd.bind(this)}
                      onMouseDown={this.onMouseDown.bind(this)}
-                     position={rememberPosition ? {x, y} : undefined}
-                     defaultPosition={hasDefaultPosition ? {x, y} : undefined}
+                     position={rememberPosition && x && y ? {x, y} : undefined}
+                     defaultPosition={hasDefaultPosition && x && y ? {x, y} : undefined}
           >
             {w}
           </Draggable>

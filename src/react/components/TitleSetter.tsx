@@ -3,7 +3,7 @@ import {Component, ReactNode} from 'react'
 import {connect} from 'react-redux'
 import {Store} from '../../store'
 import ComputedState from '../../model/ComputedState'
-import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
+import {canUseDOM} from 'exenv'
 
 type TitleSetterProps = {
   store: Store

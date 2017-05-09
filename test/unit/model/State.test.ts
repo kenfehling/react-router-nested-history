@@ -334,7 +334,7 @@ describe('State', () => {
 
     describe('groupStackOrder', () => {
       it('gets initial order', () => {
-        const order:List<Group> = state.groupStackOrder
+        const order:List<Group> = state.topLevelGroupStackOrder
         const item1:Group = order.first()
         const c = state.getGroupActiveContainer(item1.name) as Container
         expect(c.initialUrl).to.equal('/a')
@@ -344,7 +344,7 @@ describe('State', () => {
       it('gets correct order after a non-default load', () => {
         const state = deriveState(originalSimpleActionsWithoutLoad, new State())
         const s = new Load({url: '/e', time: 1250}).reduce(state)
-        const order:List<Group> = s.groupStackOrder
+        const order:List<Group> = s.topLevelGroupStackOrder
         const item1:Group = order.first()
         const c = s.getGroupActiveContainer(item1.name) as Container
         expect(c.initialUrl).to.equal('/e')
@@ -648,7 +648,9 @@ describe('State', () => {
       const state:State = blankStateBeforeLoad
 
       it('has all containers disabled', () => {
+        expect(state.hasEnabledContainers('Group 1')).to.equal(false)
         expect(state.hasEnabledContainers('Group 2')).to.equal(false)
+        expect(state.hasEnabledContainers('Group 3')).to.equal(false)
       })
     })
 
@@ -656,6 +658,9 @@ describe('State', () => {
       const state:State = blankState
 
       it('resides on the zero page when all containers are disabled', () => {
+        expect(state.activePage).to.deep.equal(zero)
+        expect(state.activeGroup).to.equal(undefined)
+        expect(state.getPages().first()).to.deep.equal(zero)
         const history:HistoryStack = state.history
         expect(history.back.length).to.equal(0)
         expect(history.current).to.deep.equal(zero)

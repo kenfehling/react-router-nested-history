@@ -5,7 +5,7 @@ import {Route} from 'react-router'
 import {connect} from 'react-redux'
 import {createStore, Store} from '../../store'
 import DumbHistoryRouter, {DumbHistoryRouterProps} from './DumbHistoryRouter'
-import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
+import {canUseDOM} from 'exenv'
 import {wasLoadedFromRefresh} from '../../util/browserFunctions'
 import Load from '../../model/actions/Load'
 import SetZeroPage from '../../model/actions/SetZeroPage'
@@ -93,7 +93,7 @@ class InnerHistoryRouter extends Component<ConnectedRouterProps, undefined> {
         return location
       }
       else {
-        console.warn('You should pass location when testing')
+        console.warn('You should pass location on the server or when testing')
         return '/'
       }
     }

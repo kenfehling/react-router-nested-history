@@ -106,8 +106,6 @@ export const originalSimpleActions:Action[] = [
 export const originalNestedActionsWithoutLoad:Action[] = [
   ...baseActions,
   createGroup1,
-  createGroup2,
-  createGroup3,
   createSubGroup1,
   createSubGroup2,
   createSubGroup3,
@@ -143,16 +141,39 @@ export const originalNestedActions:Action[] = [
 
 export const originalBlankActionsWithoutLoad:Action[] = [
   ...baseActions,
-  createGroup2,
-  ...createContainers2,
-  new CreateWindow({forName: 'Container 1B', visible: false}),
-  new CreateWindow({forName: 'Container 2B', visible: false})
+  createGroup1,
+  createSubGroup1,
+  createSubGroup2,
+  createSubGroup3,
+  new CreateWindow({forName: 'SubGroup 1', visible: false}),
+  new CreateWindow({forName: 'SubGroup 2', visible: false}),
+  new CreateWindow({forName: 'SubGroup 3', visible: false}),
+  ...createCreateContainers({
+    time: 1000,
+    group: createSubGroup1.name,
+    initialUrls: ['/a', '/b', '/c'],
+    useDefault: true,
+    name_suffix: 'A'
+  }),
+  ...createCreateContainers({
+    time: 1001,
+    group: createSubGroup2.name,
+    initialUrls: ['/e', '/f'],
+    name_suffix: 'B'
+  }),
+  ...createCreateContainers({
+    time: 1002,
+    group: createSubGroup3.name,
+    initialUrls: ['/g', '/h'],
+    useDefault: true,
+    name_suffix: 'C'
+  })
 ]
 
 export const originalBlankActions:Action[] = [
   ...originalBlankActionsWithoutLoad,
   new Load({
-    url: '/b',
+    url: '/',
     time: 1250
   })
 ]

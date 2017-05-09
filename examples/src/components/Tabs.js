@@ -3,8 +3,8 @@ import {Tab as ReactTab, Tabs as ReactTabs, TabList, TabPanel} from 'react-tabs'
 import {
   Container, ContainerGroup, HistoryRoute, HistoryLink
 } from 'react-router-nested-history'
-import Helmet from 'react-helmet'
 import './Tabs.css'
+import Head from './Head'
 
 const TabMaster1 = () => (
   <div>
@@ -13,7 +13,7 @@ const TabMaster1 = () => (
     <p>
       Clicking the link will push a new page to this tab's history.
     </p>
-    <Helmet title='Tab 1' />
+    <Head title='Tab 1' />
   </div>
 )
 
@@ -24,14 +24,14 @@ const TabMaster2 = () => (
     <p>
       Using the browser's back button will go back to the default tab.
     </p>
-    <Helmet title='Tab 2' />
+    <Head title='Tab 2' />
   </div>
 )
 
 const TabMaster3 = () => (
   <div>
     <div className='tab-title'>Tab 3</div>
-    <Helmet title='Tab 3' />
+    <Head title='Tab 3' />
   </div>
 )
 
@@ -43,7 +43,7 @@ const TabPage = ({match:{params:{page}}}) => (
     <p>
       Using the browser's back button will go back to this tab's previous page.
     </p>
-    <Helmet title={'Tabs: ' + page} />
+    <Head title={'Tabs: ' + page} />
   </div>
 )
 

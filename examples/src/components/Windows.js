@@ -2,8 +2,8 @@ import React from 'react'
 import {
   Container, WindowGroup, HistoryWindow, HistoryRoute, HistoryLink, HeaderLink
 } from 'react-router-nested-history'
-import Helmet from 'react-helmet'
 import './Windows.css'
+import Head from './Head'
 
 const windowName = (index:number) => 'window' + (index + 1)
 const windowUrl = (index:number) => '/windows/' + (index + 1)
@@ -12,7 +12,7 @@ const WindowMaster1 = () => (
   <div className='page'>
     <p>Hello</p>
     <HistoryLink to="/windows/1/boris">Boris</HistoryLink>
-    <Helmet title='Window 1' />
+    <Head title='Window 1' />
   </div>
 )
 
@@ -20,14 +20,14 @@ const WindowMaster2 = () => (
   <div className='page'>
     <p>World</p>
     <HistoryLink to="/windows/2/natasha">Natasha</HistoryLink>
-    <Helmet title='Window 2' />
+    <Head title='Window 2' />
   </div>
 )
 
 const WindowPage = ({match:{params:{page}}}) => (
   <div className='page'>
     Page: {page}
-    <Helmet title={'Windows: ' + page} />
+    <Head title={'Windows: ' + page} />
   </div>
 )
 

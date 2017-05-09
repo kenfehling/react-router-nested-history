@@ -3,8 +3,8 @@ import {
   Container, WindowGroup, HistoryRoute, HistoryLink, HistoryWindow, BackLink,
   HeaderLink
 } from 'react-router-nested-history'
-import Helmet from 'react-helmet'
 import './Mobile.css'
+import Head from './Head'
 
 const regex = a => `:app(${a})`
 const toPath = name => `/mobile/${name}`
@@ -28,7 +28,7 @@ const MobilePage = ({title, children}) => (
     <div className='content'>
       {children}
     </div>
-    <Helmet title={'Mobile: ' + title} />
+    <Head title={'Mobile: ' + title} />
   </div>
 )
 
@@ -64,7 +64,7 @@ const HomeScreen = () => (
         {app}
       </HeaderLink>
     ))}
-    <Helmet title='Mobile: Home' />
+    <Head title='Mobile: Home' />
   </div>
 )
 

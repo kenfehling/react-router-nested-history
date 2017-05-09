@@ -30,7 +30,7 @@ type WindowGroupChildrenFunctionArgs = GroupChildrenFunctionArgs & {
 }
 
 type ChildrenType =
-  ReactNode | ((args:WindowGroupChildrenFunctionArgs) => ReactElement<any>)
+  ReactElement<any> | ((args:WindowGroupChildrenFunctionArgs) => ReactElement<any>)
 
 type BaseWindowGroupProps = BaseGroupPropsWithoutChildren & {
   children: ChildrenType
@@ -105,7 +105,7 @@ class InnerInnerWindowGroup extends Component<undefined, InnerWindowGroupState> 
 
 const InnerWindowGroup = ({children, openWindow, resetWindowPositions, groupName,
                            ...groupProps}:ConnectedWindowGroupProps) => (
-  <ContainerGroup {...changeDefaults({...groupProps, name: groupName})}>
+  <ContainerGroup {...changeDefaults({...groupProps, children, name: groupName})}>
     {(props:GroupChildrenFunctionArgs) => (
       <InnerInnerWindowGroup>
         {

@@ -11,7 +11,7 @@ export type GroupChildrenFunctionArgs = {
 }
 
 export type ChildrenType =
-  ReactNode | ((args:GroupChildrenFunctionArgs) => ReactElement<any>)
+  ReactElement<any> | ((args:GroupChildrenFunctionArgs) => ReactElement<any>)
 
 export interface DumbContainerGroupProps {
   groupName: string

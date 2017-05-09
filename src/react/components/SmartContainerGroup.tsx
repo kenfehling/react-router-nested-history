@@ -21,7 +21,7 @@ export interface BaseGroupPropsWithoutChildren {
 }
 
 export type ContainerGroupProps = BaseGroupPropsWithoutChildren & {
-  children?: ChildrenType
+  children: ChildrenType
   name: string
 }
 
@@ -29,7 +29,7 @@ type GroupPropsWithStore = BaseGroupPropsWithoutChildren & {
   store: Store
   parentGroup: string
 
-  children?: ChildrenType
+  children: ChildrenType
   groupName: string
 }
 
@@ -70,7 +70,7 @@ const ConnectedContainerGroup = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(DumbContainerGroup)
+)(DumbContainerGroup as any)
 
 export default class SmartContainerGroup extends Component<ContainerGroupProps, undefined> {
   static contextTypes = {
