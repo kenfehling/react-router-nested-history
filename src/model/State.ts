@@ -55,7 +55,7 @@ class State implements IState {
       (map:Map<string, ComputedGroup>, g:Group) =>
         map.set(g.name, {
           name: g.name,
-          isTopLevel: !g.group,
+          isTopLevel: this.isTopLevel(g.name),
           activeContainerIndex: this.getGroupActiveContainerIndex(g.name),
           activeContainerName: this.getGroupActiveContainerName(g.name),
           gotoTopOnSelectActive: g.gotoTopOnSelectActive
@@ -119,11 +119,10 @@ class State implements IState {
   }
 
   getGroupHistory(group:string, keepFwd:boolean=false):HistoryStack {
-    const cs = this.getContainerStackOrder(group).filter(
-                  (c:IGroupContainer) => this.wasManuallyVisited(c))
+    const cs = this.getVisitedContainerStackOrder(group)
     switch(cs.size) {
       case 0: {
-        const container:string = this.getCurrentGroupContainerName(group)
+        const container:string = this.getGroupCurrentContainerName(group)
         return this.getSingleHistory(container, keepFwd)
       }
       case 1: {
@@ -225,9 +224,31 @@ class State implements IState {
     return this.sortContainersByLastVisited(cs) as List<IGroupContainer>
   }
 
+  getVisitedContainerStackOrder(group:string):List<IGroupContainer> {
+    return this.getContainerStackOrder(group).filter((c:IGroupContainer) =>
+        this.wasManuallyVisited(c)) as List<IGroupContainer>
+  }
+
+  get topLevelGroups():List<Group> {
+    return this.groups.filter((g:Group) => this.isTopLevel(g.name)).toList()
+  }
+
+  get topLevelGroupStackOrder():List<Group> {
+    return this.sortByLastVisit(this.topLevelGroups) as List<Group>
+  }
+
+  get visitedTopLevelGroupStackOrder():List<Group> {
+    return this.topLevelGroupStackOrder.filter((g:Group) =>
+           this.wasManuallyVisited(g)) as List<Group>
+  }
+
+  get mostRecentTopLevelGroup():Group|undefined {
+    return this.visitedTopLevelGroupStackOrder.first()
+  }
+
   getInitialUrl(c:IContainer):string {
     if (c.isGroup) {
-      return this.getInitialUrl(this.getCurrentGroupContainer(c.name))
+      return this.getInitialUrl(this.getGroupCurrentContainer(c.name))
     }
     else {
       return (c as Container).initialUrl
@@ -235,7 +256,7 @@ class State implements IState {
   }
 
   switchToGroup({name, time}:{name:string, time:number}):State {
-    const container:string = this.getCurrentGroupContainerName(name)
+    const container:string = this.getGroupCurrentContainerName(name)
     return this.activateContainer(container, time)
   }
 
@@ -390,7 +411,7 @@ class State implements IState {
     const newPages = fn(containerPages, {page, time, type})
     const state:State = this.replaceContainerPages(container, newPages)
     return type === VisitType.MANUAL ?
-      state.setParentWindowVisibility({container, visible: true}) : state
+      state.setWindowVisibility({forName: container, visible: true}) : state
   }
 
   push({page, time, type=VisitType.MANUAL}:
@@ -428,8 +449,9 @@ class State implements IState {
   get activeGroup():Group|undefined {
     const p:VisitedPage = this.activePage
     if (p.isZeroPage) {
-      const fp = pageUtils.getForwardPage(this.pages)
-      return fp && this.getRootGroupOfGroup(fp.group)
+      //const fp = pageUtils.getForwardPage(this.getPages)
+      //return fp && this.getRootGroupOfGroup(fp.group)
+      return undefined
     }
     else {
       return this.getRootGroupOfGroup(p.group)
@@ -442,9 +464,9 @@ class State implements IState {
   }
 
   protected getHistory(maintainFwd:boolean=false):HistoryStack {
-    const activeGroup:string|undefined = this.activeGroupName
-    if (activeGroup && this.hasEnabledContainers(activeGroup)) {
-      const groupHistory = this.getGroupHistory(activeGroup, maintainFwd)
+    const lastGroup:Group|undefined = this.mostRecentTopLevelGroup
+    if (lastGroup && this.hasEnabledContainers(lastGroup.name)) {
+      const groupHistory = this.getGroupHistory(lastGroup.name, maintainFwd)
       if(this.isOnZeroPage) {
         return new HistoryStack({
           back: [],
@@ -477,28 +499,17 @@ class State implements IState {
     return c && c.name
   }
 
-  get groupStackOrder():List<Group> {
-    return this.groups.sortBy((g:Group) => {
-      const c:string|undefined = this.getGroupActiveContainerName(g.name)
-      if (!c) {
-        return 0
-      }
-      const v:PageVisit|undefined = this.getLastContainerVisit(c)
-      return v ? 0 - v.time : 0
-    }).toList()
-  }
-
   /**
    * Tries to get active, then default, then chooses the first
    */
-  getCurrentGroupContainer(group:string):IGroupContainer {
+  getGroupCurrentContainer(group:string):IGroupContainer {
     return this.getGroupActiveContainer(group) ||
            this.getGroupDefaultContainer(group) ||
            this.getGroupContainers(group).first()
   }
 
-  getCurrentGroupContainerName(group:string):string {
-    return this.getCurrentGroupContainer(group).name
+  getGroupCurrentContainerName(group:string):string {
+    return this.getGroupCurrentContainer(group).name
   }
 
   getGroupDefaultContainer(group:string):IGroupContainer|undefined {
@@ -534,7 +545,7 @@ class State implements IState {
   }
 
   get activePage():VisitedPage {
-    return pageUtils.getActivePage(this.pages) || this.zeroPage
+    return pageUtils.getActivePage(this.pages)
   }
 
   get activeIndex():number {
@@ -549,8 +560,14 @@ class State implements IState {
     return this.windows.get(forName).visible
   }
 
-  isContainerEnabled(container:string):boolean {
-    return !this.hasWindow(container) || this.isWindowVisible(container)
+  isContainerEnabled(name:string):boolean {
+    const visible:boolean = !this.hasWindow(name) || this.isWindowVisible(name)
+    return visible && this.isParentEnabled(name)
+  }
+  
+  isParentEnabled(name:string):boolean {
+    const parent:string|undefined = this.getParent(name)
+    return !parent || this.isContainerEnabled(parent)
   }
 
   isContainerActive(name:string):boolean {
@@ -752,6 +769,14 @@ class State implements IState {
   isGroup(name:string):boolean {
     return this.containers.get(name).isGroup
   }
+  
+  isTopLevel(name:string):boolean {
+    return !this.containers.get(name).group
+  }
+  
+  getParent(name:string):string|undefined {
+    return this.containers.get(name).group
+  }
 
   replaceContainer(container:IContainer):State {
     return this.assign({
@@ -847,21 +872,15 @@ class State implements IState {
 
   setWindowVisibility({forName, visible}:
                       {forName:string, visible:boolean}):State {
-    if (this.hasWindow(forName)) {
-      return this.replaceWindow(this.windows.get(forName).setVisible(visible))
-    }
-    else {
-      return this
-    }
+    const s:State = this.hasWindow(forName) ?
+        this.replaceWindow(this.windows.get(forName).setVisible(visible)) : this
+    return s.setParentWindowVisibility({forName, visible})
   }
 
-  setParentWindowVisibility({container, visible}:
-                            {container:string, visible:boolean}):State {
-    const state = this.hasWindow(container) ?
-        this.setWindowVisibility({forName: container, visible}) : this
-    const parent:string|undefined = this.containers.get(container).group
-    return parent?
-        state.setParentWindowVisibility({container: parent, visible}) : state
+  setParentWindowVisibility({forName, visible}:
+                            {forName:string, visible:boolean}):State {
+    const parent:string|undefined = this.getParent(forName)
+    return parent ? this.setWindowVisibility({forName: parent, visible}) : this
   }
 
   addWindow({forName, visible=true}:{forName:string, visible?:boolean}):State {
