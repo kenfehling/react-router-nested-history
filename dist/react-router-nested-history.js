@@ -859,7 +859,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var re_reselect_1 = __webpack_require__(310);
 var memoize = __webpack_require__(300);
 var last = __webpack_require__(53);
@@ -959,137 +959,6 @@ exports.getWindowIsOnTop = re_reselect_1.default(exports.getWindow, function (w)
 
 /***/ }),
 /* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-exports.defaultMemoize = defaultMemoize;
-exports.createSelectorCreator = createSelectorCreator;
-exports.createStructuredSelector = createStructuredSelector;
-function defaultEqualityCheck(a, b) {
-  return a === b;
-}
-
-function areArgumentsShallowlyEqual(equalityCheck, prev, next) {
-  if (prev === null || next === null || prev.length !== next.length) {
-    return false;
-  }
-
-  // Do this in a for loop (and not a `forEach` or an `every`) so we can determine equality as fast as possible.
-  var length = prev.length;
-  for (var i = 0; i < length; i++) {
-    if (!equalityCheck(prev[i], next[i])) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function defaultMemoize(func) {
-  var equalityCheck = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultEqualityCheck;
-
-  var lastArgs = null;
-  var lastResult = null;
-  // we reference arguments instead of spreading them for performance reasons
-  return function () {
-    if (!areArgumentsShallowlyEqual(equalityCheck, lastArgs, arguments)) {
-      // apply arguments instead of spreading for performance.
-      lastResult = func.apply(null, arguments);
-    }
-
-    lastArgs = arguments;
-    return lastResult;
-  };
-}
-
-function getDependencies(funcs) {
-  var dependencies = Array.isArray(funcs[0]) ? funcs[0] : funcs;
-
-  if (!dependencies.every(function (dep) {
-    return typeof dep === 'function';
-  })) {
-    var dependencyTypes = dependencies.map(function (dep) {
-      return typeof dep;
-    }).join(', ');
-    throw new Error('Selector creators expect all input-selectors to be functions, ' + ('instead received the following types: [' + dependencyTypes + ']'));
-  }
-
-  return dependencies;
-}
-
-function createSelectorCreator(memoize) {
-  for (var _len = arguments.length, memoizeOptions = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    memoizeOptions[_key - 1] = arguments[_key];
-  }
-
-  return function () {
-    for (var _len2 = arguments.length, funcs = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      funcs[_key2] = arguments[_key2];
-    }
-
-    var recomputations = 0;
-    var resultFunc = funcs.pop();
-    var dependencies = getDependencies(funcs);
-
-    var memoizedResultFunc = memoize.apply(undefined, [function () {
-      recomputations++;
-      // apply arguments instead of spreading for performance.
-      return resultFunc.apply(null, arguments);
-    }].concat(memoizeOptions));
-
-    // If a selector is called with the exact same arguments we don't need to traverse our dependencies again.
-    var selector = defaultMemoize(function () {
-      var params = [];
-      var length = dependencies.length;
-
-      for (var i = 0; i < length; i++) {
-        // apply arguments instead of spreading and mutate a local list of params for performance.
-        params.push(dependencies[i].apply(null, arguments));
-      }
-
-      // apply arguments instead of spreading for performance.
-      return memoizedResultFunc.apply(null, params);
-    });
-
-    selector.resultFunc = resultFunc;
-    selector.recomputations = function () {
-      return recomputations;
-    };
-    selector.resetRecomputations = function () {
-      return recomputations = 0;
-    };
-    return selector;
-  };
-}
-
-var createSelector = exports.createSelector = createSelectorCreator(defaultMemoize);
-
-function createStructuredSelector(selectors) {
-  var selectorCreator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : createSelector;
-
-  if (typeof selectors !== 'object') {
-    throw new Error('createStructuredSelector expects first argument to be an object ' + ('where each property is a selector, instead received a ' + typeof selectors));
-  }
-  var objectKeys = Object.keys(selectors);
-  return selectorCreator(objectKeys.map(function (key) {
-    return selectors[key];
-  }), function () {
-    for (var _len3 = arguments.length, values = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-      values[_key3] = arguments[_key3];
-    }
-
-    return values.reduce(function (composition, value, index) {
-      composition[objectKeys[index]] = value;
-      return composition;
-    }, {});
-  });
-}
-
-/***/ }),
-/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1426,6 +1295,137 @@ var ReactComponentTreeHook = {
 };
 
 module.exports = ReactComponentTreeHook;
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.defaultMemoize = defaultMemoize;
+exports.createSelectorCreator = createSelectorCreator;
+exports.createStructuredSelector = createStructuredSelector;
+function defaultEqualityCheck(a, b) {
+  return a === b;
+}
+
+function areArgumentsShallowlyEqual(equalityCheck, prev, next) {
+  if (prev === null || next === null || prev.length !== next.length) {
+    return false;
+  }
+
+  // Do this in a for loop (and not a `forEach` or an `every`) so we can determine equality as fast as possible.
+  var length = prev.length;
+  for (var i = 0; i < length; i++) {
+    if (!equalityCheck(prev[i], next[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function defaultMemoize(func) {
+  var equalityCheck = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultEqualityCheck;
+
+  var lastArgs = null;
+  var lastResult = null;
+  // we reference arguments instead of spreading them for performance reasons
+  return function () {
+    if (!areArgumentsShallowlyEqual(equalityCheck, lastArgs, arguments)) {
+      // apply arguments instead of spreading for performance.
+      lastResult = func.apply(null, arguments);
+    }
+
+    lastArgs = arguments;
+    return lastResult;
+  };
+}
+
+function getDependencies(funcs) {
+  var dependencies = Array.isArray(funcs[0]) ? funcs[0] : funcs;
+
+  if (!dependencies.every(function (dep) {
+    return typeof dep === 'function';
+  })) {
+    var dependencyTypes = dependencies.map(function (dep) {
+      return typeof dep;
+    }).join(', ');
+    throw new Error('Selector creators expect all input-selectors to be functions, ' + ('instead received the following types: [' + dependencyTypes + ']'));
+  }
+
+  return dependencies;
+}
+
+function createSelectorCreator(memoize) {
+  for (var _len = arguments.length, memoizeOptions = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    memoizeOptions[_key - 1] = arguments[_key];
+  }
+
+  return function () {
+    for (var _len2 = arguments.length, funcs = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      funcs[_key2] = arguments[_key2];
+    }
+
+    var recomputations = 0;
+    var resultFunc = funcs.pop();
+    var dependencies = getDependencies(funcs);
+
+    var memoizedResultFunc = memoize.apply(undefined, [function () {
+      recomputations++;
+      // apply arguments instead of spreading for performance.
+      return resultFunc.apply(null, arguments);
+    }].concat(memoizeOptions));
+
+    // If a selector is called with the exact same arguments we don't need to traverse our dependencies again.
+    var selector = defaultMemoize(function () {
+      var params = [];
+      var length = dependencies.length;
+
+      for (var i = 0; i < length; i++) {
+        // apply arguments instead of spreading and mutate a local list of params for performance.
+        params.push(dependencies[i].apply(null, arguments));
+      }
+
+      // apply arguments instead of spreading for performance.
+      return memoizedResultFunc.apply(null, params);
+    });
+
+    selector.resultFunc = resultFunc;
+    selector.recomputations = function () {
+      return recomputations;
+    };
+    selector.resetRecomputations = function () {
+      return recomputations = 0;
+    };
+    return selector;
+  };
+}
+
+var createSelector = exports.createSelector = createSelectorCreator(defaultMemoize);
+
+function createStructuredSelector(selectors) {
+  var selectorCreator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : createSelector;
+
+  if (typeof selectors !== 'object') {
+    throw new Error('createStructuredSelector expects first argument to be an object ' + ('where each property is a selector, instead received a ' + typeof selectors));
+  }
+  var objectKeys = Object.keys(selectors);
+  return selectorCreator(objectKeys.map(function (key) {
+    return selectors[key];
+  }), function () {
+    for (var _len3 = arguments.length, values = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      values[_key3] = arguments[_key3];
+    }
+
+    return values.reduce(function (composition, value, index) {
+      composition[objectKeys[index]] = value;
+      return composition;
+    }, {});
+  });
+}
 
 /***/ }),
 /* 16 */
@@ -10244,7 +10244,7 @@ var react_1 = __webpack_require__(0);
 var PropTypes = __webpack_require__(4);
 var react_redux_1 = __webpack_require__(9);
 var recompose_1 = __webpack_require__(23);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var selectors_1 = __webpack_require__(13);
 function waitForInitialization(component) {
     var mapStateToProps = reselect_1.createStructuredSelector({
@@ -16218,7 +16218,7 @@ var recompose_1 = __webpack_require__(23);
 var SmartContainerGroup_1 = __webpack_require__(231);
 var CreateGroup_1 = __webpack_require__(215);
 var selectors_1 = __webpack_require__(13);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var enhancers_1 = __webpack_require__(69);
 var InnerContainerGroup = (function (_super) {
     __extends(InnerContainerGroup, _super);
@@ -21533,7 +21533,7 @@ module.exports = REACT_ELEMENT_TYPE;
 
 
 var ReactCurrentOwner = __webpack_require__(19);
-var ReactComponentTreeHook = __webpack_require__(15);
+var ReactComponentTreeHook = __webpack_require__(14);
 var ReactElement = __webpack_require__(28);
 
 var checkReactTypeSpec = __webpack_require__(419);
@@ -23046,7 +23046,7 @@ var Back_1 = __webpack_require__(112);
 var omit = __webpack_require__(21);
 var selectors_1 = __webpack_require__(13);
 var waitForInitialization_1 = __webpack_require__(35);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var InnerBackLink = (function (_super) {
     __extends(InnerBackLink, _super);
     function InnerBackLink() {
@@ -23147,7 +23147,7 @@ var recompose_1 = __webpack_require__(23);
 var CreateContainer_1 = __webpack_require__(214);
 var SmartContainer_1 = __webpack_require__(230);
 var selectors_1 = __webpack_require__(13);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var enhancers_1 = __webpack_require__(69);
 var InnerContainer = (function (_super) {
     __extends(InnerContainer, _super);
@@ -23242,7 +23242,7 @@ var omit = __webpack_require__(21);
 var selectors_1 = __webpack_require__(13);
 var waitForInitialization_1 = __webpack_require__(35);
 var OpenWindow_1 = __webpack_require__(113);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var Top_1 = __webpack_require__(116);
 var InnerHeaderLink = (function (_super) {
     __extends(InnerHeaderLink, _super);
@@ -23619,7 +23619,7 @@ var reducers_1 = __webpack_require__(235);
 var redux_1 = __webpack_require__(187);
 var redux_persist_1 = __webpack_require__(452);
 var selectors_1 = __webpack_require__(13);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var InnerHistoryRouter = (function (_super) {
     __extends(InnerHistoryRouter, _super);
     function InnerHistoryRouter(props) {
@@ -23754,7 +23754,7 @@ var react_redux_1 = __webpack_require__(9);
 var SmartHistoryWindow_1 = __webpack_require__(232);
 var CreateWindow_1 = __webpack_require__(216);
 var selectors_1 = __webpack_require__(13);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var InnerHistoryWindow = (function (_super) {
     __extends(InnerHistoryWindow, _super);
     function InnerHistoryWindow() {
@@ -23938,14 +23938,15 @@ var react_1 = __webpack_require__(0);
 var PropTypes = __webpack_require__(4);
 var react_redux_1 = __webpack_require__(9);
 var selectors_1 = __webpack_require__(13);
-var reselect_1 = __webpack_require__(14);
 var InnerWhenActive = function (_a) {
     var matchesCurrentUrl = _a.matchesCurrentUrl, children = _a.children;
     return (matchesCurrentUrl ? children : React.createElement("div", null));
 };
-var mapStateToProps = reselect_1.createStructuredSelector({
-    matchesCurrentUrl: selectors_1.getMatchesCurrentUrl
-});
+var mapStateToProps = function (state, ownProps) { return ({
+    matchesCurrentUrl: ownProps.containerName ?
+        selectors_1.getMatchesCurrentUrl(state, ownProps) :
+        true // if not in a container, it always matches
+}); };
 var mergeProps = function (stateProps, dispatchProps, ownProps) { return (__assign({}, stateProps, dispatchProps, ownProps)); };
 var ConnectedWhenActive = react_redux_1.connect(mapStateToProps, {}, mergeProps)(InnerWhenActive);
 var WhenActive = (function (_super) {
@@ -26025,7 +26026,7 @@ var Top_1 = __webpack_require__(116);
 var PopState_1 = __webpack_require__(114);
 var react_redux_1 = __webpack_require__(9);
 var immutable_1 = __webpack_require__(31);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var selectors_1 = __webpack_require__(13);
 var LifecycleStage;
 (function (LifecycleStage) {
@@ -26590,7 +26591,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(0);
 var react_1 = __webpack_require__(0);
 var PropTypes = __webpack_require__(4);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var react_redux_1 = __webpack_require__(9);
 var DumbContainer_1 = __webpack_require__(226);
 var exenv_1 = __webpack_require__(38);
@@ -26697,7 +26698,7 @@ var react_redux_1 = __webpack_require__(9);
 var DumbContainerGroup_1 = __webpack_require__(227);
 var SwitchToContainer_1 = __webpack_require__(37);
 var selectors_1 = __webpack_require__(13);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var makeGetActions = function () { return selectors_1.createCachingSelector(selectors_1.getGroupName, selectors_1.getDispatch, function (groupName, dispatch) { return ({
     createGroup: function (action) { return dispatch(action); },
     switchToContainerIndex: function (index) { return dispatch(new SwitchToContainer_1.default({
@@ -26776,7 +26777,7 @@ var DumbHistoryWindow_1 = __webpack_require__(229);
 var WindowActions_1 = __webpack_require__(108);
 var selectors_1 = __webpack_require__(13);
 var SwitchToContainer_1 = __webpack_require__(37);
-var reselect_1 = __webpack_require__(14);
+var reselect_1 = __webpack_require__(15);
 var makeGetActions = function () { return selectors_1.createCachingSelector(selectors_1.getContainerName, selectors_1.getDispatch, function (name, dispatch) { return ({
     switchTo: function () { return dispatch(new SwitchToContainer_1.default({ name: name })); },
     open: function () { return dispatch(new SwitchToContainer_1.default({ name: name })); },
@@ -31603,7 +31604,7 @@ module.exports = checkPropTypes;
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (immutable) */ __webpack_exports__["default"] = createCachedSelector;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
 
 
@@ -33267,7 +33268,7 @@ if (typeof process !== 'undefined' && process.env && "development" === 'test') {
   // https://github.com/facebook/react/issues/7240
   // Remove the inline requires when we don't need them anymore:
   // https://github.com/facebook/react/pull/7178
-  ReactComponentTreeHook = __webpack_require__(15);
+  ReactComponentTreeHook = __webpack_require__(14);
 }
 
 function instantiateChild(childInstances, child, name, selfDebugID) {
@@ -33275,7 +33276,7 @@ function instantiateChild(childInstances, child, name, selfDebugID) {
   var keyUnique = childInstances[name] === undefined;
   if (true) {
     if (!ReactComponentTreeHook) {
-      ReactComponentTreeHook = __webpack_require__(15);
+      ReactComponentTreeHook = __webpack_require__(14);
     }
     if (!keyUnique) {
        true ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
@@ -35932,7 +35933,7 @@ module.exports = ReactDOMInput;
 
 
 var DOMProperty = __webpack_require__(22);
-var ReactComponentTreeHook = __webpack_require__(15);
+var ReactComponentTreeHook = __webpack_require__(14);
 
 var warning = __webpack_require__(2);
 
@@ -36029,7 +36030,7 @@ module.exports = ReactDOMInvalidARIAHook;
 
 
 
-var ReactComponentTreeHook = __webpack_require__(15);
+var ReactComponentTreeHook = __webpack_require__(14);
 
 var warning = __webpack_require__(2);
 
@@ -36899,7 +36900,7 @@ module.exports = {
 
 var DOMProperty = __webpack_require__(22);
 var EventPluginRegistry = __webpack_require__(54);
-var ReactComponentTreeHook = __webpack_require__(15);
+var ReactComponentTreeHook = __webpack_require__(14);
 
 var warning = __webpack_require__(2);
 
@@ -37017,7 +37018,7 @@ module.exports = ReactDOMUnknownPropertyHook;
 
 var ReactInvalidSetStateWarningHook = __webpack_require__(348);
 var ReactHostOperationHistoryHook = __webpack_require__(346);
-var ReactComponentTreeHook = __webpack_require__(15);
+var ReactComponentTreeHook = __webpack_require__(14);
 var ExecutionEnvironment = __webpack_require__(10);
 
 var performanceNow = __webpack_require__(256);
@@ -40354,7 +40355,7 @@ if (typeof process !== 'undefined' && process.env && "development" === 'test') {
   // https://github.com/facebook/react/issues/7240
   // Remove the inline requires when we don't need them anymore:
   // https://github.com/facebook/react/pull/7178
-  ReactComponentTreeHook = __webpack_require__(15);
+  ReactComponentTreeHook = __webpack_require__(14);
 }
 
 var loggedTypeFailures = {};
@@ -40396,7 +40397,7 @@ function checkReactTypeSpec(typeSpecs, values, location, componentName, element,
 
         if (true) {
           if (!ReactComponentTreeHook) {
-            ReactComponentTreeHook = __webpack_require__(15);
+            ReactComponentTreeHook = __webpack_require__(14);
           }
           if (debugID !== null) {
             componentStackInfo = ReactComponentTreeHook.getStackAddendumByID(debugID);
@@ -40593,7 +40594,7 @@ if (typeof process !== 'undefined' && process.env && "development" === 'test') {
   // https://github.com/facebook/react/issues/7240
   // Remove the inline requires when we don't need them anymore:
   // https://github.com/facebook/react/pull/7178
-  ReactComponentTreeHook = __webpack_require__(15);
+  ReactComponentTreeHook = __webpack_require__(14);
 }
 
 /**
@@ -40609,7 +40610,7 @@ function flattenSingleChildIntoContext(traverseContext, child, name, selfDebugID
     var keyUnique = result[name] === undefined;
     if (true) {
       if (!ReactComponentTreeHook) {
-        ReactComponentTreeHook = __webpack_require__(15);
+        ReactComponentTreeHook = __webpack_require__(14);
       }
       if (!keyUnique) {
          true ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
@@ -49514,7 +49515,7 @@ if (typeof process !== 'undefined' && process.env && "development" === 'test') {
   // https://github.com/facebook/react/issues/7240
   // Remove the inline requires when we don't need them anymore:
   // https://github.com/facebook/react/pull/7178
-  ReactComponentTreeHook = __webpack_require__(15);
+  ReactComponentTreeHook = __webpack_require__(14);
 }
 
 var loggedTypeFailures = {};
@@ -49556,7 +49557,7 @@ function checkReactTypeSpec(typeSpecs, values, location, componentName, element,
 
         if (true) {
           if (!ReactComponentTreeHook) {
-            ReactComponentTreeHook = __webpack_require__(15);
+            ReactComponentTreeHook = __webpack_require__(14);
           }
           if (debugID !== null) {
             componentStackInfo = ReactComponentTreeHook.getStackAddendumByID(debugID);

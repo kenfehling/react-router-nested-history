@@ -1,9 +1,8 @@
 import * as React from 'react'
-import {Component, ReactElement, ReactNode} from 'react'
+import {Component, ReactElement} from 'react'
 import * as PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {getMatchesCurrentUrl} from '../selectors'
-import {createStructuredSelector} from 'reselect'
 import {Store} from '../../store'
 
 interface BaseProps {
@@ -12,7 +11,7 @@ interface BaseProps {
 
 type PropsWithStore = BaseProps & {
   store: Store
-  containerName: string
+  containerName?: string
 }
 
 type ConnectedProps = PropsWithStore &  {
@@ -23,8 +22,10 @@ const InnerWhenActive = ({matchesCurrentUrl, children}:ConnectedProps) => (
   matchesCurrentUrl ? children : <div />
 )
 
-const mapStateToProps = createStructuredSelector({
-  matchesCurrentUrl: getMatchesCurrentUrl
+const mapStateToProps = (state, ownProps) => ({
+  matchesCurrentUrl: ownProps.containerName ?
+      getMatchesCurrentUrl(state, ownProps) :
+      true  // if not in a container, it always matches
 })
 
 const mergeProps = (stateProps, dispatchProps,
