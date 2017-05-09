@@ -521,3 +521,11 @@ Keeps track of scrolling inside a container
         </tr>
     </tbody>
 </table>
+
+### WhenActive
+Use inside a container to only render something when the container is
+active. An example use case is with a library
+like [react-helmet](https://github.com/nfl/react-helmet).
+With several windows open Helmet can get confused over which
+title, etc. to use. Wrapping Helmet in `WhenActive` makes it only
+pay attention to the active container.
