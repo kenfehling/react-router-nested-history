@@ -23962,7 +23962,7 @@ var WhenActive = (function (_super) {
 }(react_1.Component));
 WhenActive.contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
-    containerName: PropTypes.string.isRequired
+    containerName: PropTypes.string
 };
 exports.default = WhenActive;
 

@@ -44,7 +44,7 @@ const ConnectedWhenActive = connect(
 export default class WhenActive extends Component<BaseProps, undefined> {
   static contextTypes = {
     rrnhStore: PropTypes.object.isRequired,
-    containerName: PropTypes.string.isRequired
+    containerName: PropTypes.string
   }
 
   render() {
