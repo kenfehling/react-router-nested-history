@@ -3,8 +3,6 @@ import {Component} from 'react'
 import * as PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {compose, getContext, renameProps} from 'recompose'
-import DumbContainer from './DumbContainer'
-import {renderToStaticMarkup} from 'react-dom/server'
 import CreateContainer from '../../model/actions/CreateContainer'
 import {canUseDOM} from 'fbjs/lib/ExecutionEnvironment'
 import {Store} from '../../store'
@@ -25,7 +23,6 @@ type ContainerPropsWithStore = ContainerProps & {
 
 type ConnectedContainerProps = ContainerPropsWithStore & {
   createContainer: (action:CreateContainer) => void
-  addTitle: (title:PathTitle) => any
   isInitialized: boolean
   loadedFromPersist: boolean
 }
@@ -45,12 +42,9 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
 
   initialize() {
     const {
-      store,
-      children,
       name,
       patterns,
       initialUrl,
-      animate=true,
       resetOnLeave=false,
       createContainer,
       groupName,
@@ -65,41 +59,6 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
       resetOnLeave,
       isDefault
     }))
-
-    class T extends Component<undefined, undefined> {
-      static childContextTypes = {
-        ...DumbContainer.childContextTypes,
-        rrnhStore: PropTypes.object.isRequired
-      }
-
-      getChildContext() {
-        return {
-          rrnhStore: store,
-          groupName,
-          animate,
-          containerName: name,
-          pathname: initialUrl,
-          patterns: patterns
-        }
-      }
-
-      render() {
-        return <div>{children}</div>
-      }
-    }
-
-    renderToStaticMarkup(<T />)
-    this.addTitleForPath(initialUrl)
-  }
-
-  addTitleForPath(pathname:string) {
-    const {addTitle} = this.props
-    if (canUseDOM) {
-      addTitle({
-        pathname,
-        title: document.title
-      })
-    }
   }
 
   render() {
@@ -110,8 +69,7 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
 const makeGetActions = () => createCachingSelector(
   getContainerName, getDispatch,
   (containerName, dispatch) => ({
-    createContainer: (action:CreateContainer) => dispatch(action),
-    addTitle: (title:PathTitle) => dispatch(new AddTitle(title))
+    createContainer: (action:CreateContainer) => dispatch(action)
   })
 )
 
