@@ -401,7 +401,7 @@ class State implements IState {
     if (!activeContainer) {
       throw new Error('No active container')
     }
-    return this.pushInContainer(activeContainer, {page, time, type})
+    return fn.bind(this)(activeContainer, {page, time, type})
   }
 
   private pushOrReplaceInContainer(container:string,
