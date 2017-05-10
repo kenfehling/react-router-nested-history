@@ -5,6 +5,7 @@ import {
 } from 'react-router-nested-history'
 import './Mobile.css'
 import Head from './Head'
+import SimpleRedirect from './SimpleRedirect'
 
 const regex = a => `:app(${a})`
 const toPath = name => `/mobile/${name}`
@@ -15,7 +16,7 @@ const MobilePage = ({title, children}) => (
     <div className='nav'>
       <div className='back'>
         <BackLink>
-          {({params: {app='Home', page=null}}) => (
+          {({params: {app='home', page=null}}) => (
             <div className='link'>
               <i className="fa fa-chevron-left" />
               <div className='text'>{page || app}</div>
@@ -33,7 +34,7 @@ const MobilePage = ({title, children}) => (
 )
 
 const MobileWindow = ({name, path=toPath(name), pattern=toPattern(name),
-                       children, isDefault=false}) => (
+                        children, isDefault=false}) => (
   <HistoryWindow forName={name} className='mobile-window'>
     <Container name={name}
                initialUrl={path}
@@ -53,8 +54,8 @@ const MobileWindow = ({name, path=toPath(name), pattern=toPattern(name),
 )
 
 const apps = [
-  'Email',
-  'Music'
+  'email',
+  'music'
 ]
 
 const HomeScreen = () => (
@@ -64,12 +65,13 @@ const HomeScreen = () => (
         {app}
       </HeaderLink>
     ))}
-    <Head title='Mobile: Home' />
+    <Head title='Mobile: home' />
   </div>
 )
 
 export default () => (
   <div className='mobile-example'>
+    <SimpleRedirect from='/mobile/audio' to='/mobile/music' />
     <h2>Mobile example</h2>
     <div className="description">
       <p>
@@ -83,7 +85,7 @@ export default () => (
     >
       <div className='phone'>
         <MobileWindow isDefault={true}
-                      name='Home'
+                      name='home'
                       path='/mobile'
                       pattern='/mobile'>
           <HomeScreen />
