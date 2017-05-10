@@ -24767,7 +24767,7 @@ var State = (function () {
         if (!activeContainer) {
             throw new Error('No active container');
         }
-        return this.pushInContainer(activeContainer, { page: page, time: time, type: type });
+        return fn.bind(this)(activeContainer, { page: page, time: time, type: type });
     };
     State.prototype.pushOrReplaceInContainer = function (container, _a) {
         var page = _a.page, time = _a.time, _b = _a.type, type = _b === void 0 ? PageVisit_1.VisitType.MANUAL : _b, fn = _a.fn;
