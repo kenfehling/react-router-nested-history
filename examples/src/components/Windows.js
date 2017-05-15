@@ -5,8 +5,8 @@ import {
 import './Windows.css'
 import Head from './Head'
 
-const windowName = (index:number) => 'window' + (index + 1)
-const windowUrl = (index:number) => '/windows/' + (index + 1)
+const windowName = (index) => 'window' + (index + 1)
+const windowUrl = (index) => '/windows/' + (index + 1)
 
 const WindowMaster1 = () => (
   <div className='page'>
