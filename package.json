@@ -1,6 +1,6 @@
 {
   "name": "react-router-nested-history",
-  "version": "4.0.0",
+  "version": "4.3.1",
   "description": "A library to help build React apps with nested tabs and other containers that have their own history, complete with automatic altering of the browser's back and forward history to make it behave as you would expect",
   "author": "Ken Fehling",
   "license": "MIT",
@@ -51,7 +51,7 @@
     "prop-types": "^15.5.8",
     "re-reselect": "^0.1.0",
     "react-draggable": "^2.2.3",
-    "react-motion": "^0.4.7",
+    "react-motion": "^0.5.2",
     "react-redux": "^5.0.3",
     "react-router-transition": "0.0.6",
     "recompose": "^0.22.0",
@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "@types/history": "4.5.0",
-    "@types/react": "15.0.11",
+    "@types/react": "16.6.3",
     "@types/react-dom": "^0.14.20",
     "@types/react-redux": "^4.4.36",
     "awesome-typescript-loader": "^3.0.0-beta.18",
@@ -80,11 +80,11 @@
     "expose-loader": "^0.7.3",
     "lodash-webpack-plugin": "^0.11.2",
     "mocha": "^3.2.0",
-    "react": "^15.4.2",
+    "react": "^16.6.3",
     "react-addons-perf": "^15.4.2",
-    "react-dom": "^15.4.2",
-    "react-router": "4.0.0",
-    "react-router-dom": "4.0.0",
+    "react-dom": "^16.6.3",
+    "react-router": "4.3.1",
+    "react-router-dom": "4.3.1",
     "rimraf": "^2.5.4",
     "ts-node": "^3.0.4",
     "tslint": "5.2.0",
@@ -94,7 +94,7 @@
   "peerDependencies": {
     "react": ">=15",
     "react-dom": ">=15",
-    "react-router": "4.0.0",
-    "react-router-dom": "4.0.0"
+    "react-router": "4.3.1",
+    "react-router-dom": "4.3.1"
   }
 }
