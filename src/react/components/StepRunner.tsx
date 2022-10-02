@@ -95,10 +95,10 @@ const ConnectedStepRunner = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(InnerStepRunner)
+)(InnerStepRunner as any) as any
 
 const StepRunner = ({store}:StepRunnerProps) => (
   <ConnectedStepRunner store={store} />
 )
 
-export default waitForInitialization(StepRunner as any)
+export default waitForInitialization(StepRunner as any) as any;

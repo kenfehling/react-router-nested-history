@@ -12,9 +12,11 @@ export interface DumbHistoryRouterProps {
 
 const DumbHistoryRouter = ({children, context}:DumbHistoryRouterProps) => (
   canUseDOM ?
+    // @ts-ignore
     <Router history={createBrowserHistory(this.props) as any}
             children={children}
     /> :
+    // @ts-ignore
     <StaticRouter {...this.props} children={children} context={context} />
 )
 

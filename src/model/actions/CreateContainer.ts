@@ -26,6 +26,7 @@ export default class CreateContainer extends Action {
     this.resetOnLeave = resetOnLeave
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     return state.addContainer({
       time: this.time,

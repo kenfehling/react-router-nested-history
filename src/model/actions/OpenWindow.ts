@@ -19,6 +19,7 @@ export default class OpenWindow extends Action {
     this.name = name
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     if (this.groupName && this.index) {
       return state.openWindowAtIndex({

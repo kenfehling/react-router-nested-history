@@ -11,6 +11,7 @@ export default class ClearActions extends Action {
     super({time})
   }
 
+  // @ts-ignore
   store(actions:Action[]):Action[] {
     return []
   }

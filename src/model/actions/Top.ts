@@ -16,6 +16,7 @@ export default class Top extends Action {
     this.reset = reset
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     return state.top({
       container: this.container,
@@ -24,7 +25,8 @@ export default class Top extends Action {
     })
   }
 
+  /* @ts-ignore */
   filter(state:State):Action[] {
-    return state.isContainerAtTopPage(this.container) ? [] : [this]
+    return state.isContainerAtTopPage(this.container) ? [] : [this] as Action[];
   }
 }

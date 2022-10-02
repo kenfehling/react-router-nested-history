@@ -62,6 +62,7 @@ class InnerContainer extends Component<ConnectedContainerProps, undefined> {
   }
 
   render() {
+    // @ts-ignore
     return <SmartContainer {...this.props} />
   }
 }
@@ -89,7 +90,7 @@ const Container = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(InnerContainer)
+)(InnerContainer as any)
 
 const enhance = compose(
   getContext({

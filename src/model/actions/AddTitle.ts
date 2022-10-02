@@ -16,6 +16,7 @@ export default class AddTitle extends Action {
     this.title = title
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     return state.addTitle({
       pathname: this.pathname,
@@ -23,8 +24,8 @@ export default class AddTitle extends Action {
     })
   }
 
-
+  /* @ts-ignore */
   filter(state: State): Action[] {
-    return state.hasTitleForPath(this.pathname) ? [] : [this]
+    return state.hasTitleForPath(this.pathname) ? [] : [this] as Action[]
   }
 }

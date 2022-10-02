@@ -1,4 +1,3 @@
-import * as React from 'react'
 import {ComponentClass, createElement} from 'react'
 import * as PropTypes from 'prop-types'
 import {connect} from 'react-redux'

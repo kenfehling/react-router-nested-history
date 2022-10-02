@@ -36,6 +36,7 @@ export default class SwitchToContainer extends Action {
     }
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     return state.switchToContainer({
       name: this.getContainer(state),
@@ -43,6 +44,7 @@ export default class SwitchToContainer extends Action {
     })
   }
 
+  /* @ts-ignore */
   filter(state:State) {
     const container:string = this.getContainer(state)
     return state.isContainerActiveAndEnabled(container) ? [] : [this]

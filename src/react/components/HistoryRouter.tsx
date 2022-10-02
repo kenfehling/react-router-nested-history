@@ -136,7 +136,7 @@ const ConnectedHistoryRouter = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(InnerHistoryRouter)
+)(InnerHistoryRouter as any) as any;
 
 class HistoryRouter extends Component<HistoryRouterProps, HistoryRouterState> {
   private store:Store

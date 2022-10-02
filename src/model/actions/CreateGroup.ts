@@ -32,6 +32,7 @@ export default class CreateGroup extends NonStepAction {
     this.gotoTopOnSelectActive = gotoTopOnSelectActive
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     if (this.parentGroup && this.isDefault != null) {
       return state.addSubGroup({

@@ -58,6 +58,7 @@ export default class Push extends Action {
     }
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     const page: Page = this.createPage(state)
     return this.fn(state).bind(state)({
@@ -65,25 +66,27 @@ export default class Push extends Action {
     })
   }
 
+  /* @ts-ignore */
   filter(state:State):Action[] {
     if (state.activeUrl === this.url) {
       return []
     }
     else if (this.container) {
       const data = {
-        origin: new ActionOrigin(this)
+        origin: new ActionOrigin(this as Action),
       }
       return [
+        /* @ts-ignore */
         new SwitchToContainer({
           ...data,
           time: this.time - 1,
           name: this.container
         }),
-        this
+        this as Action
       ]
     }
     else {
-      return [this]
+      return [this as Action]
     }
   }
 }

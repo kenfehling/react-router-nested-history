@@ -72,8 +72,9 @@ class Transition {
 }
 
 class PopStateTransition extends Transition {
+  /* @ts-ignore */
   getOffset(stage:LifecycleStage, action:PopState):number {
-    const offset:number = super.getOffset(stage, action)
+    const offset:number = super.getOffset(stage, action as Action)
     return action.n > 0 ? 0 - offset : offset
   }
 }
@@ -155,7 +156,7 @@ const mapStateToProps = createStructuredSelector({
   lastAction: getLastAction
 })
 
-const AnimatedPage = connect(mapStateToProps)(InnerAnimatedPage)
+const AnimatedPage = connect(mapStateToProps)(InnerAnimatedPage as any)
 
 const enhance = compose(
   getContext({

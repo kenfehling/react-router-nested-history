@@ -63,7 +63,7 @@ const makeGetActions = ():any => createCachingSelector(
 const HistoryRedirect = connect(
   () => ({}),
   makeGetActions
-)(InnerHistoryRedirect)
+)(InnerHistoryRedirect as any)
 
 const enhance = compose(
   getContext({

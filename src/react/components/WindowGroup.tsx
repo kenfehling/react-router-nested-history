@@ -50,10 +50,10 @@ type ConnectedWindowGroupProps = WindowGroupPropsWithStore &
 
 interface InnerWindowGroupState {
   width: number
-  height: number
+  height: number,
 }
 
-class InnerInnerWindowGroup extends Component<undefined, InnerWindowGroupState> {
+class InnerInnerWindowGroup extends Component<{children: ReactNode}, InnerWindowGroupState> {
   static childContextTypes = {
     windowGroupWidth: PropTypes.number.isRequired,
     windowGroupHeight: PropTypes.number.isRequired
@@ -107,6 +107,7 @@ const InnerWindowGroup = ({children, openWindow, resetWindowPositions, groupName
                            ...groupProps}:ConnectedWindowGroupProps) => (
   <ContainerGroup {...changeDefaults({...groupProps, children, name: groupName})}>
     {(props:GroupChildrenFunctionArgs) => (
+      // @ts-ignore
       <InnerInnerWindowGroup>
         {
           children instanceof Function ?
@@ -140,7 +141,7 @@ const ConnectedWindowGroup = connect(
   () => ({}),
   makeGetActions,
   mergeProps
-)(InnerWindowGroup)
+)(InnerWindowGroup) as any;
 
 export default class WindowGroup extends Component<WindowGroupProps, undefined> {
   static contextTypes = {

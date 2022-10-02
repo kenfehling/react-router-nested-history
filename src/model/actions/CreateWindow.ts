@@ -16,6 +16,7 @@ export default class CreateWindow extends Action {
     this.visible = visible
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     return state.addWindow({
       forName: this.forName,

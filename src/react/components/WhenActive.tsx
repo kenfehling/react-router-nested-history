@@ -39,7 +39,7 @@ const ConnectedWhenActive = connect(
   mapStateToProps,
   {},
   mergeProps
-)(InnerWhenActive)
+)(InnerWhenActive) as any;
 
 export default class WhenActive extends Component<BaseProps, undefined> {
   static contextTypes = {

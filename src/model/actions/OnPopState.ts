@@ -20,12 +20,13 @@ export default class OnPopState extends Action {
     this.page = page
   }
 
+  /* @ts-ignore */
   filter(state: State): Action[] {
     return [
       new PopState({      // Trigger an actual PopState action
         time: this.time,  // after computing shift amount
         n: state.getShiftAmount(this.page)
-      })
+      }) as Action
     ]
   }
 }

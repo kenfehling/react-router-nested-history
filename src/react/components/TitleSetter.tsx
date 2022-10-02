@@ -47,7 +47,7 @@ const mapStateToProps = (state:ComputedState,
   activeTitle: state.activeTitle
 })
 
-const TitleSetter = connect(mapStateToProps)(InnerTitleSetter)
+const TitleSetter = connect(mapStateToProps)(InnerTitleSetter as any) as any;
 
 export default ({store}:TitleSetterProps) => (
   <TitleSetter store={store} />

@@ -22,6 +22,7 @@ export default class PopState extends Action {
     this.n = n
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     return state.go({n: this.n, time: this.time})
   }

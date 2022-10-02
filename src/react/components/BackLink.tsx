@@ -105,7 +105,7 @@ const ConnectedBackLink = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(InnerBackLink)
+)(InnerBackLink as any) as any
 
 class BackLink extends Component<BackLinkProps, undefined> {
   static contextTypes = {

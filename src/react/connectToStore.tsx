@@ -13,8 +13,8 @@ function connectToStore<P>(component:ComponentClass<P>):ComponentClass<P> {
     ...state
   })
 
-  const WrappedComponent = (props:P) => createElement(component, props)
-  const ConnectedComponent = connect(mapStateToProps)(WrappedComponent)
+  const WrappedComponent = (props:P) => createElement(component, props as any);
+  const ConnectedComponent = connect(mapStateToProps)(WrappedComponent) as any;
 
   return class ConnectToStore extends Component<P, any> {
     static contextTypes = {

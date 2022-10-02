@@ -30,6 +30,7 @@ class InnerHistoryWindow extends Component<ConnectedWindowProps, undefined> {
   }
 
   render() {
+    // @ts-ignore
     return <SmartHistoryWindow {...this.props} />
   }
 }
@@ -57,7 +58,7 @@ const ConnectedHistoryWindow = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(InnerHistoryWindow)
+)(InnerHistoryWindow as any) as any;
 
 class HistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {

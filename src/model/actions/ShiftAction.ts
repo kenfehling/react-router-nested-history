@@ -21,6 +21,7 @@ abstract class ShiftAction extends Action {
 
   abstract fn(state:State):ShiftFunction
 
+  /* @ts-ignore */
   reduce(state:State):State {
     const fn = this.fn(state).bind(state)
     return fn({

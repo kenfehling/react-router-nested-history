@@ -14,6 +14,7 @@ export default class SwitchToGroup extends Action {
     this.name = name
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     return state.switchToGroup({
       name: this.name,
@@ -21,7 +22,8 @@ export default class SwitchToGroup extends Action {
     })
   }
 
+  /* @ts-ignore */
   filter(state:State):Action[] {
-    return state.isGroupActive(this.name) ? [] : [this]
+    return state.isGroupActive(this.name) ? [] : [this] as Action[];
   }
 }

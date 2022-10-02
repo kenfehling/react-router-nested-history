@@ -58,6 +58,7 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
   }
 
   render() {
+    /* @ts-ignore */
     return <SmartContainerGroup {...this.props} />
   }
 }
@@ -85,7 +86,7 @@ const ContainerGroup = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(InnerContainerGroup)
+)(InnerContainerGroup as any);
 
 const enhance = compose(
   getContext({

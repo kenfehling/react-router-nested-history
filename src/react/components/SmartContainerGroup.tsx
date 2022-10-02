@@ -70,7 +70,7 @@ const ConnectedContainerGroup = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(DumbContainerGroup as any)
+)(DumbContainerGroup as any) as any
 
 export default class SmartContainerGroup extends Component<ContainerGroupProps, undefined> {
   static contextTypes = {

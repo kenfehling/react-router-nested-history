@@ -121,7 +121,7 @@ const HeaderLink = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(InnerHeaderLink)
+)(InnerHeaderLink as any)
 
 const enhance = compose(
   getContext({

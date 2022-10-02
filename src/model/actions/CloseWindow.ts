@@ -13,6 +13,7 @@ export default class CloseWindow extends Action {
     this.forName = forName
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     return state.closeWindow(({forName: this.forName, time: this.time}))
   }

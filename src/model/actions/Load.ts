@@ -20,6 +20,7 @@ export default class Load extends Action {
     this.fromRefresh = fromRefresh
   }
 
+  /* @ts-ignore */
   reduce(state:State):State {
     return this.fromRefresh ? state :
         state.load({url: this.url, time: this.time})

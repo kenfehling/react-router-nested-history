@@ -88,7 +88,7 @@ const HistoryLink = connect(
   mapStateToProps,
   mapDispatchToProps,
   mergeProps
-)(InnerHistoryLink)
+)(InnerHistoryLink as any)
 
 const enhance = compose(
   getContext({

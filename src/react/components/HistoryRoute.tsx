@@ -51,6 +51,7 @@ class InnerHistoryRoute extends Component<InnerHistoryRouteProps, undefined> {
 }
 
 const HistoryRoute:any = ({component, children, render, ...props}:any, {pathname}) => (
+  // @ts-ignore
   <InnerHistoryRoute {...props} pathname={pathname} children={p => (
     <AnimatedPage {...p}>
       {p.match && r({component, children, render, match: p.match, props: p})}

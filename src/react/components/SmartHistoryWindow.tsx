@@ -64,7 +64,7 @@ const ConnectedSmartHistoryWindow = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(DumbHistoryWindow as any)
+)(DumbHistoryWindow as any) as any
 
 class SmartHistoryWindow extends Component<WindowProps, undefined> {
   static contextTypes = {

@@ -67,6 +67,7 @@ class InnerSmartContainer extends Component<ConnectedContainerProps, undefined> 
   render() {
     const {animate=true} = this.props
     const props = {...this.props, animate}
+    // @ts-ignore
     return <DumbContainer {...props} />
   }
 }
@@ -97,7 +98,7 @@ const ConnectedSmartContainer = connect(
   mapStateToProps,
   makeGetActions,
   mergeProps
-)(InnerSmartContainer)
+)(InnerSmartContainer as any) as any
 
 export default class SmartContainer extends Component<ContainerProps, undefined> {
   static contextTypes = {
