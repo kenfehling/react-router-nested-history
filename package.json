@@ -26,7 +26,7 @@
     "build:umd": "webpack --config webpack.config.development.babel.js",
     "build:umd:min": "webpack --config webpack.config.production.babel.js",
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min",
-    "build:examples": "cd examples; npm uninstall react-router-nested-history; npm install react-router-nested-history; npm run build",
+    "build:examples": "cd examples; npm uninstall react-router-nested-history; npm install kenfehling/react-router-nested-history; npm run build",
     "publish:examples": "git subtree push --prefix examples origin heroku",
     "stats": "webpack --config webpack.config.production.babel.js --profile --json > stats.json"
   },
