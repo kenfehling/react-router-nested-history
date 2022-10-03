@@ -41,7 +41,7 @@ export const getGroup = createReselector(
     if (isInitialized) {
       const group:ComputedGroup|undefined = groups.get(name)
       if (!group) {
-        console.log(`Group '${name}' not found`)
+        throw new Error(`Group '${name}' not found`)
       }
       else {
         return group

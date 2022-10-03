@@ -24,20 +24,11 @@ type ConnectedGroupProps = GroupPropsWithStore & {
 }
 
 class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
-
-  shouldComponentUpdate() {
-    return false
-  }
-
-  componentWillMount() {
-    const {loadedFromPersist, isInitialized} = this.props
-    if (!loadedFromPersist && !isInitialized) {
-      this.initialize()
-    }
-  }
-
-  initialize() {
+  constructor(props) {
+    super(props)
     const {
+      loadedFromPersist,
+      isInitialized,
       name,
       createGroup,
       resetOnLeave,
@@ -45,16 +36,21 @@ class InnerContainerGroup extends Component<ConnectedGroupProps, undefined> {
       gotoTopOnSelectActive,
       parentGroup,
       isDefault
-    } = this.props
+    } = props
+    if (!loadedFromPersist && !isInitialized) {
+      createGroup(new CreateGroup({
+        name,
+        parentGroup,
+        isDefault,
+        resetOnLeave,
+        allowInterContainerHistory,
+        gotoTopOnSelectActive
+      }))
+    }
+  }
 
-    createGroup(new CreateGroup({
-      name,
-      parentGroup,
-      isDefault,
-      resetOnLeave,
-      allowInterContainerHistory,
-      gotoTopOnSelectActive
-    }))
+  shouldComponentUpdate() {
+    return false
   }
 
   render() {

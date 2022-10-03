@@ -15,5 +15,12 @@
   "rules": {
     "prefer-arrow-callback": 2,
     "semi": [ 2, "never" ]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [ ".js", ".jsx" ]
+      }
+    }
   }
 }

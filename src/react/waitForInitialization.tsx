@@ -23,8 +23,9 @@ function waitForInitialization(component:ComponentClass<any>):ComponentClass<any
   const WrappedComponent = shouldUpdate(
     (props, nextProps) => !props.isInitialized && nextProps.isInitialized
   )(
-    ({isInitialized, ...props}:ConnectedProps) =>
-      isInitialized ? createElement(component, props) : null
+    ({isInitialized, ...props}:ConnectedProps) => {
+      return isInitialized ? createElement(component, props) : null;
+    }
   )
 
   const WaitForInitialization = connect(

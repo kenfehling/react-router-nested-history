@@ -9,7 +9,7 @@ module.exports = {
     path: path.join(__dirname, 'dist')
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.(ts|tsx)?$/,
         loader: 'awesome-typescript-loader'
@@ -23,4 +23,4 @@ module.exports = {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
   node: { Buffer: false }
-};
+}

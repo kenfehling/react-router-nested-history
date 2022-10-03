@@ -117,7 +117,6 @@ export function createStore<S extends IState, A extends Action,
     }
   }
 
-
   function getState():C {
     return {
       ...Object(storedComputedState),
